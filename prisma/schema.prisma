@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String              @id @default(cuid())
+  name          String
+  email         String              @unique
+  passwordHash  String
+  // "USER" | "ADMIN" — SQLite has no native enums
+  role          String              @default("USER")
+  // null until the user confirms their email address
+  emailVerified DateTime?
+  createdAt     DateTime            @default(now())
+  bookings      Booking[]
+  verifications VerificationToken[]
+}
+
+model VerificationToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // sha-256 of the raw token; the raw token only ever lives in the email link
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Booking {
+  id         String   @id @default(cuid())
+  ref        String   @unique
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  concern    String
+  expertId   String
+  expertName String
+  // YYYY-MM-DD and HH:mm, both IST
+  date       String
+  time       String
+  amount     Int
+  // "CONFIRMED" | "CANCELLED"
+  status     String   @default("CONFIRMED")
+  createdAt  DateTime @default(now())
+}

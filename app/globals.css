@@ -1,0 +1,265 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --ease-silk: cubic-bezier(0.22, 1, 0.36, 1);
+
+    /* the accent family, also available to inline styles and SVG fills */
+    --haldi: #f0b429;
+    --kesar: #e36a3b;
+    --gulaal: #e14d7c;
+    --jamun: #7c4d9b;
+    --neel: #4356ce;
+    --mor: #0e9fa6;
+
+    --grad-sunrise: linear-gradient(100deg, #f0b429 0%, #e36a3b 48%, #e14d7c 100%);
+    --grad-dusk: linear-gradient(100deg, #e14d7c 0%, #7c4d9b 52%, #4356ce 100%);
+    --grad-tide: linear-gradient(100deg, #0e9fa6 0%, #247261 55%, #4356ce 100%);
+    --grad-spectrum: linear-gradient(
+      90deg,
+      #f0b429,
+      #e36a3b,
+      #e14d7c,
+      #7c4d9b,
+      #4356ce,
+      #0e9fa6
+    );
+  }
+
+  html {
+    scroll-padding-top: 96px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-ivory font-sans text-ink;
+    font-size: 17px;
+    line-height: 1.75;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    @apply bg-haldi/35 text-forest-900;
+  }
+
+  :focus-visible {
+    outline: 2px solid #c8a45d;
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* film grain over everything; purely decorative */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    pointer-events: none;
+    opacity: 0.045;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+@layer components {
+  .wrap {
+    @apply mx-auto w-full max-w-6xl px-5 sm:px-8;
+  }
+
+  .wrap-wide {
+    @apply mx-auto w-full max-w-7xl px-5 sm:px-8;
+  }
+
+  .section {
+    @apply py-16 md:py-24;
+  }
+
+  /* One top offset for every page under the fixed header. The header is 84px
+     tall at rest, so this leaves a deliberate ~45px of air — not the 130px the
+     ad-hoc pt-36/pt-40/pt-44/pt-48 values were each inventing separately. */
+  .page-top {
+    @apply pt-28 md:pt-32;
+  }
+
+  .eyebrow {
+    @apply text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-forest-600;
+  }
+
+  .h-display {
+    @apply font-display font-medium leading-[1.04] tracking-tight text-forest-900;
+  }
+
+  /* underline that draws in from the left */
+  .link-draw {
+    position: relative;
+  }
+  .link-draw::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    height: 1px;
+    width: 100%;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right center;
+    transition: transform 0.45s var(--ease-silk);
+  }
+  .link-draw:hover::after,
+  .link-draw:focus-visible::after {
+    transform: scaleX(1);
+    transform-origin: left center;
+  }
+
+  .gold-rule {
+    @apply h-px w-12 bg-gold;
+  }
+
+  /* a scroll container that shows its bar rather than hiding it */
+  .rail {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(14, 59, 51, 0.35) rgba(14, 59, 51, 0.08);
+  }
+  .rail::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+  }
+  .rail::-webkit-scrollbar-track {
+    background: rgba(14, 59, 51, 0.08);
+    border-radius: 999px;
+  }
+  .rail::-webkit-scrollbar-thumb {
+    background: rgba(14, 59, 51, 0.32);
+    border-radius: 999px;
+  }
+  .rail::-webkit-scrollbar-thumb:hover {
+    background: rgba(14, 59, 51, 0.5);
+  }
+
+  .card-lift {
+    @apply transition-all duration-500 ease-silk hover:-translate-y-1.5 hover:shadow-bloom;
+  }
+
+  /* long-form article typography */
+  .prose-mm {
+    @apply mx-auto max-w-measure;
+  }
+  .prose-mm p {
+    @apply mb-7 text-[1.075rem] leading-[1.9] text-ink/85;
+  }
+  .prose-mm h2 {
+    @apply mb-5 mt-14 font-display text-3xl font-medium tracking-tight text-forest-900;
+  }
+  .prose-mm > p:first-of-type::first-letter {
+    @apply float-left mr-3 mt-1 font-display text-[3.4em] font-medium leading-[0.82] text-forest-800;
+  }
+  .prose-mm blockquote {
+    @apply my-12 border-l-2 border-gold pl-7 font-display text-2xl font-medium italic leading-snug text-forest-800 md:text-3xl;
+  }
+}
+
+@layer components {
+  /* ── colour: text ─────────────────────────────────────────────────── */
+
+  /* Gradient headlines. The background is oversized and slides, so the
+     colour inside the letters moves without the letters moving. */
+  .text-sunrise,
+  .text-dusk {
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    @apply animate-shimmer;
+  }
+  .text-sunrise {
+    background-image: var(--grad-sunrise);
+  }
+  .text-dusk {
+    background-image: var(--grad-dusk);
+  }
+
+  /* ── colour: rules & edges ────────────────────────────────────────── */
+
+  .rule-spectrum {
+    display: block;
+    height: 2px;
+    background-image: var(--grad-spectrum);
+    background-size: 220% 100%;
+    @apply animate-shimmer rounded-full;
+  }
+
+  /* a hairline of colour along the top of a card */
+  .edge-top {
+    position: relative;
+  }
+  .edge-top::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    border-radius: 999px 999px 0 0;
+    background: var(--edge, var(--grad-sunrise));
+  }
+
+  /* ── colour: surfaces ─────────────────────────────────────────────── */
+
+  /* Warm mesh for ivory sections — three coloured lights behind the page.
+     Kept to turmeric, saffron and peacock: no pink in the backdrop, so the
+     pink in the foreground stays the accent rather than the wallpaper. */
+  .mesh-warm {
+    background-image:
+      radial-gradient(ellipse 55% 45% at 12% 8%, rgba(240, 180, 41, 0.22), transparent 68%),
+      radial-gradient(ellipse 50% 40% at 88% 22%, rgba(227, 106, 59, 0.15), transparent 70%),
+      radial-gradient(ellipse 60% 50% at 50% 108%, rgba(14, 159, 166, 0.16), transparent 70%);
+  }
+
+  /* Cool mesh for forest sections — the same idea, tuned to survive on dark.
+     Plum came out magenta once blurred over green, so this is indigo,
+     peacock and a deep brand teal instead. */
+  .mesh-cool {
+    background-image:
+      radial-gradient(ellipse 50% 45% at 8% 12%, rgba(67, 86, 206, 0.30), transparent 68%),
+      radial-gradient(ellipse 45% 40% at 92% 30%, rgba(14, 159, 166, 0.26), transparent 70%),
+      radial-gradient(ellipse 55% 45% at 45% 102%, rgba(36, 114, 97, 0.30), transparent 70%);
+  }
+
+  /* Duotone wash laid over a photograph so it joins the palette. */
+  .duotone {
+    position: relative;
+    isolation: isolate;
+  }
+  .duotone::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    mix-blend-mode: soft-light;
+    background: var(--wash, var(--grad-sunrise));
+    opacity: 0.72;
+  }
+
+  /* Add the scrim only where a caption sits on the photograph — on a plain
+     image card it just darkens the bottom edge for no reason. */
+  .duotone-scrim::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: linear-gradient(to top, rgba(6, 33, 28, 0.68), transparent 58%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-breathe,
+  .animate-drift-slow,
+  .animate-pulse-soft,
+  .animate-mesh-drift,
+  .animate-shimmer,
+  .animate-bob-soft {
+    animation: none !important;
+  }
+}
