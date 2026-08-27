@@ -9,16 +9,10 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 
 /* The contexts Manu understands without needing the backstory explained.
    Pick a word, read the entry — a cultural phrasebook you flip through
-   rather than a wall of cards.
-
-   Each entry owns a colour: `c` is the vivid fill for chips, icons and
-   rules, `ink` is the darkened version that stays readable as text on
-   ivory. Six entries, six colours — the whole family, once each. */
+   rather than a wall of cards. */
 const contexts = [
   {
     deva: "परीक्षा",
-    c: "#F0B429",
-    ink: "#8A5A00",
     title: "The Marks Race",
     quote: "Kota se UPSC tak, sab pressure pata hai",
     body: "The coaching-center grind, rank-list nightmares, and parents who read report cards like horoscopes.",
@@ -33,8 +27,6 @@ const contexts = [
   },
   {
     deva: "परिवार",
-    c: "#E36A3B",
-    ink: "#9A3410",
     title: "Life in a Full House",
     quote: "Sab saath rehte hain, phir bhi koi sunta nahi",
     body: "In-law equations, privacy behind thin walls, and conversations that have to cross three generations.",
@@ -49,8 +41,6 @@ const contexts = [
   },
   {
     deva: "रिश्ता",
-    c: "#E14D7C",
-    ink: "#A82454",
     title: "The Rishta Season",
     quote: "Sahi umar nikli ja rahi hai, beta",
     body: "Biodata anxiety, compatibility doubts you can't raise at the dinner table, and the long shadow of family approval.",
@@ -63,8 +53,6 @@ const contexts = [
   },
   {
     deva: "लोग",
-    c: "#7C4D9B",
-    ink: "#5B3475",
     title: "The Neighbourhood Jury",
     quote: "Char log kya kahenge?",
     body: "The aunty whisper network, reputation arithmetic, and the guilt that comes with choosing yourself.",
@@ -78,8 +66,6 @@ const contexts = [
   },
   {
     deva: "काम",
-    c: "#4356CE",
-    ink: "#2C3A9B",
     title: "Hustle & Hierarchy",
     quote: "Boss ka message — ‘ek chhota sa call?’",
     body: "Burnout dressed up as ambition, feedback that only flows downward, and weekends that never quite arrive.",
@@ -94,8 +80,6 @@ const contexts = [
   },
   {
     deva: "उम्मीद",
-    c: "#0E9FA6",
-    ink: "#076166",
     title: "Mummy-Papa Ke Sapne",
     quote: "Humne tumhare liye kya nahi kiya…",
     body: "Career crossroads, life choices under the family microscope, and the dread of disappointing the people who gave up everything.",
@@ -115,8 +99,7 @@ export default function CulturalIntelligence() {
 
   return (
     <section className="section relative overflow-hidden bg-ivory-dark/50">
-      <div className="mesh-warm pointer-events-none absolute inset-0 opacity-80" aria-hidden="true" />
-      <div className="wrap-wide relative">
+      <div className="wrap-wide">
         <SectionHeading
           align="center"
           deva="मन"
@@ -140,28 +123,22 @@ export default function CulturalIntelligence() {
                 aria-selected={i === active}
                 aria-controls="ci-panel"
                 onClick={() => setActive(i)}
-                style={
+                className={`relative shrink-0 snap-start rounded-full border px-5 py-2.5 text-sm transition-colors duration-500 ease-silk ${
                   i === active
-                    ? { borderColor: ctx.c, color: "#FCFAF6" }
-                    : { borderColor: ctx.c + "59", color: ctx.ink }
-                }
-                className="relative shrink-0 snap-start rounded-full border px-5 py-2.5 text-sm transition-colors duration-500 ease-silk hover:-translate-y-px"
+                    ? "border-forest-800 text-ivory"
+                    : "border-sage/50 text-ink/70 hover:border-forest-800/40 hover:text-forest-800"
+                }`}
               >
                 {i === active && (
                   <motion.span
                     layoutId="ci-chip"
-                    className="absolute inset-0 rounded-full"
-                    style={{
-                      background: `linear-gradient(120deg, ${ctx.c}, ${ctx.ink})`,
-                      boxShadow: `0 10px 24px -10px ${ctx.c}`,
-                    }}
+                    className="absolute inset-0 rounded-full bg-forest-800"
                     transition={{ duration: 0.5, ease: EASE }}
                   />
                 )}
                 <span className="relative flex items-center gap-2.5">
                   <span
-                    className="font-deva text-base"
-                    style={{ color: i === active ? "#FBD871" : ctx.c }}
+                    className={`font-deva text-base ${i === active ? "text-gold" : "text-forest-700/60"}`}
                     aria-hidden="true"
                   >
                     {ctx.deva}
@@ -175,19 +152,12 @@ export default function CulturalIntelligence() {
 
         {/* the entry itself */}
         <Reveal delay={0.1}>
-          <div
-            className="relative mt-10 overflow-hidden rounded-3xl border bg-ivory-light shadow-lift transition-colors duration-500 ease-silk"
-            style={{
-              borderColor: `${c.c}3D`,
-              backgroundImage: `radial-gradient(ellipse 70% 90% at 100% 0%, ${c.c}1F, transparent 62%)`,
-            }}
-          >
+          <div className="relative mt-10 overflow-hidden rounded-3xl border border-sage/30 bg-ivory-light shadow-lift">
             {/* Devanagari watermark, re-keyed so it swells on change */}
             <AnimatePresence mode="wait">
               <motion.span
                 key={`w-${active}`}
-                className="pointer-events-none absolute -right-6 -top-10 select-none font-deva text-[9rem] leading-none md:text-[13rem]"
-                style={{ color: `${c.c}2E` }}
+                className="pointer-events-none absolute -right-6 -top-10 select-none font-deva text-[9rem] leading-none text-forest-800/[0.06] md:text-[13rem]"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 1.05 }}
@@ -210,22 +180,12 @@ export default function CulturalIntelligence() {
                 transition={{ duration: 0.4, ease: EASE }}
                 className="relative grid gap-8 p-8 md:grid-cols-[auto_minmax(0,1fr)] md:items-start md:gap-12 md:p-12"
               >
-                <span
-                  className="grid h-16 w-16 shrink-0 place-items-center rounded-full [&>svg]:h-8 [&>svg]:w-8"
-                  style={{
-                    background: `${c.c}24`,
-                    color: c.ink,
-                    boxShadow: `0 12px 28px -14px ${c.c}`,
-                  }}
-                >
+                <span className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-sage-light/60 text-forest-700 [&>svg]:h-8 [&>svg]:w-8">
                   {c.icon}
                 </span>
 
                 <div>
-                  <p
-                    className="font-display text-2xl italic leading-snug md:text-[2rem]"
-                    style={{ color: c.ink }}
-                  >
+                  <p className="font-display text-2xl italic leading-snug text-forest-600 md:text-[2rem]">
                     &ldquo;{c.quote}&rdquo;
                   </p>
                   <p className="mt-5 max-w-2xl leading-relaxed text-ink/70">{c.body}</p>
@@ -233,12 +193,7 @@ export default function CulturalIntelligence() {
                     {c.tags.map((tag) => (
                       <li
                         key={tag}
-                        className="rounded-full border px-3 py-1 text-[0.68rem] font-medium tracking-wide"
-                        style={{
-                          borderColor: `${c.c}4D`,
-                          background: `${c.c}14`,
-                          color: c.ink,
-                        }}
+                        className="rounded-full border border-sage/40 bg-ivory px-3 py-1 text-[0.68rem] font-medium tracking-wide text-ink/60"
                       >
                         {tag}
                       </li>
@@ -248,20 +203,14 @@ export default function CulturalIntelligence() {
               </motion.div>
             </AnimatePresence>
 
-            <span
-              className="absolute inset-x-0 bottom-0 h-[3px]"
-              style={{
-                background: `linear-gradient(90deg, transparent, ${c.c}, transparent)`,
-              }}
-              aria-hidden="true"
-            />
+            <span className="absolute inset-x-0 bottom-0 h-[3px] bg-gradient-to-r from-gold/0 via-gold to-gold/0" aria-hidden="true" />
           </div>
         </Reveal>
 
         <Reveal delay={0.15}>
           <p className="mt-8 text-center text-ink/60">
             …and everything in between.{" "}
-            <span className="text-dusk font-display italic">
+            <span className="font-display italic text-forest-700">
               You&rsquo;ll never have to explain why it&rsquo;s complicated.
             </span>
           </p>
