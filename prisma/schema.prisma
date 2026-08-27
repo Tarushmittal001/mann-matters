@@ -41,6 +41,8 @@ model Booking {
   concern    String
   expertId   String
   expertName String
+  // Unique while active; cleared when cancelled so the slot can be rebooked.
+  slotKey    String?  @unique
   // YYYY-MM-DD and HH:mm, both IST
   date       String
   time       String

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import Button from "@/components/ui/Button";
 import { concerns, experts, timeSlots, type ConcernId, type Expert } from "@/lib/experts";
-import { cn, formatINR } from "@/lib/utils";
+import { cn, formatINR, todayISO } from "@/lib/utils";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 const STEPS = ["Concern", "Expert", "Date & time", "Confirm"];
@@ -16,9 +16,10 @@ type Day = { iso: string; weekday: string; day: number; month: string };
 function buildDays(): Day[] {
   const fmtW = new Intl.DateTimeFormat("en-IN", { weekday: "short" });
   const fmtM = new Intl.DateTimeFormat("en-IN", { month: "short" });
+  const today = new Date(`${todayISO()}T00:00:00Z`);
   return Array.from({ length: 14 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() + 1 + i);
+    const d = new Date(today);
+    d.setUTCDate(d.getUTCDate() + 1 + i);
     return {
       iso: d.toISOString().slice(0, 10),
       weekday: fmtW.format(d),
@@ -29,11 +30,6 @@ function buildDays(): Day[] {
 }
 
 // deterministic "fully booked" pattern so the UI feels real
-function slotTaken(dayIndex: number, slot: string) {
-  const h = slot.charCodeAt(0) + slot.charCodeAt(3) + dayIndex * 7;
-  return h % 5 === 0;
-}
-
 function Stars({ rating }: { rating: number }) {
   return (
     <span className="inline-flex items-center gap-1 text-gold" aria-label={`Rated ${rating} out of 5`}>
@@ -57,9 +53,32 @@ export default function BookingFlow() {
   const [status, setStatus] = useState<"idle" | "submitting" | "done">("idle");
   const [bookingRef, setBookingRef] = useState("");
   const [submitError, setSubmitError] = useState("");
+  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
 
   // dates are generated on the client so the static page never goes stale
   useEffect(() => setDays(buildDays()), []);
+
+  useEffect(() => {
+    if (!expert || !date) {
+      setAvailableSlots([]);
+      return;
+    }
+    let cancelled = false;
+    fetch(`/api/bookings?expertId=${encodeURIComponent(expert.id)}&date=${date.iso}`)
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error("availability"))))
+      .then((data: { available?: string[] }) => {
+        if (!cancelled) {
+          setAvailableSlots(data.available ?? []);
+          setTime((current) => (current && data.available?.includes(current) ? current : null));
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setAvailableSlots(timeSlots.flatMap((group) => group.slots));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [expert, date]);
 
   const go = (next: number) => {
     setDir(next > step ? 1 : -1);
@@ -328,8 +347,7 @@ export default function BookingFlow() {
                         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink/50">{g.group}</p>
                         <div className="mt-3 flex flex-wrap gap-2.5">
                           {g.slots.map((slot) => {
-                            const dayIndex = days.findIndex((d) => d.iso === date.iso);
-                            const taken = slotTaken(dayIndex, slot);
+                            const taken = !availableSlots.includes(slot);
                             return (
                               <button
                                 key={slot}

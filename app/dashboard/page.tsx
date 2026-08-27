@@ -84,16 +84,16 @@ export default async function DashboardPage() {
   const session = await getSession();
   if (!session) redirect("/login?next=/dashboard");
 
-  const bookings = await prisma.booking.findMany({
+  const bookings: BookingRow[] = await prisma.booking.findMany({
     where: { userId: session.sub },
     orderBy: [{ date: "asc" }, { time: "asc" }],
   });
 
   const today = todayISO();
-  const upcoming = bookings.filter((b) => b.status === "CONFIRMED" && b.date > today);
+  const upcoming = bookings.filter((b: BookingRow) => b.status === "CONFIRMED" && b.date > today);
   const past = bookings
-    .filter((b) => b.status !== "CONFIRMED" || b.date <= today)
-    .sort((a, b) => (a.date < b.date ? 1 : -1));
+    .filter((b: BookingRow) => b.status !== "CONFIRMED" || b.date <= today)
+    .sort((a: BookingRow, b: BookingRow) => (a.date < b.date ? 1 : -1));
 
   return (
     <div className="page-top wrap pb-28">
@@ -143,7 +143,7 @@ export default async function DashboardPage() {
           </div>
         ) : (
           <div className="mt-5 space-y-4">
-            {upcoming.map((b) => (
+            {upcoming.map((b: BookingRow) => (
               <BookingCard key={b.id} booking={b} upcoming />
             ))}
           </div>
@@ -154,7 +154,7 @@ export default async function DashboardPage() {
         <section className="mt-14">
           <h2 className="font-display text-2xl font-medium text-forest-900">Past & cancelled</h2>
           <div className="mt-5 space-y-4">
-            {past.map((b) => (
+            {past.map((b: BookingRow) => (
               <BookingCard key={b.id} booking={b} upcoming={false} />
             ))}
           </div>

@@ -14,6 +14,26 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
+type AdminBooking = {
+  id: string;
+  ref: string;
+  expertName: string;
+  concern: string;
+  date: string;
+  time: string;
+  amount: number;
+  status: string;
+  createdAt: Date;
+};
+
+type AdminClient = {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: Date;
+  bookings: AdminBooking[];
+};
+
 export default async function AdminPage({ searchParams }: { searchParams: { q?: string } }) {
   const session = await getSession();
   if (!session) redirect("/login?next=/admin");
@@ -116,7 +136,7 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
         </div>
       ) : (
         <div className="mt-10 space-y-8">
-          {clients.map((user) => (
+          {clients.map((user: AdminClient) => (
             <section
               key={user.id}
               className="overflow-hidden rounded-2xl border border-forest-800/10 bg-ivory-light shadow-lift"
@@ -151,7 +171,7 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
                       </tr>
                     </thead>
                     <tbody>
-                      {user.bookings.map((b) => (
+                      {user.bookings.map((b: AdminBooking) => (
                         <tr key={b.id} className="border-t border-forest-800/[0.07]">
                           <td className="px-6 py-3.5 font-mono font-semibold text-forest-800">
                             {b.ref}
