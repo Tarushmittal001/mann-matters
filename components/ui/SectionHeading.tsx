@@ -31,10 +31,7 @@ export default function SectionHeading({
         )}
       >
         {deva && (
-          <span
-            className="font-deva text-sm normal-case tracking-normal text-kesar"
-            aria-hidden="true"
-          >
+          <span className="font-deva text-sm normal-case tracking-normal text-gold" aria-hidden="true">
             {deva}
           </span>
         )}
@@ -48,10 +45,6 @@ export default function SectionHeading({
       >
         {title}
       </h2>
-      <span
-        className={cn("rule-spectrum mt-5 w-20", align === "center" && "mx-auto")}
-        aria-hidden="true"
-      />
       {description && (
         <p className={cn("mt-6 text-lg leading-relaxed", dark ? "text-sage-light/80" : "text-ink/70")}>
           {description}

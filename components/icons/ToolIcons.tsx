@@ -1,9 +1,8 @@
 /**
  * Bespoke duotone emblems for the free tools — small objects from the
  * everyday Indian world of a heavy day, not stock UI glyphs. Every emblem
- * follows the same recipe: a forest line drawing on a 48px grid, a fill in
- * the emblem's own accent colour, and exactly one haldi spark of मन. The
- * line work stays forest so nine coloured objects still read as one set.
+ * follows the same recipe: a forest line drawing on a 48px grid, a soft sage
+ * gradient fill, and exactly one gold accent — the spark of मन.
  *
  * Pure SVG, server-component safe.
  */
@@ -15,8 +14,8 @@ const FOREST_DEEP = "#0E3B33";
 const SAGE = "#A8C3B5";
 const SAGE_DARK = "#86A593";
 const SAGE_LIGHT = "#D9E6DE";
-const GOLD = "#F0B429";
-const GOLD_LIGHT = "#FBD871";
+const GOLD = "#C8A45D";
+const GOLD_LIGHT = "#DCC28C";
 const IVORY = "#FCFAF6";
 
 /** The breathing orb itself, mid-exhale, with ripples of breath. */
@@ -25,9 +24,9 @@ export function BreathIcon({ size = 38, className }: IconProps) {
     <svg width={size} height={size} viewBox="0 0 48 48" fill="none" className={className} aria-hidden="true">
       <defs>
         <radialGradient id="mm-breath-orb" cx="35%" cy="30%" r="75%">
-          <stop offset="0%" stopColor="#9FE8EC" />
-          <stop offset="55%" stopColor="#4FCBD1" />
-          <stop offset="100%" stopColor="#0E9FA6" />
+          <stop offset="0%" stopColor={SAGE_LIGHT} />
+          <stop offset="55%" stopColor={SAGE} />
+          <stop offset="100%" stopColor="#247261" />
         </radialGradient>
       </defs>
       <circle cx="24" cy="24" r="13.5" stroke={FOREST} strokeWidth="1.4" opacity="0.5" pathLength="100" strokeDasharray="86 14" strokeLinecap="round" transform="rotate(24 24 24)" />
@@ -47,8 +46,8 @@ export function GroundingIcon({ size = 38, className }: IconProps) {
     <svg width={size} height={size} viewBox="0 0 48 48" fill="none" className={className} aria-hidden="true">
       <defs>
         <linearGradient id="mm-lotus-petal" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#F589AC" />
-          <stop offset="100%" stopColor="#E14D7C" />
+          <stop offset="0%" stopColor={SAGE_LIGHT} />
+          <stop offset="100%" stopColor={SAGE} />
         </linearGradient>
       </defs>
       <path d={petal} fill="url(#mm-lotus-petal)" stroke={FOREST} strokeWidth="1.2" opacity="0.5" transform="rotate(-52 24 33)" />
@@ -85,8 +84,8 @@ export function SoundsIcon({ size = 38, className }: IconProps) {
     <svg width={size} height={size} viewBox="0 0 48 48" fill="none" className={className} aria-hidden="true">
       <defs>
         <radialGradient id="mm-tanpura-gourd" cx="38%" cy="32%" r="75%">
-          <stop offset="0%" stopColor="#F79466" />
-          <stop offset="100%" stopColor="#E36A3B" />
+          <stop offset="0%" stopColor={SAGE_LIGHT} />
+          <stop offset="100%" stopColor={SAGE} />
         </radialGradient>
       </defs>
       <path d="M18.7 28 L18.7 10.2 Q18.7 8.2 20 8.2 Q21.3 8.2 21.3 10.2 L21.3 28" fill={IVORY} stroke={FOREST} strokeWidth="1.3" />
@@ -107,8 +106,8 @@ export function SleepIcon({ size = 38, className }: IconProps) {
     <svg width={size} height={size} viewBox="0 0 48 48" fill="none" className={className} aria-hidden="true">
       <defs>
         <linearGradient id="mm-moon" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#8490EC" />
-          <stop offset="100%" stopColor="#4356CE" />
+          <stop offset="0%" stopColor={SAGE_LIGHT} />
+          <stop offset="100%" stopColor={SAGE} />
         </linearGradient>
       </defs>
       <path
@@ -130,8 +129,8 @@ export function JournalIcon({ size = 38, className }: IconProps) {
     <svg width={size} height={size} viewBox="0 0 48 48" fill="none" className={className} aria-hidden="true">
       <defs>
         <linearGradient id="mm-boat-hull" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#A87DC4" />
-          <stop offset="100%" stopColor="#7C4D9B" />
+          <stop offset="0%" stopColor={SAGE_LIGHT} />
+          <stop offset="100%" stopColor={SAGE} />
         </linearGradient>
       </defs>
       <path d="M24 13 L29.8 25.5 L18.2 25.5 Z" fill={IVORY} stroke={FOREST} strokeWidth="1.3" strokeLinejoin="round" />
@@ -153,8 +152,8 @@ export function AffirmationsIcon({ size = 38, className }: IconProps) {
           <stop offset="100%" stopColor="#0A2E28" />
         </linearGradient>
         <radialGradient id="mm-diya-flame" cx="50%" cy="62%" r="70%">
-          <stop offset="0%" stopColor="#FBD871" />
-          <stop offset="100%" stopColor="#F0B429" />
+          <stop offset="0%" stopColor={GOLD_LIGHT} />
+          <stop offset="100%" stopColor={GOLD} />
         </radialGradient>
       </defs>
       <circle cx="24" cy="20.5" r="8" fill={GOLD} opacity="0.14" />
@@ -172,8 +171,8 @@ export function CheckInIcon({ size = 38, className }: IconProps) {
     <svg width={size} height={size} viewBox="0 0 48 48" fill="none" className={className} aria-hidden="true">
       <defs>
         <linearGradient id="mm-chai-cup" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#FBD871" />
-          <stop offset="100%" stopColor="#F0B429" />
+          <stop offset="0%" stopColor={SAGE_LIGHT} />
+          <stop offset="100%" stopColor={SAGE} />
         </linearGradient>
       </defs>
       <path d="M15.5 21.5 L18 35.8 Q18.3 37.5 20 37.5 L28 37.5 Q29.7 37.5 30 35.8 L32.5 21.5 Z" fill="url(#mm-chai-cup)" stroke={FOREST} strokeWidth="1.3" strokeLinejoin="round" />
@@ -191,8 +190,8 @@ export function BmiIcon({ size = 38, className }: IconProps) {
     <svg width={size} height={size} viewBox="0 0 48 48" fill="none" className={className} aria-hidden="true">
       <defs>
         <linearGradient id="mm-tarazu-pan" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#4FCBD1" />
-          <stop offset="100%" stopColor="#0E9FA6" />
+          <stop offset="0%" stopColor={SAGE_LIGHT} />
+          <stop offset="100%" stopColor={SAGE} />
         </linearGradient>
       </defs>
       <path d="M24 11 L24 15" stroke={FOREST} strokeWidth="1.5" strokeLinecap="round" />
@@ -214,8 +213,8 @@ export function MatchIcon({ size = 38, className }: IconProps) {
     <svg width={size} height={size} viewBox="0 0 48 48" fill="none" className={className} aria-hidden="true">
       <defs>
         <linearGradient id="mm-match-lens" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#A87DC4" />
-          <stop offset="100%" stopColor="#7C4D9B" />
+          <stop offset="0%" stopColor={GOLD_LIGHT} />
+          <stop offset="100%" stopColor={GOLD} />
         </linearGradient>
       </defs>
       <path d="M24 16.8 A8.5 8.5 0 0 1 24 31.2 A8.5 8.5 0 0 1 24 16.8 Z" fill="url(#mm-match-lens)" opacity="0.9" />

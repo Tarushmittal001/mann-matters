@@ -13,54 +13,30 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 
 /* ── shared card chrome ─────────────────────────────────────────────── */
 
-/* `tint` is the card's colour: it paints the top edge, the icon halo, the
-   border and the heading, so each of the three tools is recognisable at a
-   glance rather than being one of three identical cream boxes. */
 function ToolCard({
   icon,
   title,
   prompt,
   children,
   footer,
-  tint,
-  ink,
 }: {
   icon: React.ReactNode;
   title: string;
   prompt: string;
   children: React.ReactNode;
   footer: React.ReactNode;
-  tint: string;
-  ink: string;
 }) {
   return (
-    <div
-      className="edge-top card-lift flex h-full flex-col overflow-hidden rounded-2xl border bg-ivory-light p-7 shadow-lift"
-      style={{
-        borderColor: `${tint}33`,
-        backgroundImage: `radial-gradient(ellipse 90% 60% at 100% 0%, ${tint}1A, transparent 62%)`,
-        ["--edge" as string]: `linear-gradient(90deg, ${tint}, ${tint}55)`,
-      }}
-    >
+    <div className="flex h-full flex-col rounded-2xl border border-forest-800/10 bg-ivory-light p-7 shadow-lift">
       <div className="flex items-center gap-3">
-        <span
-          className="grid h-11 w-11 shrink-0 place-items-center rounded-xl"
-          style={{ background: `${tint}1F`, color: ink }}
-        >
-          {icon}
-        </span>
-        <h3 className="font-display text-[1.3rem] font-medium leading-snug" style={{ color: ink }}>
+        <span className="shrink-0">{icon}</span>
+        <h3 className="font-display text-[1.3rem] font-medium leading-snug text-forest-900">
           {title}
         </h3>
       </div>
       <p className="mt-2.5 text-[0.92rem] leading-relaxed text-ink/60">{prompt}</p>
       <div className="mt-6 flex-1">{children}</div>
-      <div
-        className="mt-6 border-t pt-4 text-sm"
-        style={{ borderColor: `${tint}2E` }}
-      >
-        {footer}
-      </div>
+      <div className="mt-6 border-t border-forest-800/10 pt-4 text-sm">{footer}</div>
     </div>
   );
 }
@@ -69,7 +45,7 @@ function CardLink({ href, children }: { href: string; children: React.ReactNode 
   return (
     <Link
       href={href}
-      className="link-draw group/link inline-flex items-center gap-1.5 font-semibold text-kesar-ink"
+      className="link-draw group/link inline-flex items-center gap-1.5 font-semibold text-gold-dark"
     >
       {children}
       <span
@@ -127,8 +103,6 @@ function BreatheCard() {
 
   return (
     <ToolCard
-      tint="#0E9FA6"
-      ink="#076166"
       icon={<BreathIcon size={26} />}
       title="Take a breath"
       prompt="Four counts in, four to hold, four out. One round is enough to slow a racing mind."
@@ -142,8 +116,7 @@ function BreatheCard() {
             className="absolute h-[104px] w-[104px] rounded-full"
             style={{
               background:
-                "radial-gradient(circle at 34% 28%, #9FE8EC, #4FCBD1 45%, #0E9FA6 78%, #4356CE 100%)",
-              boxShadow: "0 0 44px -6px rgba(14,159,166,0.55)",
+                "radial-gradient(circle at 34% 28%, #D9E6DE, #A8C3B5 55%, #247261 100%)",
             }}
             animate={{ scale }}
             transition={{ duration: reduce ? 0 : current.dur, ease: "easeInOut" }}
@@ -177,7 +150,7 @@ const moods = [
     id: "heavy",
     sub: "heavy",
     label: "Bhaari",
-    dot: "#5B3475",
+    dot: "#0A2E28",
     reply:
       "That's a lot to be carrying on your own. Saying it out loud to someone trained to listen helps more than most people expect.",
     step: { label: "Find someone to talk to", href: "/match" },
@@ -186,7 +159,7 @@ const moods = [
     id: "off",
     sub: "not quite right",
     label: "Thoda off",
-    dot: "#4356CE",
+    dot: "#13483E",
     reply:
       "Not wrong, not right — just off. Worth noticing now, while it's still small enough to name.",
     step: { label: "Take the full check-in", href: "/check-in" },
@@ -195,7 +168,7 @@ const moods = [
     id: "okay",
     sub: "getting by",
     label: "Theek-thaak",
-    dot: "#0E9FA6",
+    dot: "#247261",
     reply:
       "“Theek hoon” does a lot of heavy lifting in this country. Four questions will tell you more than it does.",
     step: { label: "Take the full check-in", href: "/check-in" },
@@ -204,7 +177,7 @@ const moods = [
     id: "light",
     sub: "lighter today",
     label: "Halka",
-    dot: "#E36A3B",
+    dot: "#86A593",
     reply:
       "Good. Calm days are the easiest time to build the habit, so it's already there on the harder ones.",
     step: { label: "Try a breathing round", href: "/breathe" },
@@ -213,7 +186,7 @@ const moods = [
     id: "good",
     sub: "genuinely good",
     label: "Achha",
-    dot: "#F0B429",
+    dot: "#A8C3B5",
     reply:
       "Lovely. Whatever you're doing right now, keep some of it — that's worth knowing about yourself.",
     step: { label: "Browse the free tools", href: "/tools" },
@@ -226,8 +199,6 @@ function MoodCard() {
 
   return (
     <ToolCard
-      tint="#F0B429"
-      ink="#8A5A00"
       icon={<CheckInIcon size={26} />}
       title="How are you, right now?"
       prompt="One tap. No score, no diagnosis — just an honest word for today."
@@ -292,16 +263,16 @@ function MoodCard() {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.35, ease: EASE }}
             >
-              <p className="mb-2 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-haldi-ink">
+              <p className="mb-2 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-forest-600">
                 {mood.label} · {mood.sub}
               </p>
-              <p className="font-display text-[0.95rem] italic leading-relaxed text-forest-800">
+              <p className="font-display text-[0.95rem] italic leading-relaxed text-forest-700">
                 {mood.reply}
               </p>
               <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
                 <Link
                   href={mood.step.href}
-                  className="rounded-full bg-haldi-ink px-5 py-2 text-xs font-semibold text-ivory transition-colors hover:bg-kesar-ink"
+                  className="rounded-full bg-forest-800 px-5 py-2 text-xs font-semibold text-ivory transition-colors hover:bg-forest-600"
                 >
                   {mood.step.label}
                 </Link>
@@ -345,8 +316,6 @@ function MatchCard() {
 
   return (
     <ToolCard
-      tint="#7C4D9B"
-      ink="#5B3475"
       icon={<MatchIcon size={26} />}
       title="Who fits you?"
       prompt="Tap what's weighing on you most. We'll show you who works on it."
@@ -366,8 +335,8 @@ function MatchCard() {
               className={
                 "rounded-full border px-3.5 py-1.5 text-[0.78rem] font-medium transition-colors duration-300 ease-silk " +
                 (pickedId === c.id
-                  ? "border-jamun bg-jamun text-ivory shadow-neel"
-                  : "border-jamun/35 text-ink/65 hover:border-jamun/70 hover:text-jamun-ink")
+                  ? "border-forest-800 bg-forest-800 text-ivory"
+                  : "border-sage/50 text-ink/65 hover:border-forest-800/40 hover:text-forest-800")
               }
             >
               {c.short}
@@ -385,7 +354,7 @@ function MatchCard() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.35, ease: EASE }}
-              className="rounded-xl border border-jamun/25 bg-jamun/[0.07] p-4"
+              className="rounded-xl border border-sage/30 bg-sage-light/25 p-4"
             >
               <p className="font-display text-2xl font-medium leading-snug text-forest-900">
                 {matches.length}{" "}
@@ -434,9 +403,8 @@ function MatchCard() {
 
 export default function ToolsSection() {
   return (
-    <section className="section relative overflow-hidden bg-sage-light/25">
-      <div className="mesh-warm pointer-events-none absolute inset-0 opacity-80" aria-hidden="true" />
-      <div className="wrap-wide relative">
+    <section className="section bg-sage-light/30">
+      <div className="wrap-wide">
         <SectionHeading
           eyebrow="free, right now"
           deva="मन"

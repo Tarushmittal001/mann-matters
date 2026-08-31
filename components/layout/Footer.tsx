@@ -24,7 +24,7 @@ export default function Footer() {
         <div className="md:col-span-5">
           <p className="flex items-baseline gap-2 font-display text-2xl font-semibold tracking-tight">
             mann Matters
-            <span className="font-deva text-base text-kesar" aria-hidden="true">
+            <span className="font-deva text-base text-gold" aria-hidden="true">
               मन
             </span>
           </p>
@@ -33,7 +33,7 @@ export default function Footer() {
             professionals — confidential, affordable, and in your language.
           </p>
           {subscribed ? (
-            <p className="mt-8 text-sm text-haldi">
+            <p className="mt-8 text-sm text-gold">
               You&apos;re in. One thoughtful letter a month — no noise, we promise.
             </p>
           ) : (
@@ -50,7 +50,7 @@ export default function Footer() {
               />
               <button
                 type="submit"
-                className="shrink-0 rounded-full bg-sunrise bg-[length:200%_100%] bg-left px-5 py-3 text-sm font-semibold text-forest-950 shadow-kesar transition-[background-position] duration-500 ease-silk hover:bg-right"
+                className="shrink-0 rounded-full bg-gold px-5 py-3 text-sm font-semibold text-forest-950 transition-colors hover:bg-gold-dark"
               >
                 Join
               </button>
@@ -110,7 +110,7 @@ export default function Footer() {
       <div className="border-t border-ivory/10">
         <div className="wrap-wide py-6">
           <p className="text-sm leading-relaxed text-sage-light/60">
-            <span className="text-haldi">In crisis?</span> Call Tele-MANAS{" "}
+            <span className="text-gold">In crisis?</span> Call Tele-MANAS{" "}
             <a href="tel:14416" className="font-semibold text-ivory underline decoration-gold/50 underline-offset-4">
               14416
             </a>{" "}

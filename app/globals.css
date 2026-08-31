@@ -8,27 +8,6 @@
     --font-sans: "Trebuchet MS", system-ui, sans-serif;
     --font-deva: "Nirmala UI", "Mangal", serif;
     --ease-silk: cubic-bezier(0.22, 1, 0.36, 1);
-
-    /* the accent family, also available to inline styles and SVG fills */
-    --haldi: #f0b429;
-    --kesar: #e36a3b;
-    --gulaal: #e14d7c;
-    --jamun: #7c4d9b;
-    --neel: #4356ce;
-    --mor: #0e9fa6;
-
-    --grad-sunrise: linear-gradient(100deg, #f0b429 0%, #e36a3b 48%, #e14d7c 100%);
-    --grad-dusk: linear-gradient(100deg, #e14d7c 0%, #7c4d9b 52%, #4356ce 100%);
-    --grad-tide: linear-gradient(100deg, #0e9fa6 0%, #247261 55%, #4356ce 100%);
-    --grad-spectrum: linear-gradient(
-      90deg,
-      #f0b429,
-      #e36a3b,
-      #e14d7c,
-      #7c4d9b,
-      #4356ce,
-      #0e9fa6
-    );
   }
 
   html {
@@ -45,7 +24,7 @@
   }
 
   ::selection {
-    @apply bg-haldi/35 text-forest-900;
+    @apply bg-gold/30 text-forest-900;
   }
 
   :focus-visible {
@@ -163,106 +142,11 @@
   }
 }
 
-@layer components {
-  /* ── colour: text ─────────────────────────────────────────────────── */
-
-  /* Gradient headlines. The background is oversized and slides, so the
-     colour inside the letters moves without the letters moving. */
-  .text-sunrise,
-  .text-dusk {
-    background-size: 220% 100%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    -webkit-text-fill-color: transparent;
-    @apply animate-shimmer;
-  }
-  .text-sunrise {
-    background-image: var(--grad-sunrise);
-  }
-  .text-dusk {
-    background-image: var(--grad-dusk);
-  }
-
-  /* ── colour: rules & edges ────────────────────────────────────────── */
-
-  .rule-spectrum {
-    display: block;
-    height: 2px;
-    background-image: var(--grad-spectrum);
-    background-size: 220% 100%;
-    @apply animate-shimmer rounded-full;
-  }
-
-  /* a hairline of colour along the top of a card */
-  .edge-top {
-    position: relative;
-  }
-  .edge-top::before {
-    content: "";
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 3px;
-    border-radius: 999px 999px 0 0;
-    background: var(--edge, var(--grad-sunrise));
-  }
-
-  /* ── colour: surfaces ─────────────────────────────────────────────── */
-
-  /* Warm mesh for ivory sections — three coloured lights behind the page.
-     Kept to turmeric, saffron and peacock: no pink in the backdrop, so the
-     pink in the foreground stays the accent rather than the wallpaper. */
-  .mesh-warm {
-    background-image:
-      radial-gradient(ellipse 55% 45% at 12% 8%, rgba(240, 180, 41, 0.22), transparent 68%),
-      radial-gradient(ellipse 50% 40% at 88% 22%, rgba(227, 106, 59, 0.15), transparent 70%),
-      radial-gradient(ellipse 60% 50% at 50% 108%, rgba(14, 159, 166, 0.16), transparent 70%);
-  }
-
-  /* Cool mesh for forest sections — the same idea, tuned to survive on dark.
-     Plum came out magenta once blurred over green, so this is indigo,
-     peacock and a deep brand teal instead. */
-  .mesh-cool {
-    background-image:
-      radial-gradient(ellipse 50% 45% at 8% 12%, rgba(67, 86, 206, 0.30), transparent 68%),
-      radial-gradient(ellipse 45% 40% at 92% 30%, rgba(14, 159, 166, 0.26), transparent 70%),
-      radial-gradient(ellipse 55% 45% at 45% 102%, rgba(36, 114, 97, 0.30), transparent 70%);
-  }
-
-  /* Duotone wash laid over a photograph so it joins the palette. */
-  .duotone {
-    position: relative;
-    isolation: isolate;
-  }
-  .duotone::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    mix-blend-mode: soft-light;
-    background: var(--wash, var(--grad-sunrise));
-    opacity: 0.72;
-  }
-
-  /* Add the scrim only where a caption sits on the photograph — on a plain
-     image card it just darkens the bottom edge for no reason. */
-  .duotone-scrim::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    background: linear-gradient(to top, rgba(6, 33, 28, 0.68), transparent 58%);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .animate-marquee,
   .animate-breathe,
   .animate-drift-slow,
-  .animate-pulse-soft,
-  .animate-mesh-drift,
-  .animate-shimmer,
-  .animate-bob-soft {
+  .animate-pulse-soft {
     animation: none !important;
   }
 }
