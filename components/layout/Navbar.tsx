@@ -190,7 +190,7 @@ export default function Navbar() {
                 mann Matters
               </span>
               <span
-                className="font-deva text-sm text-kesar transition-opacity duration-300 group-hover:opacity-100 xl:opacity-60"
+                className="font-deva text-sm text-gold transition-opacity duration-300 group-hover:opacity-100 xl:opacity-60"
                 aria-hidden="true"
               >
                 मन
@@ -243,7 +243,7 @@ export default function Navbar() {
 
             <Link
               href="/book"
-              className="shrink-0 whitespace-nowrap rounded-full bg-sunrise bg-[length:200%_100%] bg-left px-5 py-2.5 text-[0.86rem] font-semibold text-forest-950 shadow-kesar transition-[background-position,box-shadow] duration-500 ease-silk hover:bg-right"
+              className="shrink-0 whitespace-nowrap rounded-full bg-gold px-5 py-2.5 text-[0.86rem] font-semibold text-forest-950 transition-all duration-300 ease-silk hover:bg-gold-dark hover:shadow-lift"
             >
               Book a session
             </Link>
@@ -281,7 +281,7 @@ export default function Navbar() {
             transition={{ duration: 0.4, ease: EASE }}
           >
             <p className="eyebrow mb-8 text-sage" aria-hidden="true">
-              <span className="font-deva normal-case tracking-normal text-kesar">मन</span> · menu
+              <span className="font-deva normal-case tracking-normal text-gold">मन</span> · menu
             </p>
             <nav className="flex flex-col gap-2" aria-label="Mobile">
               {[
@@ -301,8 +301,8 @@ export default function Navbar() {
                     <Link
                       href={l.href}
                       className={cn(
-                        "font-display text-[2rem] font-medium leading-[1.4] text-ivory transition-colors hover:text-haldi sm:text-4xl",
-                        l.href === "/book" && "text-haldi",
+                        "font-display text-[2rem] font-medium leading-[1.4] text-ivory transition-colors hover:text-gold sm:text-4xl",
+                        l.href === "/book" && "text-gold",
                         l.href.startsWith("/crisis") && "text-red-400 hover:text-red-300"
                       )}
                     >
@@ -326,7 +326,7 @@ export default function Navbar() {
                   <Link
                     key={t.href}
                     href={t.href}
-                    className="font-display text-lg font-medium text-sage-light/90 transition-colors hover:text-haldi"
+                    className="font-display text-lg font-medium text-sage-light/90 transition-colors hover:text-gold"
                   >
                     {t.label}
                   </Link>
