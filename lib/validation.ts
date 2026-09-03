@@ -16,6 +16,7 @@ export const PHONE_LOCAL_RE = /^[6-9]\d{9}$/;
 
 export const PASSWORD_MIN = 8;
 export const PASSWORD_MAX = 200;
+export const OTP_LENGTH = 6;
 export const NAME_MIN = 2;
 export const NAME_MAX = 80;
 export const NOTES_MAX = 500;
@@ -56,6 +57,16 @@ export function validatePhone(raw: string): string | null {
     return "Enter a 10-digit Indian mobile number.";
   }
   return null;
+}
+
+export function validateRequiredPhone(raw: string): string | null {
+  return validatePhone(raw) ?? (raw.trim() ? null : "Enter your mobile number.");
+}
+
+export function validateOtp(raw: string): string | null {
+  return new RegExp(`^\\d{${OTP_LENGTH}}$`).test(raw.trim())
+    ? null
+    : `Enter the ${OTP_LENGTH}-digit code.`;
 }
 
 /** Strip punctuation and any leading country code, leaving the 10-digit local part. */

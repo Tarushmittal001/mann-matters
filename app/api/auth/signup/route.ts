@@ -37,7 +37,7 @@ export async function POST(req: Request) {
       // people who already have an account being unable to work out why signup
       // "worked" but login doesn't. The message points at the recovery path.
       return errors.validation(
-        { email: "An account with this email already exists. Try logging in." },
+        { email: "An account with this email already exists. Try signing in." },
         "An account with this email already exists."
       );
     }

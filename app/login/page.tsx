@@ -3,8 +3,8 @@ import { Suspense } from "react";
 import AuthForm from "@/components/auth/AuthForm";
 
 export const metadata: Metadata = {
-  title: "Log in",
-  description: "Log in to your Emoraa account to manage your therapy sessions.",
+  title: "Sign in",
+  description: "Sign in to your Emoraa account to manage your therapy sessions.",
 };
 
 export default function LoginPage() {

@@ -27,6 +27,8 @@ export type Limit = { limit: number; windowMs: number };
 
 export const LIMITS = {
   login: { limit: 8, windowMs: 10 * 60_000 },
+  otpRequest: { limit: 5, windowMs: 10 * 60_000 },
+  otpVerify: { limit: 10, windowMs: 10 * 60_000 },
   signup: { limit: 5, windowMs: 60 * 60_000 },
   resend: { limit: 4, windowMs: 60 * 60_000 },
   verify: { limit: 12, windowMs: 10 * 60_000 },

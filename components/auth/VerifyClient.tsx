@@ -76,13 +76,13 @@ export default function VerifyClient() {
         <>
           <h1 className="h-display text-3xl">This link didn&apos;t work.</h1>
           <p className="mt-4 text-ink/65">
-            It may have expired or already been used. Log in to request a fresh confirmation email.
+            It may have expired or already been used. Sign in to request a fresh confirmation email.
           </p>
           <Link
             href="/login"
             className="mt-8 inline-block rounded-full bg-forest-800 px-7 py-3 text-sm font-semibold text-ivory transition-colors hover:bg-forest-700"
           >
-            Go to log in
+            Go to sign in
           </Link>
         </>
       )}

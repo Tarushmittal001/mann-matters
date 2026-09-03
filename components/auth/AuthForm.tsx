@@ -8,12 +8,15 @@ import Button from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { Alert, CrisisLine, Spinner } from "@/components/ui/Feedback";
 import {
+  OTP_LENGTH,
   PASSWORD_MIN,
   collect,
   hasErrors,
   validateEmail,
   validateName,
+  validateOtp,
   validatePassword,
+  validateRequiredPhone,
 } from "@/lib/validation";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -37,6 +40,11 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [signInMethod, setSignInMethod] = useState<"email" | "phone">("email");
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [otpRequested, setOtpRequested] = useState(false);
+  const [devOtp, setDevOtp] = useState<string | null>(null);
 
   const [fields, setFields] = useState<Record<string, string>>({});
   const [error, setError] = useState("");
@@ -53,6 +61,21 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [emailSent, setEmailSent] = useState(true);
 
   const isLogin = mode === "login";
+
+  const finishSignIn = (role?: string) => {
+    const destination = next === "/dashboard" ? ROLE_HOME[role ?? ""] ?? next : next;
+    router.push(destination);
+    router.refresh();
+  };
+
+  const selectSignInMethod = (method: "email" | "phone") => {
+    setSignInMethod(method);
+    setFields({});
+    setError("");
+    setOtp("");
+    setOtpRequested(false);
+    setDevOtp(null);
+  };
 
   const resend = async (target: string) => {
     setResendNote("Sending…");
@@ -74,8 +97,72 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
     }
   };
 
+  const requestPhoneOtp = async () => {
+    setSubmitting(true);
+    setError("");
+    setFields({});
+    try {
+      const response = await fetch("/api/auth/phone/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        if (response.status === 422 && data.fields) setFields(data.fields);
+        setError(data.error ?? "Something went wrong. Please try again.");
+        return;
+      }
+      setOtp("");
+      setOtpRequested(true);
+      setDevOtp(data.devCode ?? null);
+    } catch {
+      setError("Couldn't reach the server. Please check your connection and try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
+    if (isLogin && signInMethod === "phone") {
+      const local = collect([
+        ["phone", validateRequiredPhone(phone)],
+        ...(otpRequested ? ([['code', validateOtp(otp)]] as [string, string | null][]) : []),
+      ]);
+      setFields(local);
+      if (hasErrors(local)) return;
+
+      if (!otpRequested) {
+        await requestPhoneOtp();
+        return;
+      }
+
+      setSubmitting(true);
+      setError("");
+      try {
+        const response = await fetch("/api/auth/phone/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone, code: otp }),
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          if (response.status === 422 && data.fields) setFields(data.fields);
+          setError(data.error ?? "Something went wrong. Please try again.");
+          setSubmitting(false);
+          return;
+        }
+
+        setOtp("");
+        finishSignIn(data.user?.role);
+      } catch {
+        setError("Couldn't reach the server. Please check your connection and try again.");
+        setSubmitting(false);
+      }
+      return;
+    }
 
     const local = collect([
       ...(isLogin ? [] : ([["name", validateName(name)]] as [string, string | null][])),
@@ -122,10 +209,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
       setPassword("");
       // an explicit ?next= wins; otherwise send them to their own portal
-      const dest =
-        next === "/dashboard" ? ROLE_HOME[data.user?.role ?? ""] ?? next : next;
-      router.push(dest);
-      router.refresh();
+      finishSignIn(data.user?.role);
     } catch {
       setError("Couldn't reach the server. Please check your connection and try again.");
       setSubmitting(false);
@@ -198,7 +282,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                 Resend email
               </button>
               <Link href="/login" className="link-draw text-sm font-medium text-forest-800">
-                Back to log in
+                Back to sign in
               </Link>
             </div>
             {resendNote && (
@@ -228,11 +312,37 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
             </h1>
             <p className="mt-4 text-ink/65">
               {isLogin
-                ? "Log in to manage your sessions and pick up where you left off."
+                ? signInMethod === "email"
+                  ? "Use your email and password to manage your sessions."
+                  : "We'll text a one-time code to the phone linked to your account."
                 : "One account for booking sessions, tracking them, and moving them when life happens."}
             </p>
 
-            <form onSubmit={onSubmit} className="mt-9 space-y-4" noValidate>
+            {isLogin && (
+              <div
+                className="mt-7 grid grid-cols-2 rounded-xl bg-forest-800/[0.06] p-1"
+                role="group"
+                aria-label="Choose how to sign in"
+              >
+                {(["email", "phone"] as const).map((method) => (
+                  <button
+                    key={method}
+                    type="button"
+                    onClick={() => selectSignInMethod(method)}
+                    aria-pressed={signInMethod === method}
+                    className={`min-h-11 rounded-lg px-4 text-sm font-semibold transition-colors ${
+                      signInMethod === method
+                        ? "bg-ivory-light text-forest-900 shadow-lift"
+                        : "text-ink/55 hover:text-forest-900"
+                    }`}
+                  >
+                    {method === "email" ? "Email" : "Phone"}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <form onSubmit={onSubmit} className={isLogin ? "mt-6 space-y-4" : "mt-9 space-y-4"} noValidate>
               {!isLogin && (
                 <Field
                   label="Your name"
@@ -246,35 +356,74 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                 />
               )}
 
-              <Field
-                label="Email"
-                required
-                type="email"
-                inputMode="email"
-                value={email}
-                onChange={setEmail}
-                autoComplete="email"
-                disabled={submitting}
-                error={fields.email}
-                placeholder="you@example.com"
-              />
+              {isLogin && signInMethod === "phone" ? (
+                <>
+                  <Field
+                    label="Mobile number"
+                    required
+                    type="tel"
+                    inputMode="tel"
+                    value={phone}
+                    onChange={setPhone}
+                    autoComplete="tel"
+                    disabled={submitting || otpRequested}
+                    error={fields.phone}
+                    placeholder="98765 43210"
+                    hint={otpRequested ? "The code expires in 5 minutes." : "Indian mobile numbers only."}
+                  />
+                  {otpRequested && (
+                    <Field
+                      label="One-time code"
+                      required
+                      inputMode="numeric"
+                      value={otp}
+                      onChange={(value) => setOtp(value.replace(/\D/g, "").slice(0, OTP_LENGTH))}
+                      autoComplete="one-time-code"
+                      disabled={submitting}
+                      error={fields.code}
+                      placeholder={`${OTP_LENGTH}-digit code`}
+                    />
+                  )}
+                  {devOtp && (
+                    <Alert tone="warning">
+                      Development code: <strong className="font-mono">{devOtp}</strong>. Configure
+                      Twilio environment variables to send it by SMS.
+                    </Alert>
+                  )}
+                </>
+              ) : (
+                <>
+                  <Field
+                    label="Email"
+                    required
+                    type="email"
+                    inputMode="email"
+                    value={email}
+                    onChange={setEmail}
+                    autoComplete="email"
+                    disabled={submitting}
+                    error={fields.email}
+                    placeholder="you@example.com"
+                  />
 
-              <Field
-                label="Password"
-                required
-                type="password"
-                value={password}
-                onChange={setPassword}
-                autoComplete={isLogin ? "current-password" : "new-password"}
-                disabled={submitting}
-                error={fields.password}
-                placeholder={isLogin ? "Your password" : `At least ${PASSWORD_MIN} characters`}
-                hint={
-                  isLogin
-                    ? undefined
-                    : "A phrase you'll remember beats a word you won't. Length matters more than symbols."
-                }
-              />
+                  <Field
+                    label="Password"
+                    required
+                    type="password"
+                    value={password}
+                    onChange={setPassword}
+                    autoComplete={isLogin ? "current-password" : "new-password"}
+                    disabled={submitting}
+                    error={fields.password}
+                    placeholder={isLogin ? "Your password" : `At least ${PASSWORD_MIN} characters`}
+                    hint={
+                      isLogin
+                        ? undefined
+                        : "A phrase you'll remember beats a word you won't. Length matters more than symbols."
+                    }
+                  />
+                </>
+              )}
 
               {error && (
                 <Alert tone="error">
@@ -295,14 +444,52 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
               <div className="pt-1">
                 <Button type="submit" variant="forest" className="w-full" disabled={submitting}>
                   {submitting ? (
-                    <Spinner label={isLogin ? "Logging in…" : "Creating your account…"} />
+                    <Spinner
+                      label={
+                        isLogin && signInMethod === "phone"
+                          ? otpRequested
+                            ? "Checking code…"
+                            : "Sending code…"
+                          : isLogin
+                            ? "Signing in…"
+                            : "Creating your account…"
+                      }
+                    />
+                  ) : isLogin && signInMethod === "phone" ? (
+                    otpRequested ? "Verify and sign in" : "Send one-time code"
                   ) : isLogin ? (
-                    "Log in"
+                    "Sign in"
                   ) : (
                     "Create account"
                   )}
                 </Button>
               </div>
+
+              {isLogin && signInMethod === "phone" && otpRequested && (
+                <div className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm">
+                  <button
+                    type="button"
+                    onClick={requestPhoneOtp}
+                    disabled={submitting}
+                    className="font-medium text-forest-800 underline underline-offset-4"
+                  >
+                    Change number
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOtpRequested(false);
+                      setOtp("");
+                      setDevOtp(null);
+                      setFields({});
+                      setError("");
+                    }}
+                    className="font-medium text-forest-800 underline underline-offset-4"
+                  >
+                    Resend code
+                  </button>
+                </div>
+              )}
             </form>
 
             <p className="mt-7 text-sm text-ink/60">
@@ -323,7 +510,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                     href={`/login${rawNext ? `?next=${encodeURIComponent(next)}` : ""}`}
                     className="link-draw font-medium text-forest-800"
                   >
-                    Log in
+                    Sign in
                   </Link>
                 </>
               )}
