@@ -326,7 +326,7 @@ export const posts: Post[] = [
     content: [
       {
         type: "p",
-        text: "First, the part nobody says clearly: if you're an adult, you don't need permission. Therapy at mann Matters is confidential, you can pay for it yourself, and 'my parents wouldn't understand' is a reason to plan the conversation carefully — not a reason to deny yourself help. Plenty of our clients tell their families months later, or never. That's a legitimate choice, not a betrayal.",
+        text: "First, the part nobody says clearly: if you're an adult, you don't need permission. Therapy at Emoraa is confidential, you can pay for it yourself, and 'my parents wouldn't understand' is a reason to plan the conversation carefully — not a reason to deny yourself help. Plenty of our clients tell their families months later, or never. That's a legitimate choice, not a betrayal.",
       },
       {
         type: "p",

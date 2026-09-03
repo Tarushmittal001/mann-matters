@@ -6,11 +6,12 @@ import Accordion from "@/components/ui/Accordion";
 import CTABand from "@/components/sections/CTABand";
 import { cn } from "@/lib/utils";
 import type { Faq } from "@/lib/faqs";
+import IndiaOutline from "@/components/visuals/IndiaOutline";
 
 export const metadata: Metadata = {
   title: "Made in India — Built for Indian minds",
   description:
-    "mann Matters is built in India, for India: your data stays on Indian servers under the DPDP Act 2023, therapy in your language, and Tele-MANAS 14416 crisis support built in.",
+    "Emoraa is built in India, for India: your data stays on Indian servers under the DPDP Act 2023, therapy in your language, and Tele-MANAS 14416 crisis support built in.",
 };
 
 const pillars = [
@@ -76,7 +77,7 @@ const compareRows: { label: string; mm: boolean | string; intl: boolean | string
 
 const faqs: Faq[] = [
   {
-    q: "Is mann Matters affiliated with the government?",
+    q: "Is Emoraa affiliated with the government?",
     a: "No — we're an independent Indian mental-health service. We're not run by, or formally tied to, any government body. Where we do connect is crisis support: when there's serious risk, we point you straight to Tele-MANAS 14416, the Government of India's free national helpline, because in an emergency that's the fastest, most reliable line of help.",
   },
   {
@@ -117,15 +118,41 @@ export default function MadeInIndiaPage() {
     <main>
       {/* Hero */}
       <section className="page-top relative overflow-hidden pb-16">
+      {/* an outline map of India, tracing itself — click to redraw */}
+      <div
+        className="pointer-events-none absolute inset-y-0 right-0 hidden w-[46%] md:block"
+        aria-hidden="true"
+      >
         <div
-          className="absolute inset-0"
+          className="pointer-events-auto h-full w-full opacity-[0.95]"
+          style={{
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent 0%, black 16%, black 100%)",
+            maskImage:
+              "linear-gradient(to right, transparent 0%, black 16%, black 100%)",
+          }}
+        >
+          <IndiaOutline />
+        </div>
+      </div>
+      {/* scrim keeps the headline legible where it meets the canvas */}
+      <div
+        className="pointer-events-none absolute inset-y-0 left-0 z-[5] hidden w-[58%] md:block"
+        aria-hidden="true"
+        style={{
+          background:
+            "linear-gradient(90deg, #F7F4EE 0%, #F7F4EE 40%, #F7F4EEd9 62%, #F7F4EE00 100%)",
+        }}
+      />
+        <div
+          className="pointer-events-none absolute inset-0"
           aria-hidden="true"
           style={{
             background:
               "radial-gradient(ellipse 55% 45% at 80% 20%, rgba(168,195,181,0.30), transparent 70%), radial-gradient(ellipse 40% 40% at 10% 90%, rgba(200,164,93,0.12), transparent 70%)",
           }}
         />
-        <div className="wrap-wide relative z-10">
+        <div className="wrap-wide pointer-events-none relative z-10">
           <Reveal>
             <p className="eyebrow mb-5 flex items-center gap-2.5">
               <span aria-hidden="true">🇮🇳</span>
@@ -136,12 +163,12 @@ export default function MadeInIndiaPage() {
               <em className="text-forest-600">built for you.</em>
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-relaxed text-ink/75 md:text-xl">
-              Not a Western app with a Hindi button bolted on. mann Matters is
+              Not a Western app with a Hindi button bolted on. Emoraa is
               made here — your data on Indian soil, your therapist fluent in your
               world, your crisis line one tap away. This is what India-first care
               actually looks like.
             </p>
-            <div className="mt-10 flex flex-wrap gap-4">
+            <div className="pointer-events-auto mt-10 flex flex-wrap gap-4">
               <Link
                 href="/book"
                 className="rounded-full bg-gold px-7 py-3.5 text-[0.95rem] font-semibold text-forest-950 transition-colors duration-300 hover:bg-gold-dark"
@@ -199,7 +226,7 @@ export default function MadeInIndiaPage() {
             eyebrow="india-first, by design"
             deva="मन"
             title="Four ways that being made here changes the care"
-            description="Not marketing. These are concrete decisions baked into how mann Matters is built."
+            description="Not marketing. These are concrete decisions baked into how Emoraa is built."
           />
           <div className="grid gap-5 sm:grid-cols-2">
             {pillars.map((p, i) => (
@@ -261,19 +288,19 @@ export default function MadeInIndiaPage() {
               <span className="font-deva text-sm normal-case tracking-normal text-gold" aria-hidden="true">मन</span>
               side by side
             </p>
-            <h2 className="h-display text-4xl md:text-5xl">mann Matters vs. an international app</h2>
+            <h2 className="h-display text-4xl md:text-5xl">Emoraa vs. an international app</h2>
           </Reveal>
           <Reveal delay={0.1}>
             <div className="overflow-x-auto rounded-3xl border border-forest-800/10 bg-ivory-light shadow-lift">
               <table className="w-full min-w-[560px] text-left text-[0.95rem]">
                 <caption className="sr-only">
-                  Comparison of mann Matters with international mental-health apps
+                  Comparison of Emoraa with international mental-health apps
                 </caption>
                 <thead>
                   <tr>
                     <th scope="col" className="px-7 py-6 font-medium text-ink/50">What you get</th>
                     <th scope="col" className="px-5 py-6 text-center font-display text-lg font-medium text-forest-900">
-                      mann Matters
+                      Emoraa
                     </th>
                     <th scope="col" className="px-5 py-6 text-center font-display text-lg font-medium text-ink/60">
                       International apps

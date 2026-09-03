@@ -23,7 +23,7 @@ export function BreathIcon({ size = 38, className }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" fill="none" className={className} aria-hidden="true">
       <defs>
-        <radialGradient id="mm-breath-orb" cx="35%" cy="30%" r="75%">
+        <radialGradient id="emoraa-breath-orb" cx="35%" cy="30%" r="75%">
           <stop offset="0%" stopColor={SAGE_LIGHT} />
           <stop offset="55%" stopColor={SAGE} />
           <stop offset="100%" stopColor="#247261" />
@@ -32,7 +32,7 @@ export function BreathIcon({ size = 38, className }: IconProps) {
       <circle cx="24" cy="24" r="13.5" stroke={FOREST} strokeWidth="1.4" opacity="0.5" pathLength="100" strokeDasharray="86 14" strokeLinecap="round" transform="rotate(24 24 24)" />
       <circle cx="24" cy="24" r="18" stroke={FOREST} strokeWidth="1.3" opacity="0.28" pathLength="100" strokeDasharray="78 22" strokeLinecap="round" transform="rotate(150 24 24)" />
       <circle cx="24" cy="24" r="22" stroke={FOREST} strokeWidth="1.2" opacity="0.14" pathLength="100" strokeDasharray="70 30" strokeLinecap="round" transform="rotate(266 24 24)" />
-      <circle cx="24" cy="24" r="8.2" fill="url(#mm-breath-orb)" />
+      <circle cx="24" cy="24" r="8.2" fill="url(#emoraa-breath-orb)" />
       <circle cx="32.7" cy="13.7" r="2" fill={GOLD} />
     </svg>
   );

@@ -5,8 +5,11 @@ import Button from "@/components/ui/Button";
 import FloatingOrbs from "@/components/ui/FloatingOrbs";
 import Reveal from "@/components/ui/Reveal";
 import SectionHeading from "@/components/ui/SectionHeading";
-import { orgFaqs, pillars, segments, steps } from "@/lib/organisations";
+import SegmentGrid from "@/components/organisations/SegmentGrid";
+import PackCta from "@/components/organisations/PackCta";
+import { orgFaqs, pillars, steps } from "@/lib/organisations";
 import { site } from "@/lib/site";
+import NodeBuilding from "@/components/visuals/NodeBuilding";
 
 export const metadata: Metadata = {
   title: "For schools, colleges & companies",
@@ -14,23 +17,39 @@ export const metadata: Metadata = {
     "Mental-health programs for Indian institutions — play schools, schools, colleges, coaching institutes, companies and NGOs. RCI-licensed psychologists, WhatsApp-first access, gatekeeper training, and a crisis protocol in writing.",
 };
 
-const enquiry =
-  "mailto:" +
-  site.email +
-  "?subject=" +
-  encodeURIComponent("Program enquiry — [your institution]") +
-  "&body=" +
-  encodeURIComponent(
-    "Institution:\nType (school / college / institute / company / NGO):\nApproximate headcount:\nWhat's prompting this:\nBest number to reach you on:"
-  );
-
 export default function ForOrganisationsPage() {
   return (
     <>
       {/* ── hero ─────────────────────────────────────────────────── */}
       <section className="page-top relative overflow-hidden pb-20 md:pb-28">
+      {/* the institution as a structural frame — click any joint and load spreads through it */}
+      <div
+        className="pointer-events-none absolute inset-y-0 right-0 hidden w-[46%] md:block"
+        aria-hidden="true"
+      >
+        <div
+          className="pointer-events-auto h-full w-full opacity-[0.9]"
+          style={{
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent 0%, black 34%, black 100%)",
+            maskImage:
+              "linear-gradient(to right, transparent 0%, black 34%, black 100%)",
+          }}
+        >
+          <NodeBuilding />
+        </div>
+      </div>
+      {/* scrim keeps the headline legible where it meets the canvas */}
+      <div
+        className="pointer-events-none absolute inset-y-0 left-0 z-[5] hidden w-[58%] md:block"
+        aria-hidden="true"
+        style={{
+          background:
+            "linear-gradient(90deg, #F7F4EE 0%, #F7F4EE 40%, #F7F4EEd9 62%, #F7F4EE00 100%)",
+        }}
+      />
         <FloatingOrbs />
-        <div className="wrap-wide relative z-10">
+        <div className="wrap-wide pointer-events-none relative z-10">
           <Reveal>
             <p className="eyebrow mb-5 flex items-center gap-3">
               <span className="font-deva text-sm normal-case tracking-normal text-gold" aria-hidden="true">
@@ -51,10 +70,8 @@ export default function ForOrganisationsPage() {
               people will actually use, the training for the adults around them,
               and the crisis protocol you hope never to need.
             </p>
-            <div className="mt-10 flex flex-wrap items-center gap-4">
-              <Button href={enquiry} external variant="gold">
-                Start a conversation
-              </Button>
+            <div className="pointer-events-auto mt-10 flex flex-wrap items-center gap-4">
+              <PackCta variant="gold">Build your pack</PackCta>
               <Button href={site.whatsapp} external variant="outline">
                 Ask on WhatsApp
               </Button>
@@ -109,42 +126,7 @@ export default function ForOrganisationsPage() {
             description="A play school and a UPSC coaching institute share almost nothing except the need. Programs are scoped to what is actually happening in your building."
           />
 
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {segments.map((s, i) => (
-              <Reveal key={s.id} delay={0.06 * (i % 3)} className="h-full">
-                <article className="card-lift group relative flex h-full flex-col overflow-hidden rounded-2xl border border-forest-800/10 bg-ivory-light p-7 shadow-lift">
-                  <span
-                    className="pointer-events-none absolute -right-3 -top-4 select-none font-deva text-[3.4rem] leading-none text-forest-800/[0.06] transition-colors duration-500 group-hover:text-forest-800/[0.11]"
-                    aria-hidden="true"
-                  >
-                    {s.deva}
-                  </span>
-
-                  <h3 className="pr-16 font-display text-xl font-medium leading-snug text-forest-900">
-                    {s.name}
-                  </h3>
-                  <p className="mt-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-gold-dark">
-                    {s.who}
-                  </p>
-                  <p className="mt-4 text-[0.93rem] leading-relaxed text-ink/70">{s.pressure}</p>
-
-                  <ul className="mt-auto space-y-2.5 pt-6">
-                    {s.offering.map((o) => (
-                      <li key={o} className="flex gap-3 text-[0.88rem] leading-relaxed text-ink/65">
-                        <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-gold" aria-hidden="true" />
-                        {o}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <span
-                    className="absolute inset-x-0 bottom-0 h-[3px] w-0 bg-gold transition-all duration-700 ease-silk group-hover:w-full"
-                    aria-hidden="true"
-                  />
-                </article>
-              </Reveal>
-            ))}
-          </div>
+          <SegmentGrid />
         </div>
       </section>
 
@@ -238,9 +220,7 @@ export default function ForOrganisationsPage() {
               or an honest note saying we&apos;re not the right fit.
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
-              <Button href={enquiry} external variant="gold">
-                Email an enquiry
-              </Button>
+              <PackCta variant="gold">Build your pack</PackCta>
               <Button href="/contact" variant="outline-light">
                 Use the contact form
               </Button>
