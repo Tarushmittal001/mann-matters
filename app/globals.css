@@ -4,6 +4,9 @@
 
 @layer base {
   :root {
+    --font-display: Georgia, "Times New Roman", serif;
+    --font-sans: "Trebuchet MS", system-ui, sans-serif;
+    --font-deva: "Nirmala UI", "Mangal", serif;
     --ease-silk: cubic-bezier(0.22, 1, 0.36, 1);
   }
 

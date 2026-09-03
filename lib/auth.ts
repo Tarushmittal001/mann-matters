@@ -1,6 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
+import { prisma } from "@/lib/db";
 
 export const SESSION_COOKIE = "emoraa_session";
 const MAX_AGE = 60 * 60 * 24 * 7; // 7 days
@@ -53,11 +54,17 @@ export async function getSession(): Promise<Session | null> {
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, secretKey());
+    if (!payload.sub) return null;
+    const user = await prisma.user.findUnique({
+      where: { id: payload.sub },
+      select: { id: true, name: true, email: true, role: true },
+    });
+    if (!user || (user.role !== "USER" && user.role !== "ADMIN")) return null;
     return {
-      sub: payload.sub as string,
-      name: payload.name as string,
-      email: payload.email as string,
-      role: payload.role as Session["role"],
+      sub: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
     };
   } catch {
     return null;

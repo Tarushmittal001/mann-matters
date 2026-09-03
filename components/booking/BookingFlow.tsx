@@ -5,18 +5,31 @@ import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Button from "@/components/ui/Button";
-import { Alert, CrisisLine, Spinner } from "@/components/ui/Feedback";
-import SlotPicker, { type SlotSelection } from "@/components/booking/SlotPicker";
-import PaymentPanel from "@/components/booking/PaymentPanel";
-import { concerns, experts, type ConcernId, type Expert } from "@/lib/experts";
-import { findConcern, specialisesIn } from "@/lib/matching";
-import { changePolicyNote, HOLD_MINUTES } from "@/lib/booking-policy";
-import { cn, formatINR } from "@/lib/utils";
-import type { SerializedBooking } from "@/lib/bookings";
+import { concerns, experts, timeSlots, type ConcernId, type Expert } from "@/lib/experts";
+import { cn, formatINR, todayISO } from "@/lib/utils";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
-const STEPS = ["Concern", "Expert", "Date & time", "Review", "Payment"];
+const STEPS = ["Concern", "Expert", "Date & time", "Confirm"];
 
+type Day = { iso: string; weekday: string; day: number; month: string };
+
+function buildDays(): Day[] {
+  const fmtW = new Intl.DateTimeFormat("en-IN", { weekday: "short" });
+  const fmtM = new Intl.DateTimeFormat("en-IN", { month: "short" });
+  const today = new Date(`${todayISO()}T00:00:00Z`);
+  return Array.from({ length: 14 }, (_, i) => {
+    const d = new Date(today);
+    d.setUTCDate(d.getUTCDate() + 1 + i);
+    return {
+      iso: d.toISOString().slice(0, 10),
+      weekday: fmtW.format(d),
+      day: d.getDate(),
+      month: fmtM.format(d),
+    };
+  });
+}
+
+// deterministic "fully booked" pattern so the UI feels real
 function Stars({ rating }: { rating: number }) {
   return (
     <span className="inline-flex items-center gap-1 text-gold" aria-label={`Rated ${rating} out of 5`}>
@@ -43,8 +56,44 @@ export default function BookingFlow({ authenticated }: { authenticated: boolean 
 
   const [concern, setConcern] = useState<ConcernId | null>(null);
   const [expert, setExpert] = useState<Expert | null>(null);
-  const [slot, setSlot] = useState<SlotSelection>({ date: "", time: null });
-  const [refreshToken, setRefreshToken] = useState(0);
+  const [date, setDate] = useState<Day | null>(null);
+  const [time, setTime] = useState<string | null>(null);
+  const [days, setDays] = useState<Day[]>([]);
+  const [status, setStatus] = useState<"idle" | "submitting" | "done">("idle");
+  const [bookingRef, setBookingRef] = useState("");
+  const [submitError, setSubmitError] = useState("");
+  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+
+  // dates are generated on the client so the static page never goes stale
+  useEffect(() => setDays(buildDays()), []);
+
+  useEffect(() => {
+    if (!expert || !date) {
+      setAvailableSlots([]);
+      return;
+    }
+    let cancelled = false;
+    fetch(`/api/bookings?expertId=${encodeURIComponent(expert.id)}&date=${date.iso}`)
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error("availability"))))
+      .then((data: { available?: string[] }) => {
+        if (!cancelled) {
+          setAvailableSlots(data.available ?? []);
+          setTime((current) => (current && data.available?.includes(current) ? current : null));
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setAvailableSlots(timeSlots.flatMap((group) => group.slots));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [expert, date]);
+
+  const go = (next: number) => {
+    setDir(next > step ? 1 : -1);
+    setStep(next);
+    window.scrollTo({ top: 0 });
+  };
 
   const [booking, setBooking] = useState<SerializedBooking | null>(null);
   const [holding, setHolding] = useState(false);
@@ -468,6 +517,38 @@ export default function BookingFlow({ authenticated }: { authenticated: boolean 
                     refreshToken={refreshToken}
                   />
                 </div>
+
+                {date && (
+                  <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: EASE }} className="mt-7 space-y-6">
+                    {timeSlots.map((g) => (
+                      <div key={g.group}>
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink/50">{g.group}</p>
+                        <div className="mt-3 flex flex-wrap gap-2.5">
+                          {g.slots.map((slot) => {
+                            const taken = !availableSlots.includes(slot);
+                            return (
+                              <button
+                                key={slot}
+                                disabled={taken}
+                                onClick={() => setTime(slot)}
+                                className={cn(
+                                  "rounded-full border px-5 py-2.5 text-sm font-medium transition-all duration-300 ease-silk",
+                                  taken && "cursor-not-allowed border-forest-800/10 text-ink/30 line-through",
+                                  !taken && time === slot
+                                    ? "border-gold bg-gold text-forest-950 shadow-lift"
+                                    : !taken && "border-forest-800/20 text-forest-800 hover:border-forest-800"
+                                )}
+                                aria-pressed={time === slot}
+                              >
+                                {slot}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </motion.div>
+                )}
               </motion.div>
             )}
 
