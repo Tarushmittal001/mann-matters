@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import Button from "@/components/ui/Button";
 import NeuralBrain from "@/components/three/NeuralBrain";
-import { site } from "@/lib/site";
+import TalkToManuButton from "@/components/layout/TalkToManuButton";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -97,9 +97,9 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1.0, ease: EASE }}
         >
-          Talk to a licensed psychologist — online, in your language, from
-          ₹599. For the exam pressure, the burnout, the heartbreak, and the
-          things you haven&apos;t said out loud yet.
+          Book a 50-minute video session with a licensed psychologist — in
+          Hindi, English or Hinglish, from ₹599. Between sessions, Manu listens
+          free on WhatsApp, and every tool here works without an account.
         </motion.p>
 
         <motion.div
@@ -111,9 +111,7 @@ export default function Hero() {
           <Button href="/book" variant="gold">
             Book a session
           </Button>
-          <Button href={site.whatsapp} external variant="outline">
-            Talk to us on WhatsApp
-          </Button>
+          <TalkToManuButton />
         </motion.div>
       </div>
 

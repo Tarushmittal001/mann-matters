@@ -24,7 +24,7 @@ const values = [
   },
 ];
 
-export default function WhyMannMatters() {
+export default function WhyEmoraa() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const yA = useTransform(scrollYProgress, [0, 1], [40, -40]);
@@ -72,7 +72,7 @@ export default function WhyMannMatters() {
           <Reveal from="right">
             <p className="eyebrow mb-4 flex items-center gap-3">
               <span className="font-deva text-sm normal-case tracking-normal text-gold" aria-hidden="true">मन</span>
-              why mann matters
+              why Emoraa
             </p>
             <h2 className="h-display text-4xl md:text-5xl">
               Therapy without the <em className="text-forest-600">&ldquo;log kya kahenge&rdquo;</em>

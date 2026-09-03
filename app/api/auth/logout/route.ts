@@ -1,7 +1,10 @@
-import { NextResponse } from "next/server";
 import { clearSession } from "@/lib/auth";
+import { errors, isSameOrigin, privateJson } from "@/lib/http";
 
-export async function POST() {
+export const dynamic = "force-dynamic";
+
+export async function POST(req: Request) {
+  if (!isSameOrigin(req)) return errors.crossOrigin();
   clearSession();
-  return NextResponse.json({ ok: true });
+  return privateJson({ ok: true });
 }

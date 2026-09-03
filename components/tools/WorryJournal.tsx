@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
  */
 
 const EASE = [0.22, 1, 0.36, 1] as const;
-const STORE_KEY = "mm-worry-journal";
+const STORE_KEY = "emoraa-worry-journal";
 
 type Entry = { id: string; text: string; date: string };
 

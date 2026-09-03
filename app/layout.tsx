@@ -32,15 +32,15 @@ const tiro = Tiro_Devanagari_Hindi({
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: "mann Matters — Therapy & counselling for India, online",
-    template: "%s · mann Matters",
+    default: "Emoraa — Therapy & counselling for India, online",
+    template: "%s · Emoraa",
   },
   description:
     "Book confidential 1-on-1 sessions with licensed psychologists — online, in 2+ languages, from ₹599. For students, young professionals, and everyone in between.",
   openGraph: {
     type: "website",
-    siteName: "mann Matters",
-    title: "mann Matters — Your mind matters",
+    siteName: "Emoraa",
+    title: "Emoraa — Your mind matters",
     description:
       "Confidential online therapy with licensed Indian psychologists, in your language, from ₹599.",
     url: site.url,
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "mann Matters — Your mind matters",
+    title: "Emoraa — Your mind matters",
     description:
       "Confidential online therapy with licensed Indian psychologists, in your language, from ₹599.",
   },

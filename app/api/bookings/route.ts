@@ -1,81 +1,115 @@
-import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
-import { concerns, experts, timeSlots } from "@/lib/experts";
+import { concerns } from "@/lib/experts";
+import {
+  createBookingWithRef,
+  expertById,
+  holdExpiry,
+  isUniqueViolation,
+  releaseExpiredHolds,
+  serializeBooking,
+  takenSlots,
+} from "@/lib/bookings";
+import { HOLD_MINUTES, validateSlot } from "@/lib/booking-policy";
+import { clientKey, errors, isSameOrigin, logFailure, privateJson, readJson } from "@/lib/http";
+import { rateLimit } from "@/lib/rate-limit";
 
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-const allSlots = new Set(timeSlots.flatMap((g) => g.slots));
+export const dynamic = "force-dynamic";
 
-function makeRef() {
-  return `MM-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
-}
+type Body = { concern?: string; expertId?: string; date?: string; time?: string };
 
+/**
+ * POST /api/bookings — hold a slot.
+ *
+ * This creates the booking as PENDING_PAYMENT with a short hold on the slot; it
+ * becomes CONFIRMED only once payment succeeds. Nothing is charged here.
+ */
 export async function POST(req: Request) {
-  const session = await getSession();
-  if (!session) {
-    return NextResponse.json({ error: "Please log in to book a session." }, { status: 401 });
-  }
-
-  let body: { concern?: string; expertId?: string; date?: string; time?: string };
   try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
+    if (!isSameOrigin(req)) return errors.crossOrigin();
+
+    const session = await getSession();
+    if (!session) return errors.unauthenticated();
+
+    const limited = rateLimit("booking", clientKey(req));
+    if (!limited.ok) return errors.rateLimited(limited.retryAfter);
+
+    const body = await readJson<Body>(req);
+    if (!body) return errors.badBody();
+
+    const concern = concerns.find((c) => c.id === body.concern);
+    const expert = expertById(body.expertId ?? "");
+    const date = typeof body.date === "string" ? body.date : "";
+    const time = typeof body.time === "string" ? body.time : "";
+
+    const fields: Record<string, string> = {};
+    if (!concern) fields.concern = "Please choose what you'd like to talk about.";
+    if (!expert) fields.expertId = "Please choose a therapist.";
+    if (Object.keys(fields).length) return errors.validation(fields);
+
+    const slotCheck = validateSlot(date, time);
+    if (!slotCheck.ok) {
+      return errors.validation({ time: slotCheck.reason }, slotCheck.reason);
+    }
+
+    // a lapsed hold shouldn't block a real booking
+    await releaseExpiredHolds();
+
+    try {
+      const booking = await createBookingWithRef({
+        userId: session.sub,
+        concern: concern!.id,
+        expertId: expert!.id,
+        expertName: expert!.name,
+        date,
+        time,
+        amount: expert!.price,
+        holdExpiresAt: holdExpiry(),
+      });
+
+      return privateJson({
+        booking: serializeBooking(booking),
+        holdMinutes: HOLD_MINUTES,
+      });
+    } catch (err) {
+      // the UNIQUE slot key did its job: somebody else got there first
+      if (isUniqueViolation(err, "slotKey")) {
+        const taken = await takenSlots(expert!.id, date);
+        return privateJson(
+          {
+            error:
+              "That time was taken while you were deciding. Here's what's still free on this day.",
+            code: "SLOT_TAKEN",
+            takenSlots: taken,
+          },
+          { status: 409 }
+        );
+      }
+      throw err;
+    }
+  } catch (err) {
+    logFailure("bookings.create", err);
+    return errors.server();
   }
-
-  const concern = concerns.find((c) => c.id === body.concern);
-  const expert = experts.find((e) => e.id === body.expertId);
-  const { date, time } = body;
-
-  if (!concern || !expert || !date || !DATE_RE.test(date) || !time || !allSlots.has(time)) {
-    return NextResponse.json({ error: "That booking doesn't look complete." }, { status: 400 });
-  }
-
-  const today = new Date().toISOString().slice(0, 10);
-  if (date <= today) {
-    return NextResponse.json(
-      { error: "Please pick a date from tomorrow onwards." },
-      { status: 400 }
-    );
-  }
-
-  // the same slot with the same expert can only be booked once
-  const clash = await prisma.booking.findFirst({
-    where: { expertId: expert.id, date, time, status: "CONFIRMED" },
-  });
-  if (clash) {
-    return NextResponse.json(
-      { error: "That slot was just taken. Please pick another time." },
-      { status: 409 }
-    );
-  }
-
-  const booking = await prisma.booking.create({
-    data: {
-      ref: makeRef(),
-      userId: session.sub,
-      concern: concern.id,
-      expertId: expert.id,
-      expertName: expert.name,
-      date,
-      time,
-      amount: expert.price,
-    },
-  });
-
-  return NextResponse.json({ ref: booking.ref, id: booking.id });
 }
 
+/** GET /api/bookings — the caller's own sessions, newest first. */
 export async function GET() {
-  const session = await getSession();
-  if (!session) {
-    return NextResponse.json({ error: "Not logged in." }, { status: 401 });
+  try {
+    const session = await getSession();
+    if (!session) return errors.unauthenticated();
+
+    await releaseExpiredHolds();
+
+    const bookings = await prisma.booking.findMany({
+      where: { userId: session.sub },
+      include: { payment: true },
+      orderBy: [{ date: "asc" }, { time: "asc" }],
+    });
+
+    return privateJson({ bookings: bookings.map(serializeBooking) });
+  } catch (err) {
+    logFailure("bookings.list", err);
+    return errors.server();
   }
-
-  const bookings = await prisma.booking.findMany({
-    where: { userId: session.sub },
-    orderBy: [{ date: "asc" }, { time: "asc" }],
-  });
-
-  return NextResponse.json({ bookings });
 }
