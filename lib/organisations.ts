@@ -8,6 +8,9 @@ export type Segment = {
   who: string;
   pressure: string;
   offering: string[];
+  /** Every URL here was checked to resolve; Unsplash is allow-listed in next.config.mjs. */
+  image: string;
+  imageAlt: string;
 };
 
 export const segments: Segment[] = [
@@ -23,6 +26,10 @@ export const segments: Segment[] = [
       "Emotional-regulation training for teachers and helpers",
       "Early-signal guidance — when a behaviour is a phase, and when it isn't",
     ],
+    image:
+      "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=900&q=80",
+    imageAlt:
+      "Small children sitting together at a low table with crayons and paper",
   },
   {
     id: "schools",
@@ -36,6 +43,10 @@ export const segments: Segment[] = [
       "Gatekeeper training so teachers know what to notice and what to say",
       "Parent evenings, and a written protocol for the hard days",
     ],
+    image:
+      "https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=900&q=80",
+    imageAlt:
+      "Rows of empty wooden desks and chairs in a bright school classroom",
   },
   {
     id: "colleges",
@@ -49,6 +60,10 @@ export const segments: Segment[] = [
       "Peer-supporter training for student volunteers",
       "Anonymous access, so nobody has to be seen walking in",
     ],
+    image:
+      "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=900&q=80",
+    imageAlt:
+      "Students walking across a university campus between lectures",
   },
   {
     id: "institutes",
@@ -62,6 +77,10 @@ export const segments: Segment[] = [
       "24x7 escalation path with a named clinician on the other end",
       "Faculty training on the language that lowers the stakes instead of raising them",
     ],
+    image:
+      "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=900&q=80",
+    imageAlt:
+      "Stacked textbooks and study notes on a desk under a reading lamp",
   },
   {
     id: "companies",
@@ -75,6 +94,10 @@ export const segments: Segment[] = [
       "Manager training for the conversation before the resignation",
       "Aggregate wellbeing reporting — patterns, never people",
     ],
+    image:
+      "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=900&q=80",
+    imageAlt:
+      "Colleagues working together around a laptop in an open-plan office",
   },
   {
     id: "organisations",
@@ -88,32 +111,59 @@ export const segments: Segment[] = [
       "Supervision groups for field staff and case workers",
       "Grant-friendly scoping and reporting",
     ],
+    image:
+      "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=900&q=80",
+    imageAlt:
+      "A group of field workers standing together in conversation outdoors",
   },
 ];
 
 /** What every program is assembled from, whoever it's for. */
-export const pillars = [
+/**
+ * Institution sizes offered in the pack builder. Defined once: the form renders
+ * these and the route handler validates against them, so the two can never
+ * disagree about what a valid answer looks like.
+ */
+export const headcounts = [
+  "Under 100",
+  "100–500",
+  "500–2,000",
+  "2,000–10,000",
+  "10,000+",
+] as const;
+
+export type Headcount = (typeof headcounts)[number];
+
+export type Pillar = { id: string; title: string; body: string };
+
+export const pillars: Pillar[] = [
   {
+    id: "counselling",
     title: "Counselling that's actually reachable",
     body: "RCI-licensed psychologists, online, in 2+ languages, booked by the person who needs them — no gatekeeper, no form countersigned by a supervisor.",
   },
   {
+    id: "manu",
     title: "Manu, on your campus",
     body: "Our WhatsApp companion, set up for your institution. Always awake, speaks Hinglish, and knows when to stop being the hero and hand over to a human.",
   },
   {
+    id: "workshops",
     title: "Workshops that aren't assemblies",
     body: "Small-room sessions on exam pressure, burnout, sleep, and asking for help — run by clinicians, not motivational speakers.",
   },
   {
+    id: "training",
     title: "Training the people already there",
     body: "Teachers, wardens, managers and peer volunteers learn what to notice, what to say, and exactly where to pass it on.",
   },
   {
+    id: "screening",
     title: "Anonymous screening",
     body: "Voluntary check-ins that give you a real picture of the year ahead, so budget and staffing follow evidence instead of anecdote.",
   },
   {
+    id: "protocol",
     title: "A crisis protocol in writing",
     body: "Who is called, in what order, within what window — with escalation to Tele-MANAS 14416 and emergency services built in and rehearsed.",
   },

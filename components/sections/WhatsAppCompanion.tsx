@@ -73,7 +73,7 @@ export default function WhatsAppCompanion() {
           eyebrow="on whatsapp, 24x7"
           deva="मन"
           title="A companion that lives in your chats"
-          description="No new app, no waiting room. mann Matters meets you right inside WhatsApp — to listen, to nudge, and to know when to hand you to a human."
+          description="No new app, no waiting room. Emoraa meets you right inside WhatsApp — to listen, to nudge, and to know when to hand you to a human."
           dark
         />
 

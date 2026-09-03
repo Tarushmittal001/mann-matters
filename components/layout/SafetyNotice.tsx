@@ -45,7 +45,7 @@ export default function SafetyNotice() {
             <div>
               <p className="font-display text-base font-medium text-forest-900">A gentle note before you begin</p>
               <p className="mt-1.5 text-sm text-ink/65 leading-relaxed">
-                Mann Matters offers emotional wellness tools &amp; connects you with licensed therapists.
+                Emoraa offers emotional wellness tools &amp; connects you with licensed therapists.
                 We are <strong className="text-forest-800">not a substitute</strong> for
                 emergency psychiatric care or clinical diagnosis.
               </p>

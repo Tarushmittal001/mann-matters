@@ -6,7 +6,7 @@ import PhraseTicker from "@/components/sections/PhraseTicker";
 import CulturalIntelligence from "@/components/sections/CulturalIntelligence";
 import HowItWorks from "@/components/sections/HowItWorks";
 import ToolsSection from "@/components/sections/ToolsSection";
-import WhyMannMatters from "@/components/sections/WhyMannMatters";
+import WhyEmoraa from "@/components/sections/WhyEmoraa";
 import Testimonials from "@/components/sections/Testimonials";
 import BlogTeaser from "@/components/sections/BlogTeaser";
 import CTABand from "@/components/sections/CTABand";
@@ -31,7 +31,7 @@ export default function HomePage() {
       <ToolsSection />
 
       {/* reassurance */}
-      <WhyMannMatters />
+      <WhyEmoraa />
       <Testimonials />
       <BlogTeaser />
       <CTABand />

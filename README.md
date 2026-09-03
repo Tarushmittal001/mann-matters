@@ -1,6 +1,6 @@
-# Mann Matters
+# Emoraa
 
-A premium marketing + booking website for **Mann Matters**, a mental-health and
+A premium marketing + booking website for **Emoraa**, a mental-health and
 wellness platform for Indian youth, students, and working professionals. Serene,
 luxurious, and calm — built to feel like a boutique-studio commission, not a template.
 
@@ -90,5 +90,5 @@ production domain so canonical URLs, the sitemap, and OpenGraph tags resolve cor
 
 ---
 
-**Note:** Mann Matters is a scheduled-therapy product, not a crisis service. Every page
+**Note:** Emoraa is a scheduled-therapy product, not a crisis service. Every page
 surfaces the **Tele-MANAS 14416** helpline (free, confidential, 24×7) for anyone in crisis.

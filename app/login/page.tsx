@@ -4,7 +4,7 @@ import AuthForm from "@/components/auth/AuthForm";
 
 export const metadata: Metadata = {
   title: "Log in",
-  description: "Log in to your mann Matters account to manage your therapy sessions.",
+  description: "Log in to your Emoraa account to manage your therapy sessions.",
 };
 
 export default function LoginPage() {

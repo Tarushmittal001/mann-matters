@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 
-export const SESSION_COOKIE = "mm_session";
+export const SESSION_COOKIE = "emoraa_session";
 const MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
 export type Session = {

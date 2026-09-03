@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { concerns, experts, timeSlots } from "@/lib/experts";
@@ -25,26 +24,20 @@ function isBookableDate(date: string) {
   return date > today && date <= lastBookable.toISOString().slice(0, 10);
 }
 
-function makeRef() {
-  return `MM-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
-}
+type Body = { concern?: string; expertId?: string; date?: string; time?: string };
 
+/**
+ * POST /api/bookings — hold a slot.
+ *
+ * This creates the booking as PENDING_PAYMENT with a short hold on the slot; it
+ * becomes CONFIRMED only once payment succeeds. Nothing is charged here.
+ */
 export async function POST(req: Request) {
-  const session = await getSession();
-  if (!session) {
-    return NextResponse.json({ error: "Please log in to book a session." }, { status: 401 });
-  }
-
-  let body: { concern?: string; expertId?: string; date?: string; time?: string };
   try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
-  }
+    if (!isSameOrigin(req)) return errors.crossOrigin();
 
-  const concern = concerns.find((c) => c.id === body.concern);
-  const expert = experts.find((e) => e.id === body.expertId);
-  const { date, time } = body;
+    const session = await getSession();
+    if (!session) return errors.unauthenticated();
 
   if (!concern || !expert || !date || !isValidDate(date) || !time || !allSlots.has(time)) {
     return NextResponse.json({ error: "That booking doesn't look complete." }, { status: 400 });
@@ -111,10 +104,17 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Not logged in." }, { status: 401 });
   }
 
-  const bookings = await prisma.booking.findMany({
-    where: { userId: session.sub },
-    orderBy: [{ date: "asc" }, { time: "asc" }],
-  });
+    await releaseExpiredHolds();
 
-  return NextResponse.json({ bookings });
+    const bookings = await prisma.booking.findMany({
+      where: { userId: session.sub },
+      include: { payment: true },
+      orderBy: [{ date: "asc" }, { time: "asc" }],
+    });
+
+    return privateJson({ bookings: bookings.map(serializeBooking) });
+  } catch (err) {
+    logFailure("bookings.list", err);
+    return errors.server();
+  }
 }

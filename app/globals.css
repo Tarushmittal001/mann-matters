@@ -146,7 +146,8 @@
   .animate-marquee,
   .animate-breathe,
   .animate-drift-slow,
-  .animate-pulse-soft {
+  .animate-pulse-soft,
+  .animate-ping {
     animation: none !important;
   }
 }
