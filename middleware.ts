@@ -17,7 +17,13 @@ export async function middleware(req: NextRequest) {
       token,
       new TextEncoder().encode(process.env.AUTH_SECRET)
     );
-    if (pathname.startsWith("/admin") && payload.role !== "ADMIN") {
+    const role = payload.role;
+
+    if (pathname.startsWith("/admin") && role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
+    // the expert portal is for practitioners; admins get in to support them
+    if (pathname.startsWith("/expert") && role !== "EXPERT" && role !== "ADMIN") {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
     return NextResponse.next();
@@ -27,5 +33,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*"],
+  matcher: ["/dashboard/:path*", "/admin/:path*", "/expert/:path*"],
 };

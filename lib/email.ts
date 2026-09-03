@@ -17,56 +17,25 @@ import nodemailer from "nodemailer";
 
 type Email = { to: string; subject: string; html: string; text: string };
 
-export type DeliveryResult = {
-  /** True when a provider actually accepted the message. */
-  delivered: boolean;
-  /** Which provider handled it, for logging. */
-  via: "gmail" | "resend" | "console";
-  /**
-   * The raw verification link — populated ONLY when nothing is configured AND
-   * we are not in production. It exists so a developer isn't locked out of
-   * their own signup flow; it must never reach a real user.
-   */
-  devLink?: string;
-};
+const FROM = process.env.EMAIL_FROM || "mann Matters <onboarding@resend.dev>";
 
-const isProduction = process.env.NODE_ENV === "production";
+async function deliver(email: Email): Promise<boolean> {
+  const key = process.env.RESEND_API_KEY;
 
-function gmailCreds() {
-  const user = process.env.GMAIL_USER?.trim();
-  const pass = process.env.GMAIL_APP_PASSWORD?.replace(/\s+/g, ""); // Google shows it in groups of 4
-  return user && pass ? { user, pass } : null;
-}
-
-/** The From header. Gmail requires it to be the authenticated account itself. */
-function fromAddress(): string {
-  const creds = gmailCreds();
-  if (creds) return `Emoraa <${creds.user}>`;
-  return process.env.EMAIL_FROM?.trim() || "Emoraa <onboarding@resend.dev>";
-}
-
-async function viaGmail(email: Email): Promise<boolean> {
-  const creds = gmailCreds();
-  if (!creds) return false;
-
-  const transport = nodemailer.createTransport({
-    service: "gmail",
-    auth: { user: creds.user, pass: creds.pass },
-  });
-
-  await transport.sendMail({
-    from: fromAddress(),
-    to: email.to,
-    subject: email.subject,
-    text: email.text,
-    html: email.html,
-  });
-  return true;
-}
-
-async function viaResend(email: Email): Promise<boolean> {
-  const key = process.env.RESEND_API_KEY?.trim();
-  if (!key) return false;
+  if (!key) {
+    // dev fallback — make the link impossible to miss in the terminal
+    console.log(
+      [
+        "",
+        "📧  [dev] Email not sent (no RESEND_API_KEY). Contents below:",
+        `    To:      ${email.to}`,
+        `    Subject: ${email.subject}`,
+        `    ${email.text}`,
+        "",
+      ].join("\n")
+    );
+    return false;
+  }
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -111,25 +80,7 @@ async function deliver(email: Email, link: string): Promise<DeliveryResult> {
     await viaResend(email);
     return { delivered: true, via: "resend" };
   }
-
-  // nothing configured — make the link impossible to miss in the terminal
-  console.log(
-    [
-      "",
-      "  📧  No mail provider configured (set GMAIL_USER + GMAIL_APP_PASSWORD).",
-      `      To:      ${email.to}`,
-      `      Subject: ${email.subject}`,
-      `      Link:    ${link}`,
-      "",
-    ].join("\n")
-  );
-
-  return {
-    delivered: false,
-    via: "console",
-    // never hand a live verification link to a client in production
-    devLink: isProduction ? undefined : link,
-  };
+  return true;
 }
 
 export async function sendVerificationEmail(
@@ -257,4 +208,24 @@ export async function sendPackEnquiry(
   }
 
   return { delivered: true };
+}
+
+/**
+ * A one-off "this is what a notification looks like" email, sent from the
+ * expert portal. Returns whether it actually left the building — in dev it is
+ * logged to the console instead, and the portal says so rather than claiming a
+ * delivery that never happened.
+ */
+export async function sendExpertTestNotification(to: string, name: string) {
+  const subject = "Test notification · mann Matters expert portal";
+  const text = `Hi ${name}, this is the test notification you asked for from your expert portal. Real alerts about bookings, cancellations and reminders arrive looking like this.`;
+  const html = `
+  <div style="font-family:Georgia,serif;max-width:480px;margin:0 auto;padding:32px;color:#1F2D28">
+    <p style="font-size:20px;font-weight:600;color:#0A2E28;margin:0 0 4px">mann Matters</p>
+    <p style="color:#1A5A4D;margin:0 0 24px">Expert portal</p>
+    <h1 style="font-size:24px;color:#0A2E28;margin:0 0 12px">Your notifications are working, ${name}.</h1>
+    <p style="line-height:1.6;color:#3a4a44">This is a test you triggered yourself. Alerts about new bookings, cancellations and session reminders arrive here, looking like this.</p>
+    <p style="font-size:13px;color:#7a857f;line-height:1.6">Change what reaches you, and when, from Notifications in the expert portal.</p>
+  </div>`;
+  return deliver({ to, subject, html, text });
 }

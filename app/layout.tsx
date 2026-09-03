@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
 import ChatAssistant from "@/components/tools/ChatAssistant";
 import SafetyNotice from "@/components/layout/SafetyNotice";
+import PublicChrome from "@/components/layout/PublicChrome";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -48,10 +49,12 @@ export default function RootLayout({
         <Providers>
           <Navbar />
           <main>{children}</main>
-          <Footer />
-          <WhatsAppButton />
-          <ChatAssistant />
-          <SafetyNotice />
+          <PublicChrome>
+            <Footer />
+            <WhatsAppButton />
+            <ChatAssistant />
+            <SafetyNotice />
+          </PublicChrome>
         </Providers>
       </body>
     </html>

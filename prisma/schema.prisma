@@ -12,7 +12,7 @@ model User {
   name          String
   email         String              @unique
   passwordHash  String
-  // "USER" | "ADMIN" — SQLite has no native enums
+  // "USER" | "EXPERT" | "ADMIN" — SQLite has no native enums
   role          String              @default("USER")
   // null until the user confirms their email address
   emailVerified DateTime?
@@ -49,6 +49,132 @@ model Booking {
   concern    String
   expertId   String
   expertName String
+  // YYYY-MM-DD and HH:mm, both IST — the clinic runs on one timezone
+  date       String
+  time       String
+  amount     Int
+  // "CONFIRMED" | "CANCELLED" | "COMPLETED" | "NO_SHOW"
+  status     String   @default("CONFIRMED")
+  // set by whoever moved it out of CONFIRMED: "CLIENT" | "EXPERT" | "ADMIN"
+  closedBy   String?
+  closedAt   DateTime?
+  // why it closed. Written by the practitioner, read by our team and shown to
+  // the client in a plain-language form.
+  closeReason String?
+  // the video room for this session. Only the expert and the client see it,
+  // and only inside the join window.
+  meetingUrl String?
+  createdAt  DateTime @default(now())
+  note       SessionNote?
+
+  @@index([expertId, date])
+}
+
+/// The private, editable side of a practitioner. The public catalogue entry
+/// (photo, price, rating) still lives in lib/experts.ts; `expertId` is the
+/// join between the two.
+model ExpertProfile {
+  id              String  @id @default(cuid())
+  userId          String  @unique
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expertId        String  @unique
+  headline        String  @default("")
+  bio             String  @default("")
+  credentials     String  @default("")
+  experienceYears Int     @default(0)
+  // JSON arrays of strings — SQLite has no scalar lists
+  languages       String  @default("[]")
+  specialties     String  @default("[]")
+  // IANA zone the practitioner works in. Session times are always shown in
+  // clinic time (IST) as well, so a mismatch can never hide behind a number.
+  timezone        String  @default("Asia/Kolkata")
+  sessionMinutes  Int     @default(50)
+
+  // ── clinical notes are gated on policy, not on preference ──────────────
+  // "APPROVED" | "PENDING" | "BLOCKED" — only an admin moves this.
+  notesPolicy     String  @default("PENDING")
+  notesPolicyNote String  @default("")
+
+  // ── notification preferences ──────────────────────────────────────────
+  notifyNewBooking     Boolean @default(true)
+  notifyCancellation   Boolean @default(true)
+  notifyReminder       Boolean @default(true)
+  reminderLeadMinutes  Int     @default(60)
+  notifyWeeklyDigest   Boolean @default(false)
+  notifyProductUpdates Boolean @default(false)
+  // "EMAIL" | "WHATSAPP" | "BOTH"
+  notifyChannel        String  @default("EMAIL")
+  // no notifications inside this window, local to the expert's timezone
+  quietHoursStart      String  @default("22:00")
+  quietHoursEnd        String  @default("07:00")
+  quietHoursEnabled    Boolean @default(true)
+
+  updatedAt DateTime @updatedAt
+
+  availability AvailabilityRule[]
+  timeOff      TimeOff[]
+}
+
+/// One repeating band of bookable time, e.g. Tuesday 09:00–13:00 IST.
+model AvailabilityRule {
+  id       String        @id @default(cuid())
+  profile  ExpertProfile @relation(fields: [expertId], references: [expertId], onDelete: Cascade)
+  expertId String
+  // 0 = Sunday … 6 = Saturday
+  weekday  Int
+  // HH:mm, clinic time
+  start    String
+  end      String
+
+  @@index([expertId, weekday])
+}
+
+/// A block of unavailability. `reason` is private to the practitioner and the
+/// admin — it is never rendered anywhere a client can reach.
+model TimeOff {
+  id        String        @id @default(cuid())
+  profile   ExpertProfile @relation(fields: [expertId], references: [expertId], onDelete: Cascade)
+  expertId  String
+  // YYYY-MM-DD inclusive, clinic time
+  startDate String
+  endDate   String
+  allDay    Boolean       @default(true)
+  // HH:mm, only when allDay is false
+  startTime String?
+  endTime   String?
+  reason    String        @default("")
+  createdAt DateTime      @default(now())
+
+  @@index([expertId, startDate])
+}
+
+/// One note per session. Append-only once submitted: corrections are added as
+/// amendments so the record keeps its history.
+model SessionNote {
+  id          String    @id @default(cuid())
+  bookingId   String    @unique
+  booking     Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  expertId    String
+  body        String    @default("")
+  // "DRAFT" | "SUBMITTED"
+  status      String    @default("DRAFT")
+  submittedAt DateTime?
+  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime  @default(now())
+
+  amendments NoteAmendment[]
+
+  @@index([expertId])
+}
+
+model NoteAmendment {
+  id        String      @id @default(cuid())
+  noteId    String
+  note      SessionNote @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  body      String
+  createdAt DateTime    @default(now())
+
+  @@index([noteId])
   // Unique while active; cleared when cancelled so the slot can be rebooked.
   slotKey    String?  @unique
   // YYYY-MM-DD and HH:mm, both IST
