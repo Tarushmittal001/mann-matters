@@ -3,6 +3,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { concerns, experts } from "@/lib/experts";
+import { cn, formatDateISO, formatINR, todayISO } from "@/lib/utils";
+import { STATUS_META, isSessionStatus } from "@/lib/expert-portal";
 import { releaseExpiredHolds, serializeBooking } from "@/lib/bookings";
 import { BOOKING_STATUS, changePolicyNote, hoursUntil } from "@/lib/booking-policy";
 import Button from "@/components/ui/Button";
@@ -18,6 +21,70 @@ export const metadata: Metadata = {
 };
 
 export const dynamic = "force-dynamic";
+
+type BookingRow = {
+  id: string;
+  ref: string;
+  concern: string;
+  expertId: string;
+  expertName: string;
+  date: string;
+  time: string;
+  amount: number;
+  status: string;
+};
+
+function BookingCard({ booking, upcoming }: { booking: BookingRow; upcoming: boolean }) {
+  const expert = experts.find((e) => e.id === booking.expertId);
+  const concern = concerns.find((c) => c.id === booking.concern);
+  const cancelled = booking.status === "CANCELLED";
+  const status = isSessionStatus(booking.status) ? booking.status : "CONFIRMED";
+
+  return (
+    <div
+      className={cn(
+        "flex flex-col gap-5 rounded-2xl border bg-ivory-light p-6 shadow-lift sm:flex-row sm:items-center",
+        cancelled ? "border-forest-800/10 opacity-70" : "border-forest-800/10"
+      )}
+    >
+      {expert && (
+        <Image
+          src={expert.photo}
+          alt={`Portrait of ${booking.expertName}`}
+          width={150}
+          height={150}
+          className="h-16 w-16 shrink-0 rounded-xl object-cover"
+        />
+      )}
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <p className="font-display text-lg font-medium text-forest-900">{booking.expertName}</p>
+          <span
+            className={cn(
+              "rounded-full px-2.5 py-0.5 text-[0.7rem] font-semibold uppercase tracking-[0.12em]",
+              STATUS_META[status].tone
+            )}
+          >
+            {STATUS_META[status].label}
+          </span>
+        </div>
+        <p className="mt-1 text-sm text-ink/65">
+          {formatDateISO(booking.date)} · {booking.time} IST · 50 min
+          {concern && <> · {concern.label}</>}
+        </p>
+        <p className="mt-1 text-sm text-ink/55">
+          Ref <span className="font-mono font-semibold text-forest-800">{booking.ref}</span> ·{" "}
+          {formatINR(booking.amount)}
+        </p>
+      </div>
+      {upcoming && !cancelled && (
+        <div className="shrink-0">
+          <CancelBookingButton bookingId={booking.id} />
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default async function DashboardPage() {
   const session = await getSession();
@@ -60,12 +127,11 @@ export default async function DashboardPage() {
               Admin portal
             </Link>
           )}
-          <Link
-            href="/dashboard/profile"
-            className="link-draw text-sm font-medium text-forest-800"
-          >
-            Profile
-          </Link>
+          {(session.role === "EXPERT" || session.role === "ADMIN") && (
+            <Link href="/expert" className="link-draw text-sm font-medium text-forest-800">
+              Expert portal
+            </Link>
+          )}
           <LogoutButton />
           <Button href="/book" variant="gold">
             Book a session

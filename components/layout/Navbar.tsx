@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
-type SessionUser = { name: string; email: string; role: "USER" | "ADMIN" } | null;
+type SessionUser = { name: string; email: string; role: "USER" | "EXPERT" | "ADMIN" } | null;
 type Item = { href: string; label: string; desc?: string };
 
 const linkBase =
@@ -151,7 +151,9 @@ export default function Navbar() {
         ? { href: "/login", label: "Log in" }
         : user.role === "ADMIN"
           ? { href: "/admin", label: "Admin" }
-          : { href: "/dashboard", label: "My sessions" };
+          : user.role === "EXPERT"
+            ? { href: "/expert", label: "Expert portal" }
+            : { href: "/dashboard", label: "My sessions" };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);

@@ -6,11 +6,13 @@ import { prisma } from "@/lib/db";
 export const SESSION_COOKIE = "emoraa_session";
 const MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
+export type Role = "USER" | "EXPERT" | "ADMIN";
+
 export type Session = {
   sub: string;
   name: string;
   email: string;
-  role: "USER" | "ADMIN";
+  role: Role;
 };
 
 function secretKey() {
