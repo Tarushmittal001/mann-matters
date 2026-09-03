@@ -1,26 +1,33 @@
-/* A slim band of the things people actually say before they say the real
-   thing. Each line gets its own colour off the palette, so the band reads
-   as a moving strip of gulaal rather than a row of grey text. It keeps
-   moving, so the page never fully settles. */
-const phrases = [
-  { text: "“Bas thoda stress hai, ho jayega”", c: "#F0B429", ink: "#8A5A00" },
-  { text: "“Sona nahi aa raha, teen din se”", c: "#4356CE", ink: "#2C3A9B" },
-  { text: "“Sabko lagta hai main theek hoon”", c: "#E14D7C", ink: "#A82454" },
-  { text: "“Ghar pe bataunga toh tension le lenge”", c: "#0E9FA6", ink: "#076166" },
-  { text: "“I don't know why I'm crying”", c: "#7C4D9B", ink: "#5B3475" },
-  { text: "“Result aane wala hai”", c: "#E36A3B", ink: "#9A3410" },
-  { text: "“Log kya kahenge”", c: "#E14D7C", ink: "#A82454" },
-  { text: "“Kisi se baat karne ka mann nahi”", c: "#4356CE", ink: "#2C3A9B" },
+/* A slim band of small true things, moving slowly past — so the page never
+   fully settles, and so something lands even if the visitor reads only one.
+
+   Written to earn a second glance rather than nod past: each line carries an
+   image (weather, city traffic, a missed call, chai) and turns in its second
+   half. Kept short on purpose — this scrolls, so a line has about two seconds
+   to be understood.
+
+   `deva` marks Devanagari: Fraunces carries no Devanagari glyphs and no real
+   italic for them, so those lines render in the brand's Tiro face, upright. */
+const phrases: { text: string; deva?: boolean }[] = [
+  { text: "“मन भी मौसम है — बदलेगा।”", deva: true },
+  { text: "“Tu chai hai, instant coffee nahi.”" },
+  { text: "“Your mind is not a room you must clean alone.”" },
+  { text: "“आँसू भी भाषा हैं।”", deva: true },
+  { text: "“Dil ka traffic bhi clear hota hai.”" },
+  { text: "“Feelings are visitors — some forget to leave.”" },
+  { text: "“जो कहा नहीं गया, वो गया नहीं।”", deva: true },
+  { text: "“Sab sambhaalne wale ko bhi sambhaal chahiye.”" },
+  { text: "“Some days, breathing is the achievement.”" },
+  { text: "“अंधेरे को भी नींद आती है।”", deva: true },
+  { text: "“Ek missed call se bhi baat shuru hoti hai.”" },
 ];
 
 export default function PhraseTicker() {
   return (
     <section
-      className="group relative overflow-hidden border-y border-forest-800/10 bg-ivory-dark/70 py-6"
-      aria-label="Things people tell us"
+      className="group relative overflow-hidden border-y border-forest-800/10 bg-ivory-dark/60 py-5"
+      aria-label="Small reminders"
     >
-      <div className="mesh-warm pointer-events-none absolute inset-0 opacity-60" aria-hidden="true" />
-
       {/* fade the edges so phrases arrive and leave, rather than clip */}
       <div
         className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-ivory-dark to-transparent"
@@ -31,29 +38,29 @@ export default function PhraseTicker() {
         aria-hidden="true"
       />
 
-      <div className="relative flex w-max animate-marquee group-hover:[animation-play-state:paused]">
+      {/* the shared 48s tempo was tuned for a shorter list; a longer track at the
+          same duration scrolls faster, so it's stretched to keep the reading pace */}
+      <div className="flex w-max animate-marquee [animation-duration:66s] group-hover:[animation-play-state:paused]">
         {[0, 1].map((copy) => (
           <ul
             key={copy}
-            className="flex shrink-0 items-center gap-4 pr-4"
+            className="flex shrink-0 items-center"
             aria-hidden={copy === 1 ? "true" : undefined}
           >
             {phrases.map((phrase) => (
-              <li key={phrase.text} className="whitespace-nowrap">
+              <li key={phrase.text} className="flex items-center whitespace-nowrap">
                 <span
-                  className="inline-flex items-center gap-3 rounded-full border px-5 py-2 font-display text-lg italic md:text-xl"
-                  style={{
-                    color: phrase.ink,
-                    borderColor: `${phrase.c}59`,
-                    background: `${phrase.c}1A`,
-                  }}
+                  className={
+                    phrase.deva
+                      ? "font-deva text-lg text-forest-800/70 md:text-xl"
+                      : "font-display text-lg italic text-forest-800/70 md:text-xl"
+                  }
+                  lang={phrase.deva ? "hi" : undefined}
                 >
-                  <span
-                    className="h-1.5 w-1.5 shrink-0 rounded-full"
-                    style={{ background: phrase.c }}
-                    aria-hidden="true"
-                  />
                   {phrase.text}
+                </span>
+                <span className="mx-8 font-deva text-base text-gold/70" aria-hidden="true">
+                  मन
                 </span>
               </li>
             ))}

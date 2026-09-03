@@ -5,17 +5,32 @@ import ContactForm from "@/components/sections/ContactForm";
 import FloatingOrbs from "@/components/ui/FloatingOrbs";
 import { faqs } from "@/lib/faqs";
 import { site } from "@/lib/site";
+import Ripples from "@/components/visuals/Ripples";
 
 export const metadata: Metadata = {
   title: "Contact — Talk to a human",
   description:
-    "Questions about therapy, pricing, or how mann Matters works? Email, call, or WhatsApp us — a real person replies within one working day.",
+    "Questions about therapy, pricing, or how Emoraa works? Email, call, or WhatsApp us — a real person replies within one working day.",
 };
 
 export default function ContactPage() {
   return (
     <>
       <section className="page-top relative overflow-hidden pb-20">
+      {/* a still surface: small drops, wide rings — click to add your own */}
+      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div
+          className="pointer-events-auto h-full w-full opacity-[0.95]"
+          style={{
+            WebkitMaskImage:
+              "radial-gradient(ellipse 95% 92% at 45% 50%, black 68%, transparent 100%)",
+            maskImage:
+              "radial-gradient(ellipse 95% 92% at 45% 50%, black 68%, transparent 100%)",
+          }}
+        >
+          <Ripples />
+        </div>
+      </div>
         <FloatingOrbs />
         <div className="wrap-wide relative z-10 grid gap-16 lg:grid-cols-2 lg:gap-20">
           {/* invitation */}

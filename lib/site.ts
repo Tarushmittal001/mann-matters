@@ -1,11 +1,11 @@
 export const site = {
-  name: "mann Matters",
-  tagline: "Your mind matters. mann Matters.",
-  url: "https://mannmatters.in",
-  email: "hello@mannmatters.in",
+  name: "Emoraa",
+  tagline: "Your mind matters.",
+  url: "https://emoraa.in",
+  email: "hello@emoraa.in",
   phone: "+91 90270 44817",
   whatsapp:
-    "https://wa.me/919027044817?text=Hi%20mann%20Matters%2C%20I%27d%20like%20to%20book%20a%20session",
+    "https://wa.me/919027044817?text=Hi%20Emoraa%2C%20I%27d%20like%20to%20book%20a%20session",
   location: "Noida, India — sessions online, everywhere",
   crisisNote:
     "If you're in crisis or thinking about harming yourself, please don't wait for an appointment. Call Tele-MANAS at 14416 — free, confidential, 24x7, in 20+ Indian languages.",

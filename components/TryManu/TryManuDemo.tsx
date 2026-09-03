@@ -2,15 +2,31 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { scenarios, type Message } from "./scenarios";
+import {
+  DEFAULT_LANG,
+  LANGUAGES,
+  UI,
+  scenarios,
+  type Lang,
+  type Message,
+} from "./scenarios";
 import TypingDots from "./TypingDots";
 
-type DisplayMessage = Message & { id: string };
+type DisplayMessage = Message & {
+  id: string;
+  /**
+   * Where this bubble came from in the scripted thread. Present only on scripted
+   * lines — that's what makes them translatable in place. A visitor's own typed
+   * words carry no ref and are never rewritten.
+   */
+  script?: { scenario: string; index: number };
+  /** Manu's stock reply to free text; has a counterpart in every language. */
+  canned?: boolean;
+};
 
 const TYPING_DELAY = 900;
 const MESSAGE_GAP = 400;
-const CANNED_REPLY =
-  "Main yahin hoon. Sign in karke poori baat karein?";
+const LANG_KEY = "emoraa.manu.lang";
 
 function useReducedMotion() {
   const [reduced, setReduced] = useState(false);
@@ -29,6 +45,10 @@ function makeId() {
   return `msg-${++msgCounter}-${Date.now()}`;
 }
 
+function isLang(value: unknown): value is Lang {
+  return LANGUAGES.some((l) => l.id === value);
+}
+
 export default function TryManuDemo({
   liveMode = false,
   onTryLive,
@@ -43,9 +63,20 @@ export default function TryManuDemo({
   const [typing, setTyping] = useState(false);
   const [activeScenario, setActiveScenario] = useState(scenarios[0].id);
   const [input, setInput] = useState("");
+  // SSR and first paint always use the default; a saved preference is applied
+  // on mount, so the server and client markup can't disagree
+  const [lang, setLang] = useState<Lang>(DEFAULT_LANG);
   const tokenRef = useRef(0);
+  // read inside the playback loop so a language change mid-animation is picked
+  // up by the messages still to come, not just the ones already on screen
+  const langRef = useRef<Lang>(DEFAULT_LANG);
   const listRef = useRef<HTMLDivElement>(null);
   const reducedMotion = useReducedMotion();
+
+  const ui = UI[lang];
+  const langTag = LANGUAGES.find((l) => l.id === lang)?.tag ?? "en";
+  // Plus Jakarta Sans has no Devanagari; Tiro is the brand's script face
+  const bodyFont = lang === "hi" ? "font-deva" : "font-sans";
 
   const scrollToBottom = useCallback(() => {
     requestAnimationFrame(() => {
@@ -54,13 +85,22 @@ export default function TryManuDemo({
   }, []);
 
   const playThread = useCallback(
-    async (thread: Message[]) => {
+    async (scenarioId: string) => {
+      const scenario = scenarios.find((s) => s.id === scenarioId);
+      if (!scenario) return;
+
       const token = ++tokenRef.current;
       setMessages([]);
       setTyping(false);
 
-      for (const msg of thread) {
+      const count = scenario.thread[langRef.current].length;
+
+      for (let i = 0; i < count; i++) {
         if (tokenRef.current !== token) return;
+
+        // resolved per step, against whichever language is current right now
+        const msg = scenario.thread[langRef.current][i];
+        if (!msg) return;
 
         if (msg.role === "manu" && !reducedMotion) {
           setTyping(true);
@@ -70,7 +110,10 @@ export default function TryManuDemo({
           setTyping(false);
         }
 
-        setMessages((prev) => [...prev, { ...msg, id: makeId() }]);
+        setMessages((prev) => [
+          ...prev,
+          { ...msg, id: makeId(), script: { scenario: scenario.id, index: i } },
+        ]);
         scrollToBottom();
 
         if (!reducedMotion) {
@@ -82,17 +125,56 @@ export default function TryManuDemo({
   );
 
   useEffect(() => {
-    playThread(scenarios[0].thread);
+    let initial = DEFAULT_LANG;
+    try {
+      const saved = window.localStorage.getItem(LANG_KEY);
+      if (isLang(saved)) initial = saved;
+    } catch {
+      // private mode, blocked storage — the default is a fine answer
+    }
+    langRef.current = initial;
+    setLang(initial);
+    playThread(scenarios[0].id);
+
     return () => {
       ++tokenRef.current;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /**
+   * Convert the conversation already on screen, rather than replaying it. The
+   * reader keeps their place — same bubbles, same order, new language — which
+   * is the whole point: seeing the *same* care expressed in your own words.
+   */
+  const changeLang = (next: Lang) => {
+    if (next === lang) return;
+
+    langRef.current = next;
+    setLang(next);
+    try {
+      window.localStorage.setItem(LANG_KEY, next);
+    } catch {
+      // preference just won't persist; nothing else depends on it
+    }
+
+    setMessages((prev) =>
+      prev.map((m) => {
+        if (m.script) {
+          const scenario = scenarios.find((s) => s.id === m.script!.scenario);
+          const replacement = scenario?.thread[next][m.script!.index];
+          return replacement ? { ...m, text: replacement.text } : m;
+        }
+        if (m.canned) return { ...m, text: UI[next].cannedReply };
+        // whatever the visitor typed stays exactly as they wrote it
+        return m;
+      }),
+    );
+  };
+
   const selectScenario = (id: string) => {
     setActiveScenario(id);
-    const s = scenarios.find((sc) => sc.id === id);
-    if (s) playThread(s.thread);
+    playThread(id);
   };
 
   const handleSend = async () => {
@@ -103,6 +185,8 @@ export default function TryManuDemo({
     setMessages((prev) => [...prev, { role: "user", text, id: makeId() }]);
     scrollToBottom();
 
+    const fallback = UI[langRef.current].cannedReply;
+
     if (liveMode) {
       setTyping(true);
       scrollToBottom();
@@ -110,19 +194,22 @@ export default function TryManuDemo({
         const res = await fetch("/api/manu-demo", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text }),
+          // tell the endpoint which language to answer in
+          body: JSON.stringify({ message: text, lang: langRef.current }),
         });
         const data = await res.json();
         setTyping(false);
         setMessages((prev) => [
           ...prev,
-          { role: "manu", text: data.reply ?? CANNED_REPLY, id: makeId() },
+          data.reply
+            ? { role: "manu", text: data.reply, id: makeId() }
+            : { role: "manu", text: fallback, id: makeId(), canned: true },
         ]);
       } catch {
         setTyping(false);
         setMessages((prev) => [
           ...prev,
-          { role: "manu", text: CANNED_REPLY, id: makeId() },
+          { role: "manu", text: fallback, id: makeId(), canned: true },
         ]);
       }
       scrollToBottom();
@@ -138,7 +225,7 @@ export default function TryManuDemo({
 
     setMessages((prev) => [
       ...prev,
-      { role: "manu", text: CANNED_REPLY, id: makeId() },
+      { role: "manu", text: fallback, id: makeId(), canned: true },
     ]);
     scrollToBottom();
   };
@@ -181,11 +268,47 @@ export default function TryManuDemo({
         </a>
       </div>
 
+      {/* Language switcher */}
+      <div className="flex items-center justify-between gap-3 border-b border-sage/10 bg-ivory/40 px-4 py-2.5">
+        <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.14em] text-ink/45">
+          {ui.languageLabel}
+        </span>
+        <div
+          role="radiogroup"
+          aria-label={ui.languageLabel}
+          className="inline-flex items-center gap-0.5 rounded-full bg-sage/20 p-0.5"
+        >
+          {LANGUAGES.map((l) => {
+            const active = lang === l.id;
+            return (
+              <button
+                key={l.id}
+                type="button"
+                role="radio"
+                aria-checked={active}
+                lang={l.tag}
+                onClick={() => changeLang(l.id)}
+                className={`rounded-full px-3 py-1 text-[13px] leading-5 transition-all ${
+                  l.id === "hi" ? "font-deva" : "font-sans"
+                } ${
+                  active
+                    ? "bg-forest text-ivory shadow-lift font-semibold"
+                    : "text-forest-700 hover:bg-sage/30 font-medium"
+                }`}
+              >
+                {l.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Scenario chips */}
       <div
         className="flex gap-2 overflow-x-auto px-4 py-3 border-b border-sage/10 scrollbar-none"
         role="tablist"
-        aria-label="Conversation scenarios"
+        aria-label={ui.scenarioListLabel}
+        lang={langTag}
       >
         {scenarios.map((s) => (
           <button
@@ -193,13 +316,13 @@ export default function TryManuDemo({
             role="tab"
             aria-selected={activeScenario === s.id}
             onClick={() => selectScenario(s.id)}
-            className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-sans transition-all whitespace-nowrap ${
+            className={`shrink-0 rounded-full px-4 py-1.5 text-sm transition-all whitespace-nowrap ${bodyFont} ${
               activeScenario === s.id
                 ? "bg-forest text-ivory shadow-lift"
                 : "bg-sage/15 text-forest-700 hover:bg-sage/30"
             }`}
           >
-            {s.chipLabel}
+            {s.chipLabel[lang]}
           </button>
         ))}
       </div>
@@ -209,7 +332,8 @@ export default function TryManuDemo({
         ref={listRef}
         role="log"
         aria-live="polite"
-        aria-label="Chat messages"
+        aria-label={ui.chatLabel}
+        lang={langTag}
         className="flex flex-col gap-3 px-4 py-5 h-80 overflow-y-auto scroll-smooth"
       >
         <AnimatePresence mode="popLayout">
@@ -219,7 +343,7 @@ export default function TryManuDemo({
               layout
               {...bubbleVariants}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-[15px] leading-relaxed font-sans ${
+              className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-[15px] leading-relaxed ${bodyFont} ${
                 msg.role === "user"
                   ? "self-end bg-gold/25 text-forest-900 rounded-br-md"
                   : "self-start bg-sage/20 text-forest-900 rounded-bl-md"
@@ -250,15 +374,16 @@ export default function TryManuDemo({
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Apne mann ki baat likho…"
-            className="flex-1 rounded-xl bg-ivory px-4 py-2.5 text-sm text-forest-900 placeholder:text-ink/40 border border-sage/20 focus:border-gold focus:ring-1 focus:ring-gold/50 outline-none transition-colors"
-            aria-label="Type a message to Manu"
+            placeholder={ui.placeholder}
+            lang={langTag}
+            className={`flex-1 rounded-xl bg-ivory px-4 py-2.5 text-sm text-forest-900 placeholder:text-ink/40 border border-sage/20 focus:border-gold focus:ring-1 focus:ring-gold/50 outline-none transition-colors ${bodyFont}`}
+            aria-label={ui.inputLabel}
           />
           <button
             type="submit"
             disabled={!input.trim()}
             className="rounded-xl bg-gold px-4 py-2.5 text-sm font-semibold text-forest-950 hover:bg-gold-light disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-            aria-label="Send message"
+            aria-label={ui.sendLabel}
           >
             <svg viewBox="0 0 20 20" className="h-5 w-5 fill-current" aria-hidden="true">
               <path d="M2.94 4.34a1 1 0 0 1 1.34-.47L17.7 9.53a1 1 0 0 1 0 1.79l-13.42 5.66a1 1 0 0 1-1.38-1.13l1.5-5.1a.5.5 0 0 0 0-.28l-1.5-5.1a1 1 0 0 1 .04-.63Z" />
@@ -267,15 +392,16 @@ export default function TryManuDemo({
         </form>
 
         <div className="mt-3 flex flex-col items-center gap-2">
-          <p className="text-xs text-ink/40 text-center font-sans">
-            This is a preview. Manu remembers more once you sign&nbsp;in.
+          <p className={`text-xs text-ink/40 text-center ${bodyFont}`} lang={langTag}>
+            {ui.previewNote}
           </p>
           {!embedded && (
             <button
               onClick={onTryLive ?? (() => (window.location.href = "/manu"))}
-              className="rounded-full bg-forest px-6 py-2.5 text-sm font-semibold text-ivory hover:bg-forest-700 transition-colors"
+              lang={langTag}
+              className={`rounded-full bg-forest px-6 py-2.5 text-sm font-semibold text-ivory hover:bg-forest-700 transition-colors ${bodyFont}`}
             >
-              Try Manu live — no sign-up →
+              {ui.tryLive}
             </button>
           )}
         </div>
