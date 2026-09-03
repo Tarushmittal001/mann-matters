@@ -9,12 +9,14 @@
 
   html {
     scroll-padding-top: 96px;
+    overflow-x: clip;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   body {
     @apply bg-ivory font-sans text-ink;
+    overflow-x: clip;
     font-size: 17px;
     line-height: 1.75;
     text-rendering: optimizeLegibility;
@@ -52,14 +54,14 @@
   }
 
   .section {
-    @apply py-16 md:py-24;
+    @apply py-14 md:py-24;
   }
 
   /* One top offset for every page under the fixed header. The header is 84px
      tall at rest, so this leaves a deliberate ~45px of air — not the 130px the
      ad-hoc pt-36/pt-40/pt-44/pt-48 values were each inventing separately. */
   .page-top {
-    @apply pt-28 md:pt-32;
+    @apply pt-24 sm:pt-28 md:pt-32;
   }
 
   .eyebrow {
@@ -136,6 +138,18 @@
   }
   .prose-mm blockquote {
     @apply my-12 border-l-2 border-gold pl-7 font-display text-2xl font-medium italic leading-snug text-forest-800 md:text-3xl;
+  }
+}
+
+@media (max-width: 639px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  body:has([data-safety-notice]) .support-launcher {
+    display: none;
   }
 }
 

@@ -31,7 +31,7 @@ export default function BackButton() {
         type="button"
         onClick={() => (hasHistory ? router.back() : router.push("/"))}
         aria-label={hasHistory ? "Go back" : "Go to the home page"}
-        className="peer group grid h-9 w-9 place-items-center rounded-full text-forest-800/70 ring-1 ring-inset ring-forest-800/15 transition-all duration-300 ease-silk hover:bg-forest-800 hover:text-ivory hover:ring-forest-800 focus-visible:bg-forest-800 focus-visible:text-ivory active:scale-90"
+        className="peer group grid h-11 w-11 place-items-center rounded-full text-forest-800/70 ring-1 ring-inset ring-forest-800/15 transition-all duration-300 ease-silk hover:bg-forest-800 hover:text-ivory hover:ring-forest-800 focus-visible:bg-forest-800 focus-visible:text-ivory active:scale-90 sm:h-10 sm:w-10"
       >
         <svg
           width="15"

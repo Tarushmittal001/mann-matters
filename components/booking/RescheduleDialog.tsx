@@ -118,7 +118,7 @@ export default function RescheduleDialog({ booking }: { booking: SerializedBooki
               exit={{ opacity: 0, y: 16, scale: 0.98 }}
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
               onClick={(e) => e.stopPropagation()}
-              className="max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-t-3xl border border-forest-800/10 bg-ivory-light p-7 shadow-bloom sm:rounded-3xl"
+              className="max-h-[calc(100dvh-1rem)] w-full max-w-xl overflow-y-auto overscroll-contain rounded-t-3xl border border-forest-800/10 bg-ivory-light p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-bloom sm:max-h-[92vh] sm:rounded-3xl sm:p-7"
             >
               <div className="flex items-start justify-between gap-6">
                 <div>
@@ -131,7 +131,7 @@ export default function RescheduleDialog({ booking }: { booking: SerializedBooki
                   ref={closeRef}
                   type="button"
                   onClick={() => !busy && setOpen(false)}
-                  className="rounded-full p-2 text-ink/50 transition-colors hover:bg-forest-800/5 hover:text-forest-900"
+                  className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink/50 transition-colors hover:bg-forest-800/5 hover:text-forest-900"
                   aria-label="Close"
                 >
                   <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
@@ -162,11 +162,11 @@ export default function RescheduleDialog({ booking }: { booking: SerializedBooki
                 />
               </div>
 
-              <div className="mt-8 flex flex-wrap items-center justify-end gap-4">
+              <div className="mt-8 flex flex-col-reverse items-stretch gap-3 min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-end">
                 <button
                   type="button"
                   onClick={() => !busy && setOpen(false)}
-                  className="text-sm font-medium text-ink/55 hover:text-forest-900"
+                  className="min-h-11 px-4 text-sm font-medium text-ink/55 hover:text-forest-900"
                 >
                   Never mind
                 </button>

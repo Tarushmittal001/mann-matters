@@ -178,21 +178,23 @@ export default function Navbar() {
     <>
       <header
         className={cn(
-          "fixed inset-x-0 top-0 z-50 transition-all duration-500 ease-silk",
-          scrolled
+          "fixed inset-x-0 top-0 z-[70] transition-all duration-500 ease-silk",
+          open
+            ? "bg-forest-900 py-3"
+            : scrolled
             ? "border-b border-forest-800/10 bg-ivory/80 py-3 backdrop-blur-xl"
             : "bg-transparent py-5"
         )}
       >
         <nav className="wrap-wide flex items-center justify-between gap-6" aria-label="Main">
           <div className="flex shrink-0 items-center gap-3">
-            <BackButton />
+            {!open && <BackButton />}
             <Link href="/" className="group flex items-baseline gap-2 whitespace-nowrap">
-              <span className="font-display text-[1.3rem] font-semibold tracking-tight text-forest-900">
+              <span className={cn("font-display text-[1.3rem] font-semibold tracking-tight", open ? "text-ivory" : "text-forest-900")}>
                 Emoraa
               </span>
               <span
-                className="font-deva text-sm text-gold transition-opacity duration-300 group-hover:opacity-100 xl:opacity-60"
+                className={cn("font-deva text-sm text-gold transition-opacity duration-300 group-hover:opacity-100", !open && "xl:opacity-60")}
                 aria-hidden="true"
               >
                 मन
@@ -252,7 +254,7 @@ export default function Navbar() {
           </div>
 
           <button
-            className="relative z-[70] flex h-10 w-10 shrink-0 flex-col items-center justify-center gap-[5px] xl:hidden"
+            className="relative z-[70] flex h-11 w-11 shrink-0 flex-col items-center justify-center gap-[5px] xl:hidden"
             onClick={() => setOpen(!open)}
             aria-expanded={open}
             aria-label={open ? "Close menu" : "Open menu"}
@@ -276,7 +278,7 @@ export default function Navbar() {
       <AnimatePresence>
         {open && (
           <motion.div
-            className="fixed inset-0 z-[60] flex flex-col justify-center overflow-y-auto bg-forest-900 px-8 py-24 xl:hidden"
+            className="fixed inset-0 z-[60] flex flex-col justify-start overflow-y-auto overscroll-contain bg-forest-900 px-5 pb-[max(2rem,env(safe-area-inset-bottom))] pt-24 sm:px-8 sm:pt-28 xl:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -303,7 +305,7 @@ export default function Navbar() {
                     <Link
                       href={l.href}
                       className={cn(
-                        "font-display text-[2rem] font-medium leading-[1.4] text-ivory transition-colors hover:text-gold sm:text-4xl",
+                        "font-display text-[1.75rem] font-medium leading-[1.35] text-ivory transition-colors hover:text-gold sm:text-4xl",
                         l.href === "/book" && "text-gold",
                         l.href.startsWith("/crisis") && "text-red-400 hover:text-red-300"
                       )}
@@ -317,7 +319,7 @@ export default function Navbar() {
 
             {/* Free tools — compact group so the menu stays in view */}
             <motion.div
-              className="mt-8 border-t border-ivory/10 pt-6"
+              className="mt-6 border-t border-ivory/10 pt-5 sm:mt-8 sm:pt-6"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}

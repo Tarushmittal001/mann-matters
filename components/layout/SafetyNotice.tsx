@@ -26,14 +26,66 @@ export default function SafetyNotice() {
           Safety Info
         </motion.button>
       ) : (
-        <motion.div
+        <>
+          <motion.div
+            key="mobile-banner"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 30 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            role="alert"
+            data-safety-notice
+            className="fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-3 right-3 z-50 rounded-2xl border border-forest-600/15 bg-ivory/95 p-4 shadow-bloom backdrop-blur-md sm:hidden"
+          >
+            <div className="flex items-start gap-3">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-forest-100">
+                <svg viewBox="0 0 20 20" className="h-4 w-4 fill-forest-700" aria-hidden="true">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 2.066A1.75 1.75 0 0 0 10.747 15H11a.75.75 0 0 0 0-1.5h-.253a.25.25 0 0 1-.244-.304l.459-2.066A1.75 1.75 0 0 0 9.253 9H9Z" clipRule="evenodd" />
+                </svg>
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="font-display text-base font-medium leading-tight text-forest-900">
+                  Safety and crisis support
+                </p>
+                <p className="mt-1 text-xs leading-relaxed text-ink/60">
+                  Emoraa is not an emergency service. Immediate help is available 24x7.
+                </p>
+              </div>
+            </div>
+            <div className="mt-3 flex items-center gap-2">
+              <a
+                href="tel:14416"
+                className="flex min-h-11 flex-1 items-center justify-center rounded-full bg-forest px-4 text-sm font-semibold text-ivory"
+              >
+                Call 14416
+              </a>
+              <a
+                href="/crisis?sos=true"
+                className="flex min-h-11 flex-1 items-center justify-center rounded-full border border-forest-600/20 bg-ivory-light px-4 text-sm font-semibold text-forest-800"
+              >
+                More support
+              </a>
+              <button
+                type="button"
+                onClick={() => setState("dismissed")}
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink/55 ring-1 ring-inset ring-forest-600/20"
+                aria-label="Dismiss safety notice"
+              >
+                <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <path d="M5 5l10 10M15 5 5 15" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+          </motion.div>
+
+          <motion.div
           key="banner"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 30 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           role="alert"
-          className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-2xl rounded-2xl border border-forest-600/15 bg-ivory/95 p-5 shadow-bloom backdrop-blur-md sm:bottom-6 sm:left-6 sm:right-6"
+          className="fixed bottom-6 left-6 right-6 z-50 mx-auto hidden max-w-2xl rounded-2xl border border-forest-600/15 bg-ivory/95 p-5 shadow-bloom backdrop-blur-md sm:block"
         >
           {/* Header */}
           <div className="flex items-start gap-3 mb-3">
@@ -95,7 +147,8 @@ export default function SafetyNotice() {
               Your safety comes first, always.
             </span>
           </div>
-        </motion.div>
+          </motion.div>
+        </>
       )}
     </AnimatePresence>
   );

@@ -100,7 +100,7 @@ export default function ChatAssistant() {
   };
 
   return (
-    <div className="fixed bottom-6 left-6 z-50">
+    <div className="support-launcher fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 z-50 sm:bottom-6 sm:left-6">
       <AnimatePresence>
         {open && (
           <motion.div
@@ -108,7 +108,7 @@ export default function ChatAssistant() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.96 }}
             transition={{ duration: 0.35, ease: EASE }}
-            className="absolute bottom-16 left-0 flex h-[30rem] w-[22rem] max-w-[calc(100vw-3rem)] flex-col overflow-hidden rounded-2xl border border-forest-800/10 bg-ivory-light shadow-bloom"
+            className="absolute bottom-16 left-0 flex h-[min(30rem,calc(100dvh-6rem))] w-[calc(100vw-2rem)] max-w-[22rem] flex-col overflow-hidden rounded-2xl border border-forest-800/10 bg-ivory-light shadow-bloom sm:w-[22rem]"
           >
             {/* header */}
             <div className="flex items-center gap-3 bg-forest-900 px-5 py-4">
