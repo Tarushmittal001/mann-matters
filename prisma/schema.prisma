@@ -16,9 +16,17 @@ model User {
   role          String              @default("USER")
   // null until the user confirms their email address
   emailVerified DateTime?
+  // profile — all optional, all volunteered
+  phone         String?
+  language      String?
+  // free-text; treated as sensitive health data, never rendered outside the owner's own pages
+  notes         String?
   createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @default(now()) @updatedAt
   bookings      Booking[]
   verifications VerificationToken[]
+
+  @@index([role])
 }
 
 model VerificationToken {
@@ -47,7 +55,65 @@ model Booking {
   date       String
   time       String
   amount     Int
-  // "CONFIRMED" | "CANCELLED"
-  status     String   @default("CONFIRMED")
+
+  // "PENDING_PAYMENT" | "CONFIRMED" | "CANCELLED" | "EXPIRED"
+  status     String   @default("PENDING_PAYMENT")
+
+  // "expertId|date|time" while this booking holds the slot; NULL once released.
+  // UNIQUE — this is what makes double-booking impossible at the database level.
+  // SQLite treats NULLs as distinct, so released slots don't collide.
+  slotKey    String?  @unique
+
+  // an unpaid booking holds its slot only until this moment
+  holdExpiresAt   DateTime?
+
+  cancelledAt     DateTime?
+  // "USER" | "ADMIN" | "SYSTEM"
+  cancelledBy     String?
+  rescheduleCount Int       @default(0)
+  previousDate    String?
+  previousTime    String?
+
   createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  payment    Payment?
+
+  @@index([userId, date])
+  @@index([expertId, date])
+  @@index([status, date])
+}
+
+model Payment {
+  id        String  @id @default(cuid())
+  bookingId String  @unique
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  amount   Int
+  currency String @default("INR")
+  // "PENDING" | "PAID" | "FAILED" | "REFUNDED"
+  status   String @default("PENDING")
+
+  // "upi" | "card" — never the instrument itself
+  method    String?
+  // the ONLY card data we are allowed to keep: brand + last four digits
+  cardBrand String?
+  last4     String?
+  // a UPI handle with the local part masked, e.g. "pr••••@okhdfcbank"
+  vpaMasked String?
+
+  // gateway transaction reference, safe to show the user
+  reference      String?
+  failureCode    String?
+  failureMessage String?
+  attempts       Int     @default(0)
+
+  paidAt       DateTime?
+  refundedAt   DateTime?
+  refundAmount Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([status])
 }

@@ -4,7 +4,7 @@ import AuthForm from "@/components/auth/AuthForm";
 
 export const metadata: Metadata = {
   title: "Sign up",
-  description: "Create a mann Matters account to book and manage your therapy sessions.",
+  description: "Create a Emoraa account to book and manage your therapy sessions.",
 };
 
 export default function SignupPage() {

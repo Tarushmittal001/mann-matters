@@ -23,7 +23,7 @@ export default function Footer() {
       <div className="wrap-wide grid gap-14 py-20 md:grid-cols-12 md:py-24">
         <div className="md:col-span-5">
           <p className="flex items-baseline gap-2 font-display text-2xl font-semibold tracking-tight">
-            mann Matters
+            Emoraa
             <span className="font-deva text-base text-gold" aria-hidden="true">
               मन
             </span>
@@ -114,9 +114,9 @@ export default function Footer() {
             <a href="tel:14416" className="font-semibold text-ivory underline decoration-gold/50 underline-offset-4">
               14416
             </a>{" "}
-            — free, confidential, 24x7, in 20+ Indian languages. mann Matters is not a crisis service.
+            — free, confidential, 24x7, in 20+ Indian languages. Emoraa is not a crisis service.
           </p>
-          <p className="mt-4 text-sm text-sage-light/40">© 2026 mann Matters. Made with care in India.</p>
+          <p className="mt-4 text-sm text-sage-light/40">© 2026 Emoraa. Made with care in India.</p>
         </div>
       </div>
     </footer>
