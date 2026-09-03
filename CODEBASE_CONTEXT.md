@@ -6,7 +6,7 @@
 > Last full scan: 2026-08-27 · branch `Tarush` · 1 commit (`1b29a2d Initial commit`).
 > Renamed 2026-08-30: **mann Matters → Emoraa** (domain `emoraa.in`, cookie `emoraa_session`,
 > booking refs `EM-`). Bookings created before the rename keep their `MM-` refs.
-> Last updated: 2026-08-27 — client journey build-out (payments, reschedule, profile,
+> Last updated: 2026-09-04 — booking feature boundary introduced; client journey build-out (payments, reschedule, profile,
 > real availability, state coverage, security hardening). Sections revised: Tech Stack,
 > Project Structure, Architecture, Core Modules, API Reference, Database, Business Rules,
 > Testing, Known Technical Debt, Change Impact Map, File Importance Ranking, Glossary.
@@ -37,7 +37,7 @@ Everything needed to start work with no extra reading:
 - **Booking lifecycle**: `PENDING_PAYMENT` (slot held ~15 min) → `CONFIRMED` on payment
   → `CANCELLED`; or → `EXPIRED` if the hold lapses unpaid. Holds are swept lazily by
   `releaseExpiredHolds()` on every availability read and competing write — there is no cron.
-- **All policy lives in `lib/booking-policy.ts`** (IST math, 24-hour change window, refunds,
+- **All policy lives in `lib/features/booking/policy.ts`** (IST math, 24-hour change window, refunds,
   hold TTL, max reschedules). Client and server both import it, so copy and logic agree.
 - **Styling**: Tailwind + brand tokens in `tailwind.config.ts`; shared component classes
   (`.wrap`, `.page-top`, `.eyebrow`, `.h-display`, `.prose-mm`, `.link-draw`, `.card-lift`)
@@ -219,10 +219,13 @@ Everything needed to start work with no extra reading:
 - `icons/ToolIcons.tsx`: `TOOL_ICONS` map resolving `Tool.icon` keys → SVG.
 
 ### `lib/` — data + logic (no React)
-- **Server-only**: `auth.ts`, `db.ts`, `verification.ts`, `email.ts`, `bookings.ts`
-  (slot holds, sweeps, ownership, serialization), `payments.ts` (gateway simulator),
+- **Feature modules**: `features/booking/policy.ts` is isomorphic; `features/booking/server.ts`
+  owns slot holds, sweeps, ownership, and serialization. Root `booking-policy.ts` and
+  `bookings.ts` are compatibility exports for incremental migration only.
+- **Server-only**: `auth.ts`, `db.ts`, `verification.ts`, `email.ts`,
+  `payments.ts` (gateway simulator),
   `http.ts` (response envelope, no-store, same-origin, safe logging), `rate-limit.ts`.
-- **Isomorphic (client + server)**: `booking-policy.ts` (**the rules**), `validation.ts`
+- **Isomorphic (client + server)**: `features/booking/policy.ts` (**the rules**), `validation.ts`
   (field rules), `payment-fields.ts` (Luhn, masking), `matching.ts`, `utils.ts`.
 - **Static content**: `experts.ts`, `services.ts`, `posts.ts`, `tools.ts`, `testimonials.ts`,
   `faqs.ts`, `organisations.ts`, `site.ts`.
@@ -385,7 +388,7 @@ and the home rail. `icon` is a key resolved by `ToolIcons`.
 ### `lib/site.ts` — brand constants, WhatsApp deep link, `helplines[]` (8 verified Indian
 helplines; Tele-MANAS and 112 flagged `primary`), `navLinks`, `toolLinks`, `stats`.
 
-### `lib/booking-policy.ts` — **the rules** (isomorphic, **critical**)
+### `lib/features/booking/policy.ts` — **the rules** (isomorphic, **critical**)
 - Constants: `HOLD_MINUTES` 15, `FREE_CHANGE_HOURS` 24, `MAX_RESCHEDULES` 2, `HORIZON_DAYS` 14,
   `SESSION_MINUTES` 50. Status enums for booking and payment.
 - IST time: `sessionStart(date,time)` applies `+05:30` explicitly, so the server's own timezone
@@ -395,7 +398,7 @@ helplines; Tele-MANAS and 112 flagged `primary`), `navLinks`, `toolLinks`, `stat
   `{ok} | {ok:false, code, reason}` where `reason` is user-facing prose.
 - `refundFor()` — full refund outside the window, none inside, nothing if never paid.
 
-### `lib/bookings.ts` — server-side booking mechanics
+### `lib/features/booking/server.ts` — server-side booking mechanics
 - `releaseExpiredHolds()` (lazy sweep), `dayAvailability()`, `takenSlots()`.
 - `findUserBooking(id, session)` — the single ownership gate; a mismatch returns null so the
   caller answers 404 rather than 403.
@@ -622,7 +625,7 @@ webhook signing secret, and `lib/payments.ts` is the only module that should rea
 
 **Config hierarchy**: `.env` → `process.env` → `lib/*` module constants. `lib/site.ts` holds
 non-secret brand config (url, phone, WhatsApp link) — change `site.url` before deploy.
-`lib/booking-policy.ts` holds the operational constants (hold length, change window, horizon);
+`lib/features/booking/policy.ts` holds the operational constants (hold length, change window, horizon);
 they are code, not env, on purpose — they change the product's promises, not its wiring.
 No secret manager; no `.env.production`.
 
@@ -630,7 +633,7 @@ No secret manager; no `.env.production`.
 
 ## Business Rules
 
-> All of these live in `lib/booking-policy.ts` and `lib/validation.ts`, imported by both the
+> All of these live in `lib/features/booking/policy.ts` and `lib/validation.ts`, imported by both the
 > UI and the route handlers. Change them there, once.
 
 **Validation**
@@ -827,14 +830,15 @@ bcrypt cost 10 on a serverless cold start.
 ## Change Impact Map
 
 **Booking rules — hold time, 24h window, refunds, reschedule limit, horizon →**
-`lib/booking-policy.ts` **only** (client and server both read it) · then check the copy it
+`lib/features/booking/policy.ts` **only** (client and server both read it) · then check the copy it
 feeds: `changePolicyNote` in `BookingFlow`, `RescheduleDialog`, `dashboard/page.tsx`.
 
 **Slots / experts / prices →** `lib/experts.ts` (source of truth) · `app/api/bookings/route.ts`
 · `app/api/availability/route.ts` · `components/booking/SlotPicker.tsx` · `BookingCard`.
 
 **Availability or double-booking behaviour →** `prisma/schema.prisma` (`slotKey` UNIQUE) ·
-`lib/bookings.ts` (`slotKey`, `holdsSlot`, `releaseExpiredHolds`, `takenSlots`) ·
+`lib/features/booking/policy.ts` (`slotKey`, `holdsSlot`) ·
+`lib/features/booking/server.ts` (`releaseExpiredHolds`, `takenSlots`) ·
 `app/api/{availability,bookings,bookings/[id]/reschedule,bookings/[id]/cancel}` · `SlotPicker`.
 **Re-run the concurrency check after any change here.**
 
@@ -871,7 +875,7 @@ in-place switch mismatches. `TryManuDemo.tsx` needs no change.
 `components/ui/Feedback.tsx` (`CrisisLine`, used across the journey).
 
 **Schema change →** `prisma/schema.prisma` → `npx prisma db push` + `prisma generate` →
-consumers: `lib/bookings.ts` (**`serializeBooking` is an allow-list — a new column is invisible
+consumers: `lib/features/booking/server.ts` (**`serializeBooking` is an allow-list — a new column is invisible
 to the client until added there, which is the safe default**), `app/api/**`, `dashboard`,
 `dashboard/profile`, `admin`, `prisma/seed.mjs`.
 
@@ -899,7 +903,7 @@ alone used to fail validation silently.
 ## File Importance Ranking
 
 **Critical** — read before touching anything adjacent
-`prisma/schema.prisma` · `lib/booking-policy.ts` · `lib/bookings.ts` · `lib/auth.ts` ·
+`prisma/schema.prisma` · `lib/features/booking/{policy,server}.ts` · `lib/auth.ts` ·
 `middleware.ts` · `lib/http.ts` · `lib/db.ts` · `app/api/bookings/route.ts` ·
 `app/api/payments/route.ts` · `app/api/availability/route.ts` · `lib/experts.ts` ·
 `app/layout.tsx` · `tailwind.config.ts` · `app/globals.css` ·

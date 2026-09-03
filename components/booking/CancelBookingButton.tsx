@@ -4,9 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Alert, Spinner } from "@/components/ui/Feedback";
-import { canCancel, refundFor } from "@/lib/booking-policy";
+import { canCancel, refundFor } from "@/lib/features/booking/policy";
 import { cn, formatINR } from "@/lib/utils";
-import type { SerializedBooking } from "@/lib/bookings";
+import type { SerializedBooking } from "@/lib/features/booking/server";
 
 /**
  * Cancelling, with the consequence shown before the decision.

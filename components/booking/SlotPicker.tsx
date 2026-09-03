@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { timeSlots } from "@/lib/experts";
-import { HORIZON_DAYS, istDateOffset } from "@/lib/booking-policy";
+import { HORIZON_DAYS, istDateOffset } from "@/lib/features/booking/policy";
 import { cn } from "@/lib/utils";
 import { Alert, EmptyState, Skeleton } from "@/components/ui/Feedback";
 

@@ -6,8 +6,8 @@ import {
   releaseExpiredHolds,
   serializeBooking,
   takenSlots,
-} from "@/lib/bookings";
-import { canReschedule, slotKey, validateSlot } from "@/lib/booking-policy";
+} from "@/lib/features/booking/server";
+import { canReschedule, slotKey, validateSlot } from "@/lib/features/booking/policy";
 import { errors, isSameOrigin, logFailure, privateJson, readJson } from "@/lib/http";
 
 export const dynamic = "force-dynamic";

@@ -4,8 +4,8 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { concerns } from "@/lib/experts";
-import { releaseExpiredHolds } from "@/lib/bookings";
-import { BOOKING_STATUS, PAYMENT_STATUS, todayIST } from "@/lib/booking-policy";
+import { releaseExpiredHolds } from "@/lib/features/booking/server";
+import { BOOKING_STATUS, PAYMENT_STATUS, todayIST } from "@/lib/features/booking/policy";
 import { cn, formatDateISO, formatINR } from "@/lib/utils";
 import LogoutButton from "@/components/auth/LogoutButton";
 

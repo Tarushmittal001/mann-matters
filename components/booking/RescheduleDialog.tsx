@@ -6,8 +6,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import Button from "@/components/ui/Button";
 import { Alert, Spinner } from "@/components/ui/Feedback";
 import SlotPicker, { type SlotSelection } from "@/components/booking/SlotPicker";
-import { MAX_RESCHEDULES, canReschedule, changePolicyNote } from "@/lib/booking-policy";
-import type { SerializedBooking } from "@/lib/bookings";
+import { MAX_RESCHEDULES, canReschedule, changePolicyNote } from "@/lib/features/booking/policy";
+import type { SerializedBooking } from "@/lib/features/booking/server";
 
 /**
  * Moving a session, in a dialog rather than a new page — losing the dashboard
