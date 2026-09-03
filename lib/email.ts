@@ -8,7 +8,7 @@ type Email = { to: string; subject: string; html: string; text: string };
 
 const FROM = process.env.EMAIL_FROM || "mann Matters <onboarding@resend.dev>";
 
-async function deliver(email: Email): Promise<void> {
+async function deliver(email: Email): Promise<boolean> {
   const key = process.env.RESEND_API_KEY;
 
   if (!key) {
@@ -23,7 +23,7 @@ async function deliver(email: Email): Promise<void> {
         "",
       ].join("\n")
     );
-    return;
+    return false;
   }
 
   const res = await fetch("https://api.resend.com/emails", {
@@ -37,6 +37,7 @@ async function deliver(email: Email): Promise<void> {
   if (!res.ok) {
     throw new Error(`Email send failed: ${res.status} ${await res.text()}`);
   }
+  return true;
 }
 
 export async function sendVerificationEmail(to: string, name: string, link: string) {
@@ -54,4 +55,24 @@ export async function sendVerificationEmail(to: string, name: string, link: stri
     <p style="font-size:13px;color:#7a857f;line-height:1.6">This link expires in 24 hours. If you didn't create an account, you can safely ignore this email.</p>
   </div>`;
   await deliver({ to, subject, html, text });
+}
+
+/**
+ * A one-off "this is what a notification looks like" email, sent from the
+ * expert portal. Returns whether it actually left the building — in dev it is
+ * logged to the console instead, and the portal says so rather than claiming a
+ * delivery that never happened.
+ */
+export async function sendExpertTestNotification(to: string, name: string) {
+  const subject = "Test notification · mann Matters expert portal";
+  const text = `Hi ${name}, this is the test notification you asked for from your expert portal. Real alerts about bookings, cancellations and reminders arrive looking like this.`;
+  const html = `
+  <div style="font-family:Georgia,serif;max-width:480px;margin:0 auto;padding:32px;color:#1F2D28">
+    <p style="font-size:20px;font-weight:600;color:#0A2E28;margin:0 0 4px">mann Matters</p>
+    <p style="color:#1A5A4D;margin:0 0 24px">Expert portal</p>
+    <h1 style="font-size:24px;color:#0A2E28;margin:0 0 12px">Your notifications are working, ${name}.</h1>
+    <p style="line-height:1.6;color:#3a4a44">This is a test you triggered yourself. Alerts about new bookings, cancellations and session reminders arrive here, looking like this.</p>
+    <p style="font-size:13px;color:#7a857f;line-height:1.6">Change what reaches you, and when, from Notifications in the expert portal.</p>
+  </div>`;
+  return deliver({ to, subject, html, text });
 }

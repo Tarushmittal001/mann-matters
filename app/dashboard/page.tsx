@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { concerns, experts } from "@/lib/experts";
 import { cn, formatDateISO, formatINR, todayISO } from "@/lib/utils";
+import { STATUS_META, isSessionStatus } from "@/lib/expert-portal";
 import Button from "@/components/ui/Button";
 import LogoutButton from "@/components/auth/LogoutButton";
 import CancelBookingButton from "@/components/booking/CancelBookingButton";
@@ -33,6 +34,7 @@ function BookingCard({ booking, upcoming }: { booking: BookingRow; upcoming: boo
   const expert = experts.find((e) => e.id === booking.expertId);
   const concern = concerns.find((c) => c.id === booking.concern);
   const cancelled = booking.status === "CANCELLED";
+  const status = isSessionStatus(booking.status) ? booking.status : "CONFIRMED";
 
   return (
     <div
@@ -56,10 +58,10 @@ function BookingCard({ booking, upcoming }: { booking: BookingRow; upcoming: boo
           <span
             className={cn(
               "rounded-full px-2.5 py-0.5 text-[0.7rem] font-semibold uppercase tracking-[0.12em]",
-              cancelled ? "bg-red-50 text-red-700" : "bg-sage-light/70 text-forest-800"
+              STATUS_META[status].tone
             )}
           >
-            {cancelled ? "Cancelled" : "Confirmed"}
+            {STATUS_META[status].label}
           </span>
         </div>
         <p className="mt-1 text-sm text-ink/65">
@@ -118,6 +120,11 @@ export default async function DashboardPage() {
           {session.role === "ADMIN" && (
             <Link href="/admin" className="link-draw text-sm font-medium text-forest-800">
               Admin portal
+            </Link>
+          )}
+          {(session.role === "EXPERT" || session.role === "ADMIN") && (
+            <Link href="/expert" className="link-draw text-sm font-medium text-forest-800">
+              Expert portal
             </Link>
           )}
           <LogoutButton />
