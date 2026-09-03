@@ -23,30 +23,17 @@ export default async function DashboardPage() {
   const session = await getSession();
   if (!session) redirect("/login?next=/dashboard");
 
-  // sweep lapsed holds so the list never shows a slot the user no longer has
-  await releaseExpiredHolds();
-
-  const rows = await prisma.booking.findMany({
+  const bookings: BookingRow[] = await prisma.booking.findMany({
     where: { userId: session.sub },
     include: { payment: true },
     orderBy: [{ date: "asc" }, { time: "asc" }],
   });
 
-  const bookings = rows.map(serializeBooking);
-
-  const isUpcoming = (b: (typeof bookings)[number]) =>
-    b.status !== BOOKING_STATUS.cancelled &&
-    b.status !== BOOKING_STATUS.expired &&
-    hoursUntil(b.date, b.time) > 0;
-
-  const upcoming = bookings.filter(isUpcoming);
+  const today = todayISO();
+  const upcoming = bookings.filter((b: BookingRow) => b.status === "CONFIRMED" && b.date > today);
   const past = bookings
-    .filter((b) => !isUpcoming(b))
-    .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : b.time.localeCompare(a.time)));
-
-  const awaitingPayment = upcoming.filter(
-    (b) => b.status === BOOKING_STATUS.pendingPayment
-  ).length;
+    .filter((b: BookingRow) => b.status !== "CONFIRMED" || b.date <= today)
+    .sort((a: BookingRow, b: BookingRow) => (a.date < b.date ? 1 : -1));
 
   return (
     <div className="page-top wrap pb-28">
@@ -110,7 +97,7 @@ export default async function DashboardPage() {
           </div>
         ) : (
           <div className="mt-5 space-y-4">
-            {upcoming.map((b) => (
+            {upcoming.map((b: BookingRow) => (
               <BookingCard key={b.id} booking={b} upcoming />
             ))}
           </div>
@@ -121,7 +108,7 @@ export default async function DashboardPage() {
         <section className="mt-14">
           <h2 className="font-display text-2xl font-medium text-forest-900">Past & cancelled</h2>
           <div className="mt-5 space-y-4">
-            {past.map((b) => (
+            {past.map((b: BookingRow) => (
               <BookingCard key={b.id} booking={b} upcoming={false} />
             ))}
           </div>
