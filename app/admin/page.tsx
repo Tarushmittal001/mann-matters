@@ -16,25 +16,21 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-type AdminBooking = {
-  id: string;
-  ref: string;
-  expertName: string;
-  concern: string;
-  date: string;
-  time: string;
-  amount: number;
-  status: string;
-  createdAt: Date;
+const statusChip: Record<string, { label: string; cls: string }> = {
+  [BOOKING_STATUS.confirmed]: { label: "Confirmed", cls: "bg-sage-light/70 text-forest-800" },
+  [BOOKING_STATUS.pendingPayment]: { label: "Unpaid", cls: "bg-gold/20 text-gold-dark" },
+  [BOOKING_STATUS.cancelled]: { label: "Cancelled", cls: "bg-red-50 text-red-700" },
+  [BOOKING_STATUS.expired]: { label: "Expired", cls: "bg-forest-800/8 text-ink/55" },
 };
 
-type AdminClient = {
-  id: string;
-  name: string;
-  email: string;
-  createdAt: Date;
-  bookings: AdminBooking[];
-};
+function paymentLabel(p: { status: string; refundAmount: number | null } | null) {
+  if (!p) return "—";
+  if (p.status === PAYMENT_STATUS.paid) return "Paid";
+  if (p.status === PAYMENT_STATUS.refunded)
+    return `Refunded ${formatINR(p.refundAmount ?? 0)}`;
+  if (p.status === PAYMENT_STATUS.failed) return "Failed";
+  return "Pending";
+}
 
 export default async function AdminPage({ searchParams }: { searchParams: { q?: string } }) {
   const session = await getSession();
@@ -183,7 +179,7 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
         </div>
       ) : (
         <div className="mt-10 space-y-8">
-          {clients.map((user: AdminClient) => (
+          {clients.map((user) => (
             <section
               key={user.id}
               className="overflow-hidden rounded-2xl border border-forest-800/10 bg-ivory-light shadow-lift"
@@ -224,26 +220,42 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
                       </tr>
                     </thead>
                     <tbody>
-                      {user.bookings.map((b: AdminBooking) => (
-                        <tr key={b.id} className="border-t border-forest-800/[0.07]">
-                          <td className="px-6 py-3.5 font-mono font-semibold text-forest-800">
-                            {b.ref}
-                          </td>
-                          <td className="px-4 py-3.5 text-forest-900">{b.expertName}</td>
-                          <td className="px-4 py-3.5 text-ink/70">
-                            {concerns.find((c) => c.id === b.concern)?.label ?? b.concern}
-                          </td>
-                          <td className="px-4 py-3.5 text-ink/70">
-                            {formatDateISO(b.date)} · {b.time}
-                          </td>
-                          <td className="px-4 py-3.5 text-ink/70">{formatINR(b.amount)}</td>
-                          <td className="px-4 py-3.5">
-                            <span
-                              className={cn(
-                                "rounded-full px-2.5 py-0.5 text-[0.7rem] font-semibold uppercase tracking-[0.12em]",
-                                b.status === "CANCELLED"
-                                  ? "bg-red-50 text-red-700"
-                                  : "bg-sage-light/70 text-forest-800"
+                      {user.bookings.map((b) => {
+                        const chip = statusChip[b.status] ?? statusChip[BOOKING_STATUS.expired];
+                        return (
+                          <tr key={b.id} className="border-t border-forest-800/[0.07]">
+                            <td className="px-6 py-3.5 font-mono font-semibold text-forest-800">
+                              {b.ref}
+                            </td>
+                            <td className="px-4 py-3.5 text-forest-900">{b.expertName}</td>
+                            <td className="px-4 py-3.5 text-ink/70">
+                              {concerns.find((c) => c.id === b.concern)?.label ?? b.concern}
+                            </td>
+                            <td className="px-4 py-3.5 text-ink/70">
+                              {formatDateISO(b.date)} · {b.time}
+                              {b.rescheduleCount > 0 && (
+                                <span className="ml-1.5 text-[0.72rem] text-ink/45">
+                                  (moved {b.rescheduleCount}×)
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3.5 text-ink/70">{formatINR(b.amount)}</td>
+                            <td className="px-4 py-3.5">
+                              <span
+                                className={cn(
+                                  "rounded-full px-2.5 py-0.5 text-[0.7rem] font-semibold uppercase tracking-[0.12em]",
+                                  chip.cls
+                                )}
+                              >
+                                {chip.label}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3.5 text-ink/70">
+                              {paymentLabel(b.payment)}
+                              {b.payment?.method === "card" && b.payment.last4 && (
+                                <span className="ml-1.5 text-[0.72rem] text-ink/45">
+                                  •••• {b.payment.last4}
+                                </span>
                               )}
                             </td>
                             <td className="px-6 py-3.5 text-ink/55">

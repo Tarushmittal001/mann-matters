@@ -3,11 +3,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
-import { concerns, experts } from "@/lib/experts";
-import { cn, formatDateISO, formatINR, todayISO } from "@/lib/utils";
-import { STATUS_META, isSessionStatus } from "@/lib/expert-portal";
+import { todayISO } from "@/lib/utils";
 import { releaseExpiredHolds, serializeBooking } from "@/lib/bookings";
-import { BOOKING_STATUS, changePolicyNote, hoursUntil } from "@/lib/booking-policy";
+import { BOOKING_STATUS, changePolicyNote } from "@/lib/booking-policy";
 import Button from "@/components/ui/Button";
 import LogoutButton from "@/components/auth/LogoutButton";
 import BookingCard from "@/components/booking/BookingCard";
@@ -22,85 +20,27 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-type BookingRow = {
-  id: string;
-  ref: string;
-  concern: string;
-  expertId: string;
-  expertName: string;
-  date: string;
-  time: string;
-  amount: number;
-  status: string;
-};
-
-function BookingCard({ booking, upcoming }: { booking: BookingRow; upcoming: boolean }) {
-  const expert = experts.find((e) => e.id === booking.expertId);
-  const concern = concerns.find((c) => c.id === booking.concern);
-  const cancelled = booking.status === "CANCELLED";
-  const status = isSessionStatus(booking.status) ? booking.status : "CONFIRMED";
-
-  return (
-    <div
-      className={cn(
-        "flex flex-col gap-5 rounded-2xl border bg-ivory-light p-6 shadow-lift sm:flex-row sm:items-center",
-        cancelled ? "border-forest-800/10 opacity-70" : "border-forest-800/10"
-      )}
-    >
-      {expert && (
-        <Image
-          src={expert.photo}
-          alt={`Portrait of ${booking.expertName}`}
-          width={150}
-          height={150}
-          className="h-16 w-16 shrink-0 rounded-xl object-cover"
-        />
-      )}
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <p className="font-display text-lg font-medium text-forest-900">{booking.expertName}</p>
-          <span
-            className={cn(
-              "rounded-full px-2.5 py-0.5 text-[0.7rem] font-semibold uppercase tracking-[0.12em]",
-              STATUS_META[status].tone
-            )}
-          >
-            {STATUS_META[status].label}
-          </span>
-        </div>
-        <p className="mt-1 text-sm text-ink/65">
-          {formatDateISO(booking.date)} · {booking.time} IST · 50 min
-          {concern && <> · {concern.label}</>}
-        </p>
-        <p className="mt-1 text-sm text-ink/55">
-          Ref <span className="font-mono font-semibold text-forest-800">{booking.ref}</span> ·{" "}
-          {formatINR(booking.amount)}
-        </p>
-      </div>
-      {upcoming && !cancelled && (
-        <div className="shrink-0">
-          <CancelBookingButton bookingId={booking.id} />
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default async function DashboardPage() {
   const session = await getSession();
   if (!session) redirect("/login?next=/dashboard");
 
-  const bookings: BookingRow[] = await prisma.booking.findMany({
+  await releaseExpiredHolds();
+  const bookings = (await prisma.booking.findMany({
     where: { userId: session.sub },
     include: { payment: true },
     orderBy: [{ date: "asc" }, { time: "asc" }],
-  });
+  })).map(serializeBooking);
 
   const today = todayISO();
-  const upcoming = bookings.filter((b: BookingRow) => b.status === "CONFIRMED" && b.date > today);
+  const awaitingPayment = bookings.filter(
+    (booking) => booking.status === BOOKING_STATUS.pendingPayment
+  ).length;
+  const upcoming = bookings.filter(
+    (booking) => booking.status === BOOKING_STATUS.confirmed && booking.date > today
+  );
   const past = bookings
-    .filter((b: BookingRow) => b.status !== "CONFIRMED" || b.date <= today)
-    .sort((a: BookingRow, b: BookingRow) => (a.date < b.date ? 1 : -1));
+    .filter((booking) => booking.status !== BOOKING_STATUS.confirmed || booking.date <= today)
+    .sort((a, b) => (a.date < b.date ? 1 : -1));
 
   return (
     <div className="page-top wrap pb-28">
@@ -163,7 +103,7 @@ export default async function DashboardPage() {
           </div>
         ) : (
           <div className="mt-5 space-y-4">
-            {upcoming.map((b: BookingRow) => (
+            {upcoming.map((b) => (
               <BookingCard key={b.id} booking={b} upcoming />
             ))}
           </div>
@@ -174,7 +114,7 @@ export default async function DashboardPage() {
         <section className="mt-14">
           <h2 className="font-display text-2xl font-medium text-forest-900">Past & cancelled</h2>
           <div className="mt-5 space-y-4">
-            {past.map((b: BookingRow) => (
+            {past.map((b) => (
               <BookingCard key={b.id} booking={b} upcoming={false} />
             ))}
           </div>
