@@ -37,7 +37,7 @@ export default function Footer() {
               You&apos;re in. One thoughtful letter a month — no noise, we promise.
             </p>
           ) : (
-            <form className="mt-8 flex max-w-sm gap-2" onSubmit={onSubscribe}>
+            <form className="mt-8 flex max-w-sm flex-col gap-2 min-[380px]:flex-row" onSubmit={onSubscribe}>
               <label htmlFor="newsletter" className="sr-only">
                 Email address for our monthly letter
               </label>
@@ -46,11 +46,11 @@ export default function Footer() {
                 type="email"
                 required
                 placeholder="Your email — one letter a month"
-                className="w-full rounded-full border border-ivory/15 bg-ivory/5 px-5 py-3 text-sm text-ivory placeholder:text-sage-light/50 focus:border-gold focus:outline-none"
+                className="min-h-12 w-full min-w-0 rounded-full border border-ivory/15 bg-ivory/5 px-5 py-3 text-base text-ivory placeholder:text-sage-light/50 focus:border-gold focus:outline-none sm:text-sm"
               />
               <button
                 type="submit"
-                className="shrink-0 rounded-full bg-gold px-5 py-3 text-sm font-semibold text-forest-950 transition-colors hover:bg-gold-dark"
+                className="min-h-12 shrink-0 rounded-full bg-gold px-5 py-3 text-sm font-semibold text-forest-950 transition-colors hover:bg-gold-dark"
               >
                 Join
               </button>

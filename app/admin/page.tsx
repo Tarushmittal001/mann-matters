@@ -134,11 +134,11 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
       </p>
 
       {/* stats */}
-      <div className="mt-10 grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
+      <div className="mt-10 grid gap-3 min-[360px]:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-6">
         {stats.map((s) => (
           <div
             key={s.label}
-            className="rounded-2xl border border-forest-800/10 bg-ivory-light p-6 shadow-lift"
+            className="rounded-2xl border border-forest-800/10 bg-ivory-light p-5 shadow-lift sm:p-6"
           >
             <p className="font-display text-2xl font-medium text-forest-900">{s.value}</p>
             <p className="mt-1 text-sm text-ink/60">{s.label}</p>
@@ -147,7 +147,7 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
       </div>
 
       {/* search */}
-      <form method="GET" className="mt-12 flex max-w-md gap-3" role="search">
+      <form method="GET" className="mt-12 flex max-w-md flex-col gap-3 min-[380px]:flex-row" role="search">
         <input
           type="search"
           name="q"
@@ -158,7 +158,7 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
         />
         <button
           type="submit"
-          className="rounded-full bg-forest-800 px-6 py-2.5 text-[0.9rem] font-semibold text-ivory transition-colors hover:bg-forest-700"
+          className="min-h-11 rounded-full bg-forest-800 px-6 py-2.5 text-[0.9rem] font-semibold text-ivory transition-colors hover:bg-forest-700"
         >
           Search
         </button>
