@@ -403,6 +403,111 @@ export const posts: Post[] = [
       },
     ],
   },
+  {
+    slug: "therapy-in-hindi-without-translating-yourself",
+    title: "Therapy in Hindi: what changes when you stop translating yourself",
+    excerpt:
+      "Sometimes the English word is accurate but the Hindi one is true. Why language fit can change the pace, texture, and honesty of therapy.",
+    category: "Self-care",
+    readTime: "6 min read",
+    date: "2026-08-20",
+    displayDate: "20 August 2026",
+    cover:
+      "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=1600&q=80",
+    deva: "अपनी भाषा",
+    coverAlt: "A person listening thoughtfully during a quiet conversation",
+    author: { name: "Ananya Iyer", role: "Clinical Psychologist" },
+    takeaways: [
+      "Language fit is not about speaking perfectly; it is about reaching the words that carry the most meaning for you.",
+      "Hinglish is welcome. A useful session can move between languages as naturally as your thoughts do.",
+      "Language is one part of fit alongside trust, therapeutic approach, experience, availability, and cost.",
+    ],
+    tool: {
+      href: "/therapy/hindi",
+      label: "Explore therapy in Hindi",
+      note: "Meet psychologists who list Hindi and learn how online sessions work.",
+    },
+    content: [
+      { type: "p", text: "You can explain a difficult week in polished English and still feel that the real thing never entered the room. Then one Hindi phrase slips out — the one your family uses, the one that carries twenty years of context — and suddenly the conversation is closer to the truth." },
+      { type: "p", text: "This does not mean therapy only works in a first language. It means language is part of emotional access. We often learn professional vocabulary in English and intimate vocabulary at home. Anxiety may be a useful label; ghabrahat may describe how it actually lives in the body." },
+      { type: "h2", text: "You do not have to choose one language" },
+      { type: "p", text: "Many sessions move naturally between Hindi and English. A sentence can begin in one and end in the other. There is no prize for consistency, and a therapist who works bilingually should not make you stop and translate every turn of phrase." },
+      { type: "quote", text: "The useful language is the one in which you can be least edited." },
+      { type: "h2", text: "Language fit is not the whole fit" },
+      { type: "p", text: "A shared language can make the door easier to open, but what happens after that still depends on trust, skill, pace, and approach. Look at a psychologist's specialties and experience too. In the first session, notice whether you feel understood rather than merely understood literally." },
+      { type: "p", text: "If you have been postponing therapy because explaining your family or your feelings in English sounds exhausting, ask directly for Hindi. You are not making the work less professional. You are making it more available to you." },
+    ],
+  },
+  {
+    slug: "sunday-scaries-and-work-anxiety",
+    title: "When Sunday evening already feels like Monday",
+    excerpt:
+      "The inbox is closed, but your body has started the workweek early. A practical look at anticipatory work anxiety and how to interrupt it.",
+    category: "Workplace",
+    readTime: "7 min read",
+    date: "2026-08-06",
+    displayDate: "6 August 2026",
+    cover:
+      "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1600&q=80",
+    deva: "रविवार",
+    coverAlt: "An empty office with warm light at the end of the day",
+    author: { name: "Arjun Mehta", role: "Counselling Psychologist" },
+    takeaways: [
+      "Sunday anxiety is often anticipation, not evidence that you are failing at rest.",
+      "A short closing ritual on Friday can reduce the unfinished loops your mind carries into the weekend.",
+      "If dread is persistent, physical, or changing how you sleep and function, it deserves more than productivity advice.",
+    ],
+    tool: {
+      href: "/tools/journal",
+      label: "Put the worry down",
+      note: "A private local journal for naming the thought your mind keeps reopening.",
+    },
+    content: [
+      { type: "p", text: "It often arrives around sunset: a small drop in the stomach, the urge to check email, the mental replay of everything waiting tomorrow. Nothing has happened yet, but your nervous system has clocked in. By bedtime, Sunday has become a rehearsal for Monday." },
+      { type: "p", text: "Anticipatory anxiety tries to create safety by thinking ahead. It scans for unfinished work, difficult conversations, and possible mistakes. The trouble is that scanning feels productive while keeping the body in a state where rest becomes almost impossible." },
+      { type: "h2", text: "Close the loops you can close" },
+      { type: "p", text: "Before ending work on Friday, write three lines: what is finished, what is waiting, and the first concrete action for Monday. The list is not a weekend plan. It is a receipt for your brain that the work has somewhere to live besides memory." },
+      { type: "quote", text: "Rest does not begin when every task is finished. It begins when unfinished tasks have a trusted place to wait." },
+      { type: "h2", text: "Give Sunday a boundary" },
+      { type: "p", text: "If checking Monday's calendar helps, choose one ten-minute window and stop when it ends. Pair it with something sensory and present: tea on the balcony, a shower, a walk without a podcast. The aim is not to force calm. It is to give your body evidence that this hour is not the office." },
+      { type: "p", text: "Persistent dread can also be useful information. If work anxiety regularly takes your sleep, appetite, relationships, or whole weekend, the answer may not be a better routine. Therapy can help separate what can be changed inside your patterns from what needs to change in the job itself." },
+    ],
+  },
+  {
+    slug: "how-to-support-a-friend-starting-therapy",
+    title: "How to support a friend who is starting therapy",
+    excerpt:
+      "You do not need the perfect advice. You need curiosity, steadiness, and the discipline not to make their therapy about your questions.",
+    category: "Relationships",
+    readTime: "5 min read",
+    date: "2026-07-23",
+    displayDate: "23 July 2026",
+    cover:
+      "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1600&q=80",
+    deva: "साथ",
+    coverAlt: "Friends sitting together and talking outdoors",
+    author: { name: "Dr. Kabir Shah", role: "Counselling Psychologist" },
+    takeaways: [
+      "Ask what kind of support they want instead of assuming they need advice or details questioned out of them.",
+      "Do not ask for a session report. Privacy helps therapy become a place where honesty is possible.",
+      "Practical support — a reminder, a quiet room, a walk afterward — often matters more than a perfect sentence.",
+    ],
+    tool: {
+      href: "/blog/your-first-therapy-session",
+      label: "Understand the first session",
+      note: "A plain-language walkthrough you can read or share without turning it into pressure.",
+    },
+    content: [
+      { type: "p", text: "When a friend says they are starting therapy, the instinct is often to become useful immediately: recommend a therapist, ask what happened, promise that everything will get better. Good intentions can accidentally turn a vulnerable disclosure into another conversation they have to manage." },
+      { type: "p", text: "Begin smaller. 'I'm glad you told me' is enough. Then ask, 'Do you want me to listen, help with something practical, or leave it with you for now?' The question gives control back to the person whose life is being discussed." },
+      { type: "h2", text: "Let the session stay theirs" },
+      { type: "p", text: "After an appointment, avoid asking what they talked about unless they invite the question. Try: 'How are you feeling after it?' or 'Do you want company?' Therapy can stir up relief, tiredness, uncertainty, or nothing dramatic at all. None of these reactions needs to be corrected." },
+      { type: "quote", text: "Support is not access. You can be close to someone without being entitled to the contents of their healing." },
+      { type: "h2", text: "Help with ordinary things" },
+      { type: "p", text: "The most useful support may be unremarkable: lending headphones, making space in a shared flat, taking a walk afterward, or not teasing them about 'what the therapist said.' Consistency communicates safety better than one intense conversation." },
+      { type: "p", text: "And remember the boundary in the other direction. You are their friend, not their emergency service or therapist. If they may be in immediate danger, involve crisis support rather than carrying the situation alone. Care and limits belong in the same relationship." },
+    ],
+  },
 ];
 
 /** Stable anchor id for an h2, so the contents list and the prose agree. */

@@ -54,7 +54,10 @@ export default function RescheduleDialog({ booking }: { booking: SerializedBooki
       });
       const data = await res.json().catch(() => ({}));
 
-      if (res.status === 409 && data.code === "SLOT_TAKEN") {
+      if (
+        res.status === 409 &&
+        (data.code === "SLOT_TAKEN" || data.code === "SLOT_UNAVAILABLE")
+      ) {
         setError(data.error);
         setSlot((s) => ({ date: s.date, time: null }));
         setRefreshToken((t) => t + 1);

@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
+import * as Sentry from "@sentry/nextjs";
 import Button from "@/components/ui/Button";
 import { CrisisLine } from "@/components/ui/Feedback";
 
@@ -23,6 +24,7 @@ export default function RouteError({
   reset: () => void;
 }) {
   useEffect(() => {
+    Sentry.captureException(error);
     console.error(`[route-error] ${error.digest ?? "no-digest"}`);
   }, [error]);
 

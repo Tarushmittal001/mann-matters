@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth";
 import {
   findUserBooking,
   isUniqueViolation,
+  offersSlot,
   releaseExpiredHolds,
   serializeBooking,
   takenSlots,
@@ -58,6 +59,21 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     }
 
     await releaseExpiredHolds();
+
+    // the same gate the booking path uses — moving a session may not put it
+    // somewhere the practitioner never offered
+    if (!(await offersSlot(booking.expertId, date, time))) {
+      const taken = await takenSlots(booking.expertId, date);
+      return privateJson(
+        {
+          error:
+            "That time isn't open on your therapist's calendar. Here's what's still free on this day.",
+          code: "SLOT_UNAVAILABLE",
+          takenSlots: taken,
+        },
+        { status: 409 }
+      );
+    }
 
     try {
       const updated = await prisma.booking.update({

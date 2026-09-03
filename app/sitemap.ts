@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 import { posts } from "@/lib/posts";
+import { services } from "@/lib/services";
 import { site } from "@/lib/site";
+import { therapyPages } from "@/lib/therapy-pages";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const routes = [
@@ -38,5 +40,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...routes, ...articles];
+  const servicePages = services.map((service) => ({
+    url: `${site.url}/services/${service.slug}`,
+    changeFrequency: "monthly" as const,
+    priority: 0.75,
+  }));
+
+  const discoveryPages = therapyPages.map((page) => ({
+    url: `${site.url}/therapy/${page.slug}`,
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+
+  return [...routes, ...servicePages, ...discoveryPages, ...articles];
 }

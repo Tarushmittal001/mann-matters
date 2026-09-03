@@ -3,9 +3,13 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
-import { todayISO } from "@/lib/utils";
+import { sessionPhase } from "@/lib/expert-portal";
 import { releaseExpiredHolds, serializeBooking } from "@/lib/features/booking/server";
-import { BOOKING_STATUS, changePolicyNote } from "@/lib/features/booking/policy";
+import {
+  BOOKING_STATUS,
+  SESSION_MINUTES,
+  changePolicyNote,
+} from "@/lib/features/booking/policy";
 import Button from "@/components/ui/Button";
 import LogoutButton from "@/components/auth/LogoutButton";
 import BookingCard from "@/components/booking/BookingCard";
@@ -24,22 +28,33 @@ export default async function DashboardPage() {
   const session = await getSession();
   if (!session) redirect("/login?next=/dashboard");
 
+  const now = new Date();
+  const serverNow = now.toISOString();
   await releaseExpiredHolds();
   const bookings = (await prisma.booking.findMany({
     where: { userId: session.sub },
     include: { payment: true },
     orderBy: [{ date: "asc" }, { time: "asc" }],
-  })).map(serializeBooking);
+  })).map((booking) => serializeBooking(booking, now));
 
-  const today = todayISO();
   const awaitingPayment = bookings.filter(
     (booking) => booking.status === BOOKING_STATUS.pendingPayment
   ).length;
-  const upcoming = bookings.filter(
-    (booking) => booking.status === BOOKING_STATUS.confirmed && booking.date > today
-  );
+
+  /**
+   * Ahead of you is a question about the clock, not the calendar: a session at
+   * 6pm today is still ahead of you at 5pm, and its join link lives on its own
+   * card. Splitting on the date alone filed today's session under "Past", which
+   * is the last place anyone would look for a room that opens in ten minutes.
+   */
+  const ahead = (booking: (typeof bookings)[number]) =>
+    (booking.status === BOOKING_STATUS.confirmed ||
+      booking.status === BOOKING_STATUS.pendingPayment) &&
+    sessionPhase(booking, SESSION_MINUTES, now) !== "past";
+
+  const upcoming = bookings.filter(ahead);
   const past = bookings
-    .filter((booking) => booking.status !== BOOKING_STATUS.confirmed || booking.date <= today)
+    .filter((booking) => !ahead(booking))
     .sort((a, b) => (a.date < b.date ? 1 : -1));
 
   return (
@@ -104,7 +119,7 @@ export default async function DashboardPage() {
         ) : (
           <div className="mt-5 space-y-4">
             {upcoming.map((b) => (
-              <BookingCard key={b.id} booking={b} upcoming />
+              <BookingCard key={b.id} booking={b} upcoming serverNow={serverNow} />
             ))}
           </div>
         )}
@@ -115,7 +130,7 @@ export default async function DashboardPage() {
           <h2 className="font-display text-2xl font-medium text-forest-900">Past & cancelled</h2>
           <div className="mt-5 space-y-4">
             {past.map((b) => (
-              <BookingCard key={b.id} booking={b} upcoming={false} />
+              <BookingCard key={b.id} booking={b} upcoming={false} serverNow={serverNow} />
             ))}
           </div>
         </section>

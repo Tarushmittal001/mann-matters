@@ -5,11 +5,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { site } from "@/lib/site";
 
-/**
- * A lightweight, rule-based on-site assistant — a working web counterpart to the
- * WhatsApp bot. It answers common questions, routes to the right tool, and puts
- * crisis support first. No backend, no data leaves the page.
- */
+/** A stateless on-site assistant. Crisis routing is enforced by the API before Claude. */
 
 type Link2 = { label: string; href: string; external?: boolean };
 type Msg = { from: "bot" | "user"; text: string; link?: Link2 };
@@ -22,56 +18,6 @@ const quickReplies = [
   "Is it confidential?",
   "I'm not feeling great",
 ];
-
-function respond(input: string): { text: string; link?: Link2 } {
-  const t = input.toLowerCase();
-  const has = (...ks: string[]) => ks.some((k) => t.includes(k));
-
-  // safety first
-  if (has("suicid", "kill myself", "end it", "self harm", "self-harm", "harm myself", "hurt myself", "want to die", "don't want to live", "no reason to live")) {
-    return {
-      text: "I'm really glad you said something, and I want you to be safe. Please don't go through this alone — Tele-MANAS (14416) is free, confidential, and answered 24x7. If you're in immediate danger, call 112. You matter.",
-      link: { label: "Open crisis support", href: "/crisis?sos=true" },
-    };
-  }
-  if (has("emergency", "crisis")) {
-    return { text: "If this is urgent, the fastest help is Tele-MANAS at 14416 — free and 24x7. Here's our crisis page with more options.", link: { label: "Crisis support", href: "/crisis?sos=true" } };
-  }
-  if (has("cost", "price", "fee", "charge", "how much", "₹", "rupee", "afford")) {
-    return { text: "Sessions start at ₹599 for students, ₹999 for individual therapy, ₹399 for groups, and ₹1,499 for couples. You always see the exact price before booking — no subscriptions or hidden charges.", link: { label: "See services & pricing", href: "/services" } };
-  }
-  if (has("confidential", "private", "privacy", "anonymous", "data", "secure")) {
-    return { text: "Completely confidential. What you share stays between you and your therapist — never shared with family or employers. Your data stays encrypted, on Indian servers. The only exception is serious, immediate risk to safety." };
-  }
-  if (has("language", "hindi", "tamil", "marathi", "telugu", "bengali", "kannada", "malayalam", "urdu", "gujarati")) {
-    return { text: "Yes — you can have therapy in your own language. Our psychologists work in Hindi, English and several Indian languages, and you can switch mid-sentence. You can filter by language when you choose." };
-  }
-  if (has("book", "appointment", "schedule", "slot", "session time")) {
-    return { text: "Booking takes about two minutes: pick a therapist, choose a time (8am–9pm, evenings and weekends too), and you get a private video link. Free reschedule with a day's notice.", link: { label: "Book a session", href: "/book" } };
-  }
-  if (has("which therapist", "recommend", "match", "right for me", "best therapist", "choose")) {
-    return { text: "I can help you find a good fit. Our quick matcher asks about your concern, language, and budget, then suggests a therapist.", link: { label: "Find your therapist", href: "/match" } };
-  }
-  if (has("qualified", "licensed", "credential", "rci", "trained", "real therapist")) {
-    return { text: "Every therapist holds a master's or higher in clinical or counselling psychology, and we verify licences (including RCI registration) and supervised experience before they see anyone. Their qualifications are on each profile." };
-  }
-  if (has("online", "video", "how does it work", "how it works", "app", "download")) {
-    return { text: "Sessions are online over a private video link — no app to download. Open it on any phone or laptop at your session time. Most people forget the screen about ten minutes in." };
-  }
-  if (has("mood", "check in", "check-in", "how am i", "assessment", "quiz")) {
-    return { text: "There's a gentle 2-minute check-in that reflects back how you might be doing and suggests a next step.", link: { label: "Take the check-in", href: "/check-in" } };
-  }
-  if (has("breath", "calm", "anxious now", "panic", "overwhelm", "stressed right now", "ground")) {
-    return { text: "Let's slow things down together. Try a one-minute guided breathing exercise — in for four, hold, out for four.", link: { label: "Start breathing", href: "/breathe" } };
-  }
-  if (has("hi", "hello", "hey", "namaste", "help")) {
-    return { text: "Hi! I'm here to help you find your footing. You can ask about pricing, languages, how sessions work, or tell me how you're feeling. What's on your mind?" };
-  }
-  return {
-    text: "I might not have caught that. I can help with pricing, languages, booking, confidentiality, or finding the right therapist. Or chat with a real person on WhatsApp.",
-    link: { label: "Chat on WhatsApp", href: site.whatsapp, external: true },
-  };
-}
 
 export default function ChatAssistant() {
   const [open, setOpen] = useState(false);
@@ -86,17 +32,38 @@ export default function ChatAssistant() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, typing, open]);
 
-  const send = (text: string) => {
+  const send = async (text: string) => {
     const clean = text.trim();
-    if (!clean) return;
+    if (!clean || typing) return;
     setMessages((m) => [...m, { from: "user", text: clean }]);
     setInput("");
     setTyping(true);
-    setTimeout(() => {
-      const r = respond(clean);
+    let failureMessage = "I couldn't reply just now. You can try again, or talk to a real person on WhatsApp.";
+    try {
+      const response = await fetch("/api/manu", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: clean }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (typeof data.error === "string") failureMessage = data.error;
+      if (!response.ok || !data.reply?.text) throw new Error("Manu response unavailable");
+      setMessages((messages) => [
+        ...messages,
+        { from: "bot", text: data.reply.text, link: data.reply.link },
+      ]);
+    } catch {
+      setMessages((messages) => [
+        ...messages,
+        {
+          from: "bot",
+          text: failureMessage,
+          link: { label: "Chat on WhatsApp", href: site.whatsapp, external: true },
+        },
+      ]);
+    } finally {
       setTyping(false);
-      setMessages((m) => [...m, { from: "bot", text: r.text, link: r.link }]);
-    }, 600);
+    }
   };
 
   return (

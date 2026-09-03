@@ -14,7 +14,7 @@ import { ActionButton, ConfirmDialog, Field, TextArea } from "@/components/exper
 import { EmptyState, InlineAlert } from "@/components/expert/Panel";
 import { send, stampNow } from "@/components/expert/request";
 import { useToast } from "@/components/expert/Toast";
-import { useNow } from "@/components/expert/useNow";
+import { useNow } from "@/components/ui/useNow";
 
 /**
  * The notes workflow, gated on policy at every level.

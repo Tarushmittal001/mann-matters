@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Reveal from "@/components/ui/Reveal";
 import FloatingOrbs from "@/components/ui/FloatingOrbs";
@@ -122,9 +123,14 @@ export default function ServicesPage() {
                       </p>
                     </div>
                     <div className="ml-auto">
-                      <Button href="/book" variant={flip ? "forest" : "gold"}>
-                        Book this
-                      </Button>
+                      <div className="flex flex-wrap items-center justify-end gap-4">
+                        <Link href={`/services/${s.slug}`} className="link-draw text-sm font-medium text-forest-800">
+                          Explore details
+                        </Link>
+                        <Button href="/book" variant={flip ? "forest" : "gold"}>
+                          Book this
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </Reveal>

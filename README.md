@@ -50,6 +50,21 @@ TWILIO_PHONE_NUMBER="+1..."
 Production never returns an OTP in an API response. Codes expire after five minutes and are
 invalidated after five incorrect attempts.
 
+### Calendar and Manu
+
+Confirmed sessions have an **Add to calendar** action that downloads a private `.ics` file.
+It contains session logistics and the meeting link, but never the booking concern.
+
+The global Manu assistant uses Anthropic for stateless replies:
+
+```bash
+ANTHROPIC_API_KEY="..."
+ANTHROPIC_MODEL="claude-3-5-haiku-latest"
+```
+
+Crisis terms are intercepted before Anthropic is called and retain the direct Tele-MANAS 14416
+and emergency 112 escalation. Without an API key, ordinary replies show an unavailable state.
+
 ## Project structure
 
 ```

@@ -36,6 +36,7 @@ export const LIMITS = {
   booking: { limit: 20, windowMs: 10 * 60_000 },
   password: { limit: 6, windowMs: 60 * 60_000 },
   enquiry: { limit: 5, windowMs: 60 * 60_000 },
+  manu: { limit: 20, windowMs: 10 * 60_000 },
 } satisfies Record<string, Limit>;
 
 export type LimitName = keyof typeof LIMITS;

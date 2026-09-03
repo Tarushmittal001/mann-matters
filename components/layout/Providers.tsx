@@ -3,6 +3,7 @@
 import { MotionConfig } from "framer-motion";
 import { useEffect, type ReactNode } from "react";
 import Lenis from "lenis";
+import AnalyticsProvider from "@/components/analytics/AnalyticsProvider";
 
 export default function Providers({ children }: { children: ReactNode }) {
   useEffect(() => {
@@ -26,5 +27,9 @@ export default function Providers({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  return <MotionConfig reducedMotion="user">{children}</MotionConfig>;
+  return (
+    <AnalyticsProvider>
+      <MotionConfig reducedMotion="user">{children}</MotionConfig>
+    </AnalyticsProvider>
+  );
 }

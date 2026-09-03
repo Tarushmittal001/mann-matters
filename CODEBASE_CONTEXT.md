@@ -143,10 +143,10 @@ Everything needed to start work with no extra reading:
 - `profile/`: `ProfileForm` (name, phone, language, therapist note), `PasswordForm`.
 - `auth/`: `AuthForm` (login+signup in one, `mode` prop), `VerifyClient`, `LogoutButton`.
 - `blog/`: `BlogIndex`, `PostCover`, `ArticleContents`, `ReadingProgress`, `ShareRow`.
-- `tools/`: one component per tool + `ChatAssistant` (rule-based, global, no backend)
+- `tools/`: one component per tool + `ChatAssistant` (global, stateless Claude-backed API)
   + `TherapistMatcher`.
-- `TryManu/`: `TryManuDemo` (WhatsApp-bot demo; **fetches `/api/manu-demo`, which does not exist**
-  — falls back to a canned reply), `TypingDots`, `scenarios.ts`.
+- `TryManu/`: `TryManuDemo` (scripted WhatsApp-bot demo; `/api/manu-demo` supplies its
+  lightweight live fallback), `TypingDots`, `scenarios.ts`.
   **Trilingual**: `scenarios.ts` holds every thread in `en` / `hi` / `hinglish` (`Lang`), plus a
   `UI` record for the card's chrome. Default `hinglish`; choice persisted to `localStorage`
   under `emoraa.manu.lang`. Switching **converts the visible bubbles in place** (mapped by
@@ -416,6 +416,11 @@ helplines; Tele-MANAS and 112 flagged `primary`), `navLinks`, `toolLinks`, `stat
 - **`serializeBooking()`** — the client-facing allow-list. A new schema column is invisible to
   the browser until deliberately added here.
 
+### `lib/calendar.ts` — calendar export
+- Builds dependency-free RFC 5545 `.ics` events from booking date/time, converts IST to UTC,
+  includes an optional meeting URL and a 30-minute reminder, and excludes the concern.
+- `/api/bookings/[id]/calendar` reuses `findUserBooking()` and serves confirmed sessions only.
+
 ### `lib/payments.ts` — gateway simulator (server-only)
 - `charge({method, amount, card?, vpa?})` → `{ok, reference, cardBrand, last4, vpaMasked}` or
   `{ok:false, failure:{code, message, retryable}}`. Deterministic trigger cards, documented in
@@ -429,7 +434,7 @@ helplines; Tele-MANAS and 112 flagged `primary`), `navLinks`, `toolLinks`, `stat
 
 ### `lib/rate-limit.ts` — in-memory sliding window
 - `LIMITS`: login 8/10min, signup 5/hr, resend 4/hr, verify 12/10min, payment 10/10min,
-  booking 20/10min, password 6/hr. `resetLimit()` clears a bucket after a genuine success.
+  booking 20/10min, password 6/hr, Manu 20/10min. `resetLimit()` clears a bucket after a genuine success.
 - **Per-instance** — see Technical Debt.
 
 ### `lib/validation.ts` / `lib/payment-fields.ts` — shared field rules
@@ -462,8 +467,11 @@ helplines; Tele-MANAS and 112 flagged `primary`), `navLinks`, `toolLinks`, `stat
 - Sign-in is segmented: email + password, or verified phone + one-time code.
 - Handles three post-states: pending-verification screen, needs-verify + resend, generic error.
 
-### `components/tools/ChatAssistant.tsx` — global rule-based bot; keyword `respond()`,
-**crisis keywords matched first** → `/crisis?sos=true`. No network, no storage.
+### `components/tools/ChatAssistant.tsx` + `app/api/manu/route.ts` — live Manu
+- Sends only the current message; no conversation is stored or forwarded as history.
+- `lib/manu-safety.ts` runs the existing crisis match before Anthropic and returns the unchanged
+  Tele-MANAS/112 escalation plus `/crisis?sos=true` link without calling the model.
+- Missing provider configuration fails visibly instead of simulating an AI answer.
 
 ---
 
@@ -483,9 +491,11 @@ All handlers live in `app/api/**/route.ts`. All accept/return JSON. Auth = `emor
 | `/api/auth/logout` | POST | none | Clear cookie |
 | `/api/profile/phone/request` | POST | session | Request OTP to confirm saved profile phone |
 | `/api/profile/phone/verify` | POST | session | Confirm ownership of saved profile phone |
+| `/api/manu` | POST | none | Crisis pre-filter, then stateless Claude response |
 | `/api/bookings` | POST | session | Create booking |
 | `/api/bookings` | GET | session | List own bookings |
 | `/api/bookings/[id]` | PATCH | session | Cancel booking |
+| `/api/bookings/[id]/calendar` | GET | session | Download owned confirmed booking as `.ics` |
 
 **POST /api/auth/signup** — `{name,email,password}` →
 `200 {pendingVerification:true,email}` · `422 {fields}` per-field errors (name/email/password)
@@ -558,8 +568,9 @@ than trusted — an unvalidated value would be injected straight into an email w
 Delivers via `sendPackEnquiry` (team notification + best-effort acknowledgement to the enquirer);
 destination is `ENQUIRY_TO` → `GMAIL_USER` → the `EMAIL_FROM` address.
 
-**Referenced but absent**: `POST /api/manu-demo` (called by `TryManuDemo` in live mode),
-`POST /api/contact`, newsletter endpoint. There is **no admin write API** — `/admin` is read-only.
+`POST /api/manu-demo` remains the scripted homepage demo fallback. The global live assistant
+uses `/api/manu`; the two surfaces are deliberately separate. `POST /api/contact` and a
+newsletter endpoint remain absent. There is **no admin write API** — `/admin` is read-only.
 
 ---
 
@@ -645,6 +656,8 @@ script that has since been removed. A real deployment needs a migrations directo
 | `TWILIO_ACCOUNT_SID` | production phone auth | Twilio account SID |
 | `TWILIO_AUTH_TOKEN` | production phone auth | Twilio auth token; keep server-only |
 | `TWILIO_PHONE_NUMBER` | production phone auth | E.164 sender number, e.g. `+1...` |
+| `ANTHROPIC_API_KEY` | live Manu | Anthropic server-side API key; never expose to the client |
+| `ANTHROPIC_MODEL` | no | Defaults to `claude-3-5-haiku-latest` |
 | `NODE_ENV` | auto | gates cookie `secure` + Prisma global caching |
 
 **No new variables were added by the payments/profile work** — the gateway is simulated, so
@@ -837,8 +850,8 @@ on `main`; active work on branch `Tarush` (large uncommitted UI refactor in flig
    `findConcern()`, which papers over the drift at the point of use rather than removing it.
 9. **Dead code**: `components/sections/ServicesPreview.tsx`, `WhatsAppCompanion.tsx`,
    `WhatsAppChat.tsx` — 400+ unreferenced lines.
-10. **`TryManuDemo` calls `/api/manu-demo`, which doesn't exist**; live mode silently falls
-    back to a canned reply.
+10. `TryManuDemo` and the global `ChatAssistant` are intentionally separate: the first is a
+  scripted product demo, while the second calls the stateless Claude-backed `/api/manu` route.
 11. Stubs still presented as working: `ContactForm.onSubmit` (setTimeout), `Footer` newsletter.
 12. `Navbar` refetches `/api/auth/me` on every navigation — a waterfall per route. `/book`
     no longer does this (server-resolved), and the same fix applies to the nav.

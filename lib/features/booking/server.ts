@@ -1,10 +1,19 @@
 import { prisma } from "@/lib/db";
 import { experts } from "@/lib/experts";
 import {
+  bandCoversSession,
+  meetingAccess,
+  timeOffCoversSession,
+  type AvailabilityBand,
+  type MeetingAccess,
+  type TimeOffBlock,
+} from "@/lib/expert-portal";
+import {
   ALL_SLOTS,
   BOOKING_STATUS,
   HOLD_MINUTES,
   PAYMENT_STATUS,
+  SESSION_MINUTES,
   slotKey,
 } from "@/lib/features/booking/policy";
 
@@ -33,10 +42,79 @@ export async function takenSlots(expertId: string, date: string): Promise<string
   return rows.map((row) => row.time);
 }
 
+/**
+ * The hours a practitioner works, and any time off covering one date.
+ *
+ * The bands are the practitioner's *whole* week, not just the weekday asked
+ * about — `slotIsOffered` needs to tell "has set no hours at all" apart from
+ * "does not work Sundays", and a query narrowed to one weekday cannot. It is at
+ * most a couple of dozen rows.
+ *
+ * Loaded once per question and handed to `slotIsOffered`, so a whole day of
+ * slots costs two queries rather than two per slot.
+ */
+export type WorkingRules = { bands: AvailabilityBand[]; timeOff: TimeOffBlock[] };
+
+export async function workingRules(expertId: string, date: string): Promise<WorkingRules> {
+  const [bands, timeOff] = await Promise.all([
+    prisma.availabilityRule.findMany({
+      where: { expertId },
+      select: { weekday: true, start: true, end: true },
+    }),
+    prisma.timeOff.findMany({
+      where: { expertId, startDate: { lte: date }, endDate: { gte: date } },
+      select: { startDate: true, endDate: true, allDay: true, startTime: true, endTime: true },
+    }),
+  ]);
+  return { bands, timeOff };
+}
+
+/**
+ * Whether the practitioner is open for business at this exact time.
+ *
+ * Two rules, in order:
+ *  - the *whole* session has to fit inside one of the day's bands, so 12:30 is
+ *    not offered against hours that finish at 13:00;
+ *  - no block of time off may overlap it.
+ *
+ * A practitioner who has never set hours keeps the clinic default — every slot
+ * on the board. Reading "unset" as "unavailable" would silently empty the
+ * calendar of everyone who has not opened the portal yet, which is a worse
+ * failure than the one this function exists to fix.
+ */
+export function slotIsOffered(rules: WorkingRules, date: string, time: string): boolean {
+  const session = { date, time };
+  if (rules.bands.length && !bandCoversSession(rules.bands, session, SESSION_MINUTES)) {
+    return false;
+  }
+  return !rules.timeOff.some((block) => timeOffCoversSession(block, session, SESSION_MINUTES));
+}
+
+/** The single-slot form, for the write paths. */
+export async function offersSlot(expertId: string, date: string, time: string): Promise<boolean> {
+  return slotIsOffered(await workingRules(expertId, date), date, time);
+}
+
+/**
+ * What a visitor may book on one date.
+ *
+ * A slot is available when nobody holds it *and* the practitioner works then.
+ * Both halves matter: the taken-check keeps two clients apart, and the rules
+ * check keeps the calendar inside the hours the practitioner agreed to — the
+ * same rows the expert portal writes, read back here so what we sell and what
+ * they set cannot drift apart.
+ */
 export async function dayAvailability(expertId: string, date: string) {
   await releaseExpiredHolds();
-  const taken = new Set(await takenSlots(expertId, date));
-  return ALL_SLOTS.map((time) => ({ time, available: !taken.has(time) }));
+  const [taken, rules] = await Promise.all([
+    takenSlots(expertId, date),
+    workingRules(expertId, date),
+  ]);
+  const held = new Set(taken);
+  return ALL_SLOTS.map((time) => ({
+    time,
+    available: !held.has(time) && slotIsOffered(rules, date, time),
+  }));
 }
 
 export async function findUserBooking(
@@ -125,6 +203,7 @@ type BookingWithPayment = {
   time: string;
   amount: number;
   status: string;
+  meetingUrl: string | null;
   holdExpiresAt: Date | null;
   rescheduleCount: number;
   previousDate: string | null;
@@ -146,7 +225,7 @@ type BookingWithPayment = {
   } | null;
 };
 
-export function serializeBooking(booking: BookingWithPayment) {
+export function serializeBooking(booking: BookingWithPayment, now: Date = new Date()) {
   return {
     id: booking.id,
     ref: booking.ref,
@@ -157,6 +236,21 @@ export function serializeBooking(booking: BookingWithPayment) {
     time: booking.time,
     amount: booking.amount,
     status: booking.status,
+    // The room is gated on the clock, not on the page. The URL only enters the
+    // response once the door is actually open, so reading this API early tells
+    // you exactly what reading the screen early tells you — nothing.
+    meeting: booking.status === BOOKING_STATUS.confirmed
+      ? (meetingAccess(
+          {
+            date: booking.date,
+            time: booking.time,
+            status: booking.status,
+            meetingUrl: booking.meetingUrl,
+          },
+          SESSION_MINUTES,
+          now
+        ) as MeetingAccess)
+      : null,
     holdExpiresAt: booking.holdExpiresAt?.toISOString() ?? null,
     rescheduleCount: booking.rescheduleCount,
     previousDate: booking.previousDate,
