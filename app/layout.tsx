@@ -68,8 +68,16 @@ export default function RootLayout({
     <html lang="en" className={`${fraunces.variable} ${jakarta.variable} ${tiro.variable}`}>
       <body>
         <Providers>
+          <a
+            href="#main"
+            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-forest-800 focus:px-5 focus:py-2.5 focus:text-[0.9rem] focus:font-semibold focus:text-ivory"
+          >
+            Skip to content
+          </a>
           <Navbar />
-          <main>{children}</main>
+          <main id="main" tabIndex={-1} className="focus:outline-none">
+            {children}
+          </main>
           <PublicChrome>
             <Footer />
             <WhatsAppButton />

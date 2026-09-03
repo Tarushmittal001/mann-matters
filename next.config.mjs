@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 
-import { withSentryConfig } from "@sentry/nextjs";
+import { withSentryConfig } from "@sentry/nextjs/config";
 
 /**
  * Headers applied to every response. This is a site where a logged-in page
@@ -55,5 +55,5 @@ export default withSentryConfig(nextConfig, {
   authToken: process.env.SENTRY_AUTH_TOKEN,
   silent: !process.env.CI,
   widenClientFileUpload: true,
-  disableLogger: true,
+  webpack: { treeshake: { removeDebugLogging: true } },
 });

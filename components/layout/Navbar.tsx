@@ -131,6 +131,8 @@ export default function Navbar() {
   // undefined = still loading, null = logged out
   const [user, setUser] = useState<SessionUser | undefined>(undefined);
   const pathname = usePathname();
+  const menuPanel = useRef<HTMLDivElement>(null);
+  const menuToggle = useRef<HTMLButtonElement>(null);
 
   // refetch on navigation so the link flips right after login/logout
   useEffect(() => {
@@ -172,6 +174,53 @@ export default function Navbar() {
     return () => {
       document.documentElement.style.overflow = "";
     };
+  }, [open]);
+
+  /**
+   * The mobile menu covers the whole viewport, so it owes the keyboard what any
+   * modal owes it: Escape closes it, focus moves inside when it opens and
+   * returns to the button that opened it, and Tab cycles within it instead of
+   * wandering off into the page hidden underneath. The toggle joins the cycle
+   * deliberately — it sits above the overlay and is the close button.
+   */
+  useEffect(() => {
+    if (!open) return;
+    const panel = menuPanel.current;
+    panel?.focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        menuToggle.current?.focus();
+        return;
+      }
+      if (e.key !== "Tab" || !panel) return;
+
+      const stops = [
+        ...Array.from(
+          panel.querySelectorAll<HTMLElement>(
+            'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          )
+        ),
+        menuToggle.current,
+      ].filter((el): el is HTMLElement => !!el);
+      if (!stops.length) return;
+
+      const first = stops[0];
+      const last = stops[stops.length - 1];
+      // focus starts on the panel itself; shift-tabbing from there would step
+      // backwards out of the overlay into the page it covers
+      if (e.shiftKey && (document.activeElement === first || document.activeElement === panel)) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
   return (
@@ -254,6 +303,7 @@ export default function Navbar() {
           </div>
 
           <button
+            ref={menuToggle}
             className="relative z-[70] flex h-11 w-11 shrink-0 flex-col items-center justify-center gap-[5px] xl:hidden"
             onClick={() => setOpen(!open)}
             aria-expanded={open}
@@ -278,7 +328,12 @@ export default function Navbar() {
       <AnimatePresence>
         {open && (
           <motion.div
-            className="fixed inset-0 z-[60] flex flex-col justify-start overflow-y-auto overscroll-contain bg-forest-900 px-5 pb-[max(2rem,env(safe-area-inset-bottom))] pt-24 sm:px-8 sm:pt-28 xl:hidden"
+            ref={menuPanel}
+            tabIndex={-1}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu"
+            className="fixed inset-0 z-[60] flex flex-col justify-start overflow-y-auto overscroll-contain bg-forest-900 px-5 pb-[max(2rem,env(safe-area-inset-bottom))] pt-24 focus:outline-none sm:px-8 sm:pt-28 xl:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

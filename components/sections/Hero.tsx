@@ -1,8 +1,18 @@
 "use client";
 
 import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
 import Button from "@/components/ui/Button";
-import NeuralBrain from "@/components/three/NeuralBrain";
+
+/**
+ * The hero canvas is decoration: `aria-hidden`, and it fades in over 1.6s after
+ * a half-second delay anyway. Loading it with the page only delays the headline
+ * and the booking button, which are what someone actually came for — so it
+ * arrives on its own, after them.
+ */
+const NeuralBrain = dynamic(() => import("@/components/three/NeuralBrain"), {
+  ssr: false,
+});
 import TalkToManuButton from "@/components/layout/TalkToManuButton";
 
 const EASE = [0.22, 1, 0.36, 1] as const;

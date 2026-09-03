@@ -6,6 +6,7 @@ import Reveal from "@/components/ui/Reveal";
 import FloatingOrbs from "@/components/ui/FloatingOrbs";
 import CTABand from "@/components/sections/CTABand";
 import { comparison, services } from "@/lib/services";
+import { therapyPages } from "@/lib/therapy-pages";
 import { formatINR, cn } from "@/lib/utils";
 import WayThrough from "@/components/visuals/WayThrough";
 
@@ -139,6 +140,43 @@ export default function ServicesPage() {
           );
         })}
       </div>
+
+      <section className="section bg-forest-950 text-ivory">
+        <div className="wrap-wide grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+          <Reveal>
+            <p className="eyebrow text-sage">care that meets you there</p>
+            <h2 className="h-display mt-4 !text-ivory text-3xl md:text-5xl">
+              Find therapy by place or language.
+            </h2>
+            <p className="mt-5 max-w-md leading-relaxed text-sage-light/75">
+              Sessions are online across India. These guides help you find the practical and
+              cultural fit that makes starting easier.
+            </p>
+          </Reveal>
+          <div className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
+            {(["city", "language"] as const).map((kind) => (
+              <Reveal key={kind}>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">
+                    {kind === "city" ? "By city" : "By language"}
+                  </p>
+                  <div className="mt-4 flex flex-col items-start gap-3">
+                    {therapyPages.filter((page) => page.kind === kind).map((page) => (
+                      <Link
+                        key={page.slug}
+                        href={`/therapy/${page.slug}`}
+                        className="link-draw font-display text-xl font-medium text-sage-light hover:text-ivory"
+                      >
+                        {page.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* comparison table */}
       <section className="section">
