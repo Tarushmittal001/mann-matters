@@ -1,29 +1,27 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { findUserBooking, serializeBooking } from "@/lib/bookings";
+import { errors, logFailure, privateJson } from "@/lib/http";
 
-export async function PATCH(_req: Request, { params }: { params: { id: string } }) {
-  const session = await getSession();
-  if (!session) {
-    return NextResponse.json({ error: "Not logged in." }, { status: 401 });
-  }
+export const dynamic = "force-dynamic";
 
-  const booking = await prisma.booking.findUnique({ where: { id: params.id } });
-  if (!booking || (booking.userId !== session.sub && session.role !== "ADMIN")) {
-    return NextResponse.json({ error: "Booking not found." }, { status: 404 });
-  }
-  if (booking.status === "CANCELLED") {
-    return NextResponse.json({ error: "This booking is already cancelled." }, { status: 400 });
-  }
+/**
+ * GET /api/bookings/[id] — one booking, for the payment screen to poll its own
+ * state after a gateway round-trip. Ownership is enforced inside
+ * `findUserBooking`, which reports someone else's booking as simply missing.
+ */
+export async function GET(_req: Request, { params }: { params: { id: string } }) {
+  try {
+    const session = await getSession();
+    if (!session) return errors.unauthenticated();
 
   const updated = await prisma.booking.update({
     where: { id: booking.id },
-    data: {
-      status: "CANCELLED",
-      closedBy: session.role === "ADMIN" ? "ADMIN" : "CLIENT",
-      closedAt: new Date(),
-    },
+    data: { status: "CANCELLED", slotKey: null },
   });
 
-  return NextResponse.json({ booking: updated });
+    return privateJson({ booking: serializeBooking(booking) });
+  } catch (err) {
+    logFailure("bookings.get", err);
+    return errors.server();
+  }
 }

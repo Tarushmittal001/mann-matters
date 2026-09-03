@@ -1,6 +1,6 @@
-# Mann Matters
+# Emoraa
 
-A premium marketing + booking website for **Mann Matters**, a mental-health and
+A premium marketing + booking website for **Emoraa**, a mental-health and
 wellness platform for Indian youth, students, and working professionals. Serene,
 luxurious, and calm — built to feel like a boutique-studio commission, not a template.
 
@@ -15,7 +15,7 @@ Therapy and counselling, online, in your language, from ₹599.
 - **Framer Motion** — page transitions, scroll reveals, count-ups, micro-interactions
 - **React Three Fiber + drei** — the hero's 3D glass orb (code-split, `ssr: false`, with a static gradient fallback)
 - **Lenis** — smooth scrolling (auto-disabled under `prefers-reduced-motion`)
-- **next/font** — Fraunces (display serif), Plus Jakarta Sans (body), Tiro Devanagari Hindi (मन accents)
+- **CSS font fallbacks** — Georgia (display serif), Trebuchet MS (body), Nirmala UI/Mangal (मन accents). These avoid a build-time network dependency.
 
 ## Getting started
 
@@ -132,15 +132,14 @@ Display type: **Fraunces**. Body: **Plus Jakarta Sans**. Devanagari accent (म�
 - Every animation respects `prefers-reduced-motion` (Framer `MotionConfig reducedMotion="user"`, Lenis disabled, CSS keyframes gated).
 - The 3D scene is lazy-loaded and skipped on low-memory devices and reduced-motion, falling back to a pure-CSS gradient orb. Home first-load JS stays ~154 kB (Three.js loads only when the canvas mounts).
 
-## Where to wire real APIs later
+## API and integrations
 
-Everything below is stubbed with realistic client-side behaviour; the payloads already match what a backend would expect.
+Booking is backed by Prisma and SQLite. `components/booking/BookingFlow.tsx` posts `{ concern, expertId, date, time }` to `POST /api/bookings`, and availability is read from the same API. The database enforces one active booking per expert, date, and time.
 
-1. **Booking submit** — `components/booking/BookingFlow.tsx`, the `submitBooking()` function. Replace the simulated delay with a `POST /api/bookings`; it already receives `{ concern, expertId, date, time }`. Slot availability is generated locally in `buildDays()` / `slotTaken()` — swap for a fetch of the therapist's real calendar.
-2. **Contact form** — `components/sections/ContactForm.tsx`, the `onSubmit` handler. Point it at `POST /api/contact` (or a form service); fields are named `name`, `email`, `message`.
-3. **Newsletter** — `components/layout/Footer.tsx`, the `onSubscribe` handler. Wire to your email provider.
-4. **Blog CMS** — content lives in `lib/posts.ts` (typed `Post[]`). To move to a CMS, keep the `Post` type and replace the static array + `getPost()` with CMS fetches; `generateStaticParams` and `generateMetadata` already consume them.
-5. **Experts & services** — `lib/experts.ts` and `lib/services.ts` are plain typed data, ready to be served from an API.
+1. **Contact form** — `components/sections/ContactForm.tsx`, the `onSubmit` handler. Point it at `POST /api/contact` (or a form service); fields are named `name`, `email`, `message`.
+2. **Newsletter** — `components/layout/Footer.tsx`, the `onSubscribe` handler. Wire to your email provider.
+3. **Blog CMS** — content lives in `lib/posts.ts` (typed `Post[]`). To move to a CMS, keep the `Post` type and replace the static array + `getPost()` with CMS fetches; `generateStaticParams` and `generateMetadata` already consume them.
+4. **Experts & services** — `lib/experts.ts` and `lib/services.ts` are plain typed data, ready to be served from an API.
 
 ## Deploying to Vercel
 
@@ -150,5 +149,5 @@ production domain so canonical URLs, the sitemap, and OpenGraph tags resolve cor
 
 ---
 
-**Note:** Mann Matters is a scheduled-therapy product, not a crisis service. Every page
+**Note:** Emoraa is a scheduled-therapy product, not a crisis service. Every page
 surfaces the **Tele-MANAS 14416** helpline (free, confidential, 24×7) for anyone in crisis.

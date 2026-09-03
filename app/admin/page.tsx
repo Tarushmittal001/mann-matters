@@ -4,7 +4,9 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { concerns } from "@/lib/experts";
-import { cn, formatDateISO, formatINR, todayISO } from "@/lib/utils";
+import { releaseExpiredHolds } from "@/lib/bookings";
+import { BOOKING_STATUS, PAYMENT_STATUS, todayIST } from "@/lib/booking-policy";
+import { cn, formatDateISO, formatINR } from "@/lib/utils";
 import LogoutButton from "@/components/auth/LogoutButton";
 
 export const metadata: Metadata = {
@@ -14,34 +16,87 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
+type AdminBooking = {
+  id: string;
+  ref: string;
+  expertName: string;
+  concern: string;
+  date: string;
+  time: string;
+  amount: number;
+  status: string;
+  createdAt: Date;
+};
+
+type AdminClient = {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: Date;
+  bookings: AdminBooking[];
+};
+
 export default async function AdminPage({ searchParams }: { searchParams: { q?: string } }) {
   const session = await getSession();
   if (!session) redirect("/login?next=/admin");
   if (session.role !== "ADMIN") redirect("/dashboard");
 
-  const q = searchParams.q?.trim() ?? "";
-  const today = todayISO();
+  await releaseExpiredHolds();
 
-  const [clients, totalClients, totalBookings, upcomingCount, revenue] = await Promise.all([
-    prisma.user.findMany({
-      where: {
-        role: "USER",
-        ...(q ? { OR: [{ name: { contains: q } }, { email: { contains: q } }] } : {}),
-      },
-      include: { bookings: { orderBy: [{ date: "desc" }, { time: "desc" }] } },
-      orderBy: { createdAt: "desc" },
-    }),
-    prisma.user.count({ where: { role: "USER" } }),
-    prisma.booking.count(),
-    prisma.booking.count({ where: { status: "CONFIRMED", date: { gt: today } } }),
-    prisma.booking.aggregate({ _sum: { amount: true }, where: { status: "CONFIRMED" } }),
-  ]);
+  const q = searchParams.q?.trim() ?? "";
+  const today = todayIST();
+
+  const [allClients, totalClients, totalBookings, upcomingCount, collected, refunded] =
+    await Promise.all([
+      prisma.user.findMany({
+        where: { role: "USER" },
+        include: {
+          bookings: {
+            include: { payment: true },
+            orderBy: [{ date: "desc" }, { time: "desc" }],
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.user.count({ where: { role: "USER" } }),
+      prisma.booking.count(),
+      prisma.booking.count({
+        where: { status: BOOKING_STATUS.confirmed, date: { gt: today } },
+      }),
+      // money actually taken, not merely booked
+      prisma.payment.aggregate({
+        _sum: { amount: true },
+        where: { status: PAYMENT_STATUS.paid },
+      }),
+      prisma.payment.aggregate({
+        _sum: { refundAmount: true },
+        where: { status: PAYMENT_STATUS.refunded },
+      }),
+    ]);
+
+  // SQLite's `contains` is case-sensitive, so the filter happens here instead —
+  // fine at this scale, and it stops "Priya" from missing "priya@…"
+  const needle = q.toLowerCase();
+  const clients = needle
+    ? allClients.filter(
+        (u) =>
+          u.name.toLowerCase().includes(needle) || u.email.toLowerCase().includes(needle)
+      )
+    : allClients;
+
+  const awaitingPayment = allClients.reduce(
+    (n, u) =>
+      n + u.bookings.filter((b) => b.status === BOOKING_STATUS.pendingPayment).length,
+    0
+  );
 
   const stats = [
     { label: "Clients", value: String(totalClients) },
     { label: "Total bookings", value: String(totalBookings) },
     { label: "Upcoming sessions", value: String(upcomingCount) },
-    { label: "Booked value", value: formatINR(revenue._sum.amount ?? 0) },
+    { label: "Awaiting payment", value: String(awaitingPayment) },
+    { label: "Collected", value: formatINR(collected._sum.amount ?? 0) },
+    { label: "Refunded", value: formatINR(refunded._sum.refundAmount ?? 0) },
   ];
 
   return (
@@ -70,14 +125,26 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
         </div>
       </div>
 
+      {/* this page shows why people sought therapy — that needs saying out loud */}
+      <p className="mt-8 flex items-start gap-2.5 rounded-2xl border border-gold/40 bg-gold/10 px-4 py-3 text-[0.88rem] leading-relaxed text-forest-900">
+        <svg viewBox="0 0 16 16" className="mt-[3px] h-4 w-4 shrink-0 fill-gold-dark" aria-hidden="true">
+          <path d="M8 1 3 3.2v3.6c0 3.1 2.1 6 5 6.9 2.9-.9 5-3.8 5-6.9V3.2L8 1Zm0 4.2a1.3 1.3 0 0 1 .65 2.43V9.3a.65.65 0 0 1-1.3 0V7.63A1.3 1.3 0 0 1 8 5.2Z" />
+        </svg>
+        <span>
+          <strong className="font-semibold">Confidential.</strong> This page carries clients&apos;
+          names, contact details, and what they came to talk about. Don&apos;t screenshot it,
+          don&apos;t leave it open on a shared screen, and don&apos;t export it.
+        </span>
+      </p>
+
       {/* stats */}
-      <div className="mt-12 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="mt-10 grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
         {stats.map((s) => (
           <div
             key={s.label}
             className="rounded-2xl border border-forest-800/10 bg-ivory-light p-6 shadow-lift"
           >
-            <p className="font-display text-3xl font-medium text-forest-900">{s.value}</p>
+            <p className="font-display text-2xl font-medium text-forest-900">{s.value}</p>
             <p className="mt-1 text-sm text-ink/60">{s.label}</p>
           </div>
         ))}
@@ -112,11 +179,11 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
       {/* clients */}
       {clients.length === 0 ? (
         <div className="mt-10 rounded-2xl border border-dashed border-forest-800/20 bg-ivory-light/60 p-12 text-center text-ink/60">
-          {q ? <>No clients match “{q}”.</> : <>No clients have signed up yet.</>}
+          {q ? <>No clients match &ldquo;{q}&rdquo;.</> : <>No clients have signed up yet.</>}
         </div>
       ) : (
         <div className="mt-10 space-y-8">
-          {clients.map((user) => (
+          {clients.map((user: AdminClient) => (
             <section
               key={user.id}
               className="overflow-hidden rounded-2xl border border-forest-800/10 bg-ivory-light shadow-lift"
@@ -125,8 +192,13 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
                 <div>
                   <h2 className="font-display text-xl font-medium text-forest-900">{user.name}</h2>
                   <p className="text-sm text-ink/60">
-                    {user.email} · joined{" "}
-                    {formatDateISO(user.createdAt.toISOString().slice(0, 10))}
+                    {user.email}
+                    {!user.emailVerified && (
+                      <span className="ml-2 rounded-full bg-gold/20 px-2 py-0.5 text-[0.68rem] font-semibold uppercase tracking-wider text-gold-dark">
+                        unverified
+                      </span>
+                    )}{" "}
+                    · joined {formatDateISO(user.createdAt.toISOString().slice(0, 10))}
                   </p>
                 </div>
                 <span className="rounded-full bg-sage-light/70 px-3 py-1 text-[0.75rem] font-semibold text-forest-800">
@@ -138,7 +210,7 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
                 <p className="px-6 py-5 text-sm text-ink/55">No bookings yet.</p>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="w-full min-w-[720px] text-left text-sm">
+                  <table className="w-full min-w-[820px] text-left text-sm">
                     <thead>
                       <tr className="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-ink/50">
                         <th className="px-6 py-3">Ref</th>
@@ -147,11 +219,12 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
                         <th className="px-4 py-3">Session</th>
                         <th className="px-4 py-3">Fee</th>
                         <th className="px-4 py-3">Status</th>
+                        <th className="px-4 py-3">Payment</th>
                         <th className="px-6 py-3">Booked on</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {user.bookings.map((b) => (
+                      {user.bookings.map((b: AdminBooking) => (
                         <tr key={b.id} className="border-t border-forest-800/[0.07]">
                           <td className="px-6 py-3.5 font-mono font-semibold text-forest-800">
                             {b.ref}
@@ -172,15 +245,13 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
                                   ? "bg-red-50 text-red-700"
                                   : "bg-sage-light/70 text-forest-800"
                               )}
-                            >
-                              {b.status === "CANCELLED" ? "Cancelled" : "Confirmed"}
-                            </span>
-                          </td>
-                          <td className="px-6 py-3.5 text-ink/55">
-                            {formatDateISO(b.createdAt.toISOString().slice(0, 10))}
-                          </td>
-                        </tr>
-                      ))}
+                            </td>
+                            <td className="px-6 py-3.5 text-ink/55">
+                              {formatDateISO(b.createdAt.toISOString().slice(0, 10))}
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>

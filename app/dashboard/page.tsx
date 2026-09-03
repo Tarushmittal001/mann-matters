@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
@@ -7,13 +6,18 @@ import { getSession } from "@/lib/auth";
 import { concerns, experts } from "@/lib/experts";
 import { cn, formatDateISO, formatINR, todayISO } from "@/lib/utils";
 import { STATUS_META, isSessionStatus } from "@/lib/expert-portal";
+import { releaseExpiredHolds, serializeBooking } from "@/lib/bookings";
+import { BOOKING_STATUS, changePolicyNote, hoursUntil } from "@/lib/booking-policy";
 import Button from "@/components/ui/Button";
 import LogoutButton from "@/components/auth/LogoutButton";
-import CancelBookingButton from "@/components/booking/CancelBookingButton";
+import BookingCard from "@/components/booking/BookingCard";
+import { CrisisLine, EmptyState } from "@/components/ui/Feedback";
 
 export const metadata: Metadata = {
   title: "My sessions",
-  description: "Your upcoming and past therapy sessions at mann Matters.",
+  description: "Your upcoming and past therapy sessions at Emoraa.",
+  // a page listing someone's therapy sessions has no business in an index
+  robots: { index: false, follow: false },
 };
 
 export const dynamic = "force-dynamic";
@@ -86,16 +90,17 @@ export default async function DashboardPage() {
   const session = await getSession();
   if (!session) redirect("/login?next=/dashboard");
 
-  const bookings = await prisma.booking.findMany({
+  const bookings: BookingRow[] = await prisma.booking.findMany({
     where: { userId: session.sub },
+    include: { payment: true },
     orderBy: [{ date: "asc" }, { time: "asc" }],
   });
 
   const today = todayISO();
-  const upcoming = bookings.filter((b) => b.status === "CONFIRMED" && b.date > today);
+  const upcoming = bookings.filter((b: BookingRow) => b.status === "CONFIRMED" && b.date > today);
   const past = bookings
-    .filter((b) => b.status !== "CONFIRMED" || b.date <= today)
-    .sort((a, b) => (a.date < b.date ? 1 : -1));
+    .filter((b: BookingRow) => b.status !== "CONFIRMED" || b.date <= today)
+    .sort((a: BookingRow, b: BookingRow) => (a.date < b.date ? 1 : -1));
 
   return (
     <div className="page-top wrap pb-28">
@@ -112,11 +117,11 @@ export default async function DashboardPage() {
           </p>
           <h1 className="h-display text-4xl md:text-5xl">Hi, {session.name.split(" ")[0]}.</h1>
           <p className="mt-4 max-w-xl text-ink/65">
-            Everything you've booked, in one quiet place. Rescheduling is free up to 24 hours
-            before a session.
+            Everything you&apos;ve booked, in one quiet place. {changePolicyNote}
           </p>
         </div>
-        <div className="flex items-center gap-6">
+
+        <div className="flex flex-wrap items-center gap-6">
           {session.role === "ADMIN" && (
             <Link href="/admin" className="link-draw text-sm font-medium text-forest-800">
               Admin portal
@@ -134,23 +139,31 @@ export default async function DashboardPage() {
         </div>
       </div>
 
+      {awaitingPayment > 0 && (
+        <p className="mt-8 rounded-2xl border border-gold/40 bg-gold/10 px-4 py-3 text-[0.9rem] text-forest-900">
+          {awaitingPayment === 1
+            ? "One session is still waiting on payment — it isn't confirmed until that's done."
+            : `${awaitingPayment} sessions are still waiting on payment — they aren't confirmed until that's done.`}
+        </p>
+      )}
+
       <section className="mt-14">
         <h2 className="font-display text-2xl font-medium text-forest-900">Upcoming</h2>
         {upcoming.length === 0 ? (
-          <div className="mt-5 rounded-2xl border border-dashed border-forest-800/20 bg-ivory-light/60 p-10 text-center">
-            <p className="text-ink/65">Nothing on the calendar yet.</p>
-            <p className="mt-1 text-sm text-ink/50">
-              Fifty minutes for yourself is closer than you think.
-            </p>
-            <div className="mt-6">
-              <Button href="/book" variant="forest">
-                Find your fifty minutes
-              </Button>
-            </div>
+          <div className="mt-5">
+            <EmptyState
+              title="Nothing on the calendar yet."
+              body="Fifty minutes for yourself is closer than you think — most people find a slot within 48 hours."
+              action={
+                <Button href="/book" variant="forest">
+                  Find your fifty minutes
+                </Button>
+              }
+            />
           </div>
         ) : (
           <div className="mt-5 space-y-4">
-            {upcoming.map((b) => (
+            {upcoming.map((b: BookingRow) => (
               <BookingCard key={b.id} booking={b} upcoming />
             ))}
           </div>
@@ -161,12 +174,20 @@ export default async function DashboardPage() {
         <section className="mt-14">
           <h2 className="font-display text-2xl font-medium text-forest-900">Past & cancelled</h2>
           <div className="mt-5 space-y-4">
-            {past.map((b) => (
+            {past.map((b: BookingRow) => (
               <BookingCard key={b.id} booking={b} upcoming={false} />
             ))}
           </div>
         </section>
       )}
+
+      <div className="mt-16 border-t border-forest-800/10 pt-8">
+        <CrisisLine />
+        <p className="mt-3 max-w-2xl text-[0.8rem] leading-relaxed text-ink/45">
+          Sessions are confidential. What you discuss stays between you and your therapist — we
+          never see session content, and we never sell or share your data.
+        </p>
+      </div>
     </div>
   );
 }

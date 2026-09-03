@@ -7,13 +7,13 @@ export default function WhatsAppButton() {
         className="pointer-events-none absolute right-full top-1/2 mr-3 -translate-y-1/2 whitespace-nowrap rounded-full bg-forest-900 px-4 py-2 text-sm font-medium text-ivory opacity-0 shadow-lift transition-all duration-300 ease-silk group-hover:-translate-x-1 group-hover:opacity-100"
         role="tooltip"
       >
-        Chat with us
+        Talk to Manu
       </span>
       <a
         href={site.whatsapp}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Chat with mann Matters on WhatsApp"
+        aria-label="Talk to Manu on WhatsApp"
         className="flex h-14 w-14 animate-pulse-soft items-center justify-center rounded-full bg-forest-700 text-ivory shadow-bloom transition-transform duration-300 ease-silk hover:-translate-y-1 hover:bg-forest-600"
       >
         <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

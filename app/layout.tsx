@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Plus_Jakarta_Sans, Tiro_Devanagari_Hindi } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/layout/Providers";
 import Navbar from "@/components/layout/Navbar";
@@ -10,38 +9,18 @@ import SafetyNotice from "@/components/layout/SafetyNotice";
 import PublicChrome from "@/components/layout/PublicChrome";
 import { site } from "@/lib/site";
 
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-display",
-  style: ["normal", "italic"],
-  display: "swap",
-});
-
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  display: "swap",
-});
-
-const tiro = Tiro_Devanagari_Hindi({
-  subsets: ["devanagari", "latin"],
-  weight: "400",
-  variable: "--font-deva",
-  display: "swap",
-});
-
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: "mann Matters — Therapy & counselling for India, online",
-    template: "%s · mann Matters",
+    default: "Emoraa — Therapy & counselling for India, online",
+    template: "%s · Emoraa",
   },
   description:
     "Book confidential 1-on-1 sessions with licensed psychologists — online, in 2+ languages, from ₹599. For students, young professionals, and everyone in between.",
   openGraph: {
     type: "website",
-    siteName: "mann Matters",
-    title: "mann Matters — Your mind matters",
+    siteName: "Emoraa",
+    title: "Emoraa — Your mind matters",
     description:
       "Confidential online therapy with licensed Indian psychologists, in your language, from ₹599.",
     url: site.url,
@@ -49,7 +28,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "mann Matters — Your mind matters",
+    title: "Emoraa — Your mind matters",
     description:
       "Confidential online therapy with licensed Indian psychologists, in your language, from ₹599.",
   },
@@ -65,7 +44,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${jakarta.variable} ${tiro.variable}`}>
+    <html lang="en">
       <body>
         <Providers>
           <Navbar />

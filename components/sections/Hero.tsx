@@ -2,20 +2,10 @@
 
 import { motion } from "framer-motion";
 import Button from "@/components/ui/Button";
-import AuroraMesh from "@/components/ui/AuroraMesh";
 import NeuralBrain from "@/components/three/NeuralBrain";
-import { site } from "@/lib/site";
+import TalkToManuButton from "@/components/layout/TalkToManuButton";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
-
-/* Four promises, one colour each — the first place the accent family
-   shows up, so the eye learns the palette before it needs it. */
-const chips = [
-  { label: "RCI-licensed psychologists", c: "#0E9FA6" },
-  { label: "End-to-end encrypted", c: "#4356CE" },
-  { label: "From ₹599 a session", c: "#F0B429" },
-  { label: "Hindi, English & 10 more", c: "#E14D7C" },
-];
 
 function MaskedWords({
   text,
@@ -47,9 +37,16 @@ function MaskedWords({
 
 export default function Hero() {
   return (
-    <section className="relative flex min-h-[100svh] items-center overflow-hidden bg-ivory">
-      {/* the colour field — six lights drifting behind everything */}
-      <AuroraMesh intensity={0.34} />
+    <section className="relative flex min-h-[100svh] items-center overflow-hidden">
+      {/* soft sage wash behind the orb */}
+      <div
+        className="absolute inset-0"
+        aria-hidden="true"
+        style={{
+          background:
+            "radial-gradient(ellipse 60% 55% at 78% 42%, rgba(168,195,181,0.35), transparent 70%), radial-gradient(ellipse 40% 35% at 12% 88%, rgba(200,164,93,0.10), transparent 70%)",
+        }}
+      />
 
       {/* the 3D form — off-axis right on desktop, ambient behind text on mobile */}
       <motion.div
@@ -68,7 +65,7 @@ export default function Hero() {
         aria-hidden="true"
         style={{
           background:
-            "linear-gradient(90deg, #F7F4EE 0%, rgba(247,244,238,0.97) 42%, rgba(247,244,238,0.80) 64%, rgba(247,244,238,0) 100%)",
+            "linear-gradient(90deg, #F7F4EE 0%, #F7F4EE 42%, rgba(247,244,238,0.85) 64%, rgba(247,244,238,0) 100%)",
         }}
       />
 
@@ -79,13 +76,10 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.1, ease: EASE }}
         >
-          <span
-            className="font-deva text-base normal-case tracking-normal text-kesar"
-            aria-hidden="true"
-          >
+          <span className="font-deva text-base normal-case tracking-normal text-gold" aria-hidden="true">
             मन
           </span>
-          therapy &amp; counselling, made for India
+          therapy & counselling, made for India
         </motion.p>
 
         <h1 className="h-display max-w-4xl text-[clamp(3rem,8vw,7rem)]">
@@ -93,7 +87,7 @@ export default function Hero() {
           <MaskedWords
             text="mann matters."
             baseDelay={0.4}
-            className="text-sunrise italic"
+            className="italic text-forest-600"
           />
         </h1>
 
@@ -103,9 +97,9 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1.0, ease: EASE }}
         >
-          Talk to a licensed psychologist — online, in your language, from
-          ₹599. For the exam pressure, the burnout, the heartbreak, and the
-          things you haven&apos;t said out loud yet.
+          Book a 50-minute video session with a licensed psychologist — in
+          Hindi, English or Hinglish, from ₹599. Between sessions, Manu listens
+          free on WhatsApp, and every tool here works without an account.
         </motion.p>
 
         <motion.div
@@ -114,38 +108,14 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1.25, ease: EASE }}
         >
-          <Button href="/book" variant="sunrise">
+          <Button href="/book" variant="gold">
             Book a session
           </Button>
-          <Button href={site.whatsapp} external variant="outline">
-            Talk to us on WhatsApp
-          </Button>
+          <TalkToManuButton />
         </motion.div>
-
-        {/* colour-coded promises */}
-        <motion.ul
-          className="mt-10 flex max-w-xl flex-wrap gap-x-5 gap-y-3"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 1.5 }}
-        >
-          {chips.map((chip) => (
-            <li
-              key={chip.label}
-              className="flex items-center gap-2 rounded-full border border-white/60 bg-white/55 px-3.5 py-1.5 text-[0.78rem] font-medium text-ink/70 shadow-glass backdrop-blur-md"
-            >
-              <span
-                className="h-2 w-2 shrink-0 rounded-full"
-                style={{ background: chip.c, boxShadow: `0 0 0 3px ${chip.c}22` }}
-                aria-hidden="true"
-              />
-              {chip.label}
-            </li>
-          ))}
-        </motion.ul>
       </div>
 
-      {/* scroll cue, on a spectrum thread */}
+      {/* scroll cue */}
       <motion.div
         className="absolute bottom-8 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-3 md:flex"
         initial={{ opacity: 0 }}
@@ -153,17 +123,12 @@ export default function Hero() {
         transition={{ delay: 2, duration: 1 }}
         aria-hidden="true"
       >
-        <span className="text-[0.65rem] uppercase tracking-[0.3em] text-forest-800/50">
-          scroll
-        </span>
+        <span className="text-[0.65rem] uppercase tracking-[0.3em] text-forest-800/50">scroll</span>
         <motion.span
-          className="block h-10 w-[3px] rounded-full"
-          style={{
-            background: "linear-gradient(180deg,#F0B429,#E14D7C,#4356CE)",
-            transformOrigin: "top",
-          }}
+          className="block h-10 w-px bg-forest-800/30"
           animate={{ scaleY: [1, 0.4, 1] }}
           transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+          style={{ transformOrigin: "top" }}
         />
       </motion.div>
     </section>

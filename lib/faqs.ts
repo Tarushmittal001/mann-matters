@@ -19,10 +19,10 @@ export const faqs: Faq[] = [
   },
   {
     q: "How do I know my therapist is qualified?",
-    a: "Every therapist on mann Matters holds a master's degree or higher in clinical or counselling psychology, and we verify credentials, licenses (including RCI registration where applicable), and supervised experience before they see a single client. Their qualifications are listed on their profile — you'll always know who you're talking to.",
+    a: "Every therapist on Emoraa holds a master's degree or higher in clinical or counselling psychology, and we verify credentials, licenses (including RCI registration where applicable), and supervised experience before they see a single client. Their qualifications are listed on their profile — you'll always know who you're talking to.",
   },
   {
     q: "What if I'm in crisis right now?",
-    a: "Please don't wait for an appointment. Call Tele-MANAS at 14416 — the Government of India's free, confidential mental health helpline, available 24x7 in 20+ languages. If you or someone near you is in immediate danger, call 112. mann Matters provides scheduled therapy, and a crisis deserves faster care than any booking system can give.",
+    a: "Please don't wait for an appointment. Call Tele-MANAS at 14416 — the Government of India's free, confidential mental health helpline, available 24x7 in 20+ languages. If you or someone near you is in immediate danger, call 112. Emoraa provides scheduled therapy, and a crisis deserves faster care than any booking system can give.",
   },
 ];
