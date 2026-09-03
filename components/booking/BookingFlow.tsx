@@ -10,9 +10,9 @@ import SlotPicker, { type SlotSelection } from "@/components/booking/SlotPicker"
 import PaymentPanel from "@/components/booking/PaymentPanel";
 import { concerns, experts, type ConcernId, type Expert } from "@/lib/experts";
 import { findConcern, specialisesIn } from "@/lib/matching";
-import { changePolicyNote, HOLD_MINUTES } from "@/lib/booking-policy";
+import { changePolicyNote, HOLD_MINUTES } from "@/lib/features/booking/policy";
 import { cn, formatINR } from "@/lib/utils";
-import type { SerializedBooking } from "@/lib/bookings";
+import type { SerializedBooking } from "@/lib/features/booking/server";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 const STEPS = ["Concern", "Expert", "Date & time", "Review", "Payment"];

@@ -1,5 +1,5 @@
 import { getSession } from "@/lib/auth";
-import { findUserBooking, serializeBooking } from "@/lib/bookings";
+import { findUserBooking, serializeBooking } from "@/lib/features/booking/server";
 import { errors, logFailure, privateJson } from "@/lib/http";
 
 export const dynamic = "force-dynamic";

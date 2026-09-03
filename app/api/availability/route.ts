@@ -1,6 +1,6 @@
 import { getSession } from "@/lib/auth";
-import { dayAvailability, expertById } from "@/lib/bookings";
-import { bookableRange, validateSlot } from "@/lib/booking-policy";
+import { dayAvailability, expertById } from "@/lib/features/booking/server";
+import { bookableRange, validateSlot } from "@/lib/features/booking/policy";
 import { errors, logFailure, privateJson } from "@/lib/http";
 
 export const dynamic = "force-dynamic";

@@ -13,9 +13,9 @@ import {
   validateUpi,
   type PayMethod,
 } from "@/lib/payment-fields";
-import { HOLD_MINUTES } from "@/lib/booking-policy";
+import { HOLD_MINUTES } from "@/lib/features/booking/policy";
 import { cn, formatINR } from "@/lib/utils";
-import type { SerializedBooking } from "@/lib/bookings";
+import type { SerializedBooking } from "@/lib/features/booking/server";
 
 /**
  * The payment step.

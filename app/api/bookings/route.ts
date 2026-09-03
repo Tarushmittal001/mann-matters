@@ -9,8 +9,8 @@ import {
   releaseExpiredHolds,
   serializeBooking,
   takenSlots,
-} from "@/lib/bookings";
-import { HOLD_MINUTES, validateSlot } from "@/lib/booking-policy";
+} from "@/lib/features/booking/server";
+import { HOLD_MINUTES, validateSlot } from "@/lib/features/booking/policy";
 import { clientKey, errors, isSameOrigin, logFailure, privateJson, readJson } from "@/lib/http";
 import { rateLimit } from "@/lib/rate-limit";
 

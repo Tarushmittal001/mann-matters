@@ -9,9 +9,9 @@ import RescheduleDialog from "@/components/booking/RescheduleDialog";
 import PaymentPanel from "@/components/booking/PaymentPanel";
 import { Alert } from "@/components/ui/Feedback";
 import { concerns, experts } from "@/lib/experts";
-import { BOOKING_STATUS, PAYMENT_STATUS, hoursUntil } from "@/lib/booking-policy";
+import { BOOKING_STATUS, PAYMENT_STATUS, hoursUntil } from "@/lib/features/booking/policy";
 import { cn, formatDateISO, formatINR } from "@/lib/utils";
-import type { SerializedBooking } from "@/lib/bookings";
+import type { SerializedBooking } from "@/lib/features/booking/server";
 
 /**
  * One session, in every state it can be in: waiting on payment, confirmed,

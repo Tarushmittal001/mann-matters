@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
-import { findUserBooking, releaseExpiredHolds, serializeBooking } from "@/lib/bookings";
-import { BOOKING_STATUS, PAYMENT_STATUS } from "@/lib/booking-policy";
+import { findUserBooking, releaseExpiredHolds, serializeBooking } from "@/lib/features/booking/server";
+import { BOOKING_STATUS, PAYMENT_STATUS } from "@/lib/features/booking/policy";
 import { validateCard, validateUpi, type PayMethod } from "@/lib/payment-fields";
 import { charge } from "@/lib/payments";
 import { clientKey, errors, isSameOrigin, logFailure, privateJson, readJson } from "@/lib/http";
