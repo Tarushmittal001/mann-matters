@@ -65,6 +65,35 @@ ANTHROPIC_MODEL="claude-3-5-haiku-latest"
 Crisis terms are intercepted before Anthropic is called and retain the direct Tele-MANAS 14416
 and emergency 112 escalation. Without an API key, ordinary replies show an unavailable state.
 
+### Analytics and error tracking
+
+Both integrations are disabled when their keys are absent:
+
+```bash
+NEXT_PUBLIC_POSTHOG_KEY="phc_..."
+NEXT_PUBLIC_POSTHOG_HOST="https://us.i.posthog.com"
+NEXT_PUBLIC_SENTRY_DSN="https://...@....ingest.sentry.io/..."
+SENTRY_DSN="https://...@....ingest.sentry.io/..."
+SENTRY_ENVIRONMENT="production"
+NEXT_PUBLIC_SENTRY_ENVIRONMENT="production"
+SENTRY_ORG=""
+SENTRY_PROJECT=""
+SENTRY_AUTH_TOKEN="" # CI source-map upload only
+```
+
+PostHog records pathname-only page views on public content pages. It excludes authentication,
+booking, crisis, dashboard, admin, expert, API, and verification routes; autocapture and session
+recording are disabled. Sentry strips request bodies, cookies, authorization headers, and query
+strings before sending events.
+
+### Content routes
+
+- `/services/[slug]` contains detailed pages for every service.
+- `/therapy/[slug]` contains curated online-therapy pages for Delhi, Mumbai, Bengaluru, Hindi,
+  Tamil, and Malayalam.
+- Blog articles emit Article JSON-LD; service/discovery pages emit Service JSON-LD.
+- All generated routes are included in `sitemap.xml`.
+
 ## Project structure
 
 ```

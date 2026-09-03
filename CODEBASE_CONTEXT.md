@@ -142,6 +142,7 @@ Everything needed to start work with no extra reading:
   `CancelBookingButton` (refund shown before the decision).
 - `profile/`: `ProfileForm` (name, phone, language, therapist note), `PasswordForm`.
 - `auth/`: `AuthForm` (login+signup in one, `mode` prop), `VerifyClient`, `LogoutButton`.
+- `analytics/AnalyticsProvider`: PostHog pathname-only public page views; no autocapture or replay.
 - `blog/`: `BlogIndex`, `PostCover`, `ArticleContents`, `ReadingProgress`, `ShareRow`.
 - `tools/`: one component per tool + `ChatAssistant` (global, stateless Claude-backed API)
   + `TherapistMatcher`.
@@ -229,7 +230,7 @@ Everything needed to start work with no extra reading:
 - **Isomorphic (client + server)**: `features/booking/policy.ts` (**the rules**), `validation.ts`
   (field rules), `payment-fields.ts` (Luhn, masking), `matching.ts`, `utils.ts`.
 - **Static content**: `experts.ts`, `services.ts`, `posts.ts`, `tools.ts`, `testimonials.ts`,
-  `faqs.ts`, `organisations.ts`, `site.ts`.
+  `faqs.ts`, `organisations.ts`, `site.ts`, `service-details.ts`, `therapy-pages.ts`.
 
 ### `prisma/` — `schema.prisma`, `seed.mjs`, `dev.db` (gitignored).
 ### `public/` — `reviews/` (30 pngs), `team/`, `sounds/`. `assets/avatars/` — source art.
@@ -658,6 +659,13 @@ script that has since been removed. A real deployment needs a migrations directo
 | `TWILIO_PHONE_NUMBER` | production phone auth | E.164 sender number, e.g. `+1...` |
 | `ANTHROPIC_API_KEY` | live Manu | Anthropic server-side API key; never expose to the client |
 | `ANTHROPIC_MODEL` | no | Defaults to `claude-3-5-haiku-latest` |
+| `NEXT_PUBLIC_POSTHOG_KEY` | analytics | Public PostHog project key; absent disables analytics |
+| `NEXT_PUBLIC_POSTHOG_HOST` | no | Defaults to PostHog US ingestion |
+| `NEXT_PUBLIC_SENTRY_DSN` | client errors | Public Sentry DSN; absent disables client reporting |
+| `SENTRY_DSN` | server errors | Server Sentry DSN; may equal the public DSN |
+| `SENTRY_ENVIRONMENT` | no | Deployment label such as `production` or `preview` |
+| `SENTRY_ORG` / `SENTRY_PROJECT` | source maps | Sentry project identifiers |
+| `SENTRY_AUTH_TOKEN` | CI only | Uploads source maps during builds; never expose publicly |
 | `NODE_ENV` | auto | gates cookie `secure` + Prisma global caching |
 
 **No new variables were added by the payments/profile work** — the gateway is simulated, so
