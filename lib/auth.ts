@@ -61,7 +61,9 @@ export async function getSession(): Promise<Session | null> {
       where: { id: payload.sub },
       select: { id: true, name: true, email: true, role: true },
     });
-    if (!user || (user.role !== "USER" && user.role !== "ADMIN")) return null;
+    if (!user || (user.role !== "USER" && user.role !== "EXPERT" && user.role !== "ADMIN")) {
+      return null;
+    }
     return {
       sub: user.id,
       name: user.name,

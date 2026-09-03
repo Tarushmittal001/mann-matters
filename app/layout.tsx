@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Fraunces, Plus_Jakarta_Sans, Tiro_Devanagari_Hindi } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/layout/Providers";
 import Navbar from "@/components/layout/Navbar";
@@ -8,6 +9,26 @@ import ChatAssistant from "@/components/tools/ChatAssistant";
 import SafetyNotice from "@/components/layout/SafetyNotice";
 import PublicChrome from "@/components/layout/PublicChrome";
 import { site } from "@/lib/site";
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-display",
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const tiro = Tiro_Devanagari_Hindi({
+  subsets: ["devanagari", "latin"],
+  weight: "400",
+  variable: "--font-deva",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -44,7 +65,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${fraunces.variable} ${jakarta.variable} ${tiro.variable}`}>
       <body>
         <Providers>
           <Navbar />

@@ -18,6 +18,14 @@ import {
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
+// Where each role belongs when they haven't asked for somewhere specific. A
+// practitioner landing on /dashboard would be shown the client's own booking
+// page, which is not their portal and not their job.
+const ROLE_HOME: Record<string, string> = {
+  ADMIN: "/admin",
+  EXPERT: "/expert",
+};
+
 export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const router = useRouter();
   const params = useSearchParams();
@@ -113,7 +121,9 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
       }
 
       setPassword("");
-      const dest = data.user?.role === "ADMIN" && next === "/dashboard" ? "/admin" : next;
+      // an explicit ?next= wins; otherwise send them to their own portal
+      const dest =
+        next === "/dashboard" ? ROLE_HOME[data.user?.role ?? ""] ?? next : next;
       router.push(dest);
       router.refresh();
     } catch {

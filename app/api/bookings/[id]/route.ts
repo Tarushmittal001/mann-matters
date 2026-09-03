@@ -14,10 +14,8 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     const session = await getSession();
     if (!session) return errors.unauthenticated();
 
-  const updated = await prisma.booking.update({
-    where: { id: booking.id },
-    data: { status: "CANCELLED", slotKey: null },
-  });
+    const booking = await findUserBooking(params.id, session);
+    if (!booking) return errors.notFound("We couldn't find that session.");
 
     return privateJson({ booking: serializeBooking(booking) });
   } catch (err) {
