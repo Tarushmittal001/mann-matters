@@ -15,7 +15,7 @@ import { ActionButton, CopyButton, Field, TextInput } from "@/components/expert/
 import { InlineAlert } from "@/components/expert/Panel";
 import { send } from "@/components/expert/request";
 import { useToast } from "@/components/expert/Toast";
-import { useNow } from "@/components/expert/useNow";
+import { useNow } from "@/components/ui/useNow";
 
 /**
  * Meeting-link access.

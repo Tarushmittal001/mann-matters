@@ -8,6 +8,7 @@ import ReadingProgress from "@/components/blog/ReadingProgress";
 import ArticleContents from "@/components/blog/ArticleContents";
 import ShareRow from "@/components/blog/ShareRow";
 import { getPost, headingId, headingsOf, posts } from "@/lib/posts";
+import { site } from "@/lib/site";
 
 export function generateStaticParams() {
   return posts.map((p) => ({ slug: p.slug }));
@@ -25,7 +26,9 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
       type: "article",
       publishedTime: post.date,
       authors: [post.author.name],
+      images: [post.cover],
     },
+    alternates: { canonical: `/blog/${post.slug}` },
   };
 }
 
@@ -48,9 +51,21 @@ export default function PostPage({ params }: { params: { slug: string } }) {
   const keepReading = related.length
     ? related
     : posts.filter((p) => p.slug !== post.slug).slice(0, 2);
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.excerpt,
+    image: post.cover,
+    datePublished: post.date,
+    author: { "@type": "Person", name: post.author.name },
+    publisher: { "@type": "Organization", name: site.name, url: site.url },
+    mainEntityOfPage: `${site.url}/blog/${post.slug}`,
+  };
 
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <ReadingProgress readTime={post.readTime} />
 
       <article className="page-top pb-24">

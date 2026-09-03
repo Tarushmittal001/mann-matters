@@ -6,6 +6,7 @@ import {
   expertById,
   holdExpiry,
   isUniqueViolation,
+  offersSlot,
   releaseExpiredHolds,
   serializeBooking,
   takenSlots,
@@ -54,6 +55,23 @@ export async function POST(req: Request) {
 
     // a lapsed hold shouldn't block a real booking
     await releaseExpiredHolds();
+
+    // The practitioner's own hours have the last word. The calendar is derived
+    // from these rows, so a request for a time outside them is either a stale
+    // screen or a hand-made payload — and a booking nobody agreed to work is
+    // worse for the client than a refusal they can act on.
+    if (!(await offersSlot(expert!.id, date, time))) {
+      const taken = await takenSlots(expert!.id, date);
+      return privateJson(
+        {
+          error:
+            "That time isn't open on this therapist's calendar. Here's what's still free on this day.",
+          code: "SLOT_UNAVAILABLE",
+          takenSlots: taken,
+        },
+        { status: 409 }
+      );
+    }
 
     try {
       const booking = await createBookingWithRef({
@@ -107,7 +125,7 @@ export async function GET() {
       orderBy: [{ date: "asc" }, { time: "asc" }],
     });
 
-    return privateJson({ bookings: bookings.map(serializeBooking) });
+    return privateJson({ bookings: bookings.map((booking) => serializeBooking(booking)) });
   } catch (err) {
     logFailure("bookings.list", err);
     return errors.server();

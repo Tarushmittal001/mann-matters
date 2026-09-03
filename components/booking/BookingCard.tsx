@@ -2,14 +2,22 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import CancelBookingButton from "@/components/booking/CancelBookingButton";
 import RescheduleDialog from "@/components/booking/RescheduleDialog";
 import PaymentPanel from "@/components/booking/PaymentPanel";
 import { Alert } from "@/components/ui/Feedback";
+import { useNow } from "@/components/ui/useNow";
+import { addMinutes, formatClinicTime, humanGap } from "@/lib/clinic-time";
+import { JOIN_OPENS_MINUTES_BEFORE, meetingAccess } from "@/lib/expert-portal";
 import { concerns, experts } from "@/lib/experts";
-import { BOOKING_STATUS, PAYMENT_STATUS, hoursUntil } from "@/lib/features/booking/policy";
+import {
+  BOOKING_STATUS,
+  PAYMENT_STATUS,
+  SESSION_MINUTES,
+  hoursUntil,
+} from "@/lib/features/booking/policy";
 import { cn, formatDateISO, formatINR } from "@/lib/utils";
 import type { SerializedBooking } from "@/lib/features/booking/server";
 
@@ -41,6 +49,104 @@ function toneOf(b: SerializedBooking): Tone {
   return b.payment?.status === PAYMENT_STATUS.failed ? "failed" : "pending";
 }
 
+/**
+ * The client's side of the meeting room.
+ *
+ * The practitioner pastes a link; this decides whether the client may see it,
+ * on exactly the schedule the portal promises them — open fifteen minutes
+ * before, closed half an hour after. Every other state says why, because a
+ * link that is quietly absent is worse than one that explains itself.
+ */
+function MeetingRow({
+  booking,
+  serverNow,
+}: {
+  booking: SerializedBooking;
+  serverNow: string;
+}) {
+  const router = useRouter();
+  const now = useNow(serverNow, 20_000);
+  const server = booking.meeting;
+
+  // Recompute on the viewer's own clock, so a tab left open since morning still
+  // tells the truth. The URL is the one thing we cannot derive — the server
+  // withholds it until the door opens — so when our clock says it should be
+  // open and we still hold no link, ask the server once for a fresh copy.
+  const access = meetingAccess(
+    {
+      date: booking.date,
+      time: booking.time,
+      status: booking.status,
+      meetingUrl: server?.state === "open" ? server.url : null,
+    },
+    SESSION_MINUTES,
+    now
+  );
+
+  const justOpened = access.state === "missing" && server?.state === "early";
+  useEffect(() => {
+    if (justOpened) router.refresh();
+  }, [justOpened, router]);
+
+  if (!server) return null;
+
+  if (access.state === "open") {
+    return (
+      <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3 rounded-2xl border border-forest-800/10 bg-sage-light/40 px-5 py-4">
+        <a
+          href={access.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 rounded-full bg-forest-800 px-5 py-2.5 text-[0.88rem] font-semibold text-ivory transition-colors hover:bg-forest-700"
+        >
+          Join session
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path
+              d="M6 3h7v7M13 3 4 12"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </a>
+        <p className="text-[0.85rem] text-ink/65">
+          Your therapist is expecting you. The room closes {humanGap(access.closesInMinutes)}.
+        </p>
+      </div>
+    );
+  }
+
+  if (access.state === "early") {
+    return (
+      <p className="mt-5 rounded-2xl border border-forest-800/10 bg-ivory px-5 py-3.5 text-[0.85rem] text-ink/65">
+        The meeting room opens at{" "}
+        <span className="font-medium text-forest-800">
+          {formatClinicTime(addMinutes(booking.time, -JOIN_OPENS_MINUTES_BEFORE))}
+        </span>
+        , {JOIN_OPENS_MINUTES_BEFORE} minutes before you start — {humanGap(access.opensInMinutes)}.
+        The link appears right here, on this page.
+      </p>
+    );
+  }
+
+  if (access.state === "missing") {
+    return (
+      <p className="mt-5 rounded-2xl border border-gold/40 bg-gold/10 px-5 py-3.5 text-[0.85rem] text-forest-900">
+        Your therapist hasn&apos;t opened the meeting room yet. It usually appears just before the
+        session — this page will show the link the moment it does.{" "}
+        <Link href="/contact" className="font-medium underline underline-offset-2">
+          Tell us if it doesn&apos;t
+        </Link>
+        .
+      </p>
+    );
+  }
+
+  // closed, or a session that was cancelled — the card already says so
+  return null;
+}
+
 function paidWith(b: SerializedBooking): string | null {
   const p = b.payment;
   if (!p || p.status !== PAYMENT_STATUS.paid) return null;
@@ -51,9 +157,12 @@ function paidWith(b: SerializedBooking): string | null {
 export default function BookingCard({
   booking,
   upcoming,
+  serverNow,
 }: {
   booking: SerializedBooking;
   upcoming: boolean;
+  /** The server's instant, so the join countdown starts without a hydration mismatch. */
+  serverNow: string;
 }) {
   const router = useRouter();
   const [paying, setPaying] = useState(false);
@@ -103,7 +212,7 @@ export default function BookingCard({
           </div>
 
           <p className="mt-1 text-sm text-ink/65">
-            {formatDateISO(booking.date)} · {booking.time} IST · 50 min
+            {formatDateISO(booking.date)} · {booking.time} IST · {SESSION_MINUTES} min
             {concern && <> · {concern.label}</>}
           </p>
 
@@ -130,11 +239,27 @@ export default function BookingCard({
 
         {upcoming && !dimmed && (
           <div className="flex shrink-0 flex-wrap items-center gap-5">
-            {booking.status === BOOKING_STATUS.confirmed && <RescheduleDialog booking={booking} />}
+            {booking.status === BOOKING_STATUS.confirmed && (
+              <>
+                <a
+                  href={`/api/bookings/${booking.id}/calendar`}
+                  className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-forest-800 hover:text-forest-600"
+                >
+                  <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+                    <rect x="2.5" y="4" width="15" height="13" rx="2" />
+                    <path d="M6 2.5v3M14 2.5v3M2.5 8h15M10 10.5v4M8 12.5h4" strokeLinecap="round" />
+                  </svg>
+                  Add to calendar
+                </a>
+                <RescheduleDialog booking={booking} />
+              </>
+            )}
             <CancelBookingButton booking={booking} />
           </div>
         )}
       </div>
+
+      <MeetingRow booking={booking} serverNow={serverNow} />
 
       {/* payment still owed */}
       {needsPayment && !paying && (

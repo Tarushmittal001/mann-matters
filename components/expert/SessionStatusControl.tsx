@@ -14,7 +14,7 @@ import { ActionButton, ConfirmDialog, Field, TextArea } from "@/components/exper
 import { InlineAlert } from "@/components/expert/Panel";
 import { send } from "@/components/expert/request";
 import { useToast } from "@/components/expert/Toast";
-import { useNow } from "@/components/expert/useNow";
+import { useNow } from "@/components/ui/useNow";
 
 /**
  * Session status, and the only place it changes.

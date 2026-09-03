@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { LiveChip, StatusBadge } from "@/components/expert/Panel";
 import MeetingRoom from "@/components/expert/MeetingRoom";
 import SessionStatusControl from "@/components/expert/SessionStatusControl";
-import { useNow } from "@/components/expert/useNow";
+import { useNow } from "@/components/ui/useNow";
 
 /**
  * The card the day is read off. Everything on it is client-safe: a first name
