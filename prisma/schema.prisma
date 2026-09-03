@@ -25,6 +25,8 @@ model User {
   updatedAt     DateTime            @default(now()) @updatedAt
   bookings      Booking[]
   verifications VerificationToken[]
+  // present only for role = "EXPERT"
+  expertProfile ExpertProfile?
 
   @@index([role])
 }
@@ -53,8 +55,25 @@ model Booking {
   date       String
   time       String
   amount     Int
-  // "CONFIRMED" | "CANCELLED" | "COMPLETED" | "NO_SHOW"
-  status     String   @default("CONFIRMED")
+
+  // "PENDING_PAYMENT" | "CONFIRMED" | "CANCELLED" | "EXPIRED" | "COMPLETED" | "NO_SHOW"
+  status     String   @default("PENDING_PAYMENT")
+
+  // "expertId|date|time" while this booking holds the slot; NULL once released.
+  // UNIQUE — this is what makes double-booking impossible at the database level.
+  // SQLite treats NULLs as distinct, so released slots don't collide.
+  slotKey    String?  @unique
+
+  // an unpaid booking holds its slot only until this moment
+  holdExpiresAt   DateTime?
+
+  cancelledAt     DateTime?
+  // "USER" | "ADMIN" | "SYSTEM"
+  cancelledBy     String?
+  rescheduleCount Int       @default(0)
+  previousDate    String?
+  previousTime    String?
+
   // set by whoever moved it out of CONFIRMED: "CLIENT" | "EXPERT" | "ADMIN"
   closedBy   String?
   closedAt   DateTime?
@@ -64,10 +83,16 @@ model Booking {
   // the video room for this session. Only the expert and the client see it,
   // and only inside the join window.
   meetingUrl String?
-  createdAt  DateTime @default(now())
-  note       SessionNote?
 
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  note       SessionNote?
+  payment    Payment?
+
+  @@index([userId, date])
   @@index([expertId, date])
+  @@index([status, date])
 }
 
 /// The private, editable side of a practitioner. The public catalogue entry
@@ -175,39 +200,6 @@ model NoteAmendment {
   createdAt DateTime    @default(now())
 
   @@index([noteId])
-  // Unique while active; cleared when cancelled so the slot can be rebooked.
-  slotKey    String?  @unique
-  // YYYY-MM-DD and HH:mm, both IST
-  date       String
-  time       String
-  amount     Int
-
-  // "PENDING_PAYMENT" | "CONFIRMED" | "CANCELLED" | "EXPIRED"
-  status     String   @default("PENDING_PAYMENT")
-
-  // "expertId|date|time" while this booking holds the slot; NULL once released.
-  // UNIQUE — this is what makes double-booking impossible at the database level.
-  // SQLite treats NULLs as distinct, so released slots don't collide.
-  slotKey    String?  @unique
-
-  // an unpaid booking holds its slot only until this moment
-  holdExpiresAt   DateTime?
-
-  cancelledAt     DateTime?
-  // "USER" | "ADMIN" | "SYSTEM"
-  cancelledBy     String?
-  rescheduleCount Int       @default(0)
-  previousDate    String?
-  previousTime    String?
-
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @default(now()) @updatedAt
-
-  payment    Payment?
-
-  @@index([userId, date])
-  @@index([expertId, date])
-  @@index([status, date])
 }
 
 model Payment {
