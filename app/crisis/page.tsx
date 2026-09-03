@@ -188,7 +188,7 @@ export default function CrisisPage({
               </a>
             </div>
             <p className="mx-auto mt-10 max-w-lg text-sm leading-relaxed text-ink/55">
-              mann Matters is not an emergency service. If life is in immediate
+              Emoraa is not an emergency service. If life is in immediate
               danger, please call <a href="tel:112" className="font-semibold text-red-600 underline underline-offset-4">112</a> or go to your
               nearest hospital emergency room.
             </p>

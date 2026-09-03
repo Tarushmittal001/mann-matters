@@ -6,6 +6,7 @@ import FloatingOrbs from "@/components/ui/FloatingOrbs";
 import CTABand from "@/components/sections/CTABand";
 import { comparison, services } from "@/lib/services";
 import { formatINR, cn } from "@/lib/utils";
+import WayThrough from "@/components/visuals/WayThrough";
 
 export const metadata: Metadata = {
   title: "Services — Therapy, counselling & wellness programs",
@@ -28,8 +29,34 @@ export default function ServicesPage() {
     <>
       {/* manifesto hero */}
       <section className="page-top relative overflow-hidden pb-20 md:pb-28">
+      {/* a lane per service: agitated on the left, settled on the right — click to help one settle */}
+      <div
+        className="pointer-events-none absolute inset-y-0 right-0 hidden w-[46%] md:block"
+        aria-hidden="true"
+      >
+        <div
+          className="pointer-events-auto h-full w-full opacity-[0.85]"
+          style={{
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent 0%, black 34%, black 100%)",
+            maskImage:
+              "linear-gradient(to right, transparent 0%, black 34%, black 100%)",
+          }}
+        >
+          <WayThrough />
+        </div>
+      </div>
+      {/* scrim keeps the headline legible where it meets the canvas */}
+      <div
+        className="pointer-events-none absolute inset-y-0 left-0 z-[5] hidden w-[58%] md:block"
+        aria-hidden="true"
+        style={{
+          background:
+            "linear-gradient(90deg, #F7F4EE 0%, #F7F4EE 40%, #F7F4EEd9 62%, #F7F4EE00 100%)",
+        }}
+      />
         <FloatingOrbs />
-        <div className="wrap-wide relative z-10">
+        <div className="wrap-wide pointer-events-none relative z-10">
           <Reveal>
             <p className="eyebrow mb-5 flex items-center gap-3">
               <span className="font-deva text-sm normal-case tracking-normal text-gold" aria-hidden="true">मन</span>
@@ -121,7 +148,7 @@ export default function ServicesPage() {
           <Reveal delay={0.1}>
             <div className="overflow-x-auto rounded-3xl border border-forest-800/10 bg-ivory-light shadow-lift">
               <table className="w-full min-w-[640px] text-left text-[0.95rem]">
-                <caption className="sr-only">Comparison of mann Matters session formats</caption>
+                <caption className="sr-only">Comparison of Emoraa session formats</caption>
                 <thead>
                   <tr>
                     <th scope="col" className="px-7 py-6 font-medium text-ink/50">

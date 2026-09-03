@@ -1,25 +1,25 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { findUserBooking, serializeBooking } from "@/lib/bookings";
+import { errors, logFailure, privateJson } from "@/lib/http";
 
-export async function PATCH(_req: Request, { params }: { params: { id: string } }) {
-  const session = await getSession();
-  if (!session) {
-    return NextResponse.json({ error: "Not logged in." }, { status: 401 });
+export const dynamic = "force-dynamic";
+
+/**
+ * GET /api/bookings/[id] — one booking, for the payment screen to poll its own
+ * state after a gateway round-trip. Ownership is enforced inside
+ * `findUserBooking`, which reports someone else's booking as simply missing.
+ */
+export async function GET(_req: Request, { params }: { params: { id: string } }) {
+  try {
+    const session = await getSession();
+    if (!session) return errors.unauthenticated();
+
+    const booking = await findUserBooking(params.id, session);
+    if (!booking) return errors.notFound("We couldn't find that session.");
+
+    return privateJson({ booking: serializeBooking(booking) });
+  } catch (err) {
+    logFailure("bookings.get", err);
+    return errors.server();
   }
-
-  const booking = await prisma.booking.findUnique({ where: { id: params.id } });
-  if (!booking || (booking.userId !== session.sub && session.role !== "ADMIN")) {
-    return NextResponse.json({ error: "Booking not found." }, { status: 404 });
-  }
-  if (booking.status === "CANCELLED") {
-    return NextResponse.json({ error: "This booking is already cancelled." }, { status: 400 });
-  }
-
-  const updated = await prisma.booking.update({
-    where: { id: booking.id },
-    data: { status: "CANCELLED" },
-  });
-
-  return NextResponse.json({ booking: updated });
 }

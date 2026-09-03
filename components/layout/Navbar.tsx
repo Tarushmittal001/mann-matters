@@ -187,7 +187,7 @@ export default function Navbar() {
             <BackButton />
             <Link href="/" className="group flex items-baseline gap-2 whitespace-nowrap">
               <span className="font-display text-[1.3rem] font-semibold tracking-tight text-forest-900">
-                mann Matters
+                Emoraa
               </span>
               <span
                 className="font-deva text-sm text-gold transition-opacity duration-300 group-hover:opacity-100 xl:opacity-60"

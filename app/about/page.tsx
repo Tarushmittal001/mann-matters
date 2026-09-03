@@ -5,11 +5,12 @@ import CountUp from "@/components/ui/CountUp";
 import FloatingOrbs from "@/components/ui/FloatingOrbs";
 import CTABand from "@/components/sections/CTABand";
 import { cn } from "@/lib/utils";
+import ChaiSteam from "@/components/visuals/ChaiSteam";
 
 export const metadata: Metadata = {
-  title: "About — Why we built mann Matters",
+  title: "About — Why we built Emoraa",
   description:
-    "The story of mann Matters: why India needs therapy that speaks its languages, who we are, and the values we won't compromise on.",
+    "The story of Emoraa: why India needs therapy that speaks its languages, who we are, and the values we won't compromise on.",
 };
 
 const indiaStats = [
@@ -74,7 +75,7 @@ const timeline = [
   {
     year: "2023",
     title: "Eight therapists, one promise",
-    body: "mann Matters launches in Noida with eight hand-picked psychologists and a rule that still stands: every credential verified, every session confidential.",
+    body: "Emoraa launches in Noida with eight hand-picked psychologists and a rule that still stands: every credential verified, every session confidential.",
   },
   {
     year: "2024",
@@ -98,8 +99,34 @@ export default function AboutPage() {
     <>
       {/* mission */}
       <section className="page-top relative overflow-hidden pb-20 md:pb-28">
+      {/* steam off a chai glass — click to pour another */}
+      <div
+        className="pointer-events-none absolute inset-y-0 right-0 hidden w-[46%] md:block"
+        aria-hidden="true"
+      >
+        <div
+          className="pointer-events-auto h-full w-full opacity-[0.95]"
+          style={{
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent 0%, black 32%, black 100%)",
+            maskImage:
+              "linear-gradient(to right, transparent 0%, black 32%, black 100%)",
+          }}
+        >
+          <ChaiSteam />
+        </div>
+      </div>
+      {/* scrim keeps the headline legible where it meets the canvas */}
+      <div
+        className="pointer-events-none absolute inset-y-0 left-0 z-[5] hidden w-[58%] md:block"
+        aria-hidden="true"
+        style={{
+          background:
+            "linear-gradient(90deg, #F7F4EE 0%, #F7F4EE 40%, #F7F4EEd9 62%, #F7F4EE00 100%)",
+        }}
+      />
         <FloatingOrbs />
-        <div className="wrap-wide relative z-10">
+        <div className="wrap-wide pointer-events-none relative z-10">
           <Reveal>
             <p className="eyebrow mb-5 flex items-center gap-3">
               <span className="font-deva text-sm normal-case tracking-normal text-gold" aria-hidden="true">मन</span>
@@ -120,7 +147,7 @@ export default function AboutPage() {
             <div className="overflow-hidden rounded-3xl shadow-bloom">
               <Image
                 src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=900&q=80"
-                alt="The mann Matters team working together at a sunlit table"
+                alt="The Emoraa team working together at a sunlit table"
                 width={900}
                 height={1100}
                 className="aspect-[4/5] w-full object-cover"
@@ -132,7 +159,7 @@ export default function AboutPage() {
             <p className="eyebrow mb-6">a note from the founder</p>
             <div className="space-y-6 font-display text-[1.45rem] font-medium leading-relaxed text-forest-900 md:text-[1.7rem]">
               <p>
-                &ldquo;We didn&apos;t start mann Matters because therapy was missing in
+                &ldquo;We didn&apos;t start Emoraa because therapy was missing in
                 India. It wasn&apos;t — there are brilliant psychologists here. What
                 was missing was a way to reach them that didn&apos;t require money,
                 English, and the courage to walk past a waiting room.
@@ -190,7 +217,7 @@ export default function AboutPage() {
               <span className="font-deva text-sm normal-case tracking-normal text-gold" aria-hidden="true">मन</span>
               the people
             </p>
-            <h2 className="h-display text-4xl md:text-5xl">The minds behind mann Matters</h2>
+            <h2 className="h-display text-4xl md:text-5xl">The minds behind Emoraa</h2>
           </Reveal>
           <div className="mt-14 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
             {team.map((m, i) => (

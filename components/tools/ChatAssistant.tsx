@@ -76,7 +76,7 @@ function respond(input: string): { text: string; link?: Link2 } {
 export default function ChatAssistant() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([
-    { from: "bot", text: "Hi, I'm the mann Matters companion 🌿 Ask me anything — or tell me how you're feeling." },
+    { from: "bot", text: "Hi, I'm the Emoraa companion 🌿 Ask me anything — or tell me how you're feeling." },
   ]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
@@ -114,7 +114,7 @@ export default function ChatAssistant() {
             <div className="flex items-center gap-3 bg-forest-900 px-5 py-4">
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 font-deva text-base text-ivory" aria-hidden="true">मन</span>
               <div className="leading-tight">
-                <p className="text-sm font-semibold text-ivory">mann Matters companion</p>
+                <p className="text-sm font-semibold text-ivory">Emoraa companion</p>
                 <p className="text-[0.7rem] text-sage-light/70">Replies instantly · not a crisis line</p>
               </div>
             </div>
