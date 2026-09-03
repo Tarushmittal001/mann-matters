@@ -17,7 +17,8 @@ model User {
   // null until the user confirms their email address
   emailVerified DateTime?
   // profile — all optional, all volunteered
-  phone         String?
+  phone         String?             @unique
+  phoneVerified DateTime?
   language      String?
   // free-text; treated as sensitive health data, never rendered outside the owner's own pages
   notes         String?
@@ -25,6 +26,7 @@ model User {
   updatedAt     DateTime            @default(now()) @updatedAt
   bookings      Booking[]
   verifications VerificationToken[]
+  phoneOtps     PhoneOtp[]
   // present only for role = "EXPERT"
   expertProfile ExpertProfile?
 
@@ -41,6 +43,19 @@ model VerificationToken {
   createdAt DateTime @default(now())
 
   @@index([userId])
+}
+
+model PhoneOtp {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phone     String
+  codeHash  String
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }
 
 model Booking {

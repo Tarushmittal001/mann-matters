@@ -148,7 +148,7 @@ export default function Navbar() {
     user === undefined
       ? null
       : user === null
-        ? { href: "/login", label: "Log in" }
+        ? { href: "/login", label: "Sign in" }
         : user.role === "ADMIN"
           ? { href: "/admin", label: "Admin" }
           : user.role === "EXPERT"

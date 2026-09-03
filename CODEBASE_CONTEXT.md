@@ -25,8 +25,9 @@ Everything needed to start work with no extra reading:
   No lint/test scripts exist. ESLint is **disabled at build** (`next.config.mjs`).
 - **DB**: SQLite via Prisma 6 at `prisma/dev.db`. `npx prisma db push` to sync schema,
   `npx prisma db seed` (→ `prisma/seed.mjs`) to create the admin. **No migrations dir** — schema is push-only.
-  Tables: `User`, `VerificationToken`, `Booking`, `Payment`.
-- **Auth**: JWT (`jose`, HS256) in httpOnly cookie `emoraa_session`, 7-day TTL. `middleware.ts`
+  Tables include `User`, `VerificationToken`, `PhoneOtp`, `Booking`, `Payment`.
+- **Auth**: email + password or verified phone + one-time code. Both issue a JWT (`jose`, HS256)
+  in the httpOnly cookie `emoraa_session`, 7-day TTL. `middleware.ts`
   guards `/dashboard/*` and `/admin/*`. Roles `USER` | `ADMIN` (string, not enum — SQLite).
 - **Import alias**: `@/*` → repo root. Strict TS, `noEmit`.
 - **Data model**: content (experts, services, posts, tools, testimonials, faqs, helplines)
@@ -347,6 +348,14 @@ framer-motion viewport reveals, the Lenis rAF loop, and `Navbar`'s `/api/auth/me
 - `issueVerificationToken` deletes all prior tokens for the user (newest link wins).
 - `consumeVerificationToken` is one-time use; expired → delete + return null.
 
+### `lib/phone-otp.ts` + `lib/sms.ts` — phone sign-in
+- Six-digit codes use `crypto.randomInt`, expire after 5 minutes, allow 5 attempts, and are
+  stored only as an HMAC-SHA256 hash keyed by `AUTH_SECRET`.
+- Challenges are single-use and bound to both the user and exact normalized phone number.
+- A profile phone must be confirmed before `/api/auth/phone/*` will recognize it.
+- Twilio sends production SMS. Without Twilio, non-production responses include `devCode`;
+  production returns 503 rather than exposing an OTP.
+
 ### `lib/email.ts` — delivery (three providers, tried in order)
 - `sendVerificationEmail(to, name, link)` → `DeliveryResult {delivered, via, devLink?}`.
 - **Gmail SMTP** (`GMAIL_USER` + `GMAIL_APP_PASSWORD`) → **Resend** (`RESEND_API_KEY`) →
@@ -447,9 +456,10 @@ helplines; Tele-MANAS and 112 flagged `primary`), `navLinks`, `toolLinks`, `stat
   countdown, a per-failure message with retry guidance, an escalation after two failed
   attempts, and an expired-hold state. Clears the card fields from memory on success.
 
-### `components/auth/AuthForm.tsx` — login + signup
+### `components/auth/AuthForm.tsx` — sign-in + signup
 - `next` param honored **only if it starts with `/`** (open-redirect guard).
 - An ADMIN logging in with the default `next` is redirected to `/admin`.
+- Sign-in is segmented: email + password, or verified phone + one-time code.
 - Handles three post-states: pending-verification screen, needs-verify + resend, generic error.
 
 ### `components/tools/ChatAssistant.tsx` — global rule-based bot; keyword `respond()`,
@@ -465,10 +475,14 @@ All handlers live in `app/api/**/route.ts`. All accept/return JSON. Auth = `emor
 |---|---|---|---|
 | `/api/auth/signup` | POST | none | Create user, send verification link |
 | `/api/auth/login` | POST | none | Password login → session |
+| `/api/auth/phone/request` | POST | none | Request phone sign-in OTP (enumeration-safe) |
+| `/api/auth/phone/verify` | POST | none | Consume phone OTP → session |
 | `/api/auth/verify` | POST | none | Consume token, verify email, auto-login |
 | `/api/auth/resend` | POST | none | Re-issue verification email (enumeration-safe) |
 | `/api/auth/me` | GET | optional | Current user or `null` |
 | `/api/auth/logout` | POST | none | Clear cookie |
+| `/api/profile/phone/request` | POST | session | Request OTP to confirm saved profile phone |
+| `/api/profile/phone/verify` | POST | session | Confirm ownership of saved profile phone |
 | `/api/bookings` | POST | session | Create booking |
 | `/api/bookings` | GET | session | List own bookings |
 | `/api/bookings/[id]` | PATCH | session | Cancel booking |
@@ -480,6 +494,12 @@ All handlers live in `app/api/**/route.ts`. All accept/return JSON. Auth = `emor
 **POST /api/auth/login** — `{email,password}` → `200 {user}` · `401` bad creds (identical
 message for unknown email and wrong password — no account-existence oracle) ·
 `403 {needsVerification:true,email}` unverified · `429` after 8 failures / 10 min.
+
+**POST `/api/auth/phone/request`** — `{phone}` → generic `200` whether or not a verified
+account exists. Returns `devCode` only outside production when Twilio is unconfigured.
+
+**POST `/api/auth/phone/verify`** — `{phone,code}` → `200 {user}` + cookie · generic `401`
+for unknown, incorrect, expired, or exhausted codes. Five bad attempts invalidate a code.
 
 **POST /api/auth/verify** — `{token}` → `200 {user}` + cookie · `400` invalid/expired · `429`.
 
@@ -551,16 +571,21 @@ SQLite, `DATABASE_URL="file:./dev.db"` resolved **relative to `prisma/`**.
 erDiagram
   User ||--o{ Booking : has
   User ||--o{ VerificationToken : has
+  User ||--o{ PhoneOtp : has
   Booking ||--o| Payment : has
 ```
 
 **User** — `id cuid PK` · `name` · `email UNIQUE` · `passwordHash` · `role` string default
-`"USER"` · `emailVerified DateTime?` (null = unconfirmed) · **`phone?`** · **`language?`** ·
+`"USER"` · `emailVerified DateTime?` (null = unconfirmed) · **`phone? UNIQUE`** ·
+**`phoneVerified DateTime?`** · **`language?`** ·
 **`notes?`** (free text for the therapist — treated as health data) · `createdAt` · `updatedAt`.
 `@@index([role])`.
 
 **VerificationToken** — `id` · `userId FK Cascade` · `tokenHash UNIQUE` (sha-256 of raw) ·
 `expiresAt` · `createdAt` · `@@index([userId])`.
+
+**PhoneOtp** — `id` · `userId FK Cascade` · normalized `phone` · keyed `codeHash` ·
+`expiresAt` · `attempts` · `createdAt` · `@@index([userId,createdAt])`.
 
 **Booking** — `id` · `ref UNIQUE` · `userId FK Cascade` · `concern` · `expertId` + `expertName`
 (denormalized snapshot; experts live in `lib/experts.ts`) · `date` `YYYY-MM-DD` · `time` `HH:mm`
@@ -617,6 +642,9 @@ script that has since been removed. A real deployment needs a migrations directo
 | `GMAIL_APP_PASSWORD` | no | 16-char Google **App Password**, not the account password. Spaces are stripped. Requires 2-Step Verification |
 | `RESEND_API_KEY` | no | alternative provider; ignored when Gmail is configured |
 | `EMAIL_FROM` | no | Resend only — Gmail forces the From header to `GMAIL_USER` |
+| `TWILIO_ACCOUNT_SID` | production phone auth | Twilio account SID |
+| `TWILIO_AUTH_TOKEN` | production phone auth | Twilio auth token; keep server-only |
+| `TWILIO_PHONE_NUMBER` | production phone auth | E.164 sender number, e.g. `+1...` |
 | `NODE_ENV` | auto | gates cookie `secure` + Prisma global caching |
 
 **No new variables were added by the payments/profile work** — the gateway is simulated, so
@@ -655,7 +683,9 @@ No secret manager; no `.env.production`.
   gated page. Ownership mismatches return **404**, so ids reveal nothing.
 
 **State transitions**
-- User: `emailVerified = null` (login refused, 403) → verified. No disable/delete flow.
+- User email: `emailVerified = null` (password sign-in refused, 403) → verified.
+- User phone: saved/changed → `phoneVerified = null` → OTP confirmation → verified and
+  eligible for phone sign-in. Changing or clearing the number clears verification.
 - VerificationToken: issued (prior ones deleted) → consumed, or expires at +24h. 60s resend cooldown.
 - Booking: `PENDING_PAYMENT` → `CONFIRMED` (payment succeeds) → `CANCELLED`;
   or `PENDING_PAYMENT` → `EXPIRED` (hold lapses, slot released, nothing charged).

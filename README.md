@@ -33,6 +33,23 @@ npm start
 
 Node 18.18+ is required (developed on Node 24).
 
+### Phone sign-in
+
+Users can sign in with either email + password or a verified Indian mobile number + OTP.
+They link and verify their number from `/dashboard/profile` first.
+
+Locally, leave the Twilio variables blank. The OTP appears in a clearly marked development
+panel on the profile/sign-in screen. For real SMS delivery, configure all three values:
+
+```bash
+TWILIO_ACCOUNT_SID="AC..."
+TWILIO_AUTH_TOKEN="..."
+TWILIO_PHONE_NUMBER="+1..."
+```
+
+Production never returns an OTP in an API response. Codes expire after five minutes and are
+invalidated after five incorrect attempts.
+
 ## Project structure
 
 ```

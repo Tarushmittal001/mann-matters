@@ -144,7 +144,7 @@ export default function BookingFlow({ authenticated }: { authenticated: boolean 
         </h1>
         <div className="mt-10 max-w-lg rounded-3xl border border-forest-800/10 bg-ivory-light p-8 shadow-bloom">
           <p className="leading-relaxed text-ink/70">
-            Booking takes about two minutes. We ask you to log in before we ask anything about what
+            Booking takes about two minutes. We ask you to sign in before we ask anything about what
             you&apos;re going through — so what you tell us is attached to an account you control,
             and nothing sensitive is typed into a form you might get bounced out of.
           </p>

@@ -19,6 +19,7 @@ const PROFILE_SELECT = {
   name: true,
   email: true,
   phone: true,
+  phoneVerified: true,
   language: true,
   notes: true,
   role: true,
@@ -42,6 +43,7 @@ export async function GET() {
         name: user.name,
         email: user.email,
         phone: user.phone ?? "",
+        phoneVerified: !!user.phoneVerified,
         language: user.language ?? "",
         notes: user.notes ?? "",
         emailVerified: !!user.emailVerified,
@@ -90,11 +92,19 @@ export async function PATCH(req: Request) {
     }
     if (hasErrors(fields)) return errors.validation(fields);
 
+    const current = await prisma.user.findUnique({
+      where: { id: session.sub },
+      select: { phone: true },
+    });
+    if (!current) return errors.notFound("We couldn't find your account.");
+
+    const phone = phoneRaw ? normalisePhone(phoneRaw) : null;
     const user = await prisma.user.update({
       where: { id: session.sub },
       data: {
         name,
-        phone: phoneRaw ? normalisePhone(phoneRaw) : null,
+        phone,
+        phoneVerified: current.phone === phone ? undefined : null,
         language: language || null,
         notes: notes || null,
       },
@@ -116,6 +126,7 @@ export async function PATCH(req: Request) {
         name: user.name,
         email: user.email,
         phone: user.phone ?? "",
+        phoneVerified: !!user.phoneVerified,
         language: user.language ?? "",
         notes: user.notes ?? "",
         emailVerified: !!user.emailVerified,
@@ -123,6 +134,10 @@ export async function PATCH(req: Request) {
       },
     });
   } catch (err) {
+    const prismaError = err as { code?: string; meta?: { target?: string[] | string } };
+    if (prismaError?.code === "P2002") {
+      return errors.validation({ phone: "That mobile number is linked to another account." });
+    }
     logFailure("profile.update", err);
     return errors.server();
   }

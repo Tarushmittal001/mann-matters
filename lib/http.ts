@@ -36,7 +36,7 @@ export function fail(
 export const errors = {
   badBody: () => fail(400, "We couldn't read that request. Please try again.", { code: "BAD_BODY" }),
   unauthenticated: () =>
-    fail(401, "Please log in to continue.", { code: "UNAUTHENTICATED" }),
+    fail(401, "Please sign in to continue.", { code: "UNAUTHENTICATED" }),
   forbidden: () => fail(403, "You don't have access to that.", { code: "FORBIDDEN" }),
   notFound: (what = "That couldn't be found.") => fail(404, what, { code: "NOT_FOUND" }),
   validation: (fields: FieldErrors, message = "Please check the highlighted fields.") =>
