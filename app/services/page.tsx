@@ -1,19 +1,21 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Reveal from "@/components/ui/Reveal";
 import FloatingOrbs from "@/components/ui/FloatingOrbs";
+import SectionHeading from "@/components/ui/SectionHeading";
 import CTABand from "@/components/sections/CTABand";
-import { comparison, services } from "@/lib/services";
+import ServiceGrid from "@/components/services/ServiceGrid";
+import SelfCheckCta from "@/components/services/SelfCheckCta";
+import { comparison, sessionSteps } from "@/lib/services";
 import { therapyPages } from "@/lib/therapy-pages";
-import { formatINR, cn } from "@/lib/utils";
-import WayThrough from "@/components/visuals/WayThrough";
+import { cn } from "@/lib/utils";
+import TheRoom from "@/components/visuals/TheRoom";
 
 export const metadata: Metadata = {
   title: "Services — Therapy, counselling & wellness programs",
   description:
-    "Individual therapy from ₹999, couples counselling, student support from ₹599, corporate wellness, and group sessions. Online, confidential, in 2+ languages.",
+    "Psychiatry, individual therapy from ₹999, couples and family therapy, student, career and love-life counselling, LGBTQIA+ affirmative care, and group sessions from ₹399. Online and confidential.",
 };
 
 function Check({ yes }: { yes: boolean }) {
@@ -31,7 +33,7 @@ export default function ServicesPage() {
     <>
       {/* manifesto hero */}
       <section className="page-top relative overflow-hidden pb-20 md:pb-28">
-      {/* a lane per service: agitated on the left, settled on the right — click to help one settle */}
+      {/* six chairs, rearranging into the room each format happens in — click a chair or a marker */}
       <div
         className="pointer-events-none absolute inset-y-0 right-0 hidden w-[46%] md:block"
         aria-hidden="true"
@@ -45,7 +47,7 @@ export default function ServicesPage() {
               "linear-gradient(to right, transparent 0%, black 34%, black 100%)",
           }}
         >
-          <WayThrough />
+          <TheRoom />
         </div>
       </div>
       {/* scrim keeps the headline legible where it meets the canvas */}
@@ -70,89 +72,106 @@ export default function ServicesPage() {
               <em className="text-forest-600">there&apos;s a way through.</em>
             </h1>
             <p className="mt-8 max-w-xl text-lg leading-relaxed text-ink/70">
-              Five formats of care, one standard: a licensed professional,
+              Ten kinds of support, one standard: a licensed professional,
               complete confidentiality, and a price you can actually sustain.
+            </p>
+            <div className="pointer-events-auto mt-10 flex flex-wrap items-center gap-4">
+              <Button href="/book" variant="gold">
+                Book a session
+              </Button>
+              <Button href="/match" variant="outline">
+                Not sure which? Take two minutes
+              </Button>
+            </div>
+            <p className="mt-6 text-sm text-ink/50">
+              Fifty minutes, from &#8377;599. No diagnosis on day one, and no one
+              else needs to know.
             </p>
           </Reveal>
         </div>
       </section>
 
-      {/* alternating service sections */}
-      <div className="space-y-0">
-        {services.map((s, i) => {
-          const flip = i % 2 === 1;
-          return (
-            <section key={s.slug} id={s.slug} className={cn("section", flip && "bg-sage-light/30")}>
-              <div className="wrap-wide grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
-                <Reveal className={cn(flip && "lg:order-2")}>
-                  <div className="group overflow-hidden rounded-3xl shadow-bloom">
-                    <Image
-                      src={s.image}
-                      alt={s.imageAlt}
-                      width={1200}
-                      height={900}
-                      className="aspect-[4/3] w-full object-cover transition-transform duration-700 ease-silk group-hover:scale-[1.04]"
-                      sizes="(max-width: 1024px) 92vw, 45vw"
-                    />
-                  </div>
-                </Reveal>
+      {/* ── the promise everything else rests on ─────────────────── */}
+      <section className="border-y border-forest-800/10 bg-ivory-dark/60 py-10">
+        <div className="wrap-wide">
+          <Reveal>
+            <div className="flex flex-col gap-5 md:flex-row md:items-center md:gap-8">
+              <svg
+                width="30"
+                height="30"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                className="shrink-0 text-gold-dark"
+                aria-hidden="true"
+              >
+                <path d="M12 2.8 4.5 6v6.2c0 4.4 3.1 7.9 7.5 9 4.4-1.1 7.5-4.6 7.5-9V6L12 2.8Z" strokeLinejoin="round" />
+                <path d="M9 12.2l2.2 2.2L15.5 10" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <p className="max-w-4xl leading-relaxed text-ink/75">
+                <strong className="font-semibold text-forest-900">
+                  Whatever format you pick, nothing you say in a session leaves it.
+                </strong>{" "}
+                Not to your family, not to your employer, not to your college — and
+                every one of these is run by a licensed psychologist, not a coach and
+                not a chatbot. The single exception is the one the law requires, an
+                immediate risk to your life or someone else&apos;s, and we would talk
+                to you about it first.
+              </p>
+            </div>
+          </Reveal>
+        </div>
+      </section>
 
-                <Reveal delay={0.12} className={cn(flip && "lg:order-1")}>
-                  <p className="eyebrow mb-4">{s.tag}</p>
-                  <h2 className="h-display text-4xl md:text-[2.9rem]">{s.title}</h2>
-                  <p className="mt-5 max-w-xl leading-relaxed text-ink/70">{s.description}</p>
+      {/* ── the ten kinds of support ─────────────────────────────────────── */}
+      <section className="section">
+        <div className="wrap-wide">
+          <SectionHeading
+            eyebrow="what we offer"
+            deva="मन"
+            title="Ten kinds of support, one standard"
+            description="They differ in who is in the room, how long it runs, and what it costs — not in who you get or how carefully you are held. Start anywhere; your therapist will say if another one fits better."
+          />
 
-                  <ul className="mt-8 space-y-3.5">
-                    {s.expect.map((point) => (
-                      <li key={point} className="flex items-start gap-3 text-[0.97rem] text-ink/80">
-                        <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold" aria-hidden="true" />
-                        {point}
-                      </li>
-                    ))}
-                  </ul>
+          <ServiceGrid />
 
-                  <div className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-forest-800/10 pt-7">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.18em] text-ink/50">Duration</p>
-                      <p className="mt-1 font-display text-xl font-medium text-forest-900">{s.duration}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.18em] text-ink/50">Pricing</p>
-                      <p className="mt-1 font-display text-xl font-medium text-forest-900">
-                        {s.price ? `${formatINR(s.price)} ` : ""}
-                        <span className="font-sans text-sm font-normal text-ink/60">{s.priceNote}</span>
-                      </p>
-                    </div>
-                    <div className="ml-auto">
-                      <div className="flex flex-wrap items-center justify-end gap-4">
-                        <Link href={`/services/${s.slug}`} className="link-draw text-sm font-medium text-forest-800">
-                          Explore details
-                        </Link>
-                        <Button href="/book" variant={flip ? "forest" : "gold"}>
-                          Book this
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </Reveal>
+          {/* ten options is a lot to choose between when you are not well — this
+              is the way through for anyone who scrolled and felt worse */}
+          <Reveal>
+            <div className="mt-12 flex flex-col gap-6 rounded-2xl border border-forest-800/12 bg-forest-950 p-8 text-ivory sm:flex-row sm:items-center sm:justify-between md:mt-14 md:px-10">
+              <div className="max-w-xl">
+                <p className="eyebrow flex items-center gap-3 text-sage">
+                  <span className="font-deva normal-case tracking-normal text-gold" aria-hidden="true">
+                    मन
+                  </span>
+                  not sure which
+                </p>
+                <h3 className="mt-3 font-display text-2xl font-medium leading-snug text-ivory md:text-[1.7rem]">
+                  Let the answers pick for you.
+                </h3>
+                <p className="mt-3 text-[0.95rem] leading-relaxed text-sage-light/75">
+                  Nineteen questions from the same three screeners a psychologist
+                  would use. You get a percentage for worry, mood and load, one
+                  service to start with, and two therapists who work on it. Nothing
+                  is sent anywhere — the answers never leave your device.
+                </p>
               </div>
-            </section>
-          );
-        })}
-      </div>
+              <SelfCheckCta className="shrink-0">Take the self-check</SelfCheckCta>
+            </div>
+          </Reveal>
+        </div>
+      </section>
 
       <section className="section bg-forest-950 text-ivory">
         <div className="wrap-wide grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
-          <Reveal>
-            <p className="eyebrow text-sage">care that meets you there</p>
-            <h2 className="h-display mt-4 !text-ivory text-3xl md:text-5xl">
-              Find therapy by place or language.
-            </h2>
-            <p className="mt-5 max-w-md leading-relaxed text-sage-light/75">
-              Sessions are online across India. These guides help you find the practical and
-              cultural fit that makes starting easier.
-            </p>
-          </Reveal>
+          <SectionHeading
+            eyebrow="care that meets you there"
+            deva="मन"
+            title="Find therapy by place or language."
+            description="Sessions are online across India. These guides help you find the practical and cultural fit that makes starting easier."
+            dark
+          />
           <div className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
             {(["city", "language"] as const).map((kind) => (
               <Reveal key={kind}>
@@ -178,16 +197,39 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* comparison table */}
+      {/* ── how it works ───────────────────────────── */}
       <section className="section">
+        <div className="wrap-wide">
+          <SectionHeading
+            eyebrow="how it works"
+            deva="मन"
+            title="From here to your first session"
+            description="Four steps, and you can stop at any of them. Nothing is charged until both a therapist and a time are actually held for you."
+          />
+
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+            {sessionSteps.map((s, i) => (
+              <Reveal key={s.n} delay={i * 0.1}>
+                <div className="border-t border-forest-800/15 pt-6">
+                  <span className="font-display text-3xl font-medium text-gold-dark/60">{s.n}</span>
+                  <h3 className="mt-3 font-display text-xl font-medium text-forest-900">{s.title}</h3>
+                  <p className="mt-2.5 text-[0.93rem] leading-relaxed text-ink/70">{s.body}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* comparison table */}
+      <section className="section bg-sage-light/30">
         <div className="wrap">
-          <Reveal className="mb-12 max-w-2xl">
-            <p className="eyebrow mb-4 flex items-center gap-3">
-              <span className="font-deva text-sm normal-case tracking-normal text-gold" aria-hidden="true">मन</span>
-              at a glance
-            </p>
-            <h2 className="h-display text-4xl md:text-5xl">Every format, side by side</h2>
-          </Reveal>
+          <SectionHeading
+            eyebrow="at a glance"
+            deva="मन"
+            title="Every format, side by side"
+            description="The four core session formats, and only the differences that actually change your decision."
+          />
 
           <Reveal delay={0.1}>
             <div className="overflow-x-auto rounded-3xl border border-forest-800/10 bg-ivory-light shadow-lift">

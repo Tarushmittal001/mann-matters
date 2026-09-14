@@ -63,25 +63,6 @@ export const serviceDetails: Record<string, ServiceDetail> = {
       { q: "Can therapy help if the exam is very close?", a: "It cannot replace preparation, but it can help reduce panic, protect sleep, and make the remaining time more workable." },
     ],
   },
-  "corporate-wellness": {
-    introduction:
-      "Workplace mental-health programs should make support easier to reach without turning private conversations into an HR data stream. Emoraa combines confidential sessions, practical workshops, and clear escalation paths for organisations in India.",
-    forWhom: [
-      "Teams experiencing burnout, rapid growth, restructuring, or sustained workload pressure",
-      "People leaders who need practical skills for difficult and supportive conversations",
-      "Organisations seeking confidential support with useful, anonymised program insight",
-    ],
-    process: [
-      { title: "Design the access model", body: "We agree eligibility, session allowances, communication, escalation, and privacy boundaries before launch." },
-      { title: "Launch quietly", body: "Employees receive a direct confidential route to care without asking a manager for permission." },
-      { title: "Learn without identifying", body: "Program reporting stays aggregated and avoids exposing who attended or what anyone discussed." },
-    ],
-    faqs: [
-      { q: "Does HR see who attends therapy?", a: "No individual attendance or session content is shared. Any organisational reporting is aggregated and designed to protect privacy." },
-      { q: "Can the program include workshops?", a: "Yes. Programs can combine individual sessions with workshops for employees and practical training for managers." },
-      { q: "How quickly can a program begin?", a: "A focused program can usually be scoped and prepared within two weeks after commercial and privacy requirements are agreed." },
-    ],
-  },
   "group-sessions": {
     introduction:
       "A therapy group brings a small number of people together around one shared experience. A trained facilitator protects the structure so participants can speak, listen, and discover that their struggle is not uniquely theirs.",
@@ -99,6 +80,120 @@ export const serviceDetails: Record<string, ServiceDetail> = {
       { q: "Do I have to speak in the first session?", a: "No. You can listen while you understand the group and join the conversation when you feel ready." },
       { q: "Is a group confidential?", a: "Every participant agrees to confidentiality. The facilitator explains its limits and reinforces the agreement throughout the group." },
       { q: "Can group therapy replace individual therapy?", a: "Sometimes it is enough; sometimes it complements individual care. The initial fit conversation helps decide." },
+    ],
+  },
+  "psychiatry-medication": {
+    introduction:
+      "A psychiatrist is a medical doctor who can assess whether medication would help, prescribe it, and review how it is working. Seeing one is not a verdict on how bad things are, and it does not replace therapy — for many people the two run alongside each other, with medication making the days workable enough to do the rest.",
+    forWhom: [
+      "Persistent low mood, anxiety or panic that has not shifted with therapy alone",
+      "Sleep that has broken down, or appetite and energy that have changed markedly",
+      "Anyone already on medication who wants a careful second opinion or a dose review",
+    ],
+    process: [
+      { title: "Assessment", body: "A detailed history: what you are experiencing, for how long, what you have already tried, and what else is going on medically. Nothing is prescribed in the first ten minutes." },
+      { title: "A recommendation, with reasons", body: "The psychiatrist explains whether medication is indicated, what it would and would not do, the likely side effects, and what happens if you would rather not. Declining is a real option." },
+      { title: "Review", body: "If you start something, follow-ups check how it is working and adjust. Coming off, when the time comes, is planned rather than abrupt." },
+    ],
+    faqs: [
+      { q: "Will I be put on medication straight away?", a: "No. Plenty of consultations end with a recommendation for therapy, sleep work, or simply a review in a few weeks. Medication is prescribed when it is likely to help, not by default." },
+      { q: "Can I see a psychiatrist and a therapist?", a: "Yes, and it is common. With your consent the two coordinate, so you are not repeating your history or getting conflicting advice." },
+      { q: "Is 30 minutes enough?", a: "For a first assessment it is the standard length, and longer slots are arranged when the picture is complex. Reviews are usually shorter." },
+    ],
+  },
+  "daily-life-stress": {
+    introduction:
+      "Not every difficulty is a disorder. The commute, the deadlines, the family calls, the money, the sense of being permanently a step behind — none of it is a crisis, and all of it accumulates. This is short, practical work for the pressure that never quite becomes an emergency.",
+    forWhom: [
+      "Anyone carrying a workload or a home life that has stopped feeling sustainable",
+      "Overthinking, irritability, Sunday dread, or sleep that has become unreliable",
+      "People who feel they are not unwell enough to deserve support — you are",
+    ],
+    process: [
+      { title: "Name what is actually heavy", body: "Most people arrive saying everything is fine but exhausting. The first session separates the strands so there is something specific to work on." },
+      { title: "Change something small", body: "Practical adjustments to sleep, boundaries, workload, and the loops that run at 2 a.m. Small changes that hold beat large ones that do not." },
+      { title: "Check whether it is working", body: "This is designed to be short. Many people need four to six sessions, and your therapist will say so rather than book you indefinitely." },
+    ],
+    faqs: [
+      { q: "Is this really therapy?", a: "It is therapy with a narrow, practical focus. The same licensed psychologists and the same confidentiality, aimed at everyday load rather than a diagnosis." },
+      { q: "How many sessions will I need?", a: "Often four to six. If something deeper is going on, your therapist will tell you and help you move to the right format." },
+      { q: "Can I book in the evening?", a: "Yes. Evening and weekend slots exist precisely because this is the pressure that shows up after work." },
+    ],
+  },
+  "career-counselling": {
+    introduction:
+      "Career counselling here is not an aptitude test and a printout. It is a structured conversation about what you want from work, what is genuinely stopping you, and how much of the pressure you are feeling belongs to you rather than to somebody else's plan for you.",
+    forWhom: [
+      "Students choosing a stream, a course, or a first job",
+      "Professionals weighing a switch, a break, or whether the burnout is the job or the field",
+      "Anyone whose career decisions are being made in a room full of other people's expectations",
+    ],
+    process: [
+      { title: "What you are actually choosing between", body: "Options get written down honestly, including the ones you have not said aloud. Constraints — money, family, location, a visa — are treated as real." },
+      { title: "The part that is fear", body: "Separating a bad fit from imposter feelings, and a genuine risk from a catastrophic story about risk. The two need different responses." },
+      { title: "A next step you will actually take", body: "You leave with something concrete and small enough to do this month, not a five-year plan that dies in a week." },
+    ],
+    faqs: [
+      { q: "Do you do aptitude testing?", a: "Only where it genuinely adds something, and never as the whole answer. A test can narrow options; it cannot tell you what you value." },
+      { q: "Can you help with family pressure?", a: "That is often most of the work. Your counsellor treats family expectation as part of the problem to work with, not an obstacle to dismiss." },
+      { q: "Is this different from a career coach?", a: "Yes. This is a licensed psychologist, so where the block is anxiety, burnout or self-worth, that can be worked on directly rather than routed around." },
+    ],
+  },
+  "love-life-counselling": {
+    introduction:
+      "For the part of your love life you are working through by yourself. Your partner does not need to attend, or to know. This is one-on-one work on what you want, what keeps repeating, and what you are willing to accept — whether the relationship in question is ongoing, ending, or has not started.",
+    forWhom: [
+      "Breakups, situationships, and relationships nobody else is taking seriously",
+      "Dating fatigue, repeated patterns, jealousy, or the aftermath of infidelity",
+      "Arranged-marriage pressure, and wanting someone your family has not agreed to",
+    ],
+    process: [
+      { title: "The actual situation", body: "Told once, in full, to someone with no stake in the outcome and no opinion about who you should be with." },
+      { title: "The pattern underneath", body: "What keeps recurring across relationships, and which parts of it are yours to change. This is where one-on-one work does what couples work cannot." },
+      { title: "What you will and will not accept", body: "Ending with something you can hold onto when the conversation gets hard, or when the phone lights up at midnight." },
+    ],
+    faqs: [
+      { q: "Can I come without my partner?", a: "Yes, and most people do. This format is designed for exactly that." },
+      { q: "What if we later want to come together?", a: "Then couples counselling is the right format, and we can move you — usually to a different counsellor, so nobody feels the therapist has already taken a side." },
+      { q: "Will I be told to leave?", a: "No. Your counsellor helps you see the situation clearly and decide for yourself, rather than delivering a verdict on your relationship." },
+    ],
+  },
+  "family-therapy": {
+    introduction:
+      "The Indian family is close, and closeness is not the same as ease. Family therapy brings two or more members into the same room with someone whose responsibility is the relationship rather than any one person's case. Nobody is put on trial, and the aim is not for somebody to win.",
+    forWhom: [
+      "Adult children and parents who cannot get through a conversation intact",
+      "Sibling conflict, in-law tension, or a family adjusting after illness, loss or separation",
+      "Households where one person's difficulty has quietly become everybody's",
+    ],
+    process: [
+      { title: "Everyone is heard once, properly", body: "The first session gives each person uninterrupted time. For many families it is the first such conversation in years." },
+      { title: "The pattern, not the culprit", body: "Attention moves from who started it to how the sequence repeats, which is the part that can actually be changed." },
+      { title: "Agreements that survive the week", body: "Small, specific changes that hold outside the room, reviewed honestly at the next session." },
+    ],
+    faqs: [
+      { q: "Does everyone have to attend?", a: "No. Useful work happens with whoever is willing. Some members join for a session or two, and individual check-ins alongside are common." },
+      { q: "Will the therapist take sides?", a: "No. If you want somebody in your corner, individual therapy is the right format, and your therapist will say so." },
+      { q: "Can this be done online?", a: "Yes, including with members in different cities, which is often the only way to get everyone in one room." },
+    ],
+  },
+  "lgbtqia-affirmative": {
+    introduction:
+      "Affirmative therapy starts from the position that your identity is not the problem. Being queer, trans, non-binary, asexual or questioning is not something to be treated — what may need attention is everything the world stacks on top of it. Several of our counsellors are from the community, and all of them are trained in affirmative practice.",
+    forWhom: [
+      "Anyone navigating coming out, a family reaction, or deciding not to come out yet",
+      "Gender identity, transition, and the medical and legal paperwork around it",
+      "Minority stress, isolation, and relationships that have to be kept partly hidden",
+    ],
+    process: [
+      { title: "Your terms", body: "You set the language for your own identity and relationships. Nobody is going to correct your vocabulary or ask you to justify it." },
+      { title: "The real pressures", body: "Family, work, safety, housing, and the daily cost of deciding who to be out to. Practical as well as emotional." },
+      { title: "Support that keeps up", body: "As things change — coming out, transition, a new relationship, a family rupture — the work changes with them." },
+    ],
+    faqs: [
+      { q: "Do you offer conversion therapy?", a: "Never. It is unethical, it causes documented harm, and it is prohibited in India. No therapist offering it would be practising here." },
+      { q: "Will my therapist actually understand?", a: "Counsellors on this service are trained in affirmative practice and several are from the community. If the fit is not right, tell us and we will move you." },
+      { q: "Is it confidential from my family?", a: "Yes. Sessions are confidential, and nothing about your identity reaches anyone — including a family member who may be paying." },
     ],
   },
 };

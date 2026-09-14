@@ -16,7 +16,14 @@ import { PALETTE, mix, rgba, useCanvasScene } from "./useCanvasScene";
  *
  * The boundary is **real survey data**, not hand-authored — see `BORDER` below.
  *
- * **Click anywhere and it redraws** from the point nearest your cursor.
+ * It draws itself **once**, when the page opens, and then stays drawn. It used
+ * to wipe and re-trace on a timer, which read as the map reloading over and
+ * over rather than as a drawing being made.
+ *
+ * At rest the outline sits back toward the page's green. **Click anywhere** and
+ * a band of full colour runs round the border from the stretch of coast nearest
+ * your cursor, with a wake behind it — so the palette is something you bring
+ * out, not something the page spends on its own.
  */
 
 type RGB = readonly [number, number, number];
@@ -149,7 +156,10 @@ const ny = (lat: number) => (LAT1 - lat) / SPAN;
 /** Seconds for the line to travel the whole perimeter. */
 const TRACE_SECONDS = 4.2;
 /** How long the finished outline is held before it draws again. */
-const HOLD_SECONDS = 5;
+/** How long the freshly-drawn stretch stays brighter after the line lands. */
+const SETTLE_SECONDS = 1.2;
+/** One lap of the colour highlight, after a click. */
+const PULSE_SECONDS = 2.1;
 
 export default function IndiaOutline({ className = "" }: { className?: string }) {
   const S = useRef({
@@ -160,7 +170,16 @@ export default function IndiaOutline({ className = "" }: { className?: string })
     trace: 0,
     /** Index the trace starts from. */
     startAt: 0,
-    holding: 0,
+    /** Seconds since the trace landed, so the drawing head's glow can fade out. */
+    settle: 0,
+    /**
+     * A colour highlight travelling round the border. `from` is where the click
+     * landed, as a fraction of the perimeter; `t` is seconds since. Null when
+     * nothing is running.
+     */
+    pulse: null as { from: number; t: number } | null,
+    /** Last frame's fit, so a click can be mapped back onto the border. */
+    view: { ox: 0, oy: 0, scale: 1 },
     ripples: [] as { x: number; y: number; born: number; rgb: RGB }[],
   });
 
@@ -185,11 +204,27 @@ export default function IndiaOutline({ className = "" }: { className?: string })
   };
 
   const { wrapRef, canvasRef } = useCanvasScene({
+    // A click used to restart the whole trace, which is why the map looked like
+    // it kept reloading. It now sends a band of colour round the border from
+    // whichever stretch of coast you clicked nearest — the line is drawn once
+    // and stays drawn.
     onPointerDown: (x, y) => {
       const st = S.current;
-      st.ripples.push({ x, y, born: performance.now(), rgb: routeColour(st.trace) });
-      st.trace = 0;
-      st.holding = 0;
+      const { ox, oy, scale } = st.view;
+
+      let best = 0;
+      let bestD = Infinity;
+      for (let i = 0; i < st.pts.length; i++) {
+        const d = Math.hypot(ox + st.pts[i].x * scale - x, oy + st.pts[i].y * scale - y);
+        if (d < bestD) {
+          bestD = d;
+          best = i;
+        }
+      }
+
+      const from = st.pts[best].at / st.total;
+      st.pulse = { from, t: 0 };
+      st.ripples.push({ x, y, born: performance.now(), rgb: routeColour(from) });
     },
 
     draw: ({ ctx, w, h, t, dt, pointer, reduced }) => {
@@ -197,27 +232,40 @@ export default function IndiaOutline({ className = "" }: { className?: string })
       const now = performance.now();
 
       // ── fit, with room for Arunachal on the right and Kutch on the left ──
-      const scale = Math.min(w * 0.78, h * 0.84);
-      const ox = w * 0.58 - scale / 2;
+      // Held off the left edge: the west coast used to run under the headline,
+      // and Gujarat is the part of the outline that reaches furthest into it.
+      // Slightly smaller as well as further right, so moving it over doesn't
+      // just push the north-east off the other side.
+      const scale = Math.min(w * 0.7, h * 0.82);
+      const ox = w * 0.61 - scale / 2;
       const oy = h * 0.5 - scale / 2;
       const P = (i: number) => ({
         x: ox + st.pts[i].x * scale,
         y: oy + st.pts[i].y * scale,
       });
 
-      // ── advance the trace ──
+      st.view = { ox, oy, scale };
+
+      // ── advance the trace: once round, once only ──
       if (reduced) {
         st.trace = 1;
+        st.settle = SETTLE_SECONDS;
       } else if (st.trace < 1) {
         st.trace = Math.min(1, st.trace + dt / TRACE_SECONDS);
-        if (st.trace >= 1) st.holding = 0;
       } else {
-        st.holding += dt;
-        if (st.holding > HOLD_SECONDS) {
-          st.trace = 0;
-          st.holding = 0;
-        }
+        st.settle += dt;
       }
+
+      // ── and the highlight, if one is running ──
+      if (st.pulse) {
+        st.pulse.t += dt;
+        if (st.pulse.t > PULSE_SECONDS * 1.35) st.pulse = null;
+      }
+      const pulse = st.pulse;
+      /** Where the band has reached, as a fraction of the way round. */
+      const front = pulse ? pulse.t / PULSE_SECONDS : 0;
+      /** The whole pulse fades out rather than stopping dead. */
+      const pulseFade = pulse ? Math.max(0, 1 - Math.max(0, front - 1) / 0.35) : 0;
 
       const drawnTo = st.trace * st.total;
 
@@ -260,8 +308,22 @@ export default function IndiaOutline({ className = "" }: { className?: string })
         const p = a.at / st.total;
         const col = routeColour(p);
 
-        // the freshest stretch of line is brighter, so travel is visible
-        const recency = Math.max(0, 1 - (drawnTo - a.at) / (st.total * 0.16));
+        // the freshest stretch of line is brighter, so travel is visible while
+        // it draws — then it evens out, or the finished map keeps a bright tail
+        const recency =
+          Math.max(0, 1 - (drawnTo - a.at) / (st.total * 0.16)) *
+          Math.max(0, 1 - st.settle / SETTLE_SECONDS);
+
+        // the click highlight: a band of full colour running round from where
+        // it was clicked, with a wake behind it that falls away
+        let lit = 0;
+        if (pulse) {
+          const d = ((p - pulse.from) % 1 + 1) % 1;
+          const gap = d - front;
+          const band = Math.exp(-(gap * gap) / (2 * 0.06 * 0.06));
+          const wake = gap < 0 ? Math.max(0, 1 + gap / 0.4) * 0.5 : 0;
+          lit = Math.min(1, band + wake) * pulseFade;
+        }
 
         // and the cursor lights whatever it is near
         let near = 0;
@@ -270,8 +332,11 @@ export default function IndiaOutline({ className = "" }: { className?: string })
           if (d < 70) near = 1 - d / 70;
         }
 
-        const lift = Math.max(recency * 0.55, near);
-        ctx.strokeStyle = rgba(mix(col, [255, 255, 255], lift * 0.4), 0.62 + lift * 0.38);
+        const lift = Math.max(recency * 0.55, near, lit);
+        // at rest the outline sits back toward the page's green; the highlight
+        // is what brings each stretch to its own colour
+        const shown = mix(mix(col, PALETTE.forest, 0.3 * (1 - lift)), [255, 255, 255], lift * 0.35);
+        ctx.strokeStyle = rgba(shown, 0.58 + lift * 0.42);
         ctx.lineWidth = 2.1 + lift * 1.6;
         if (lift > 0.25) {
           ctx.shadowBlur = lift * 12;
