@@ -26,6 +26,7 @@ const statusChip: Record<string, { label: string; cls: string }> = {
 function paymentLabel(p: { status: string; refundAmount: number | null } | null) {
   if (!p) return "—";
   if (p.status === PAYMENT_STATUS.paid) return "Paid";
+  if (p.status === PAYMENT_STATUS.waived) return "Free (pro bono)";
   if (p.status === PAYMENT_STATUS.refunded)
     return `Refunded ${formatINR(p.refundAmount ?? 0)}`;
   if (p.status === PAYMENT_STATUS.failed) return "Failed";

@@ -1,4 +1,5 @@
 import Hero from "@/components/sections/Hero";
+import TalkBar from "@/components/sections/TalkBar";
 import TrustStrip from "@/components/sections/TrustStrip";
 import TheProblem from "@/components/sections/TheProblem";
 import ManuOnWhatsApp from "@/components/sections/ManuOnWhatsApp";
@@ -16,6 +17,8 @@ export default function HomePage() {
     <>
       {/* the promise */}
       <Hero />
+      {/* the free way in, straight after the promise */}
+      <TalkBar />
       <TrustStrip />
 
       {/* why this exists, and the answer to it */}

@@ -126,10 +126,13 @@ export default function MadeInIndiaPage() {
         <div
           className="pointer-events-auto h-full w-full opacity-[0.95]"
           style={{
+            // fades further in than it used to: at narrower desktop widths the
+            // headline wraps to "built for" and runs under Gujarat, and a soft
+            // dissolve there reads better than a hard outline crossing type
             WebkitMaskImage:
-              "linear-gradient(to right, transparent 0%, black 16%, black 100%)",
+              "linear-gradient(to right, transparent 0%, black 38%, black 100%)",
             maskImage:
-              "linear-gradient(to right, transparent 0%, black 16%, black 100%)",
+              "linear-gradient(to right, transparent 0%, black 38%, black 100%)",
           }}
         >
           <IndiaOutline />

@@ -171,6 +171,75 @@ export async function createBookingWithRef(data: {
   throw new Error("could not allocate a booking reference");
 }
 
+/**
+ * Where a person stands with the one free first session.
+ *
+ * "One per verified phone" is checked two ways, because either alone leaks:
+ *  - the phone: a second account cannot claim with a phone that already has;
+ *  - the account: someone who used it cannot change their number and go again.
+ * The phone check is also enforced by the UNIQUE index on proBonoPhone, so a
+ * race between two requests fails at the database, not just here.
+ */
+export type ProBonoStatus =
+  | { state: "eligible"; phone: string }
+  | { state: "needs-phone" }
+  | { state: "used" };
+
+export async function proBonoStatus(userId: string): Promise<ProBonoStatus> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { phone: true, phoneVerified: true },
+  });
+  if (!user?.phone || !user.phoneVerified) return { state: "needs-phone" };
+
+  const claimed = await prisma.booking.findFirst({
+    where: {
+      OR: [{ proBonoPhone: user.phone }, { userId, proBonoPhone: { not: null } }],
+    },
+    select: { id: true },
+  });
+  return claimed ? { state: "used" } : { state: "eligible", phone: user.phone };
+}
+
+/**
+ * The free session: confirmed on creation, at no charge, with a WAIVED payment
+ * row so every screen that reads `payment` has something honest to show. No
+ * hold and no expiry — there is nothing to wait for.
+ */
+export async function createProBonoBooking(data: {
+  userId: string;
+  concern: string;
+  expertId: string;
+  expertName: string;
+  date: string;
+  time: string;
+  phone: string;
+}) {
+  const { phone, ...fields } = data;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      return await prisma.booking.create({
+        data: {
+          ...fields,
+          ref: makeRef(),
+          amount: 0,
+          status: BOOKING_STATUS.confirmed,
+          holdExpiresAt: null,
+          slotKey: slotKey(data.expertId, data.date, data.time),
+          proBono: true,
+          proBonoPhone: phone,
+          payment: { create: { amount: 0, status: PAYMENT_STATUS.waived } },
+        },
+        include: { payment: true },
+      });
+    } catch (error) {
+      if (isUniqueViolation(error, "ref")) continue;
+      throw error;
+    }
+  }
+  throw new Error("could not allocate a booking reference");
+}
+
 export function isUniqueViolation(error: unknown, field?: string): boolean {
   const prismaError = error as {
     code?: string;
@@ -203,6 +272,8 @@ type BookingWithPayment = {
   time: string;
   amount: number;
   status: string;
+  /** Optional so hand-built objects elsewhere still satisfy the type. */
+  proBono?: boolean;
   meetingUrl: string | null;
   holdExpiresAt: Date | null;
   rescheduleCount: number;
@@ -236,6 +307,7 @@ export function serializeBooking(booking: BookingWithPayment, now: Date = new Da
     time: booking.time,
     amount: booking.amount,
     status: booking.status,
+    proBono: !!booking.proBono,
     // The room is gated on the clock, not on the page. The URL only enters the
     // response once the door is actually open, so reading this API early tells
     // you exactly what reading the screen early tells you — nothing.

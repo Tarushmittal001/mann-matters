@@ -71,6 +71,14 @@ model Booking {
   time       String
   amount     Int
 
+  // The one free first session each person gets (pro bono). The claim is the
+  // verified phone it was made with, and is released (set NULL) when the
+  // session is cancelled early enough to be given back. UNIQUE, so two claims
+  // on one phone cannot both succeed even if they race — the same trick as
+  // slotKey, and SQLite treats NULLs as distinct so returned claims don't clash.
+  proBono      Boolean  @default(false)
+  proBonoPhone String?  @unique
+
   // "PENDING_PAYMENT" | "CONFIRMED" | "CANCELLED" | "EXPIRED" | "COMPLETED" | "NO_SHOW"
   status     String   @default("PENDING_PAYMENT")
 
