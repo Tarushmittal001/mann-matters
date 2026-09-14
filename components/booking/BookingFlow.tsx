@@ -36,13 +36,41 @@ function Stars({ rating }: { rating: number }) {
  * health information, and we don't want it typed into a form that might then
  * bounce them to a login page. It is never parked in browser storage either.
  */
-export default function BookingFlow({ authenticated }: { authenticated: boolean }) {
+export default function BookingFlow({
+  authenticated,
+  /** Pre-chosen from a "Book with …" link — the self-check suggests
+   *  therapists, and arriving here should not make you find them again. */
+  initialExpert,
+  /** Arrived from the "Consult now" bar, asking for the free first session. */
+  freeIntent = false,
+  /** What the server decided about that free session; null when not asked. */
+  proBono = null,
+}: {
+  authenticated: boolean;
+  initialExpert?: Expert | null;
+  freeIntent?: boolean;
+  proBono?: "eligible" | "needs-phone" | "used" | null;
+}) {
   /* --------------------------------------------------------------- state */
+  // with a therapist already chosen, the concern step is still first — it is
+  // what the session is about, and skipping it would leave the booking blank
   const [step, setStep] = useState(0);
   const [dir, setDir] = useState(1);
 
   const [concern, setConcern] = useState<ConcernId | null>(null);
-  const [expert, setExpert] = useState<Expert | null>(null);
+  const [expert, setExpert] = useState<Expert | null>(initialExpert ?? null);
+  // where sign-in should return to — carrying the pre-chosen therapist, so
+  // logging in does not quietly drop the choice that brought you here
+  const gateNext = (() => {
+    const q = new URLSearchParams();
+    if (initialExpert) q.set("expert", initialExpert.id);
+    // and the free-session ask, so signing in doesn't quietly drop that either
+    if (freeIntent) q.set("free", "1");
+    const qs = q.toString();
+    return qs ? `/book?${qs}` : "/book";
+  })();
+  // the server said yes; the server checks again when the booking is made
+  const free = proBono === "eligible";
   const [slot, setSlot] = useState<SlotSelection>({ date: "", time: null });
   const [refreshToken, setRefreshToken] = useState(0);
 
@@ -85,12 +113,19 @@ export default function BookingFlow({ authenticated }: { authenticated: boolean 
           expertId: expert.id,
           date: slot.date,
           time: slot.time,
+          ...(free ? { proBono: true } : {}),
         }),
       });
       const data = await res.json();
 
       if (res.status === 401) {
-        window.location.href = "/login?next=/book";
+        window.location.href = `/login?next=${encodeURIComponent(gateNext)}`;
+        return;
+      }
+
+      if (data.code === "PHONE_REQUIRED" || data.code === "PRO_BONO_USED") {
+        setHoldError(data.error);
+        setHolding(false);
         return;
       }
 
@@ -107,6 +142,13 @@ export default function BookingFlow({ authenticated }: { authenticated: boolean 
       if (!res.ok) {
         setHoldError(data.error ?? "We couldn't hold that time. Please try again.");
         setHolding(false);
+        return;
+      }
+
+      if (data.booking?.proBono) {
+        setHolding(false);
+        setDone(data.booking);
+        window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
 
@@ -149,10 +191,10 @@ export default function BookingFlow({ authenticated }: { authenticated: boolean 
             and nothing sensitive is typed into a form you might get bounced out of.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
-            <Button href="/signup?next=/book" variant="gold">
+            <Button href={`/signup?next=${encodeURIComponent(gateNext)}`} variant="gold">
               Create an account
             </Button>
-            <Button href="/login?next=/book" variant="outline">
+            <Button href={`/login?next=${encodeURIComponent(gateNext)}`} variant="outline">
               I already have one
             </Button>
           </div>
@@ -229,13 +271,17 @@ export default function BookingFlow({ authenticated }: { authenticated: boolean 
             <dd className="font-mono font-semibold text-forest-800">{done.ref}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-ink/55">Paid</dt>
-            <dd className="font-medium text-forest-900">{formatINR(done.amount)}</dd>
+            <dt className="text-ink/55">{done.proBono ? "Fee" : "Paid"}</dt>
+            <dd className="font-medium text-forest-900">
+              {done.proBono ? "Free first session" : formatINR(done.amount)}
+            </dd>
           </div>
-          <div className="flex justify-between gap-4">
-            <dt className="text-ink/55">Method</dt>
-            <dd className="font-medium text-forest-900">{paidWith}</dd>
-          </div>
+          {!done.proBono && (
+            <div className="flex justify-between gap-4">
+              <dt className="text-ink/55">Method</dt>
+              <dd className="font-medium text-forest-900">{paidWith}</dd>
+            </div>
+          )}
         </dl>
 
         <p className="mt-6 text-sm text-ink/55">
@@ -277,10 +323,33 @@ export default function BookingFlow({ authenticated }: { authenticated: boolean 
         </p>
         <h1 className="h-display text-4xl md:text-5xl">Let&apos;s find your fifty minutes</h1>
 
+        {freeIntent && proBono === "eligible" && (
+          <div className="mt-6 max-w-2xl rounded-2xl border-l-2 border-gold bg-gold/10 px-5 py-4 text-[0.93rem] leading-relaxed text-forest-900">
+            <strong className="font-semibold">Your first session is free.</strong> Choose what&apos;s
+            on your mind, a therapist and a time — there&apos;s no payment step. One free session per
+            verified phone number.
+          </div>
+        )}
+        {freeIntent && proBono === "needs-phone" && (
+          <div className="mt-6 max-w-2xl rounded-2xl border-l-2 border-gold bg-gold/10 px-5 py-4 text-[0.93rem] leading-relaxed text-forest-900">
+            <strong className="font-semibold">Your first session is free once your phone is verified.</strong>{" "}
+            That&apos;s how we keep it to one per person.{" "}
+            <Link href="/dashboard/profile" className="font-semibold underline underline-offset-2">
+              Verify your phone
+            </Link>
+            , then come back to this page. You can also carry on below as a regular session.
+          </div>
+        )}
+        {freeIntent && proBono === "used" && (
+          <div className="mt-6 max-w-2xl rounded-2xl border-l-2 border-forest-800/30 bg-forest-800/[0.04] px-5 py-4 text-[0.93rem] leading-relaxed text-ink/75">
+            You&apos;ve already had your free session, so anything you book below is a regular session.
+          </div>
+        )}
+
         {/* progress */}
         <nav className="mt-10" aria-label="Booking progress">
           <ol className="flex gap-2 md:gap-3">
-            {STEPS.map((label, i) => (
+            {(free ? STEPS.slice(0, 4) : STEPS).map((label, i) => (
               <li key={label} className="flex-1">
                 <button
                   type="button"
@@ -484,8 +553,14 @@ export default function BookingFlow({ authenticated }: { authenticated: boolean 
               >
                 <h2 className="font-display text-2xl font-medium text-forest-900">One last look</h2>
                 <p className="mt-2 text-ink/65">
-                  Check the details — then we&apos;ll hold this time for {HOLD_MINUTES} minutes while
-                  you pay.
+                  {free ? (
+                    <>Check the details — your first session is on us, so there&apos;s nothing to pay.</>
+                  ) : (
+                    <>
+                      Check the details — then we&apos;ll hold this time for {HOLD_MINUTES} minutes while
+                      you pay.
+                    </>
+                  )}
                 </p>
 
                 <div className="mt-8 max-w-lg rounded-3xl border border-forest-800/10 bg-ivory-light p-8 shadow-bloom">
@@ -528,18 +603,35 @@ export default function BookingFlow({ authenticated }: { authenticated: boolean 
                     <div className="flex justify-between gap-4 border-t border-forest-800/10 pt-4">
                       <dt className="text-ink/55">Session fee</dt>
                       <dd className="font-display text-xl font-medium text-forest-900">
-                        {formatINR(expert.price)}
+                        {free ? (
+                          <>
+                            <s className="mr-2 text-base font-normal text-ink/35">
+                              {formatINR(expert.price)}
+                            </s>
+                            Free
+                          </>
+                        ) : (
+                          formatINR(expert.price)
+                        )}
                       </dd>
                     </div>
                   </dl>
 
                   <p className="mt-5 text-[0.82rem] leading-relaxed text-ink/50">
-                    {changePolicyNote} Cancel outside that window and you&apos;re refunded in full.
+                    {free
+                      ? `${changePolicyNote} Cancel in time and your free session comes back to you.`
+                      : <>{changePolicyNote} Cancel outside that window and you&apos;re refunded in full.</>}
                   </p>
 
                   <div className="mt-7">
                     <Button onClick={holdSlot} variant="gold" className="w-full" disabled={holding}>
-                      {holding ? <Spinner label="Holding your slot…" /> : "Hold this time & pay"}
+                      {holding ? (
+                        <Spinner label={free ? "Booking your session…" : "Holding your slot…"} />
+                      ) : free ? (
+                        "Book my free session"
+                      ) : (
+                        "Hold this time & pay"
+                      )}
                     </Button>
                   </div>
                 </div>

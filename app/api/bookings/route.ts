@@ -3,10 +3,12 @@ import { getSession } from "@/lib/auth";
 import { concerns } from "@/lib/experts";
 import {
   createBookingWithRef,
+  createProBonoBooking,
   expertById,
   holdExpiry,
   isUniqueViolation,
   offersSlot,
+  proBonoStatus,
   releaseExpiredHolds,
   serializeBooking,
   takenSlots,
@@ -17,13 +19,22 @@ import { rateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
-type Body = { concern?: string; expertId?: string; date?: string; time?: string };
+type Body = { concern?: string; expertId?: string; date?: string; time?: string; proBono?: boolean };
+
+/** Said the same way wherever the free session turns out to be spent. */
+const PRO_BONO_USED =
+  "Your free session has already been used. You can still book this time as a regular session.";
 
 /**
- * POST /api/bookings — hold a slot.
+ * POST /api/bookings — hold a slot, or book the free first session.
  *
- * This creates the booking as PENDING_PAYMENT with a short hold on the slot; it
- * becomes CONFIRMED only once payment succeeds. Nothing is charged here.
+ * A regular booking is created as PENDING_PAYMENT with a short hold on the
+ * slot; it becomes CONFIRMED only once payment succeeds. Nothing is charged
+ * here.
+ *
+ * With `proBono: true` it is the one free session instead: eligibility is
+ * decided here on the server (a verified phone that has not claimed before),
+ * never taken from the client, and the booking is confirmed at ₹0 on the spot.
  */
 export async function POST(req: Request) {
   try {
@@ -42,6 +53,7 @@ export async function POST(req: Request) {
     const expert = expertById(body.expertId ?? "");
     const date = typeof body.date === "string" ? body.date : "";
     const time = typeof body.time === "string" ? body.time : "";
+    const wantsFree = body.proBono === true;
 
     const fields: Record<string, string> = {};
     if (!concern) fields.concern = "Please choose what you'd like to talk about.";
@@ -51,6 +63,26 @@ export async function POST(req: Request) {
     const slotCheck = validateSlot(date, time);
     if (!slotCheck.ok) {
       return errors.validation({ time: slotCheck.reason }, slotCheck.reason);
+    }
+
+    // decided before touching the calendar, so a refusal costs nobody a slot
+    let freePhone: string | null = null;
+    if (wantsFree) {
+      const status = await proBonoStatus(session.sub);
+      if (status.state === "needs-phone") {
+        return privateJson(
+          {
+            error:
+              "Your free session is tied to a verified phone number. Verify yours in your profile, then come back to book it.",
+            code: "PHONE_REQUIRED",
+          },
+          { status: 403 }
+        );
+      }
+      if (status.state === "used") {
+        return privateJson({ error: PRO_BONO_USED, code: "PRO_BONO_USED" }, { status: 409 });
+      }
+      freePhone = status.phone;
     }
 
     // a lapsed hold shouldn't block a real booking
@@ -74,22 +106,28 @@ export async function POST(req: Request) {
     }
 
     try {
-      const booking = await createBookingWithRef({
+      const common = {
         userId: session.sub,
         concern: concern!.id,
         expertId: expert!.id,
         expertName: expert!.name,
         date,
         time,
-        amount: expert!.price,
-        holdExpiresAt: holdExpiry(),
-      });
+      };
+
+      const booking = freePhone
+        ? await createProBonoBooking({ ...common, phone: freePhone })
+        : await createBookingWithRef({ ...common, amount: expert!.price, holdExpiresAt: holdExpiry() });
 
       return privateJson({
         booking: serializeBooking(booking),
-        holdMinutes: HOLD_MINUTES,
+        holdMinutes: freePhone ? null : HOLD_MINUTES,
       });
     } catch (err) {
+      // two requests raced for the same free claim; the UNIQUE index decided
+      if (isUniqueViolation(err, "proBonoPhone")) {
+        return privateJson({ error: PRO_BONO_USED, code: "PRO_BONO_USED" }, { status: 409 });
+      }
       // the UNIQUE slot key did its job: somebody else got there first
       if (isUniqueViolation(err, "slotKey")) {
         const taken = await takenSlots(expert!.id, date);
