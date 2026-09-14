@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Alert, Spinner } from "@/components/ui/Feedback";
-import { canCancel, refundFor } from "@/lib/features/booking/policy";
+import { FREE_CHANGE_HOURS, canCancel, proBonoReturnsOnCancel, refundFor } from "@/lib/features/booking/policy";
 import { cn, formatINR } from "@/lib/utils";
 import type { SerializedBooking } from "@/lib/features/booking/server";
 
@@ -26,6 +26,12 @@ export default function CancelBookingButton({ booking }: { booking: SerializedBo
   if (!allowed.ok) return null;
 
   const due = refundFor(booking, booking.payment?.status ?? null);
+  // a free session has nothing to refund; what is at stake is the free session
+  const note = !booking.proBono
+    ? due.note
+    : proBonoReturnsOnCancel(booking)
+      ? "This is your free session. Cancel now and it comes back to you — book it again whenever you're ready."
+      : `This is your free session. It's inside the ${FREE_CHANGE_HOURS}-hour window, so cancelling now uses it up.`;
 
   const onCancel = async () => {
     setBusy(true);
@@ -70,7 +76,7 @@ export default function CancelBookingButton({ booking }: { booking: SerializedBo
       ) : (
         <>
           <p className="font-medium text-forest-900">Cancel this session?</p>
-          <p className="mt-1.5 leading-relaxed text-ink/60">{due.note}</p>
+          <p className="mt-1.5 leading-relaxed text-ink/60">{note}</p>
           {due.amount > 0 && (
             <p className="mt-1.5 font-semibold text-forest-800">
               Refund: {formatINR(due.amount)}

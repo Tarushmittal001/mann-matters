@@ -8,8 +8,9 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import SegmentGrid from "@/components/organisations/SegmentGrid";
 import PackCta from "@/components/organisations/PackCta";
 import { orgFaqs, pillars, steps } from "@/lib/organisations";
+import { regionForPillar } from "@/lib/palette";
 import { site } from "@/lib/site";
-import NodeBuilding from "@/components/visuals/NodeBuilding";
+import OpenHandbook from "@/components/visuals/OpenHandbook";
 
 export const metadata: Metadata = {
   title: "For schools, colleges & companies",
@@ -22,7 +23,8 @@ export default function ForOrganisationsPage() {
     <>
       {/* ── hero ─────────────────────────────────────────────────── */}
       <section className="page-top relative overflow-hidden pb-20 md:pb-28">
-      {/* the institution as a structural frame — click any joint and load spreads through it */}
+      {/* the handbook an institution ends up holding — its pages are the buildings
+          we work in, and the fore-edge markers open each one */}
       <div
         className="pointer-events-none absolute inset-y-0 right-0 hidden w-[46%] md:block"
         aria-hidden="true"
@@ -36,7 +38,7 @@ export default function ForOrganisationsPage() {
               "linear-gradient(to right, transparent 0%, black 34%, black 100%)",
           }}
         >
-          <NodeBuilding />
+          <OpenHandbook />
         </div>
       </div>
       {/* scrim keeps the headline legible where it meets the canvas */}
@@ -145,7 +147,12 @@ export default function ForOrganisationsPage() {
             {pillars.map((p, i) => (
               <Reveal key={p.title} delay={0.06 * (i % 3)} className="h-full">
                 <div className="flex h-full flex-col rounded-2xl border border-white/10 bg-white/[0.04] p-7">
-                  <span className="gold-rule" aria-hidden="true" />
+                  {/* each part of a program wears its own brain region */}
+                  <span
+                    className="block h-[2px] w-12 rounded-full"
+                    style={{ background: regionForPillar(p.id).hex }}
+                    aria-hidden="true"
+                  />
                   <h3 className="mt-5 font-display text-[1.25rem] font-medium leading-snug text-ivory">
                     {p.title}
                   </h3>

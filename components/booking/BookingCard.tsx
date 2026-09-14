@@ -219,7 +219,8 @@ export default function BookingCard({
           <p className="mt-1 text-sm text-ink/55">
             Ref{" "}
             <span className="font-mono font-semibold text-forest-800">{booking.ref}</span> ·{" "}
-            {formatINR(booking.amount)}
+            {/* ₹0 reads like an error; the free session should say what it is */}
+            {booking.proBono ? "Free first session" : formatINR(booking.amount)}
             {method && <> · {method}</>}
           </p>
 

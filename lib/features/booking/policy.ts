@@ -26,6 +26,8 @@ export const PAYMENT_STATUS = {
   paid: "PAID",
   failed: "FAILED",
   refunded: "REFUNDED",
+  // the free first session: nothing was ever owed, so nothing is pending
+  waived: "WAIVED",
 } as const;
 
 export const ALL_SLOTS: string[] = timeSlots.flatMap((group) => group.slots);
@@ -171,3 +173,17 @@ export function refundFor(
 }
 
 export const changePolicyNote = `Free to move or cancel up to ${FREE_CHANGE_HOURS} hours before your session.`;
+
+/**
+ * Whether cancelling a free session right now hands it back to the person.
+ *
+ * The same 24-hour line that decides refunds: early enough and the therapist's
+ * hour can go to someone else, so the free session is theirs to use again;
+ * inside the window, or a no-show, and it counts as used.
+ */
+export function proBonoReturnsOnCancel(
+  booking: { date: string; time: string },
+  now: Date = new Date()
+): boolean {
+  return hoursUntil(booking.date, booking.time, now) >= FREE_CHANGE_HOURS;
+}

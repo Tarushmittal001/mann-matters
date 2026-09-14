@@ -1,0 +1,33 @@
+"use client";
+
+import { useState } from "react";
+import Button from "@/components/ui/Button";
+import SelfCheck from "@/components/services/SelfCheck";
+
+/**
+ * The button that opens the self-check.
+ *
+ * Split from the dialog so /services stays a server component: only this
+ * wrapper and the dialog ship as client code, and the ten cards, the steps and
+ * the comparison table stay static.
+ */
+export default function SelfCheckCta({
+  children = "Take the self-check",
+  variant = "gold",
+  className,
+}: {
+  children?: React.ReactNode;
+  variant?: "gold" | "outline" | "outline-light";
+  className?: string;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <Button onClick={() => setOpen(true)} variant={variant} className={className}>
+        {children}
+      </Button>
+      <SelfCheck open={open} onClose={() => setOpen(false)} />
+    </>
+  );
+}
