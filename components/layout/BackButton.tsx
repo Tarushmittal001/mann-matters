@@ -31,7 +31,7 @@ export default function BackButton() {
         type="button"
         onClick={() => (hasHistory ? router.back() : router.push("/"))}
         aria-label={hasHistory ? "Go back" : "Go to the home page"}
-        className="peer group grid h-11 w-11 place-items-center rounded-full text-forest-800/70 ring-1 ring-inset ring-forest-800/15 transition-all duration-300 ease-silk hover:bg-forest-800 hover:text-ivory hover:ring-forest-800 focus-visible:bg-forest-800 focus-visible:text-ivory active:scale-90 sm:h-10 sm:w-10"
+        className="peer group grid h-11 w-11 place-items-center rounded-full text-forest-800/70 ring-1 ring-inset ring-forest-800/15 transition duration-300 ease-silk hover:bg-forest-800 hover:text-ivory hover:ring-forest-800 focus-visible:bg-forest-800 focus-visible:text-ivory active:scale-90 sm:h-10 sm:w-10"
       >
         <svg
           width="15"
@@ -48,7 +48,7 @@ export default function BackButton() {
       </button>
 
       <span
-        className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 -translate-x-1/2 translate-y-1 whitespace-nowrap rounded-full bg-forest-900 px-2.5 py-1 text-[0.68rem] font-medium tracking-wide text-ivory opacity-0 transition-all duration-300 ease-silk peer-hover:translate-y-0 peer-hover:opacity-100 peer-focus-visible:translate-y-0 peer-focus-visible:opacity-100"
+        className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 -translate-x-1/2 translate-y-1 whitespace-nowrap rounded-full bg-forest-900 px-2.5 py-1 text-[0.68rem] font-medium tracking-wide text-ivory opacity-0 transition duration-300 ease-silk peer-hover:translate-y-0 peer-hover:opacity-100 peer-focus-visible:translate-y-0 peer-focus-visible:opacity-100"
         aria-hidden="true"
       >
         {label}

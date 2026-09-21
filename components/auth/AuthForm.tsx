@@ -5,15 +5,21 @@ import { useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Button from "@/components/ui/Button";
-import { Field } from "@/components/ui/Field";
 import { Alert, CrisisLine, Spinner } from "@/components/ui/Feedback";
+import { Field, Select } from "@/components/ui/Field";
 import {
+  AGE_GUARDIAN_BELOW,
+  GENDER_OPTIONS,
+  ORGANISATION_MAX,
   OTP_LENGTH,
   PASSWORD_MIN,
   collect,
   hasErrors,
+  validateAge,
   validateEmail,
-  validateName,
+  validateGender,
+  validateNamePart,
+  validateOrganisation,
   validateOtp,
   validatePassword,
   validateRequiredPhone,
@@ -37,7 +43,16 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   // open redirect, and a login page is exactly where that gets abused
   const next = rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/dashboard";
 
-  const [name, setName] = useState("");
+  // signup asks who this is: a service that treats people needs more than an email
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [age, setAge] = useState("");
+  const [gender, setGender] = useState("");
+  const [organisation, setOrganisation] = useState("");
+  // the SMS code that proves the mobile number, before the account exists
+  const [signupCode, setSignupCode] = useState("");
+  const [signupPhoneToken, setSignupPhoneToken] = useState("");
+  const [devSignupCode, setDevSignupCode] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [signInMethod, setSignInMethod] = useState<"email" | "phone">("email");
@@ -47,6 +62,13 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [devOtp, setDevOtp] = useState<string | null>(null);
 
   const [fields, setFields] = useState<Record<string, string>>({});
+  // a message goes as soon as that field is touched again, so a corrected field
+  // doesn't keep telling someone off
+  const clearField = (key: string) => setFields((f) => (f[key] ? { ...f, [key]: "" } : f));
+  const changed = (key: string, set: (v: string) => void) => (v: string) => {
+    set(v);
+    clearField(key);
+  };
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -164,13 +186,23 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
       return;
     }
 
-    const local = collect([
-      ...(isLogin ? [] : ([["name", validateName(name)]] as [string, string | null][])),
-      ["email", validateEmail(email)],
-      // on login, any password is worth *sending* — telling someone their
-      // stored password is too short helps nobody
-      ...(isLogin ? [] : ([["password", validatePassword(password)]] as [string, string | null][])),
-    ]);
+    const signupChecks: [string, string | null][] = isLogin
+      ? []
+      : [
+          ["firstName", validateNamePart(firstName, "first")],
+          ["lastName", validateNamePart(lastName, "last")],
+          ["age", validateAge(age)],
+          ["gender", validateGender(gender)],
+          ["organisation", validateOrganisation(organisation)],
+          ["phone", validateRequiredPhone(phone)],
+          // on login, any password is worth *sending* — telling someone their
+          // stored password is too short helps nobody
+          ["password", validatePassword(password)],
+          ...(signupPhoneToken
+            ? ([["phoneCode", validateOtp(signupCode)]] as [string, string | null][])
+            : []),
+        ];
+    const local = collect([...signupChecks, ["email", validateEmail(email)]]);
     setFields(local);
     if (hasErrors(local)) return;
 
@@ -182,7 +214,21 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
       const res = await fetch(`/api/auth/${mode}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(isLogin ? { email, password } : { name, email, password }),
+        body: JSON.stringify(
+          isLogin
+            ? { email, password }
+            : {
+                firstName,
+                lastName,
+                age,
+                gender,
+                organisation,
+                email,
+                phone,
+                password,
+                ...(signupPhoneToken ? { phoneToken: signupPhoneToken, phoneCode: signupCode } : {}),
+              }
+        ),
       });
       const data = await res.json().catch(() => ({}));
 
@@ -194,6 +240,15 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
             ? ""
             : data.error ?? "Something went wrong. Please try again."
         );
+        setSubmitting(false);
+        return;
+      }
+
+      // signup, step one: the code is on its way to their phone
+      if (!isLogin && res.status === 202 && data.needsCode) {
+        setSignupPhoneToken(data.phoneToken ?? "");
+        setSignupCode("");
+        setDevSignupCode(data.devPhoneCode ?? null);
         setSubmitting(false);
         return;
       }
@@ -344,16 +399,85 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
             <form onSubmit={onSubmit} className={isLogin ? "mt-6 space-y-4" : "mt-9 space-y-4"} noValidate>
               {!isLogin && (
-                <Field
-                  label="Your name"
-                  required
-                  value={name}
-                  onChange={setName}
-                  autoComplete="name"
-                  disabled={submitting}
-                  error={fields.name}
-                  placeholder="How should we address you?"
-                />
+                <>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Field
+                      label="First name"
+                      required
+                      value={firstName}
+                      onChange={changed("firstName", setFirstName)}
+                      autoComplete="given-name"
+                      disabled={submitting || !!signupPhoneToken}
+                      error={fields.firstName}
+                      placeholder="Riya"
+                    />
+                    <Field
+                      label="Last name"
+                      required
+                      value={lastName}
+                      onChange={changed("lastName", setLastName)}
+                      autoComplete="family-name"
+                      disabled={submitting || !!signupPhoneToken}
+                      error={fields.lastName}
+                      placeholder="Kapoor"
+                    />
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Field
+                      label="Age"
+                      required
+                      inputMode="numeric"
+                      value={age}
+                      onChange={(v) => changed("age", setAge)(v.replace(/\D/g, "").slice(0, 3))}
+                      disabled={submitting || !!signupPhoneToken}
+                      error={fields.age}
+                      placeholder="24"
+                    />
+                    <Select
+                      label="Gender"
+                      required
+                      value={gender}
+                      onChange={changed("gender", setGender)}
+                      options={GENDER_OPTIONS}
+                      placeholder="Choose…"
+                      disabled={submitting || !!signupPhoneToken}
+                      error={fields.gender}
+                    />
+                  </div>
+
+                  {age && Number(age) < AGE_GUARDIAN_BELOW && (
+                    <Alert tone="info">
+                      You&apos;re under {AGE_GUARDIAN_BELOW}, so a parent or guardian needs to agree
+                      to therapy with you. We&apos;ll ask about that before your first session.
+                    </Alert>
+                  )}
+
+                  <Field
+                    label="Mobile number"
+                    required
+                    type="tel"
+                    inputMode="tel"
+                    value={phone}
+                    onChange={changed("phone", setPhone)}
+                    autoComplete="tel"
+                    disabled={submitting || !!signupPhoneToken}
+                    error={fields.phone}
+                    placeholder="98765 43210"
+                    hint={signupPhoneToken ? undefined : "We'll text a code to confirm it's yours."}
+                  />
+
+                  <Field
+                    label="School, college or workplace"
+                    value={organisation}
+                    onChange={changed("organisation", setOrganisation)}
+                    maxLength={ORGANISATION_MAX}
+                    disabled={submitting || !!signupPhoneToken}
+                    error={fields.organisation}
+                    placeholder="Amity University, Noida"
+                    hint="Optional. It helps us match you with someone who gets your world."
+                  />
+                </>
               )}
 
               {isLogin && signInMethod === "phone" ? (
@@ -399,7 +523,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                     type="email"
                     inputMode="email"
                     value={email}
-                    onChange={setEmail}
+                    onChange={changed("email", setEmail)}
                     autoComplete="email"
                     disabled={submitting}
                     error={fields.email}
@@ -411,7 +535,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                     required
                     type="password"
                     value={password}
-                    onChange={setPassword}
+                    onChange={changed("password", setPassword)}
                     autoComplete={isLogin ? "current-password" : "new-password"}
                     disabled={submitting}
                     error={fields.password}
@@ -422,6 +546,52 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                         : "A phrase you'll remember beats a word you won't. Length matters more than symbols."
                     }
                   />
+
+                  {!isLogin && signupPhoneToken && (
+                    <>
+                      <Field
+                        label={`Code sent to ${phone.trim()}`}
+                        required
+                        inputMode="numeric"
+                        value={signupCode}
+                        onChange={(v) => changed("phoneCode", setSignupCode)(v.replace(/\D/g, "").slice(0, OTP_LENGTH))}
+                        autoComplete="one-time-code"
+                        disabled={submitting}
+                        error={fields.phoneCode}
+                        placeholder={`${OTP_LENGTH}-digit code`}
+                        hint="It can take a minute. The code works for 10 minutes."
+                      />
+                      {devSignupCode && (
+                        <Alert tone="warning">
+                          Development code: <strong className="font-mono">{devSignupCode}</strong>.
+                          Configure Twilio environment variables to send it by SMS.
+                        </Alert>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSignupPhoneToken("");
+                          setSignupCode("");
+                          setDevSignupCode(null);
+                          setFields({});
+                        }}
+                        className="text-sm font-medium text-forest-800 underline underline-offset-4"
+                      >
+                        Change my details
+                      </button>
+                    </>
+                  )}
+
+                  {isLogin && (
+                    <p className="-mt-1 text-right">
+                      <Link
+                        href={`/forgot-password${email.trim() ? `?email=${encodeURIComponent(email.trim())}` : ""}`}
+                        className="text-sm font-medium text-forest-800 underline underline-offset-4 hover:text-forest-600"
+                      >
+                        Forgot password?
+                      </Link>
+                    </p>
+                  )}
                 </>
               )}
 
@@ -459,6 +629,8 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                     otpRequested ? "Verify and sign in" : "Send one-time code"
                   ) : isLogin ? (
                     "Sign in"
+                  ) : signupPhoneToken ? (
+                    "Verify and create account"
                   ) : (
                     "Create account"
                   )}

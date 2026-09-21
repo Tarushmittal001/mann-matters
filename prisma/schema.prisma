@@ -9,13 +9,24 @@ datasource db {
 
 model User {
   id            String              @id @default(cuid())
+  // the display name everything else uses: "first last"
   name          String
+  firstName     String?
+  lastName      String?
+  // asked at signup; a therapy service needs to know who it is treating
+  age           Int?
+  // "female" | "male" | "non-binary" | "prefer-not-to-say"
+  gender        String?
+  // school, college or employer — optional, and only for context
+  organisation  String?
   email         String              @unique
   passwordHash  String
   // "USER" | "EXPERT" | "ADMIN" — SQLite has no native enums
   role          String              @default("USER")
   // null until the user confirms their email address
   emailVerified DateTime?
+  // sessions issued before this moment are no longer accepted (set on password reset/change)
+  passwordChangedAt DateTime?
   // profile — all optional, all volunteered
   phone         String?             @unique
   phoneVerified DateTime?
@@ -27,6 +38,8 @@ model User {
   bookings      Booking[]
   verifications VerificationToken[]
   phoneOtps     PhoneOtp[]
+  feedback      Feedback?
+  passwordResets PasswordResetToken[]
   // present only for role = "EXPERT"
   expertProfile ExpertProfile?
 
@@ -257,4 +270,72 @@ model Payment {
   updatedAt DateTime @default(now()) @updatedAt
 
   @@index([status])
+}
+
+/// A client's own words about Emoraa, for "We heard you" on the home page.
+/// One per account; editing it sends it back for review. Nothing appears
+/// publicly until an admin approves it.
+model Feedback {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quote       String
+  // one of the watercolour portraits in /public/reviews, e.g. "/reviews/7.png"
+  avatar      String
+  // how the name is shown: "first" (Priya) or "initial" (P.)
+  nameStyle   String    @default("first")
+  // optional context, e.g. "22, student, Delhi"
+  detail      String?
+  // "PENDING" | "APPROVED" | "HIDDEN"
+  status      String    @default("PENDING")
+  reviewedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([status])
+}
+
+/// A "forgot password" link. Only a sha-256 of the token is stored, it lasts one
+/// hour, and it is deleted the moment it is used (or a newer one is requested).
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+/// The therapist catalogue behind matching, booking and every public card.
+///
+/// This used to be a hand-edited file in the repo, which meant a new therapist
+/// needed a developer and a deploy. It lives here so an admin can add, edit,
+/// hide or remove someone, and the site follows immediately.
+model Expert {
+  id   String @id @default(cuid())
+  /// the stable public id used in links and bookings, e.g. "ananya-iyer"
+  slug String @unique
+
+  name            String
+  credentials     String  @default("")
+  experienceYears Int     @default(0)
+  /// JSON arrays of strings — SQLite has no scalar lists
+  languages       String  @default("[]")
+  specialties     String  @default("[]")
+  price           Int
+  rating          Float   @default(5)
+  photo           String  @default("")
+  bio             String  @default("")
+
+  /// "ACTIVE" (bookable and listed) | "HIDDEN" (kept, but off the site)
+  status    String @default("ACTIVE")
+  /// lowest first, so an admin can decide who is seen first
+  sortOrder Int    @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, sortOrder])
 }

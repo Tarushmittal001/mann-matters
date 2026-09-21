@@ -327,7 +327,7 @@ export default function Soundscapes() {
                   fill
                   sizes="(min-width: 640px) 340px, 100vw"
                   className={cn(
-                    "object-cover transition-all duration-700 ease-silk",
+                    "object-cover transition duration-700 ease-silk",
                     s.artPos,
                     isActive
                       ? "scale-105 opacity-100"

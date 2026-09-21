@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import EmailLink from "@/components/contact/EmailLink";
+import Image from "next/image";
 import { useState, type FormEvent } from "react";
 import { navLinks, site } from "@/lib/site";
 
@@ -22,12 +24,16 @@ export default function Footer() {
     <footer className="bg-forest-950 text-ivory">
       <div className="wrap-wide grid gap-14 py-20 md:grid-cols-12 md:py-24">
         <div className="md:col-span-5">
-          <p className="flex items-baseline gap-2 font-display text-2xl font-semibold tracking-tight">
-            Emoraa
-            <span className="font-deva text-base text-gold" aria-hidden="true">
-              मन
-            </span>
-          </p>
+          <Link href="/" aria-label="Emoraa home" className="inline-block">
+            {/* the full lockup with the tagline, turned white for the dark footer */}
+            <Image
+              src="/brand/emoraa-lockup.png"
+              alt="Emoraa. Better days begin"
+              width={1200}
+              height={280}
+              className="h-11 w-auto brightness-0 invert md:h-12"
+            />
+          </Link>
           <p className="mt-5 max-w-sm leading-relaxed text-sage-light/75">
             Therapy and counselling for Indian youth, students, and working
             professionals — confidential, affordable, and in your language.
@@ -75,9 +81,7 @@ export default function Footer() {
           <p className="eyebrow mb-5 text-sage">Reach us</p>
           <ul className="space-y-3 text-[0.95rem] text-sage-light/80">
             <li>
-              <a href={`mailto:${site.email}`} className="link-draw hover:text-ivory">
-                {site.email}
-              </a>
+              <EmailLink className="link-draw hover:text-ivory" />
             </li>
             <li>
               <a href={`tel:${site.phone.replace(/\s/g, "")}`} className="link-draw hover:text-ivory">

@@ -18,14 +18,13 @@ export default async function ExpertNotificationsPage() {
           title="What is switched on now"
           hint="A summary of the settings below, in one place, so you can check it at a glance."
         />
-        <dl className="grid gap-5 p-5 sm:grid-cols-2 sm:p-6 lg:grid-cols-4">
+        <dl className="grid gap-5 p-5 sm:grid-cols-3 sm:p-6">
           <Meta label="Channel">
             {n.channel === "BOTH" ? "Email and WhatsApp" : n.channel === "WHATSAPP" ? "WhatsApp" : "Email"}
           </Meta>
           <Meta label="Session reminder">
             {n.reminder ? reminderLeadLabel(n.reminderLeadMinutes) : "Off"}
           </Meta>
-          <Meta label="Weekly summary">{n.weeklyDigest ? "Monday morning" : "Off"}</Meta>
           <Meta label="Quiet hours">
             {n.quietHoursEnabled
               ? formatTime(n.quietHoursStart) + " – " + formatTime(n.quietHoursEnd)

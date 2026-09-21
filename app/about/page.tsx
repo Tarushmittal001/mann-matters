@@ -24,25 +24,25 @@ const team = [
   {
     name: "Tarush Mittal",
     role: "Founder",
-    note: "Left a decade in fintech after watching three colleagues burn out in one year.",
+    note: "The room full of 'experienced' people didn't build this. He did.",
     photo: "/team/tarush-mittal.png",
   },
   {
     name: "Gaurav Mittal",
     role: "Director",
-    note: "Keeps the practice steady — the operations, the partnerships, the promises we make to clients.",
+    note: "30 years in business, still the smartest guy in the room — steady not because he's cautious, but because he's already won this game before.",
     photo: "/team/gaurav-mittal.png",
   },
   {
     name: "Bhavya Nimesh",
     role: "Clinical Director",
-    note: "Clinical psychologist, 16 years. Insists every therapist here would be one she'd send family to.",
-    photo: "/team/bhavya-nimesh.png",
+    note: "Went from hiring people to healing them. Either way, she's deciding if you're a good fit.",
+    photo: "/team/bhavya-nimesh.jpeg",
   },
   {
     name: "Ishaan Mittal",
     role: "CTO",
-    note: "Builds the technology that makes good help reachable — privately, in any language, in minutes.",
+    note: "Consultant, data engineer, now CTO — he's had three careers and somehow gotten sharper at all of them.",
     photo: "/team/ishaan-mittal.png",
   },
 ];
@@ -68,29 +68,19 @@ const values = [
 
 const timeline = [
   {
-    year: "2022",
-    title: "A kitchen-table question",
-    body: "After a friend waited four months for an affordable therapist, Tarush asked: why is good help this hard to reach in a country of 1.4 billion?",
-  },
-  {
-    year: "2023",
-    title: "Eight therapists, one promise",
-    body: "Emoraa launches in Noida with eight hand-picked psychologists and a rule that still stands: every credential verified, every session confidential.",
-  },
-  {
     year: "2024",
-    title: "2+ languages, student pricing",
-    body: "Sessions go live in 2+ languages. The ₹599 student rate launches during board season — our busiest fortnight ever, overnight.",
+    title: "A cup of tea, a shared frustration",
+    body: "Over tea with a friend — a clinical psychologist — Tarush found the conversation drifting to something they both recognized: the stress, anxiety, and quiet burnout everyone around them seemed to be carrying. Somewhere in that conversation, the idea for Emoraa was born.",
   },
   {
     year: "2025",
-    title: "Workplaces join in",
-    body: "Corporate programs begin, built on anonymity-first reporting. The 10,000th session is delivered in November — in Malayalam, at 9 p.m., to a first-time client.",
+    title: "Building Emoraa",
+    body: "The idea moved from conversation to construction. Work began on Emoraa in earnest — the tech and the clinical thinking built side by side, from the start.",
   },
   {
     year: "2026",
-    title: "Sixty therapists and counting",
-    body: "A growing practice across every metro and most of small-town India — because the next person who needs us probably isn't in a metro at all.",
+    title: "Getting ready",
+    body: "Emoraa is preparing to launch — built from a kitchen-table conversation into something ready for its first users.",
   },
 ];
 

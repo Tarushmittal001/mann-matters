@@ -24,6 +24,9 @@ export default async function ProfilePage() {
     // an allow-list, so `passwordHash` can never arrive here by accident
     select: {
       name: true,
+      age: true,
+      gender: true,
+      organisation: true,
       email: true,
       phone: true,
       phoneVerified: true,
@@ -76,6 +79,9 @@ export default async function ProfilePage() {
               <ProfileForm
                 initial={{
                   name: user.name,
+                  age: user.age ? String(user.age) : "",
+                  gender: user.gender ?? "",
+                  organisation: user.organisation ?? "",
                   email: user.email,
                   phone: user.phone ?? "",
                   phoneVerified: !!user.phoneVerified,

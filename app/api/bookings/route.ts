@@ -50,7 +50,7 @@ export async function POST(req: Request) {
     if (!body) return errors.badBody();
 
     const concern = concerns.find((c) => c.id === body.concern);
-    const expert = expertById(body.expertId ?? "");
+    const expert = await expertById(body.expertId ?? "");
     const date = typeof body.date === "string" ? body.date : "";
     const time = typeof body.time === "string" ? body.time : "";
     const wantsFree = body.proBono === true;

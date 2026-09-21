@@ -36,7 +36,7 @@ export default function ToolRail() {
   };
 
   const arrow =
-    "grid h-9 w-9 place-items-center rounded-full border border-forest-800/20 text-forest-800 transition-all duration-300 hover:border-forest-800 hover:bg-forest-800 hover:text-ivory disabled:pointer-events-none disabled:opacity-30";
+    "grid h-9 w-9 place-items-center rounded-full border border-forest-800/20 text-forest-800 transition duration-300 hover:border-forest-800 hover:bg-forest-800 hover:text-ivory disabled:pointer-events-none disabled:opacity-30";
 
   return (
     <div className="mt-16">

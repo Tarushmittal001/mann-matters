@@ -47,7 +47,18 @@ export const UI: Record<
     sendLabel: string;
     inputLabel: string;
     scenarioListLabel: string;
+    /** The coach-mark that points at a topic chip until the visitor taps one. */
+    scenarioPrompt: string;
     chatLabel: string;
+    /** The sign-in / WhatsApp bar and the in-chat card for signed-out visitors. */
+    signInCta: string;
+    whatsappCta: string;
+    gateTitle: string;
+    gateBody: string;
+    createAccount: string;
+    /** Signed in: the input talks to the real Manu. */
+    liveBadge: string;
+    liveNote: string;
   }
 > = {
   en: {
@@ -59,7 +70,15 @@ export const UI: Record<
     sendLabel: "Send message",
     inputLabel: "Type a message to Manu",
     scenarioListLabel: "Conversation scenarios",
+    scenarioPrompt: "Try this one — see how Manu replies",
     chatLabel: "Chat messages",
+    signInCta: "Sign in to chat with Manu",
+    whatsappCta: "WhatsApp",
+    gateTitle: "Let's keep talking",
+    gateBody: "Sign in and Manu replies for real, or carry on over WhatsApp.",
+    createAccount: "New here? Create a free account",
+    liveBadge: "Live",
+    liveNote: "You're chatting with Manu. For a crisis, tap SOS.",
   },
   hi: {
     languageLabel: "भाषा",
@@ -70,7 +89,15 @@ export const UI: Record<
     sendLabel: "मैसेज भेजें",
     inputLabel: "Manu को मैसेज लिखें",
     scenarioListLabel: "बातचीत के विषय",
+    scenarioPrompt: "इसे आज़माओ — देखो Manu क्या कहता है",
     chatLabel: "चैट मैसेज",
+    signInCta: "Manu से बात करने के लिए साइन इन करें",
+    whatsappCta: "WhatsApp",
+    gateTitle: "चलो बात आगे बढ़ाएँ",
+    gateBody: "साइन इन करें, Manu सच में जवाब देगा — या WhatsApp पर बात जारी रखें।",
+    createAccount: "नए हैं? मुफ़्त अकाउंट बनाएँ",
+    liveBadge: "लाइव",
+    liveNote: "आप Manu से बात कर रहे हैं। संकट में SOS दबाएँ।",
   },
   hinglish: {
     languageLabel: "Bhasha",
@@ -81,7 +108,15 @@ export const UI: Record<
     sendLabel: "Message bhejein",
     inputLabel: "Manu ko message likhein",
     scenarioListLabel: "Baat-cheet ke topics",
+    scenarioPrompt: "Ise try karo — dekho Manu kya kehta hai",
     chatLabel: "Chat messages",
+    signInCta: "Sign in karke Manu se baat karo",
+    whatsappCta: "WhatsApp",
+    gateTitle: "Chalo baat aage badhaate hain",
+    gateBody: "Sign in karo, Manu sach mein reply karega — ya WhatsApp pe baat jaari rakho.",
+    createAccount: "Naye ho? Free account banao",
+    liveBadge: "Live",
+    liveNote: "Aap Manu se baat kar rahe ho. Crisis mein SOS dabao.",
   },
 };
 

@@ -4,7 +4,7 @@
 > files listed under *Change Impact Map* / *File Importance Ranking* for the specific
 > change you're making. Do not rescan the repo unless architecture changed.
 > Last full scan: 2026-08-27 · branch `Tarush` · 1 commit (`1b29a2d Initial commit`).
-> Renamed 2026-08-30: **mann Matters → Emoraa** (domain `emoraa.in`, cookie `emoraa_session`,
+> Renamed 2026-08-30: **mann Matters → Emoraa** (domain `emoraa.com`, with `emoraa.in` and `www.` redirecting to it, cookie `emoraa_session`,
 > booking refs `EM-`). Bookings created before the rename keep their `MM-` refs.
 > Last updated: 2026-09-04 — booking feature boundary introduced; client journey build-out (payments, reschedule, profile,
 > real availability, state coverage, security hardening). Sections revised: Tech Stack,

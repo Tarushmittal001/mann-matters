@@ -77,6 +77,49 @@ function localDigits(raw: string): string {
   return digits;
 }
 
+/* ---------------------------------------------------------------- profile */
+
+/** Under 13 can't consent to their own care; over 120 is a typo. */
+export const AGE_MIN = 13;
+export const AGE_MAX = 120;
+/** Below this, Indian law needs a parent or guardian to agree to therapy. */
+export const AGE_GUARDIAN_BELOW = 18;
+
+export const GENDER_OPTIONS = [
+  { value: "female", label: "Female" },
+  { value: "male", label: "Male" },
+  { value: "non-binary", label: "Non-binary" },
+  { value: "prefer-not-to-say", label: "Prefer not to say" },
+] as const;
+
+export const ORGANISATION_MAX = 80;
+
+export function validateAge(raw: string): string | null {
+  const age = Number(raw.trim());
+  if (!raw.trim()) return "Please tell us your age.";
+  if (!Number.isInteger(age)) return "Enter your age in whole years.";
+  if (age < AGE_MIN || age > AGE_MAX) return `Please enter an age between ${AGE_MIN} and ${AGE_MAX}.`;
+  return null;
+}
+
+export function validateGender(raw: string): string | null {
+  return GENDER_OPTIONS.some((g) => g.value === raw) ? null : "Please choose one of the options.";
+}
+
+export function validateOrganisation(raw: string): string | null {
+  return raw.trim().length > ORGANISATION_MAX
+    ? `Please keep this under ${ORGANISATION_MAX} characters.`
+    : null;
+}
+
+/** One half of a name: shorter limits than the full name, and always required. */
+export function validateNamePart(raw: string, what: "first" | "last"): string | null {
+  const value = raw.trim();
+  if (!value) return what === "first" ? "Please tell us your first name." : "Please tell us your last name.";
+  if (value.length > 40) return "Please keep this under 40 characters.";
+  return null;
+}
+
 export function validateNotes(raw: string): string | null {
   if (raw.length > NOTES_MAX) return `Please keep this under ${NOTES_MAX} characters.`;
   return null;

@@ -48,7 +48,7 @@ export default function ToolsPage() {
                         alt=""
                         fill
                         sizes="(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw"
-                        className={`object-cover ${tool.art.pos} opacity-40 transition-all duration-700 ease-silk group-hover:scale-[1.03] group-hover:opacity-55`}
+                        className={`object-cover ${tool.art.pos} opacity-40 transition duration-700 ease-silk group-hover:scale-[1.03] group-hover:opacity-55`}
                       />
                       <span
                         className="absolute inset-0"

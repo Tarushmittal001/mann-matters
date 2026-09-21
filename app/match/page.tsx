@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Reveal from "@/components/ui/Reveal";
 import TherapistMatcher from "@/components/tools/TherapistMatcher";
+import { listExperts } from "@/lib/experts-store";
 import FloatingOrbs from "@/components/ui/FloatingOrbs";
 
 export const metadata: Metadata = {
@@ -9,12 +10,13 @@ export const metadata: Metadata = {
     "Answer three quick questions about your concern, language, and budget, and we'll match you with a licensed psychologist who fits.",
 };
 
-export default function MatchPage({
+export default async function MatchPage({
   searchParams,
 }: {
   searchParams: { concern?: string };
 }) {
   const concern = searchParams?.concern;
+  const experts = await listExperts();
 
   return (
     <section className="page-top relative overflow-hidden pb-24">
@@ -33,7 +35,7 @@ export default function MatchPage({
           </p>
         </Reveal>
         <Reveal delay={0.15}>
-          <TherapistMatcher initialConcernId={concern} />
+          <TherapistMatcher initialConcernId={concern} experts={experts} />
         </Reveal>
       </div>
     </section>
