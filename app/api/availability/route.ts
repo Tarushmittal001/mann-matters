@@ -21,7 +21,7 @@ export async function GET(req: Request) {
     const expertId = url.searchParams.get("expertId") ?? "";
     const date = url.searchParams.get("date") ?? "";
 
-    const expert = expertById(expertId);
+    const expert = await expertById(expertId);
     if (!expert) return errors.notFound("We couldn't find that therapist.");
 
     const check = validateSlot(date, "08:00");

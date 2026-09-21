@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -88,12 +88,17 @@ export function Field({
   const id = useId();
   const hintId = `${id}-hint`;
   const errorId = `${id}-error`;
+  // a password box gets an eye: mistyping a password you can't see is the
+  // commonest reason a correct password "doesn't work"
+  const [shown, setShown] = useState(false);
+  const isPassword = type === "password";
 
   return (
     <Shell {...shared} id={id} hintId={hintId} errorId={errorId}>
+      <div className={isPassword ? "relative" : undefined}>
       <input
         id={id}
-        type={type}
+        type={isPassword && shown ? "text" : type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
@@ -103,8 +108,25 @@ export function Field({
         disabled={disabled}
         aria-invalid={shared.error ? true : undefined}
         aria-describedby={shared.error ? errorId : shared.hint ? hintId : undefined}
-        className={cn(base, tone(!!shared.error), shared.className)}
+        className={cn(base, tone(!!shared.error), isPassword && "pr-12", shared.className)}
       />
+      {isPassword && (
+        <button
+          type="button"
+          onClick={() => setShown((v) => !v)}
+          disabled={disabled}
+          aria-label={shown ? "Hide password" : "Show password"}
+          aria-pressed={shown}
+          className="absolute right-1 top-1/2 flex h-9 w-10 -translate-y-1/2 items-center justify-center rounded-lg text-ink/45 transition-colors hover:text-forest-800 disabled:opacity-50"
+        >
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" />
+            <circle cx="12" cy="12" r="3" />
+            {!shown && <path d="M3 3l18 18" />}
+          </svg>
+        </button>
+      )}
+      </div>
     </Shell>
   );
 }
@@ -157,7 +179,8 @@ export function Select({
 }: Shared & {
   value: string;
   onChange: (v: string) => void;
-  options: string[];
+  /** Plain strings when the text is the value, or pairs when it isn't (e.g. gender). */
+  options: readonly (string | { value: string; label: string })[];
   placeholder?: string;
   disabled?: boolean;
 }) {
@@ -177,11 +200,14 @@ export function Select({
         className={cn(base, tone(!!shared.error), "appearance-none", shared.className)}
       >
         <option value="">{placeholder ?? "Choose…"}</option>
-        {options.map((o) => (
-          <option key={o} value={o}>
-            {o}
-          </option>
-        ))}
+        {options.map((o) => {
+          const opt = typeof o === "string" ? { value: o, label: o } : o;
+          return (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          );
+        })}
       </select>
     </Shell>
   );

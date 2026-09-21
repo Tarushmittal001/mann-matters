@@ -172,7 +172,7 @@ export default function OpenHandbook({ className = "" }: { className?: string })
       });
     },
 
-    draw({ ctx, w, h, t, dt, pointer, reduced }) {
+    draw({ ctx, w, h, t, dt, pointer, reduced, quality }) {
       const st = S.current;
       const now = performance.now();
 
@@ -241,7 +241,7 @@ export default function OpenHandbook({ className = "" }: { className?: string })
       ctx.scale(1, 0.3);
       ctx.beginPath();
       ctx.fillStyle = rgba(PALETTE.forest, 0.1 + st.lift * 0.03);
-      ctx.filter = "blur(6px)";
+      ctx.filter = quality.lite ? "none" : "blur(6px)";
       ctx.arc(0, 0, unit * 1.15, 0, Math.PI * 2);
       ctx.fill();
       ctx.filter = "none";
@@ -357,7 +357,7 @@ export default function OpenHandbook({ className = "" }: { className?: string })
           ctx.beginPath();
           ctx.fillStyle = rgba(rgb, alpha * (0.75 + st.lift * 0.25));
           if (st.lift > 0.2) {
-            ctx.shadowBlur = st.lift * 10;
+            ctx.shadowBlur = quality.lite ? 0 : st.lift * 10;
             ctx.shadowColor = rgba(rgb, 0.8);
           }
           ctx.arc(p.x, p.y, 2.2, 0, Math.PI * 2);
@@ -449,7 +449,7 @@ export default function OpenHandbook({ className = "" }: { className?: string })
         ctx.beginPath();
         ctx.fillStyle = rgba(CHAPTERS[i].rgb, active ? 1 : over ? 0.85 : 0.55);
         if (active) {
-          ctx.shadowBlur = 10;
+          ctx.shadowBlur = quality.lite ? 0 : 10;
           ctx.shadowColor = rgba(CHAPTERS[i].rgb, 0.85);
         }
         ctx.arc(a.x, a.y, active ? 3.6 : 2.6, 0, Math.PI * 2);
@@ -479,7 +479,7 @@ export default function OpenHandbook({ className = "" }: { className?: string })
         const beacon = reduced ? 0.6 : Math.sin(t * 2.1) * 0.5 + 0.5;
         ctx.beginPath();
         ctx.fillStyle = rgba(PALETTE.gold, 0.5 + beacon * 0.5);
-        ctx.shadowBlur = 6 + beacon * 12;
+        ctx.shadowBlur = quality.lite ? 0 : 6 + beacon * 12;
         ctx.shadowColor = rgba(PALETTE.gold, 0.9);
         ctx.arc(end.x, end.y, 2.3 + beacon, 0, Math.PI * 2);
         ctx.fill();

@@ -44,7 +44,7 @@ export default function GlobalError({
           </h1>
           <p style={{ lineHeight: 1.7, color: "#3a4a44", marginTop: "1rem" }}>
             Nothing you&apos;ve booked or paid for is affected. Please reload — and if it keeps
-            happening, email hello@emoraa.in.
+            happening, email connect@emoraa.com.
           </p>
           <p style={{ lineHeight: 1.7, color: "#3a4a44", marginTop: "1rem" }}>
             If you need someone right now, call{" "}

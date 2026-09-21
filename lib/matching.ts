@@ -1,4 +1,4 @@
-import { experts, type Expert } from "@/lib/experts";
+import { type Expert } from "@/lib/experts";
 
 /**
  * The therapist-matching vocabulary, shared by the full matcher on /match and
@@ -36,11 +36,12 @@ export function specialisesIn(e: Expert, keys: string[]): boolean {
 }
 
 /** Everyone who works on this concern, best-rated first. */
-export function expertsFor(keys: string[]): Expert[] {
+export function expertsFor(experts: Expert[], keys: string[]): Expert[] {
   return experts.filter((e) => specialisesIn(e, keys)).sort((a, b) => b.rating - a.rating);
 }
 
 export function rank(
+  experts: Expert[],
   concernKeys: string[],
   language: string,
   budget: (p: number) => boolean

@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { experts } from "@/lib/experts";
+import { getExpert } from "@/lib/experts-store";
 import {
   bandCoversSession,
   meetingAccess,
@@ -259,7 +259,7 @@ export function isUniqueViolation(error: unknown, field?: string): boolean {
 }
 
 export function expertById(id: string) {
-  return experts.find((expert) => expert.id === id) ?? null;
+  return getExpert(id);
 }
 
 type BookingWithPayment = {

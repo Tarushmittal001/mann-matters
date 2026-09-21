@@ -69,9 +69,12 @@ function ExpertCard({ e, best }: { e: Expert; best?: boolean }) {
 
 export default function TherapistMatcher({
   initialConcernId,
+  experts,
 }: {
   /** Pre-answers step 1, for arrivals from the home-page concern picker. */
   initialConcernId?: string;
+  /** The catalogue, read from the database by the page that renders this. */
+  experts: Expert[];
 }) {
   const seeded = findConcern(initialConcernId);
   const [step, setStep] = useState(seeded ? 1 : 0);
@@ -85,7 +88,7 @@ export default function TherapistMatcher({
   };
 
   const finish = (budgetTest: (p: number) => boolean) => {
-    const ranked = rank(concern!.keys, language!, budgetTest);
+    const ranked = rank(experts, concern!.keys, language!, budgetTest);
     setResults(ranked.slice(0, 2));
     setStep(3);
   };

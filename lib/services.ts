@@ -6,6 +6,8 @@ export type Service = {
   title: string;
   shortTitle: string;
   tag: string;
+  /** One line for the card. The full description lives on the detail page. */
+  summary: string;
   description: string;
   expect: string[];
   duration: string;
@@ -22,6 +24,7 @@ export const services: Service[] = [
     title: "Psychiatry & Medication",
     shortTitle: "Psychiatry",
     tag: "with a doctor",
+    summary: "A psychiatrist to assess, prescribe and review medication, alongside therapy rather than instead of it.",
     description:
       "Some things therapy alone cannot reach. A psychiatrist can assess whether medication would help, prescribe it, and review how it is working — without treating you as a diagnosis. Many people do both: medication to make the days workable, therapy to do the actual work.",
     expect: [
@@ -44,6 +47,7 @@ export const services: Service[] = [
     title: "Individual Therapy",
     shortTitle: "Individual",
     tag: "one-on-one",
+    summary: "Fifty minutes with one psychologist, entirely about you.",
     description:
       "Fifty minutes that belong entirely to you. Whether it's anxiety that hums in the background all day, a low mood you can't name, or just the feeling that you're carrying too much — your therapist meets you where you are, without judgement and without rush.",
     expect: [
@@ -66,6 +70,7 @@ export const services: Service[] = [
     title: "Daily Life Stress",
     shortTitle: "Daily stress",
     tag: "the everyday weight",
+    summary: "For the pressure that never quite becomes a crisis. Short and practical.",
     description:
       "Nothing is wrong, exactly. The commute, the group chats, the money, the family calls, the sense of being permanently behind — none of it is a crisis, and all of it adds up. You do not need a diagnosis to deserve an hour that is about you.",
     expect: [
@@ -88,6 +93,7 @@ export const services: Service[] = [
     title: "Student & Exam Stress Support",
     shortTitle: "Students",
     tag: "for students",
+    summary: "Exams, placements and the what-next question, at a student price.",
     description:
       "Boards, JEE, NEET, CAT, placements, 'what next?' — Indian student life carries a weight most adults have forgotten. Talk to someone who understands exam pressure, family expectations, and the fear of falling behind, at a price built for a student budget.",
     expect: [
@@ -110,6 +116,7 @@ export const services: Service[] = [
     title: "Career Counselling",
     shortTitle: "Career",
     tag: "work & direction",
+    summary: "Work out what you actually want from work, and what is stopping you.",
     description:
       "The job you took because it was sensible. The degree chosen by consensus. The offer you are afraid to refuse. Career counselling here is not aptitude tests and a printout — it is working out what you actually want, and what is stopping you saying it out loud.",
     expect: [
@@ -132,6 +139,7 @@ export const services: Service[] = [
     title: "Love Life Counselling",
     shortTitle: "Love life",
     tag: "on your own",
+    summary: "Breakups, situationships and marriage pressure. One-on-one, no partner needed.",
     description:
       "For the part of your love life you are working through by yourself. A situationship going nowhere, a breakup nobody else is taking seriously, dating fatigue, a marriage being arranged around you, or wanting someone your family has not agreed to. You can come without your partner. Most people do.",
     expect: [
@@ -154,6 +162,7 @@ export const services: Service[] = [
     title: "Couples & Relationship Counseling",
     shortTitle: "Couples",
     tag: "together",
+    summary: "For when talking has turned into talking past each other.",
     description:
       "Every relationship hits stretches where talking turns into talking past each other. A trained couples counsellor holds space for both of you — partners, engaged, married, long-distance — so the conversation can finally go somewhere new.",
     expect: [
@@ -176,6 +185,7 @@ export const services: Service[] = [
     title: "Family Therapy",
     shortTitle: "Family",
     tag: "the whole room",
+    summary: "Parents, siblings, in-laws. One room, and nobody on trial.",
     description:
       "The Indian family is close, and closeness is not the same as ease. Sessions with parents, adult children, siblings or in-laws — held by someone whose job is the relationship rather than any one person's side. Nobody is put on trial, and nobody has to win.",
     expect: [
@@ -198,6 +208,7 @@ export const services: Service[] = [
     title: "LGBTQIA+ Affirmative Therapy",
     shortTitle: "LGBTQIA+",
     tag: "affirmative care",
+    summary: "Affirmative care where your identity is the starting point, never the problem.",
     description:
       "Therapy where your identity is the starting point, not the thing being examined. With counsellors trained in affirmative practice — who will never treat being queer or trans as the problem to be solved, and who know what coming out costs in an Indian family.",
     expect: [
@@ -220,6 +231,7 @@ export const services: Service[] = [
     title: "Group Sessions",
     shortTitle: "Groups",
     tag: "in good company",
+    summary: "Small therapist-led circles of six to eight. The most affordable way in.",
     description:
       "Some things are easier to say among people who get it. Small, therapist-led circles — six to eight people, one shared theme — on grief, anxiety, new parenthood, or starting over. You can just listen for the first few sessions. Many do.",
     expect: [
@@ -237,20 +249,6 @@ export const services: Service[] = [
       "A small group sitting together in a bright room, mid-conversation",
   },
 ];
-
-export const comparison = {
-  columns: ["Individual", "Couples", "Students", "Groups"],
-  rows: [
-    { label: "Session length", values: ["50 min", "60 min", "45 min", "90 min"] },
-    { label: "Starting price", values: ["₹999", "₹1,499", "₹599", "₹399"] },
-    { label: "Licensed psychologist", values: [true, true, true, true] },
-    { label: "Same therapist every time", values: [true, true, true, true] },
-    { label: "Evening & weekend slots", values: [true, true, true, false] },
-    { label: "Sessions in 2+ languages", values: [true, true, true, false] },
-    { label: "Between-session practices", values: [true, true, true, false] },
-    { label: "Free reschedule (24h notice)", values: [true, true, true, true] },
-  ],
-};
 
 /**
  * How a first session actually happens, start to finish. Same shape as

@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import Portal from "@/components/ui/Portal";
+import type { Expert } from "@/lib/experts";
 import Button from "@/components/ui/Button";
 import {
   CONTEXTS,
@@ -63,7 +65,15 @@ const emptyAnswers = (): Record<ScaleId, (number | null)[]> => ({
   stress: Array(SCALES[2].items.length).fill(null),
 });
 
-export default function SelfCheck({ open, onClose }: { open: boolean; onClose: () => void }) {
+export default function SelfCheck({
+  open,
+  onClose,
+  experts,
+}: {
+  open: boolean;
+  onClose: () => void;
+  experts: Expert[];
+}) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -148,7 +158,7 @@ export default function SelfCheck({ open, onClose }: { open: boolean; onClose: (
   );
 
   const result = useMemo(
-    () => (step === RESULT_STEP ? recommend(answers, context) : null),
+    () => (step === RESULT_STEP ? recommend(answers, context, experts) : null),
     [step, answers, context]
   );
 
@@ -168,9 +178,10 @@ export default function SelfCheck({ open, onClose }: { open: boolean; onClose: (
     step === 0 ? 0 : step > CONTEXT_STEP ? 100 : ((step - 1) / QUESTIONS.length) * 100;
 
   return (
+    <Portal>
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-[70] flex items-end justify-center sm:items-center">
+        <div className="fixed inset-0 z-[80] flex items-end justify-center sm:items-center">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -226,7 +237,7 @@ export default function SelfCheck({ open, onClose }: { open: boolean; onClose: (
             {step >= 1 && step <= CONTEXT_STEP && (
               <div className="h-[3px] w-full bg-forest-800/10" aria-hidden="true">
                 <div
-                  className="h-full transition-all duration-500 ease-silk"
+                  className="h-full transition duration-500 ease-silk"
                   style={{
                     width: `${progress}%`,
                     // the bar wears the colour of the screener being answered
@@ -237,7 +248,7 @@ export default function SelfCheck({ open, onClose }: { open: boolean; onClose: (
             )}
 
             {/* ── body ─────────────────────────────────────────────── */}
-            <div ref={bodyRef} className="flex-1 overflow-y-auto px-7 py-8 md:px-9 md:py-10">
+            <div ref={bodyRef} className="flex-1 overflow-y-auto overscroll-contain px-7 py-8 md:px-9 md:py-10">
               {/* intro */}
               {step === 0 && (
                 <div>
@@ -290,7 +301,7 @@ export default function SelfCheck({ open, onClose }: { open: boolean; onClose: (
                               aria-pressed={active}
                               onClick={() => answer(choice.value)}
                               className={cn(
-                                "flex w-full items-center gap-3.5 rounded-xl border px-5 py-3.5 text-left text-[0.95rem] font-medium transition-all duration-300 ease-silk",
+                                "flex w-full items-center gap-3.5 rounded-xl border px-5 py-3.5 text-left text-[0.95rem] font-medium transition duration-300 ease-silk",
                                 active
                                   ? "border-forest-800 bg-forest-800 text-ivory"
                                   : "border-forest-800/15 text-ink/80 hover:border-forest-800/45 hover:bg-forest-800/[0.03]"
@@ -337,7 +348,7 @@ export default function SelfCheck({ open, onClose }: { open: boolean; onClose: (
                           advanceRef.current = window.setTimeout(() => setStep(RESULT_STEP), 240);
                         }}
                         className={cn(
-                          "block w-full rounded-xl border px-5 py-3.5 text-left text-[0.93rem] leading-snug transition-all duration-300 ease-silk",
+                          "block w-full rounded-xl border px-5 py-3.5 text-left text-[0.93rem] leading-snug transition duration-300 ease-silk",
                           context === c.id
                             ? "border-forest-800 bg-forest-800 text-ivory"
                             : "border-forest-800/15 text-ink/75 hover:border-forest-800/40 hover:bg-forest-800/[0.03]"
@@ -486,7 +497,7 @@ export default function SelfCheck({ open, onClose }: { open: boolean; onClose: (
                           </div>
                           <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-forest-800/10">
                             <div
-                              className="h-full rounded-full transition-all duration-700 ease-silk"
+                              className="h-full rounded-full transition duration-700 ease-silk"
                               style={{ width: `${r.percent}%`, background: regionForScale(r.scale.id).hex }}
                             />
                           </div>
@@ -554,5 +565,6 @@ export default function SelfCheck({ open, onClose }: { open: boolean; onClose: (
         </div>
       )}
     </AnimatePresence>
+    </Portal>
   );
 }

@@ -124,7 +124,7 @@ export default function SlotPicker({
                   aria-checked={selected}
                   onClick={() => pickDate(d.iso)}
                   className={cn(
-                    "relative flex w-[72px] shrink-0 flex-col items-center rounded-2xl border py-4 transition-all duration-300 ease-silk",
+                    "press relative flex w-[72px] shrink-0 flex-col items-center rounded-2xl border py-4 transition duration-300 ease-silk",
                     selected
                       ? "border-forest-800 bg-forest-800 text-ivory shadow-bloom"
                       : "border-forest-800/15 bg-ivory-light text-ink/70 hover:border-forest-800/40"
@@ -239,7 +239,7 @@ export default function SlotPicker({
                                   : `${time} — already booked`
                             }
                             className={cn(
-                              "rounded-full border px-5 py-2.5 text-sm font-medium transition-all duration-300 ease-silk",
+                              "press rounded-full border px-5 py-2.5 text-sm font-medium transition duration-300 ease-silk",
                               isCurrent && "border-gold/60 bg-gold/15 text-forest-800",
                               !available &&
                                 !isCurrent &&

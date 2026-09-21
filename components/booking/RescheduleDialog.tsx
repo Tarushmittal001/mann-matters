@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
+import Portal from "@/components/ui/Portal";
 import Button from "@/components/ui/Button";
 import { Alert, Spinner } from "@/components/ui/Feedback";
 import SlotPicker, { type SlotSelection } from "@/components/booking/SlotPicker";
@@ -103,10 +104,11 @@ export default function RescheduleDialog({ booking }: { booking: SerializedBooki
         Reschedule
       </button>
 
+      <Portal>
       <AnimatePresence>
         {open && (
           <motion.div
-            className="fixed inset-0 z-[70] flex items-end justify-center bg-forest-950/40 p-0 backdrop-blur-sm sm:items-center sm:p-6"
+            className="fixed inset-0 z-[80] flex items-end justify-center bg-forest-950/40 p-0 backdrop-blur-sm sm:items-center sm:p-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -185,6 +187,7 @@ export default function RescheduleDialog({ booking }: { booking: SerializedBooki
           </motion.div>
         )}
       </AnimatePresence>
+      </Portal>
     </>
   );
 }

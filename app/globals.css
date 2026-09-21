@@ -119,8 +119,24 @@
     background: rgba(14, 59, 51, 0.5);
   }
 
+  /*
+   * The house hover: a small lift and a softer shadow, and a press on tap.
+   *
+   * `transition-all` used to animate every property including colours and
+   * layout, which is what makes a hover feel slightly gummy. Transform and
+   * shadow are the two the browser can do without re-laying-out the page.
+   */
   .card-lift {
-    @apply transition-all duration-500 ease-silk hover:-translate-y-1.5 hover:shadow-bloom;
+    @apply transition-[transform,box-shadow] duration-300 ease-silk hover:-translate-y-1 hover:shadow-bloom;
+  }
+
+  .card-lift:active {
+    @apply translate-y-0 scale-[0.995];
+  }
+
+  /* the same answer for anything tappable that isn't a <Button> */
+  .press {
+    @apply transition-transform duration-200 ease-silk active:scale-[0.97];
   }
 
   /* long-form article typography */
@@ -160,5 +176,22 @@
   .animate-pulse-soft,
   .animate-ping {
     animation: none !important;
+  }
+
+  /* nothing should travel for someone who asked for stillness: colour and
+     shadow still answer the pointer, movement doesn't */
+  .card-lift,
+  .press {
+    transition-property: box-shadow, background-color, border-color, color;
+  }
+
+  .card-lift:hover,
+  .card-lift:active,
+  .press:active {
+    transform: none !important;
+  }
+
+  html {
+    scroll-behavior: auto !important;
   }
 }

@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { getSession, type Session } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { concerns, experts, type Expert } from "@/lib/experts";
+import { concerns, type Expert } from "@/lib/experts";
+import { getExpert } from "@/lib/experts-store";
 import { addMinutes, clinicNow } from "@/lib/clinic-time";
 import {
   displayName,
@@ -158,7 +159,7 @@ export async function getExpertContext(): Promise<
     state: "ok",
     session,
     profile: toProfileView(profile),
-    listing: experts.find((e) => e.id === profile.expertId) ?? null,
+    listing: await getExpert(profile.expertId),
     today: date,
     nowTime: time,
   };

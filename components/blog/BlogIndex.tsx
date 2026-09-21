@@ -29,7 +29,7 @@ function PostCard({ post }: { post: Post }) {
           className="aspect-[3/2] w-full transition-transform duration-700 ease-silk group-hover:scale-[1.05]"
         />
         <span
-          className="absolute inset-x-0 bottom-0 h-[3px] w-0 bg-gold transition-all duration-700 ease-silk group-hover:w-full"
+          className="absolute inset-x-0 bottom-0 h-[3px] origin-left scale-x-0 bg-gold transition-transform duration-500 ease-silk group-hover:scale-x-100"
           aria-hidden="true"
         />
       </div>

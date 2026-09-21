@@ -10,7 +10,14 @@ export type Expert = {
   photo: string;
 };
 
-export const experts: Expert[] = [
+/**
+ * The six therapists the site launched with.
+ *
+ * The live catalogue now lives in the database (lib/experts-store.ts) so an
+ * admin can edit it; this list is only the seed for a database that has none
+ * yet, and the shape the rest of the site codes against.
+ */
+export const seedExperts: Expert[] = [
   {
     id: "ananya-iyer",
     name: "Ananya Iyer",
@@ -31,7 +38,7 @@ export const experts: Expert[] = [
     languages: ["English", "Hindi", "Gujarati"],
     specialties: ["Relationships", "Couples therapy", "Grief"],
     price: 1499,
-    rating: 4.8,
+    rating: 4.9,
     photo:
       "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=600&q=80",
   },
@@ -55,7 +62,7 @@ export const experts: Expert[] = [
     languages: ["English", "Hindi", "Marathi"],
     specialties: ["Career anxiety", "Burnout", "Life transitions"],
     price: 999,
-    rating: 4.7,
+    rating: 4.8,
     photo:
       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80",
   },
@@ -79,7 +86,7 @@ export const experts: Expert[] = [
     languages: ["English", "Malayalam", "Hindi"],
     specialties: ["Sleep", "Anxiety", "Mindfulness-based therapy"],
     price: 849,
-    rating: 4.8,
+    rating: 4.9,
     photo:
       "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80",
   },

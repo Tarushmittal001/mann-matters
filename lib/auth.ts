@@ -59,10 +59,15 @@ export async function getSession(): Promise<Session | null> {
     if (!payload.sub) return null;
     const user = await prisma.user.findUnique({
       where: { id: payload.sub },
-      select: { id: true, name: true, email: true, role: true },
+      select: { id: true, name: true, email: true, role: true, passwordChangedAt: true },
     });
     if (!user || (user.role !== "USER" && user.role !== "EXPERT" && user.role !== "ADMIN")) {
       return null;
+    }
+    // a password reset ends every session minted before it, so a stolen laptop
+    // or a shared browser can't keep the old cookie alive
+    if (user.passwordChangedAt && typeof payload.iat === "number") {
+      if (payload.iat < Math.floor(user.passwordChangedAt.getTime() / 1000)) return null;
     }
     return {
       sub: user.id,

@@ -167,7 +167,7 @@ export default function TheRoom({ className = "" }: { className?: string }) {
       });
     },
 
-    draw({ ctx, w, h, t, dt, pointer, reduced }) {
+    draw({ ctx, w, h, t, dt, pointer, reduced, quality }) {
       const st = S.current;
       const now = performance.now();
 
@@ -270,7 +270,7 @@ export default function TheRoom({ className = "" }: { className?: string }) {
           const glow = reduced ? 0.6 : Math.sin(t * 1.7) * 0.2 + 0.7;
           ctx.beginPath();
           ctx.fillStyle = rgba(PALETTE.gold, 0.35 * glow * propAlpha);
-          ctx.filter = "blur(7px)";
+          ctx.filter = quality.lite ? "none" : "blur(7px)";
           ctx.arc(shade.x, shade.y + 5, 17, 0, Math.PI * 2);
           ctx.fill();
           ctx.filter = "none";
@@ -367,7 +367,7 @@ export default function TheRoom({ className = "" }: { className?: string }) {
         ctx.scale(1, 0.42);
         ctx.beginPath();
         ctx.fillStyle = rgba(PALETTE.forest, 0.13 * s.on);
-        ctx.filter = "blur(4px)";
+        ctx.filter = quality.lite ? "none" : "blur(4px)";
         ctx.arc(0, 0, SEAT * unit * 1.15, 0, Math.PI * 2);
         ctx.fill();
         ctx.filter = "none";
@@ -414,7 +414,7 @@ export default function TheRoom({ className = "" }: { className?: string }) {
         ctx.beginPath();
         ctx.fillStyle = rgba(mix(rgb, [255, 255, 255], glow * 0.3), 0.7 * s.on + glow * 0.3);
         if (near) {
-          ctx.shadowBlur = 12;
+          ctx.shadowBlur = quality.lite ? 0 : 12;
           ctx.shadowColor = rgba(rgb, 0.9);
         }
         ctx.arc(top.x, top.y, 2.3 + glow * 1.2, 0, Math.PI * 2);
@@ -435,7 +435,7 @@ export default function TheRoom({ className = "" }: { className?: string }) {
         ctx.beginPath();
         ctx.fillStyle = rgba(c, active ? 1 : hot ? 0.8 : 0.4);
         if (active) {
-          ctx.shadowBlur = 10;
+          ctx.shadowBlur = quality.lite ? 0 : 10;
           ctx.shadowColor = rgba(c, 0.85);
         }
         ctx.arc(mx, baseY, active ? 4 : 2.6, 0, Math.PI * 2);

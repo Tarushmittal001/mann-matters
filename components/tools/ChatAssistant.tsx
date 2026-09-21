@@ -161,7 +161,7 @@ export default function ChatAssistant() {
         onClick={() => setOpen((o) => !o)}
         aria-label={open ? "Close chat" : "Open chat assistant"}
         aria-expanded={open}
-        className="flex h-14 w-14 items-center justify-center rounded-full bg-forest-800 text-ivory shadow-bloom transition-all duration-300 ease-silk hover:-translate-y-1 hover:bg-forest-700"
+        className="flex h-14 w-14 items-center justify-center rounded-full bg-forest-800 text-ivory shadow-bloom transition duration-300 ease-silk hover:-translate-y-1 hover:bg-forest-700"
       >
         <AnimatePresence mode="wait">
           {open ? (

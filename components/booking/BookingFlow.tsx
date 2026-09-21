@@ -8,10 +8,12 @@ import Button from "@/components/ui/Button";
 import { Alert, CrisisLine, Spinner } from "@/components/ui/Feedback";
 import SlotPicker, { type SlotSelection } from "@/components/booking/SlotPicker";
 import PaymentPanel from "@/components/booking/PaymentPanel";
-import { concerns, experts, type ConcernId, type Expert } from "@/lib/experts";
+import { concerns, type ConcernId, type Expert } from "@/lib/experts";
 import { findConcern, specialisesIn } from "@/lib/matching";
 import { changePolicyNote, HOLD_MINUTES } from "@/lib/features/booking/policy";
 import { cn, formatINR } from "@/lib/utils";
+import Price from "@/components/ui/Price";
+import { standardPrice } from "@/lib/pricing";
 import type { SerializedBooking } from "@/lib/features/booking/server";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -38,6 +40,8 @@ function Stars({ rating }: { rating: number }) {
  */
 export default function BookingFlow({
   authenticated,
+  /** The catalogue, read from the database by the page that renders this. */
+  experts,
   /** Pre-chosen from a "Book with …" link — the self-check suggests
    *  therapists, and arriving here should not make you find them again. */
   initialExpert,
@@ -47,6 +51,7 @@ export default function BookingFlow({
   proBono = null,
 }: {
   authenticated: boolean;
+  experts: Expert[];
   initialExpert?: Expert | null;
   freeIntent?: boolean;
   proBono?: "eligible" | "needs-phone" | "used" | null;
@@ -499,11 +504,16 @@ export default function BookingFlow({
                           ))}
                         </span>
                         <span className="mt-2.5 block text-[0.82rem] text-ink/60">
-                          {e.languages.join(" · ")} ·{" "}
-                          <span className="font-semibold text-forest-800">
-                            {formatINR(e.price)}
-                          </span>
-                          /session
+                          {e.languages.join(" · ")}
+                        </span>
+                        <span className="mt-1.5 block">
+                          <Price
+                            amount={e.price}
+                            standard={standardPrice("expert", e.id, e.price)}
+                            note="per session"
+                            size="sm"
+                            showBadge={false}
+                          />
                         </span>
                       </span>
                     </button>
@@ -602,7 +612,7 @@ export default function BookingFlow({
                     </div>
                     <div className="flex justify-between gap-4 border-t border-forest-800/10 pt-4">
                       <dt className="text-ink/55">Session fee</dt>
-                      <dd className="font-display text-xl font-medium text-forest-900">
+                      <dd className="text-right font-display text-xl font-medium text-forest-900">
                         {free ? (
                           <>
                             <s className="mr-2 text-base font-normal text-ink/35">
@@ -611,7 +621,11 @@ export default function BookingFlow({
                             Free
                           </>
                         ) : (
-                          formatINR(expert.price)
+                          <Price
+                            amount={expert.price}
+                            standard={standardPrice("expert", expert.id, expert.price)}
+                            className="items-end"
+                          />
                         )}
                       </dd>
                     </div>

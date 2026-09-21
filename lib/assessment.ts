@@ -229,7 +229,9 @@ const svc = (slug: string): Service =>
 
 export function recommend(
   answers: Record<ScaleId, (number | null)[]>,
-  contextId: string | null
+  contextId: string | null,
+  /** The catalogue, so a suggestion can only name therapists who are listed. */
+  catalogue: Expert[]
 ): Recommendation {
   const results = SCALES.map((s) => scoreScale(s, answers[s.id] ?? []));
   const by = (id: ScaleId) => results.find((r) => r.scale.id === id)!;
@@ -277,7 +279,7 @@ export function recommend(
         : "stress";
   const concernId = context?.concern ?? (loudest === "mood" ? "depression" : loudest === "stress" ? "stress" : "anxiety");
   const keys = concernMap.find((c) => c.id === concernId)?.keys ?? ["anxiety"];
-  const experts = rank(keys, "Any language", () => true).slice(0, 2);
+  const experts = rank(catalogue, keys, "Any language", () => true).slice(0, 2);
 
   return { results, service, because, alternative, clinical, experts };
 }

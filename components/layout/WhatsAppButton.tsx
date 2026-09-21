@@ -4,7 +4,7 @@ export default function WhatsAppButton() {
   return (
     <div className="support-launcher group fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-50 sm:bottom-6 sm:right-6">
       <span
-        className="pointer-events-none absolute right-full top-1/2 mr-3 hidden -translate-y-1/2 whitespace-nowrap rounded-full bg-forest-900 px-4 py-2 text-sm font-medium text-ivory opacity-0 shadow-lift transition-all duration-300 ease-silk group-hover:-translate-x-1 group-hover:opacity-100 sm:block"
+        className="pointer-events-none absolute right-full top-1/2 mr-3 hidden -translate-y-1/2 whitespace-nowrap rounded-full bg-forest-900 px-4 py-2 text-sm font-medium text-ivory opacity-0 shadow-lift transition duration-300 ease-silk group-hover:-translate-x-1 group-hover:opacity-100 sm:block"
         role="tooltip"
       >
         Talk to Manu

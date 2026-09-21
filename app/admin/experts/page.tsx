@@ -1,21 +1,56 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import { experts } from "@/lib/experts";
-import { formatINR } from "@/lib/utils";
+import { prisma } from "@/lib/db";
+import { listAllExperts } from "@/lib/experts-store";
+import ExpertManager, { type ExpertRow } from "@/components/admin/ExpertManager";
 
-export const metadata: Metadata = { title: "Experts | Admin" };
+export const metadata: Metadata = { title: "Experts | Admin", robots: { index: false, follow: false } };
+export const dynamic = "force-dynamic";
 
-export default function AdminExpertsPage() {
+const parseList = (raw: string): string[] => {
+  try {
+    const v = JSON.parse(raw);
+    return Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [];
+  } catch {
+    return [];
+  }
+};
+
+export default async function AdminExpertsPage() {
+  const experts = await listAllExperts();
+
+  // how many sessions each listing carries, so the page can say what deleting
+  // would throw away before anyone tries it
+  const counts = await prisma.booking.groupBy({ by: ["expertId"], _count: { _all: true } });
+  const bookingsBySlug = new Map(counts.map((c) => [c.expertId, c._count._all]));
+
+  const rows: ExpertRow[] = experts.map((e) => ({
+    id: e.id,
+    slug: e.slug,
+    name: e.name,
+    credentials: e.credentials,
+    experienceYears: e.experienceYears,
+    languages: parseList(e.languages),
+    specialties: parseList(e.specialties),
+    price: e.price,
+    rating: e.rating,
+    photo: e.photo,
+    bio: e.bio,
+    status: e.status,
+    sortOrder: e.sortOrder,
+    bookings: bookingsBySlug.get(e.slug) ?? 0,
+  }));
+
   return (
     <main className="wrap-wide pb-28">
       <p className="eyebrow">provider directory</p>
       <h1 className="h-display mt-3 text-4xl md:text-5xl">Experts</h1>
-      <p className="mt-4 max-w-xl text-ink/65">The current expert catalogue used by matching and booking. Profile editing and therapist accounts are planned next.</p>
-      <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {experts.map((expert) => (
-          <article key={expert.id} className="overflow-hidden rounded-2xl border border-forest-800/10 bg-ivory-light shadow-lift"><div className="flex gap-4 p-5"><Image src={expert.photo} alt={`Portrait of ${expert.name}`} width={96} height={96} className="h-20 w-20 shrink-0 rounded-xl object-cover" /><div className="min-w-0"><h2 className="font-display text-xl font-medium text-forest-900">{expert.name}</h2><p className="mt-1 text-xs leading-relaxed text-ink/60">{expert.credentials}</p><p className="mt-2 text-sm font-semibold text-forest-800">{formatINR(expert.price)} / session</p></div></div><div className="border-t border-forest-800/10 px-5 py-4"><p className="text-sm text-ink/65">{expert.experience} · {expert.languages.join(" · ")}</p><div className="mt-3 flex flex-wrap gap-1.5">{expert.specialties.map((specialty) => <span key={specialty} className="rounded-full bg-sage-light/70 px-2.5 py-1 text-xs font-medium text-forest-800">{specialty}</span>)}</div></div></article>
-        ))}
-      </div>
+      <p className="mt-4 max-w-2xl text-ink/65">
+        The therapists behind matching, booking and every card on the site. Changes here are live
+        immediately. Hiding takes someone off the site while their sessions and notes stay intact —
+        that is the safe way to retire a listing.
+      </p>
+
+      <ExpertManager rows={rows} />
     </main>
   );
 }
