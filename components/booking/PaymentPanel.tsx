@@ -219,7 +219,7 @@ export default function PaymentPanel({
                 setPhase("idle");
               }}
               className={cn(
-                "rounded-2xl border px-5 py-3 text-left transition-all duration-300 ease-silk disabled:opacity-60",
+                "rounded-2xl border px-5 py-3 text-left transition duration-300 ease-silk disabled:opacity-60",
                 method === m.id
                   ? "border-gold bg-gold/10 shadow-lift"
                   : "border-forest-800/15 bg-ivory-light hover:border-forest-800/40"

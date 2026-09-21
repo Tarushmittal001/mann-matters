@@ -11,7 +11,7 @@ import { Alert } from "@/components/ui/Feedback";
 import { useNow } from "@/components/ui/useNow";
 import { addMinutes, formatClinicTime, humanGap } from "@/lib/clinic-time";
 import { JOIN_OPENS_MINUTES_BEFORE, meetingAccess } from "@/lib/expert-portal";
-import { concerns, experts } from "@/lib/experts";
+import { concerns, type Expert } from "@/lib/experts";
 import {
   BOOKING_STATUS,
   PAYMENT_STATUS,
@@ -158,16 +158,19 @@ export default function BookingCard({
   booking,
   upcoming,
   serverNow,
+  experts,
 }: {
   booking: SerializedBooking;
   upcoming: boolean;
+  /** The catalogue, so the card can show the therapist's photo. */
+  experts?: Expert[];
   /** The server's instant, so the join countdown starts without a hydration mismatch. */
   serverNow: string;
 }) {
   const router = useRouter();
   const [paying, setPaying] = useState(false);
 
-  const expert = experts.find((e) => e.id === booking.expertId);
+  const expert = experts?.find((e) => e.id === booking.expertId) ?? null;
   const concern = concerns.find((c) => c.id === booking.concern);
   const tone = toneOf(booking);
   const chip = chips[tone];

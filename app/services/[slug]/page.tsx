@@ -8,7 +8,9 @@ import Reveal from "@/components/ui/Reveal";
 import { serviceDetails } from "@/lib/service-details";
 import { services } from "@/lib/services";
 import { site } from "@/lib/site";
-import { formatINR } from "@/lib/utils";
+import Price from "@/components/ui/Price";
+import { standardPrice } from "@/lib/pricing";
+import { regionFor } from "@/lib/palette";
 
 export function generateStaticParams() {
   return services.map((service) => ({ slug: service.slug }));
@@ -55,15 +57,41 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
             <p className="eyebrow mb-4 mt-8">{service.tag}</p>
             <h1 className="h-display text-4xl md:text-6xl">{service.title}</h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink/70">{detail.introduction}</p>
-            <div className="mt-8 flex flex-wrap items-center gap-5">
+            <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
               <Button href="/book" variant="gold">Book a session</Button>
-              <span className="text-sm text-ink/55">
-                {service.duration} · {service.price ? `${formatINR(service.price)} ${service.priceNote}` : service.priceNote}
-              </span>
+              <Price
+                amount={service.price}
+                standard={standardPrice("service", service.slug, service.price)}
+                note={`${service.duration} · ${service.priceNote}`}
+              />
             </div>
           </Reveal>
           <Reveal from="right">
             <Image src={service.image} alt={service.imageAlt} width={1200} height={900} priority className="aspect-[4/3] w-full rounded-3xl object-cover shadow-bloom" />
+          </Reveal>
+        </div>
+      </section>
+
+      {/* What a session includes. These four lines used to sit on every card
+          on /services; the grid is now a short menu, so they live here, on the
+          page someone opens once they are actually weighing this service. The
+          dots wear the same brain-region colour as the service card. */}
+      <section className="border-y border-forest-800/10 bg-ivory-light py-10 md:py-12">
+        <div className="wrap-wide">
+          <Reveal>
+            <p className="eyebrow">what you get</p>
+            <ul className="mt-6 grid gap-x-10 gap-y-4 sm:grid-cols-2">
+              {service.expect.map((item) => (
+                <li key={item} className="flex gap-3 leading-relaxed text-ink/75">
+                  <span
+                    className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full"
+                    style={{ background: regionFor(service.slug).hex }}
+                    aria-hidden="true"
+                  />
+                  {item}
+                </li>
+              ))}
+            </ul>
           </Reveal>
         </div>
       </section>

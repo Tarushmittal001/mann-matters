@@ -80,8 +80,6 @@ export default function NotificationForm({
     const result = await send<{ message?: string }>("/api/expert/notifications", "PATCH", {
       reminder: draft.reminder,
       reminderLeadMinutes: draft.reminderLeadMinutes,
-      weeklyDigest: draft.weeklyDigest,
-      productUpdates: draft.productUpdates,
       channel: draft.channel,
       quietHoursEnabled: draft.quietHoursEnabled,
       quietHoursStart: draft.quietHoursStart,
@@ -148,18 +146,6 @@ export default function NotificationForm({
             onChange={(v) => set("reminder", v)}
             label="Remind me before each session"
             hint="One nudge with the client's first name and the join link."
-          />
-          <Toggle
-            checked={draft.weeklyDigest}
-            onChange={(v) => set("weeklyDigest", v)}
-            label="Weekly summary on Monday morning"
-            hint="Sessions booked, completed and no-shows for the week just gone."
-          />
-          <Toggle
-            checked={draft.productUpdates}
-            onChange={(v) => set("productUpdates", v)}
-            label="Practice and product updates"
-            hint="Occasional notes about new tools and clinical resources. Never marketing to your clients."
           />
         </div>
 

@@ -1,8 +1,9 @@
 export const site = {
   name: "Emoraa",
-  tagline: "Your mind matters.",
-  url: "https://emoraa.in",
-  email: "hello@emoraa.in",
+  tagline: "Better days begin.",
+  // the one canonical address; emoraa.in and www. redirect here (next.config.mjs)
+  url: "https://emoraa.com",
+  email: "connect@emoraa.com",
   phone: "+91 90270 44817",
   whatsapp:
     "https://wa.me/919027044817?text=Hi%20Emoraa%2C%20I%27d%20like%20to%20book%20a%20session",
@@ -82,6 +83,7 @@ export const helplines: Helpline[] = [
   },
 ];
 
+/** Every page in the top navigation, in order. The footer lists all of them. */
 export const navLinks = [
   { href: "/services", label: "Services" },
   { href: "/for-organisations", label: "For institutions" },
@@ -89,6 +91,25 @@ export const navLinks = [
   { href: "/about", label: "About" },
   { href: "/made-in-india", label: "Made in India" },
   { href: "/contact", label: "Contact" },
+];
+
+/**
+ * What the navbar shows outright: the two things people arrive wanting, next to
+ * the free tools and the booking button. Everything else moved into "More" —
+ * seven equal links read as a wall, and the ones that matter got lost in it.
+ */
+export const primaryNav = [
+  { href: "/services", label: "Services" },
+  { href: "/for-organisations", label: "For institutions" },
+  { href: "/blog", label: "Blog" },
+];
+
+/** The rest, behind "More": read when someone is deciding, not when booking. */
+export const moreNav = [
+  { href: "/about", label: "About", desc: "Who we are, and why we built this" },
+  { href: "/made-in-india", label: "Made in India", desc: "Built here, for here" },
+  { href: "/contact", label: "Contact", desc: "Talk to a real person" },
+  { href: "/crisis", label: "Crisis support", desc: "Helplines, free and 24x7" },
 ];
 
 export const toolLinks = [
@@ -106,8 +127,8 @@ export const toolLinks = [
 ];
 
 export const stats = [
-  { value: 12000, suffix: "+", label: "sessions delivered" },
-  { value: 60, suffix: "+", label: "certified psychologists" },
+  { value: 100, suffix: "+", label: "sessions delivered" },
+  { value: 5, suffix: "+", label: "certified psychologists" },
   { value: 2, suffix: "+", label: "languages" },
   { value: 4.9, suffix: "/5", label: "average session rating", decimals: 1 },
 ];

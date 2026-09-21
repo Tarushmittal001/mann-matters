@@ -423,9 +423,9 @@ export const posts: Post[] = [
       "Language is one part of fit alongside trust, therapeutic approach, experience, availability, and cost.",
     ],
     tool: {
-      href: "/therapy/hindi",
-      label: "Explore therapy in Hindi",
-      note: "Meet psychologists who list Hindi and learn how online sessions work.",
+      href: "/match",
+      label: "Find a therapist who speaks your language",
+      note: "Three questions, and we'll suggest psychologists who work in the language you think in.",
     },
     content: [
       { type: "p", text: "You can explain a difficult week in polished English and still feel that the real thing never entered the room. Then one Hindi phrase slips out — the one your family uses, the one that carries twenty years of context — and suddenly the conversation is closer to the truth." },

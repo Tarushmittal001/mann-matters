@@ -11,14 +11,26 @@ export function hasSmsProvider() {
   return !!twilioConfig();
 }
 
-export async function sendSignInOtp(phone: string, code: string): Promise<SmsResult> {
+export function sendSignInOtp(phone: string, code: string): Promise<SmsResult> {
+  return sendSms(phone, `${code} is your Emoraa sign-in code. It expires in 5 minutes. Do not share it.`);
+}
+
+/** Proves a number typed into a form (e.g. a program enquiry) belongs to the sender. */
+export function sendVerificationSms(phone: string, code: string): Promise<SmsResult> {
+  return sendSms(
+    phone,
+    `${code} is your Emoraa verification code. It expires in 10 minutes. If you didn't request it, ignore this message.`
+  );
+}
+
+async function sendSms(phone: string, text: string): Promise<SmsResult> {
   const config = twilioConfig();
   if (!config) return { sent: false, reason: "SMS delivery is not configured." };
 
   const body = new URLSearchParams({
     To: phone,
     From: config.from,
-    Body: `${code} is your Emoraa sign-in code. It expires in 5 minutes. Do not share it.`,
+    Body: text,
   });
   const response = await fetch(
     `https://api.twilio.com/2010-04-01/Accounts/${config.accountSid}/Messages.json`,

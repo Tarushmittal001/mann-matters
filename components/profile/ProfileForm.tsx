@@ -7,18 +7,27 @@ import { Field, Select, TextArea } from "@/components/ui/Field";
 import { Alert, Spinner } from "@/components/ui/Feedback";
 import { languageOpts } from "@/lib/matching";
 import {
+  AGE_GUARDIAN_BELOW,
+  GENDER_OPTIONS,
   NOTES_MAX,
+  ORGANISATION_MAX,
   OTP_LENGTH,
   collect,
   hasErrors,
+  validateAge,
+  validateGender,
   validateName,
   validateNotes,
+  validateOrganisation,
   validateOtp,
   validatePhone,
 } from "@/lib/validation";
 
 export type Profile = {
   name: string;
+  age: string;
+  gender: string;
+  organisation: string;
   email: string;
   phone: string;
   phoneVerified: boolean;
@@ -31,6 +40,9 @@ export type Profile = {
 export default function ProfileForm({ initial }: { initial: Profile }) {
   const router = useRouter();
   const [name, setName] = useState(initial.name);
+  const [age, setAge] = useState(initial.age);
+  const [gender, setGender] = useState(initial.gender);
+  const [organisation, setOrganisation] = useState(initial.organisation);
   const [phone, setPhone] = useState(initial.phone);
   const [savedPhone, setSavedPhone] = useState(initial.phone);
   const [phoneVerified, setPhoneVerified] = useState(initial.phoneVerified);
@@ -48,6 +60,9 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
 
   const dirty =
     name !== initial.name ||
+    age !== initial.age ||
+    gender !== initial.gender ||
+    organisation !== initial.organisation ||
     phone !== initial.phone ||
     language !== initial.language ||
     notes !== initial.notes;
@@ -57,6 +72,9 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
 
     const local = collect([
       ["name", validateName(name)],
+      ["age", validateAge(age)],
+      ["gender", validateGender(gender)],
+      ["organisation", validateOrganisation(organisation)],
       ["phone", validatePhone(phone)],
       ["notes", validateNotes(notes)],
     ]);
@@ -70,7 +88,7 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
       const res = await fetch("/api/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, language, notes }),
+        body: JSON.stringify({ name, age, gender, organisation, phone, language, notes }),
       });
       const data = await res.json().catch(() => ({}));
 
@@ -171,6 +189,45 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
         disabled={busy}
         error={fields.name}
         hint="What your therapist will call you."
+      />
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field
+          label="Age"
+          required
+          inputMode="numeric"
+          value={age}
+          onChange={(v) => setAge(v.replace(/\D/g, "").slice(0, 3))}
+          disabled={busy}
+          error={fields.age}
+        />
+        <Select
+          label="Gender"
+          required
+          value={gender}
+          onChange={setGender}
+          options={GENDER_OPTIONS}
+          placeholder="Choose…"
+          disabled={busy}
+          error={fields.gender}
+        />
+      </div>
+
+      {age && Number(age) < AGE_GUARDIAN_BELOW && (
+        <Alert tone="info">
+          You&apos;re under {AGE_GUARDIAN_BELOW}, so a parent or guardian needs to agree to therapy
+          with you.
+        </Alert>
+      )}
+
+      <Field
+        label="School, college or workplace"
+        value={organisation}
+        onChange={setOrganisation}
+        maxLength={ORGANISATION_MAX}
+        disabled={busy}
+        error={fields.organisation}
+        hint="Optional. It helps us match you with someone who gets your world."
       />
 
       {/* email is shown, never edited here — changing it needs a fresh

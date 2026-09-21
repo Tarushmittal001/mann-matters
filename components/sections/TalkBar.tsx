@@ -71,7 +71,7 @@ export default function TalkBar() {
         <Link
           href="/book?free=1"
           aria-label="Consult now — your first session is free"
-          className="group/btn inline-flex items-center gap-2.5 rounded-full bg-gold py-2 pl-2 pr-4 text-[0.88rem] font-semibold text-forest-950 shadow-bloom transition-all duration-300 ease-silk hover:-translate-y-0.5 hover:bg-gold-light md:pr-5 md:text-[0.95rem]"
+          className="group/btn inline-flex items-center gap-2.5 rounded-full bg-gold py-2 pl-2 pr-4 text-[0.88rem] font-semibold text-forest-950 shadow-bloom transition duration-300 ease-silk hover:-translate-y-0.5 hover:bg-gold-light md:pr-5 md:text-[0.95rem]"
         >
           <span className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-forest-900 text-gold">
             {/* a speech bubble — a conversation, not a transaction */}

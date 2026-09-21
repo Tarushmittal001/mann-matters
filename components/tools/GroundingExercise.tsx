@@ -104,7 +104,7 @@ export default function GroundingExercise() {
                 <span
                   key={i}
                   className={cn(
-                    "h-3.5 w-3.5 rounded-full transition-all duration-500 ease-silk",
+                    "h-3.5 w-3.5 rounded-full transition duration-500 ease-silk",
                     i < found ? "scale-110 bg-gold" : "bg-forest-800/15"
                   )}
                 />

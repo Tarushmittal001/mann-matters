@@ -5,8 +5,11 @@ import {
   collect,
   hasErrors,
   normalisePhone,
+  validateAge,
+  validateGender,
   validateName,
   validateNotes,
+  validateOrganisation,
   validatePhone,
 } from "@/lib/validation";
 import { languageOpts } from "@/lib/matching";
@@ -17,6 +20,9 @@ export const dynamic = "force-dynamic";
 const PROFILE_SELECT = {
   id: true,
   name: true,
+  age: true,
+  gender: true,
+  organisation: true,
   email: true,
   phone: true,
   phoneVerified: true,
@@ -41,6 +47,9 @@ export async function GET() {
     return privateJson({
       profile: {
         name: user.name,
+        age: user.age ? String(user.age) : "",
+        gender: user.gender ?? "",
+        organisation: user.organisation ?? "",
         email: user.email,
         phone: user.phone ?? "",
         phoneVerified: !!user.phoneVerified,
@@ -56,7 +65,15 @@ export async function GET() {
   }
 }
 
-type Body = { name?: string; phone?: string; language?: string; notes?: string };
+type Body = {
+  name?: string;
+  age?: string;
+  gender?: string;
+  organisation?: string;
+  phone?: string;
+  language?: string;
+  notes?: string;
+};
 
 /**
  * PATCH /api/profile
@@ -78,12 +95,19 @@ export async function PATCH(req: Request) {
     if (!body) return errors.badBody();
 
     const name = (body.name ?? "").trim();
+    const ageRaw = (body.age ?? "").trim();
+    const gender = (body.gender ?? "").trim();
+    const organisation = (body.organisation ?? "").trim();
     const phoneRaw = (body.phone ?? "").trim();
     const language = (body.language ?? "").trim();
     const notes = (body.notes ?? "").trim();
 
     const fields = collect([
       ["name", validateName(name)],
+      // age and gender are asked at signup, so they can be corrected but not blanked
+      ["age", validateAge(ageRaw)],
+      ["gender", validateGender(gender)],
+      ["organisation", validateOrganisation(organisation)],
       ["phone", validatePhone(phoneRaw)],
       ["notes", validateNotes(notes)],
     ]);
@@ -103,6 +127,9 @@ export async function PATCH(req: Request) {
       where: { id: session.sub },
       data: {
         name,
+        age: Number(ageRaw),
+        gender,
+        organisation: organisation || null,
         phone,
         phoneVerified: current.phone === phone ? undefined : null,
         language: language || null,
@@ -124,6 +151,9 @@ export async function PATCH(req: Request) {
     return privateJson({
       profile: {
         name: user.name,
+        age: user.age ? String(user.age) : "",
+        gender: user.gender ?? "",
+        organisation: user.organisation ?? "",
         email: user.email,
         phone: user.phone ?? "",
         phoneVerified: !!user.phoneVerified,

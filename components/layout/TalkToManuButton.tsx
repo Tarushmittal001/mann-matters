@@ -27,7 +27,7 @@ export default function TalkToManuButton({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={`${label} — ${note.replace(/·/g, ",")}`}
-      className={`group inline-flex items-center gap-3 rounded-full border border-forest-800/25 bg-ivory-light/70 py-2 pl-2 pr-6 transition-all duration-300 ease-silk hover:-translate-y-0.5 hover:border-forest-800 hover:bg-forest-800 hover:shadow-bloom ${className}`}
+      className={`group inline-flex items-center gap-3 rounded-full border border-forest-800/25 bg-ivory-light/70 py-2 pl-2 pr-6 transition duration-300 ease-silk hover:-translate-y-0.5 hover:border-forest-800 hover:bg-forest-800 hover:shadow-bloom ${className}`}
     >
       <span className="relative shrink-0">
         <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#25D366] shadow-lift transition-transform duration-300 ease-silk group-hover:scale-105">
