@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
+import { listExperts } from "@/lib/experts-store";
 import { getSession } from "@/lib/auth";
 import { sessionPhase } from "@/lib/expert-portal";
 import { releaseExpiredHolds, serializeBooking } from "@/lib/features/booking/server";
@@ -28,6 +29,7 @@ export default async function DashboardPage() {
   const session = await getSession();
   if (!session) redirect("/login?next=/dashboard");
 
+  const experts = await listExperts();
   const now = new Date();
   const serverNow = now.toISOString();
   await releaseExpiredHolds();
@@ -87,6 +89,9 @@ export default async function DashboardPage() {
               Expert portal
             </Link>
           )}
+          <Link href="/dashboard/feedback" className="link-draw text-sm font-medium text-forest-800">
+            Share your story
+          </Link>
           <LogoutButton />
           <Button href="/book" variant="gold">
             Book a session
@@ -119,7 +124,7 @@ export default async function DashboardPage() {
         ) : (
           <div className="mt-5 space-y-4">
             {upcoming.map((b) => (
-              <BookingCard key={b.id} booking={b} upcoming serverNow={serverNow} />
+              <BookingCard key={b.id} booking={b} upcoming serverNow={serverNow} experts={experts} />
             ))}
           </div>
         )}
@@ -130,7 +135,7 @@ export default async function DashboardPage() {
           <h2 className="font-display text-2xl font-medium text-forest-900">Past & cancelled</h2>
           <div className="mt-5 space-y-4">
             {past.map((b) => (
-              <BookingCard key={b.id} booking={b} upcoming={false} serverNow={serverNow} />
+              <BookingCard key={b.id} booking={b} upcoming={false} serverNow={serverNow} experts={experts} />
             ))}
           </div>
         </section>

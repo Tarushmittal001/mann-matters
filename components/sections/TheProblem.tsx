@@ -4,6 +4,14 @@ import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import CountUp from "@/components/ui/CountUp";
 
+/*
+ * On a light ground on purpose. This used to be the same dark forest as "Meet
+ * Manu" directly below it, and the two read as one long block with no seam.
+ * The problem is now light and Manu stays dark — Manu's chat demo is a light
+ * card, and it stands out best against the dark — so the page alternates
+ * light, dark, light instead of dark, dark.
+ */
+
 const stats = [
   { label: "Avoid therapy due to stigma", value: 90, suffix: "%" },
   { label: "Prefer AI confidants initially", value: 50, suffix: "%+" },
@@ -24,7 +32,7 @@ function CircularProgress({ value, inView }: { value: number; inView: boolean })
           cy="130"
           r={r}
           fill="none"
-          stroke="rgba(124,152,133,0.15)"
+          stroke="rgba(14,59,51,0.08)"
           strokeWidth="18"
         />
         {/* Progress */}
@@ -42,17 +50,18 @@ function CircularProgress({ value, inView }: { value: number; inView: boolean })
           transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
         />
         <defs>
+          {/* forest into mint — the old sage-on-sage ring disappears on a light ground */}
           <linearGradient id="progressGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#7C9885" />
-            <stop offset="100%" stopColor="#A8C3B5" />
+            <stop offset="0%" stopColor="#1A5A4D" />
+            <stop offset="100%" stopColor="#5FA98A" />
           </linearGradient>
         </defs>
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-display text-5xl sm:text-6xl font-medium text-sage">
+        <span className="font-display text-5xl sm:text-6xl font-medium text-forest-800">
           {inView ? <CountUp value={value} suffix="%" /> : "0%"}
         </span>
-        <span className="mt-1 text-sm text-sage/60 text-center leading-tight">
+        <span className="mt-1 text-sm text-ink/55 text-center leading-tight">
           of Indian youth
           <br />
           battle mental health issues
@@ -79,17 +88,17 @@ function StatBar({
 }) {
   const barPercent = display ? 14 : value;
   return (
-    <div className="flex items-center gap-4 rounded-xl border border-sage/10 bg-forest-900/50 px-5 py-3.5">
-      <span className="text-sm text-sage/80 w-48 shrink-0">{label}</span>
-      <div className="flex-1 h-2.5 rounded-full bg-forest-700/40 overflow-hidden">
+    <div className="flex items-center gap-4 rounded-xl border border-forest-800/10 bg-ivory-light px-5 py-3.5 shadow-lift">
+      <span className="text-sm text-ink/70 w-48 shrink-0">{label}</span>
+      <div className="flex-1 h-2.5 rounded-full bg-forest-800/10 overflow-hidden">
         <motion.div
-          className="h-full rounded-full bg-gradient-to-r from-forest-600 to-sage"
+          className="h-full rounded-full bg-gradient-to-r from-forest-700 to-[#5FA98A]"
           initial={{ width: 0 }}
           animate={inView ? { width: `${barPercent}%` } : {}}
           transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay }}
         />
       </div>
-      <span className="text-sm font-display font-medium text-sage w-16 text-right tabular-nums">
+      <span className="text-sm font-display font-medium text-forest-800 w-16 text-right tabular-nums">
         {display ?? `${value}${suffix}`}
       </span>
     </div>
@@ -101,13 +110,13 @@ export default function TheProblem() {
   const inView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section ref={ref} className="section relative overflow-hidden bg-forest-950">
+    <section ref={ref} className="section relative overflow-hidden bg-sage-light/40">
       {/* Subtle radial glow */}
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full opacity-20 pointer-events-none"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full opacity-30 pointer-events-none"
         style={{
           background:
-            "radial-gradient(circle, rgba(124,152,133,0.25) 0%, transparent 70%)",
+            "radial-gradient(circle, rgba(255,255,255,0.7) 0%, transparent 70%)",
         }}
         aria-hidden="true"
       />
@@ -126,7 +135,7 @@ export default function TheProblem() {
         {/* Right — editorial copy */}
         <div>
           <motion.p
-            className="eyebrow mb-4 !text-sage/60"
+            className="eyebrow mb-4"
             initial={{ opacity: 0, y: 16 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.2 }}
@@ -134,23 +143,23 @@ export default function TheProblem() {
             The Problem
           </motion.p>
           <motion.h2
-            className="h-display text-4xl md:text-5xl !text-ivory"
+            className="h-display text-4xl md:text-5xl"
             initial={{ opacity: 0, y: 20 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.35, duration: 0.6 }}
           >
             India&rsquo;s youth carry a{" "}
-            <em className="text-sage italic">silent weight.</em>
+            <em className="text-forest-600 italic">silent weight.</em>
           </motion.h2>
           <motion.div
-            className="mt-2 mb-8 h-px w-16 bg-sage/30"
+            className="mt-2 mb-8 h-px w-16 bg-gold/60"
             initial={{ scaleX: 0 }}
             animate={inView ? { scaleX: 1 } : {}}
             transition={{ delay: 0.5, duration: 0.6 }}
             style={{ transformOrigin: "left" }}
           />
           <motion.div
-            className="space-y-5 text-[1.05rem] leading-relaxed text-ivory/70"
+            className="space-y-5 text-[1.05rem] leading-relaxed text-ink/70"
             initial={{ opacity: 0, y: 20 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.5, duration: 0.6 }}
@@ -162,7 +171,7 @@ export default function TheProblem() {
             </p>
             <p>
               So we put it where they already are:{" "}
-              <strong className="font-semibold text-ivory">WhatsApp.</strong>
+              <strong className="font-semibold text-forest-900">WhatsApp.</strong>
             </p>
           </motion.div>
         </div>

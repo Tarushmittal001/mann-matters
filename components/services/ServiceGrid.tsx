@@ -1,12 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
+import Price from "@/components/ui/Price";
+import { standardPrice } from "@/lib/pricing";
 import Reveal from "@/components/ui/Reveal";
 import { services } from "@/lib/services";
 import { regionFor, rgba } from "@/lib/palette";
-import { formatINR } from "@/lib/utils";
 
 /**
- * The four formats, as cards.
+ * The ten services, as a menu: photo, name, one line, price, and the way in.
+ *
+ * The full description and the what-you-get bullets used to sit on every card,
+ * which made the grid five screens of reading. They live on each service page
+ * instead, one tap away, and the grid only has to help someone choose.
  *
  * This replaced a run of full-width alternating image/text blocks. Each was
  * fine on its own, but a column of them is the shape of every services
@@ -45,7 +50,7 @@ export default function ServiceGrid() {
               aria-hidden="true"
             />
             {/* the room this format happens in */}
-            <div className="relative aspect-[16/10] w-full overflow-hidden bg-forest-900/5">
+            <div className="relative aspect-[16/9] w-full overflow-hidden bg-forest-900/5">
               <Image
                 src={s.image}
                 alt={s.imageAlt}
@@ -84,16 +89,7 @@ export default function ServiceGrid() {
               <p className="mt-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[color:var(--accent)]">
                 {s.tag}
               </p>
-              <p className="mt-4 text-[0.93rem] leading-relaxed text-ink/70">{s.description}</p>
-
-              <ul className="space-y-2.5 pt-6">
-                {s.expect.map((point) => (
-                  <li key={point} className="flex gap-3 text-[0.88rem] leading-relaxed text-ink/65">
-                    <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-[color:var(--accent)]" aria-hidden="true" />
-                    {point}
-                  </li>
-                ))}
-              </ul>
+              <p className="mt-3 text-[0.93rem] leading-relaxed text-ink/70">{s.summary}</p>
 
               {/* The two numbers someone is actually weighing, as a matched
                   pair: label, then figure, then the qualifier underneath.
@@ -110,17 +106,21 @@ export default function ServiceGrid() {
                 </div>
                 <div>
                   <p className="text-[0.68rem] uppercase tracking-[0.18em] text-ink/45">Pricing</p>
-                  <p className="mt-1.5 font-display text-lg font-medium leading-none text-forest-900">
-                    {s.price ? formatINR(s.price) : "On request"}
-                  </p>
-                  <p className="mt-1.5 text-[0.78rem] leading-snug text-ink/55">{s.priceNote}</p>
+                  <div className="mt-1.5">
+                    <Price
+                      amount={s.price}
+                      standard={standardPrice("service", s.slug, s.price)}
+                      note={s.priceNote}
+                      size="sm"
+                    />
+                  </div>
                 </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-6">
                 <Link
                   href="/book"
-                  className="inline-flex items-center gap-2 rounded-full border border-[color:var(--accent)]/35 px-5 py-2.5 text-[0.85rem] font-semibold text-forest-800 transition-all duration-300 ease-silk hover:border-[color:var(--accent)] hover:bg-[color:var(--accent)] hover:text-ivory"
+                  className="inline-flex items-center gap-2 rounded-full border border-[color:var(--accent)]/35 px-5 py-2.5 text-[0.85rem] font-semibold text-forest-800 transition duration-300 ease-silk hover:border-[color:var(--accent)] hover:bg-[color:var(--accent)] hover:text-ivory"
                 >
                   Book this
                   <svg
@@ -150,7 +150,7 @@ export default function ServiceGrid() {
             </div>
 
             <span
-              className="absolute inset-x-0 bottom-0 h-[3px] w-0 bg-[color:var(--accent)] transition-all duration-700 ease-silk group-hover:w-full"
+              className="absolute inset-x-0 bottom-0 h-[3px] w-0 bg-[color:var(--accent)] transition duration-700 ease-silk group-hover:w-full"
               aria-hidden="true"
             />
           </article>

@@ -1,18 +1,36 @@
 import Hero from "@/components/sections/Hero";
 import TalkBar from "@/components/sections/TalkBar";
 import TrustStrip from "@/components/sections/TrustStrip";
-import TheProblem from "@/components/sections/TheProblem";
 import ManuOnWhatsApp from "@/components/sections/ManuOnWhatsApp";
-import PhraseTicker from "@/components/sections/PhraseTicker";
-import CulturalIntelligence from "@/components/sections/CulturalIntelligence";
 import HowItWorks from "@/components/sections/HowItWorks";
-import ToolsSection from "@/components/sections/ToolsSection";
 import WhyEmoraa from "@/components/sections/WhyEmoraa";
 import Testimonials from "@/components/sections/Testimonials";
-import BlogTeaser from "@/components/sections/BlogTeaser";
 import CTABand from "@/components/sections/CTABand";
+import { prisma } from "@/lib/db";
+import { FEEDBACK_STATUS, toTestimonial } from "@/lib/feedback";
+import { testimonials as sampleStories } from "@/lib/testimonials";
 
-export default function HomePage() {
+// regenerated at most every 10 minutes, and straight away when an admin approves or hides a story
+export const revalidate = 600;
+
+/** Approved client stories first (newest first), then the sample stories. */
+async function loadStories() {
+  try {
+    const rows = await prisma.feedback.findMany({
+      where: { status: FEEDBACK_STATUS.approved },
+      include: { user: { select: { name: true } } },
+      orderBy: { reviewedAt: "desc" },
+      take: 50,
+    });
+    return [...rows.map(toTestimonial), ...sampleStories];
+  } catch {
+    // the home page must never fail because the database is unreachable
+    return sampleStories;
+  }
+}
+
+export default async function HomePage() {
+  const stories = await loadStories();
   return (
     <>
       {/* the promise */}
@@ -21,22 +39,14 @@ export default function HomePage() {
       <TalkBar />
       <TrustStrip />
 
-      {/* why this exists, and the answer to it */}
-      <TheProblem />
+      {/* the companion, on WhatsApp */}
       <ManuOnWhatsApp />
 
-      {/* the human context Manu is built on */}
-      <PhraseTicker />
-      <CulturalIntelligence />
-
-      {/* ways in */}
       <HowItWorks />
-      <ToolsSection />
 
-      {/* reassurance */}
+      {/* reassurance: why us, then the people it helped, right before the ask */}
       <WhyEmoraa />
-      <Testimonials />
-      <BlogTeaser />
+      <Testimonials stories={stories} />
       <CTABand />
     </>
   );

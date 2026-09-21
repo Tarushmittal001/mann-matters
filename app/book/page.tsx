@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getSession } from "@/lib/auth";
-import { experts } from "@/lib/experts";
+import { listExperts } from "@/lib/experts-store";
 import { proBonoStatus } from "@/lib/features/booking/server";
 import BookingFlow from "@/components/booking/BookingFlow";
 
@@ -23,6 +23,7 @@ export default async function BookPage({
   const session = await getSession();
   // an unknown id is ignored rather than erroring — a stale link should still
   // open the booking flow, just without anyone pre-chosen
+  const experts = await listExperts();
   const initialExpert = experts.find((e) => e.id === searchParams?.expert) ?? null;
   // ?free=1 comes from the "Consult now" bar. Whether the person may actually
   // have the free session is decided here, on the server, from their account —
@@ -32,6 +33,7 @@ export default async function BookPage({
   return (
     <BookingFlow
       authenticated={!!session}
+      experts={experts}
       initialExpert={initialExpert}
       freeIntent={freeIntent}
       proBono={proBono}

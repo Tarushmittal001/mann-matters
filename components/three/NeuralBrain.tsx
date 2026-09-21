@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { sceneQuality } from "@/components/visuals/useCanvasScene";
 
 /**
  * A living neural constellation in the silhouette of a brain.
@@ -120,6 +121,12 @@ export default function NeuralBrain() {
     if (!ctx) return;
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // a phone draws a sparser brain at 30fps: the same picture, half the work
+    const quality = sceneQuality();
+    const frameGap = 1000 / quality.fps;
+    // canvas glow re-blurs the shape on every node, every frame: the one call
+    // that turns a smooth phone into a slideshow. Colour carries the effect.
+    const glowScale = quality.lite ? 0 : 1;
     const cerebrum = new Path2D(CEREBRUM_D);
     const cerebellum = new Path2D(CEREBELLUM_D);
     const stem = new Path2D(STEM_D);
@@ -127,7 +134,9 @@ export default function NeuralBrain() {
     // ---- generate nodes inside the silhouette (design space) ----
     const nodes: Node[] = [];
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    const WANT = 76; // a few more than before, so each region carries its colour
+    // a few more than before, so each region carries its colour; fewer on a phone,
+    // where the canvas is small enough that the loss doesn't read
+    const WANT = Math.round(76 * quality.detail);
     let guard = 0;
     while (nodes.length < WANT && guard < 30000) {
       guard++;
@@ -249,7 +258,7 @@ export default function NeuralBrain() {
     // ---- sizing / hi-dpi ----
     let cssW = 0, cssH = 0, dpr = 1, s = 1, ox = 0, oy = 0;
     const resize = () => {
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      dpr = Math.min(window.devicePixelRatio || 1, quality.lite ? 1.5 : 2);
       cssW = wrap.clientWidth;
       cssH = wrap.clientHeight;
       canvas.width = Math.max(1, Math.floor(cssW * dpr));
@@ -356,7 +365,13 @@ export default function NeuralBrain() {
     let lastSpawn = 0;
     let raf = 0;
 
+    let lastPaint = 0;
     const frame = (now: number) => {
+      raf = requestAnimationFrame(frame);
+      // hold to the device's target frame rate (30fps on a phone)
+      if (now - lastPaint < frameGap - 1) return;
+      lastPaint = now;
+
       const t = (now - start) / 1000;
       const dt = Math.min((now - prev) / 1000, 0.05);
       prev = now;
@@ -498,7 +513,7 @@ export default function NeuralBrain() {
         ctx.beginPath();
         ctx.fillStyle = rgba(col, 0.82 + glow * 0.18);
         if (glow > 0.02) {
-          ctx.shadowBlur = glow * 18;
+          ctx.shadowBlur = glow * 18 * glowScale;
           ctx.shadowColor = rgba(REGIONS[nodes[i].reg].rgb, 0.85);
         }
         ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
@@ -570,7 +585,7 @@ export default function NeuralBrain() {
 
           ctx.beginPath();
           ctx.fillStyle = rgba(mix(pu.rgb, [255, 255, 255], 0.25), 1);
-          ctx.shadowBlur = 12;
+          ctx.shadowBlur = 12 * glowScale;
           ctx.shadowColor = rgba(pu.rgb, 0.9);
           ctx.arc(
             a.x + (b.x - a.x) * head,
@@ -584,15 +599,45 @@ export default function NeuralBrain() {
         }
       }
 
-      raf = requestAnimationFrame(frame);
     };
 
     // the loop runs either way: reduced motion silences movement inside the
-    // frame, but hover and click still need to be answered
-    raf = requestAnimationFrame(frame);
+    // frame, but hover and click still need to be answered — but only while the
+    // brain is actually on screen, in a tab someone is looking at
+    let running = false;
+    const play = () => {
+      if (running) return;
+      running = true;
+      prev = performance.now();
+      raf = requestAnimationFrame(frame);
+    };
+    const pause = () => {
+      if (!running) return;
+      running = false;
+      cancelAnimationFrame(raf);
+    };
+
+    let onScreen = true;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        onScreen = entry.isIntersecting;
+        if (onScreen && !document.hidden) play();
+        else pause();
+      },
+      { rootMargin: "200px" }
+    );
+    io.observe(wrap);
+    const onVisibility = () => {
+      if (!document.hidden && onScreen) play();
+      else pause();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    play();
 
     return () => {
-      cancelAnimationFrame(raf);
+      pause();
+      io.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
       ro.disconnect();
       apiRef.current = null;
       wrap.removeEventListener("pointermove", onMove);

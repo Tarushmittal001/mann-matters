@@ -52,7 +52,7 @@ export default function ClientSummary({
         </div>
         <div>
           <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-ink/45">
-            With mann Matters since
+            With Emoraa since
           </dt>
           <dd className="mt-1 text-[0.94rem] text-forest-900">{formatDate(client.clientSince)}</dd>
         </div>

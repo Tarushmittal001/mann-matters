@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Emoraa",
-    title: "Emoraa — Your mind matters",
+    title: "Emoraa — Better days begin",
     description:
       "Confidential online therapy with licensed Indian psychologists, in your language, from ₹599.",
     url: site.url,
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Emoraa — Your mind matters",
+    title: "Emoraa — Better days begin",
     description:
       "Confidential online therapy with licensed Indian psychologists, in your language, from ₹599.",
   },

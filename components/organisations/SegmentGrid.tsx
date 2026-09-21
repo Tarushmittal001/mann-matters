@@ -103,7 +103,7 @@ export default function SegmentGrid() {
                     <button
                       type="button"
                       onClick={() => setOpenFor(s.id)}
-                      className="inline-flex items-center gap-2 rounded-full border border-[color:var(--accent)]/35 px-5 py-2.5 text-[0.85rem] font-semibold text-forest-800 transition-all duration-300 ease-silk hover:border-[color:var(--accent)] hover:bg-[color:var(--accent)] hover:text-ivory"
+                      className="inline-flex items-center gap-2 rounded-full border border-[color:var(--accent)]/35 px-5 py-2.5 text-[0.85rem] font-semibold text-forest-800 transition duration-300 ease-silk hover:border-[color:var(--accent)] hover:bg-[color:var(--accent)] hover:text-ivory"
                     >
                       Build a pack for us
                       <svg
@@ -127,7 +127,7 @@ export default function SegmentGrid() {
                 </div>
 
                 <span
-                  className="absolute inset-x-0 bottom-0 h-[3px] w-0 bg-[color:var(--accent)] transition-all duration-700 ease-silk group-hover:w-full"
+                  className="absolute inset-x-0 bottom-0 h-[3px] origin-left scale-x-0 bg-[color:var(--accent)] transition-transform duration-500 ease-silk group-hover:scale-x-100"
                   aria-hidden="true"
                 />
               </article>

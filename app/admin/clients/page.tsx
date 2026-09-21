@@ -11,7 +11,7 @@ export default async function AdminClientsPage() {
     <main className="wrap-wide pb-28">
       <p className="eyebrow">client directory</p>
       <h1 className="h-display mt-3 text-4xl md:text-5xl">Clients</h1>
-      <p className="mt-4 max-w-xl text-ink/65">Account and booking information for the people using Mann Matters.</p>
+      <p className="mt-4 max-w-xl text-ink/65">Account and booking information for the people using Emoraa.</p>
       <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {clients.length === 0 ? <p className="text-ink/60">No clients have signed up yet.</p> : clients.map((client) => (
           <article key={client.id} className="rounded-2xl border border-forest-800/10 bg-ivory-light p-6 shadow-lift">

@@ -15,7 +15,14 @@ import nodemailer from "nodemailer";
  *     show it. Signup is otherwise a dead end on a fresh machine.
  */
 
-type Email = { to: string; subject: string; html: string; text: string };
+type Email = {
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+  /** Where "Reply" goes, when that is not the sender (a visitor writing to us). */
+  replyTo?: string;
+};
 
 export type DeliveryResult = {
   /** True when a provider actually accepted the message. */
@@ -57,6 +64,7 @@ async function viaGmail(email: Email): Promise<boolean> {
   await transport.sendMail({
     from: fromAddress(),
     to: email.to,
+    replyTo: email.replyTo,
     subject: email.subject,
     text: email.text,
     html: email.html,
@@ -74,6 +82,7 @@ async function viaResend(email: Email): Promise<boolean> {
     body: JSON.stringify({
       from: fromAddress(),
       to: email.to,
+      reply_to: email.replyTo,
       subject: email.subject,
       html: email.html,
     }),
@@ -142,7 +151,7 @@ export async function sendVerificationEmail(
   const html = `
   <div style="font-family:Georgia,serif;max-width:480px;margin:0 auto;padding:32px;color:#1F2D28">
     <p style="font-size:20px;font-weight:600;color:#0A2E28;margin:0 0 4px">Emoraa</p>
-    <p style="color:#1A5A4D;margin:0 0 24px">Your mind matters.</p>
+    <p style="color:#1A5A4D;margin:0 0 24px">Better days begin.</p>
     <h1 style="font-size:24px;color:#0A2E28;margin:0 0 12px">One last step, ${name}.</h1>
     <p style="line-height:1.6;color:#3a4a44">Confirm your email address to finish setting up your account and start booking sessions.</p>
     <p style="margin:28px 0">
@@ -150,6 +159,29 @@ export async function sendVerificationEmail(
     </p>
     <p style="font-size:13px;color:#7a857f;line-height:1.6">Or paste this into your browser:<br><span style="word-break:break-all">${link}</span></p>
     <p style="font-size:13px;color:#7a857f;line-height:1.6">This link expires in 24 hours. If you didn't create an account, you can safely ignore this email.</p>
+  </div>`;
+
+  return deliver({ to, subject, html, text }, link);
+}
+
+export async function sendPasswordResetEmail(
+  to: string,
+  name: string,
+  link: string
+): Promise<DeliveryResult> {
+  const subject = "Reset your Emoraa password";
+  const text = `Hi ${name}, here is your link to set a new Emoraa password: ${link} (it expires in 1 hour and works once). If you didn't ask for it, ignore this email — your password stays as it is.`;
+  const html = `
+  <div style="font-family:Georgia,serif;max-width:480px;margin:0 auto;padding:32px;color:#1F2D28">
+    <p style="font-size:20px;font-weight:600;color:#0A2E28;margin:0 0 4px">Emoraa</p>
+    <p style="color:#1A5A4D;margin:0 0 24px">Better days begin.</p>
+    <h1 style="font-size:24px;color:#0A2E28;margin:0 0 12px">Let's get you back in, ${esc(name)}.</h1>
+    <p style="line-height:1.6;color:#3a4a44">Choose a new password with the button below.</p>
+    <p style="margin:28px 0">
+      <a href="${link}" style="background:#C8A45D;color:#06211C;text-decoration:none;font-weight:600;padding:14px 28px;border-radius:999px;display:inline-block">Set a new password</a>
+    </p>
+    <p style="font-size:13px;color:#7a857f;line-height:1.6">Or paste this into your browser:<br><span style="word-break:break-all">${link}</span></p>
+    <p style="font-size:13px;color:#7a857f;line-height:1.6">This link expires in 1 hour and can be used once. If you didn't ask for it, ignore this email — your password stays as it is.</p>
   </div>`;
 
   return deliver({ to, subject, html, text }, link);
@@ -244,7 +276,7 @@ export async function sendPackEnquiry(
       html: `
       <div style="font-family:Georgia,serif;max-width:480px;margin:0 auto;padding:32px;color:#1F2D28">
         <p style="font-size:20px;font-weight:600;color:#0A2E28;margin:0 0 4px">Emoraa</p>
-        <p style="color:#1A5A4D;margin:0 0 24px">Your mind matters.</p>
+        <p style="color:#1A5A4D;margin:0 0 24px">Better days begin.</p>
         <h1 style="font-size:22px;color:#0A2E28;margin:0 0 12px">Thanks, ${esc(e.contactName)}.</h1>
         <p style="line-height:1.6;color:#3a4a44">We've got your note about <strong>${esc(
           e.institution
@@ -256,6 +288,66 @@ export async function sendPackEnquiry(
     // the enquiry itself is already safely delivered
   }
 
+  return { delivered: true };
+}
+
+/**
+ * The 6-digit code that proves a visitor owns the address they are writing
+ * from. It goes to an address nobody has proven yet, so it says plainly what
+ * triggered it and that ignoring it is safe.
+ */
+export async function sendContactCode(
+  to: string,
+  name: string,
+  code: string
+): Promise<{ delivered: boolean; devCode?: string }> {
+  const subject = `${code} is your Emoraa code`;
+  const text = `Hi ${name}, your code is ${code}. Enter it on the Emoraa website to send your message. It expires in 10 minutes. If you didn't write to us, ignore this email; nothing will be sent.`;
+  const html = `
+  <div style="font-family:Georgia,serif;max-width:480px;margin:0 auto;padding:32px;color:#1F2D28">
+    <p style="font-size:20px;font-weight:600;color:#0A2E28;margin:0 0 4px">Emoraa</p>
+    <p style="color:#1A5A4D;margin:0 0 24px">Better days begin.</p>
+    <h1 style="font-size:22px;color:#0A2E28;margin:0 0 12px">Hi ${esc(name)}, here is your code.</h1>
+    <p style="line-height:1.6;color:#3a4a44">Enter it on the website to send your message.</p>
+    <p style="margin:24px 0;font-family:Arial,sans-serif;font-size:34px;font-weight:700;letter-spacing:8px;color:#0A2E28">${code}</p>
+    <p style="font-size:13px;color:#7a857f;line-height:1.6">It expires in 10 minutes. If you didn't write to us, ignore this email; nothing will be sent.</p>
+  </div>`;
+
+  if (await push({ to, subject, text, html })) return { delivered: true };
+
+  console.log(["", "  📧  No mail provider configured — contact code not sent.", `      Code: ${code}`, ""].join("\n"));
+  return { delivered: false, devCode: isProduction ? undefined : code };
+}
+
+export type ContactMessage = { name: string; email: string; message: string };
+
+/**
+ * A visitor writing to us from the site, through the contact form or the
+ * composer that opens when they click our address.
+ *
+ * It lands in the team inbox with Reply-To set to the visitor, so answering is
+ * just pressing Reply. There is deliberately no acknowledgement email: this
+ * endpoint takes any address, and an automatic reply would let anyone use us to
+ * send mail to a stranger. The page confirms instead.
+ */
+export async function sendContactMessage(
+  m: ContactMessage
+): Promise<{ delivered: boolean; devFallback?: string }> {
+  const to = enquiryInbox();
+  const text = `From: ${m.name} <${m.email}>\n\n${m.message}`;
+  const html = `
+  <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;color:#1F2D28">
+    <p style="font-size:20px;font-weight:600;color:#0A2E28;margin:0 0 4px">New message from the website</p>
+    <p style="color:#7a857f;margin:0 0 24px;font-size:14px">${esc(m.name)} &lt;${esc(m.email)}&gt; · press Reply to answer</p>
+    <p style="line-height:1.7;color:#1F2D28;white-space:pre-wrap;margin:0">${esc(m.message)}</p>
+  </div>`;
+
+  if (!to) {
+    console.log(["", "  [contact] received, but no inbox is configured:", text, ""].join("\n"));
+    return { delivered: false, devFallback: isProduction ? undefined : text };
+  }
+
+  await push({ to, replyTo: m.email, subject: `Website message from ${m.name}`, text, html });
   return { delivered: true };
 }
 

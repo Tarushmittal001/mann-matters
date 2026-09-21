@@ -93,9 +93,11 @@ export default function Hero() {
         </motion.p>
 
         <h1 className="h-display max-w-4xl text-[clamp(3rem,8vw,7rem)]">
-          <MaskedWords text="your" baseDelay={0.2} />{" "}
+          <MaskedWords text="better days" baseDelay={0.2} />
+          {/* begin. always on its own line, so it never runs into the brain */}
+          <br />
           <MaskedWords
-            text="mann matters."
+            text="begin."
             baseDelay={0.4}
             className="italic text-forest-600"
           />

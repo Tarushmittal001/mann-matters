@@ -35,7 +35,26 @@ export const LIMITS = {
   payment: { limit: 10, windowMs: 10 * 60_000 },
   booking: { limit: 20, windowMs: 10 * 60_000 },
   password: { limit: 6, windowMs: 60 * 60_000 },
-  enquiry: { limit: 5, windowMs: 60 * 60_000 },
+  // "forgot password" emails: per address and per network
+  forgot: { limit: 4, windowMs: 60 * 60_000 },
+  // tries at a reset link
+  reset: { limit: 10, windowMs: 60 * 60_000 },
+  // briefs per network; each one already needed a verified email and phone
+  enquiry: { limit: 20, windowMs: 60 * 60_000 },
+  // saving your own feedback: plenty for edits, not for flooding the review queue
+  feedback: { limit: 10, windowMs: 60 * 60_000 },
+  // sent messages per network; each one already needed a verified address
+  contact: { limit: 20, windowMs: 60 * 60_000 },
+  // codes go to unproven addresses. Per address is the tight one; per network is
+  // looser because a whole college or office can share one IP
+  contactCodeEmail: { limit: 5, windowMs: 60 * 60_000 },
+  contactCodeIp: { limit: 20, windowMs: 60 * 60_000 },
+  // code guesses: 5 per code, 20 per network
+  contactVerify: { limit: 5, windowMs: 10 * 60_000 },
+  contactVerifyIp: { limit: 20, windowMs: 10 * 60_000 },
+  // SMS codes cost money per message, so tighter than email
+  phoneCode: { limit: 3, windowMs: 60 * 60_000 },
+  phoneCodeIp: { limit: 10, windowMs: 60 * 60_000 },
   manu: { limit: 20, windowMs: 10 * 60_000 },
 } satisfies Record<string, Limit>;
 

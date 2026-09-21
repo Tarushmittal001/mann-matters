@@ -33,6 +33,20 @@ const nextConfig = {
   images: {
     remotePatterns: [{ protocol: "https", hostname: "images.unsplash.com" }],
   },
+  /*
+   * One address for search engines and shared links: emoraa.com.
+   * emoraa.in and both www. hosts are permanent (308) redirects to it, keeping
+   * the path and query, so an old emoraa.in/services link still lands on the
+   * right page. Only matches those hosts, so localhost is unaffected.
+   */
+  async redirects() {
+    return ["emoraa.in", "www.emoraa.in", "www.emoraa.com"].map((host) => ({
+      source: "/:path*",
+      has: [{ type: "host", value: host }],
+      destination: "https://emoraa.com/:path*",
+      permanent: true,
+    }));
+  },
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },

@@ -2,10 +2,17 @@
 
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import Portal from "@/components/ui/Portal";
 import { Field, TextArea } from "@/components/ui/Field";
 import { Alert, Spinner } from "@/components/ui/Feedback";
 import { headcounts, pillars, segments } from "@/lib/organisations";
-import { collect, hasErrors, validateEmail, validateName, validatePhone } from "@/lib/validation";
+import {
+  collect,
+  hasErrors,
+  validateEmail,
+  validateName,
+  validateRequiredPhone,
+} from "@/lib/validation";
 import { cn } from "@/lib/utils";
 
 /**
@@ -51,8 +58,16 @@ export default function PackBuilder({
 
   const [fields, setFields] = useState<Record<string, string>>({});
   const [error, setError] = useState("");
-  const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
+  const [status, setStatus] = useState<"idle" | "sending" | "code" | "verifying" | "sent">("idle");
   const [devFallback, setDevFallback] = useState<string | null>(null);
+
+  // proving the email and phone are theirs (see lib/contact-verification)
+  const [emailToken, setEmailToken] = useState("");
+  const [phoneToken, setPhoneToken] = useState("");
+  const [emailCode, setEmailCode] = useState("");
+  const [phoneCode, setPhoneCode] = useState("");
+  const [devCodes, setDevCodes] = useState<{ email?: string; phone?: string }>({});
+  const [notice, setNotice] = useState("");
 
   // follow the card that opened it
   useEffect(() => {
@@ -109,6 +124,57 @@ export default function PackBuilder({
   const toggle = (id: string) =>
     setComponents((prev) => (prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]));
 
+  const brief = () => ({
+    institution,
+    segment,
+    headcount,
+    components,
+    contactName,
+    email,
+    phone,
+    message,
+  });
+
+  /** Take whatever codes the server just sent; a channel it didn't resend keeps its token. */
+  const takeCodes = (data: {
+    emailToken?: string;
+    phoneToken?: string;
+    devEmailCode?: string;
+    devPhoneCode?: string;
+    verified?: { email: boolean; phone: boolean };
+  }) => {
+    if (data.verified?.email) setEmailToken("");
+    else if (data.emailToken) {
+      setEmailToken(data.emailToken);
+      setEmailCode("");
+    }
+    if (data.verified?.phone) setPhoneToken("");
+    else if (data.phoneToken) {
+      setPhoneToken(data.phoneToken);
+      setPhoneCode("");
+    }
+    setDevCodes((prev) => ({
+      email: data.verified?.email ? undefined : data.devEmailCode ?? prev.email,
+      phone: data.verified?.phone ? undefined : data.devPhoneCode ?? prev.phone,
+    }));
+  };
+
+  /** One round trip. `withCodes` sends back the codes typed so far. */
+  const send = async (withCodes: boolean) => {
+    const res = await fetch("/api/enquiry", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...brief(),
+        ...(withCodes
+          ? { emailToken, emailCode, phoneToken, phoneCode }
+          : {}),
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    return { res, data };
+  };
+
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
@@ -118,30 +184,22 @@ export default function PackBuilder({
       ["headcount", headcount ? null : "Please choose an approximate size."],
       ["contactName", validateName(contactName)],
       ["email", validateEmail(email)],
-      ["phone", validatePhone(phone)],
+      ["phone", validateRequiredPhone(phone)],
     ]);
     setFields(local);
     if (hasErrors(local)) return;
 
     setStatus("sending");
     setError("");
+    setNotice("");
     try {
-      const res = await fetch("/api/enquiry", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          institution,
-          segment,
-          headcount,
-          components,
-          contactName,
-          email,
-          phone,
-          message,
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
+      const { res, data } = await send(false);
 
+      if (res.status === 202 && data.needsCode) {
+        takeCodes(data);
+        setStatus("code");
+        return;
+      }
       if (!res.ok) {
         if (res.status === 422 && data.fields) setFields(data.fields);
         setError(
@@ -161,13 +219,89 @@ export default function PackBuilder({
     }
   };
 
+  /** The codes step: check both codes, and send the brief once both are proven. */
+  const onVerify = async (e: FormEvent) => {
+    e.preventDefault();
+
+    const local = collect([
+      ["emailCode", emailToken && !/^\d{6}$/.test(emailCode) ? "Enter the 6-digit code from the email." : null],
+      ["phoneCode", phoneToken && !/^\d{6}$/.test(phoneCode) ? "Enter the 6-digit code from the SMS." : null],
+    ]);
+    setFields(local);
+    if (hasErrors(local)) return;
+
+    setStatus("verifying");
+    setError("");
+    setNotice("");
+    try {
+      const { res, data } = await send(true);
+
+      if (res.ok && !data.needsCode) {
+        setDevFallback(data.devFallback ?? null);
+        setStatus("sent");
+        return;
+      }
+      if (res.status === 202 || (res.status === 422 && data.verified)) {
+        // one code accepted, the other wrong (or freshly resent): keep going
+        takeCodes(data);
+        if (data.fields) setFields(data.fields);
+      } else {
+        // expired, too many tries, SMS down: new codes are the way forward
+        setError(data.error ?? "Something went wrong. Please try again.");
+      }
+      setStatus("code");
+    } catch {
+      setError("Couldn't reach the server. Please check your connection and try again.");
+      setStatus("code");
+    }
+  };
+
+  /** Fresh codes for whatever is still unproven. */
+  const resendCodes = async () => {
+    setStatus("verifying");
+    setError("");
+    setNotice("");
+    setFields({});
+    try {
+      const { res, data } = await send(false);
+      if (res.ok && !data.needsCode) {
+        setDevFallback(data.devFallback ?? null);
+        setStatus("sent");
+        return;
+      }
+      if (res.status === 202) {
+        takeCodes(data);
+        setNotice("New codes are on their way. Only the newest ones work.");
+      } else {
+        setError(data.error ?? "Something went wrong. Please try again.");
+      }
+    } catch {
+      setError("Couldn't reach the server. Please check your connection and try again.");
+    }
+    setStatus("code");
+  };
+
+  /** Back to the brief, e.g. to fix a mistyped email or number. */
+  const editDetails = () => {
+    setStatus("idle");
+    setEmailToken("");
+    setPhoneToken("");
+    setEmailCode("");
+    setPhoneCode("");
+    setDevCodes({});
+    setFields({});
+    setError("");
+    setNotice("");
+  };
+
   const chosen = segments.find((s) => s.id === segment);
 
   return (
+    <Portal>
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[60] flex items-end justify-center p-0 sm:items-center sm:p-6"
+          className="fixed inset-0 z-[80] flex items-end justify-center p-0 sm:items-center sm:p-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -203,7 +337,11 @@ export default function PackBuilder({
                   build your pack
                 </p>
                 <h2 id={titleId} className="font-display text-2xl font-medium text-forest-900">
-                  {status === "sent" ? "That's with us." : "Tell us about your building."}
+                  {status === "sent"
+                    ? "That's with us."
+                    : status === "code" || status === "verifying"
+                      ? "Confirm it's you."
+                      : "Tell us about your building."}
                 </h2>
               </div>
               <button
@@ -224,7 +362,7 @@ export default function PackBuilder({
             </div>
 
             {status === "sent" ? (
-              <div className="overflow-y-auto px-6 py-10 text-center sm:px-8">
+              <div className="overflow-y-auto overscroll-contain px-6 py-10 text-center sm:px-8">
                 <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-forest-800">
                   <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
                     <path
@@ -268,8 +406,84 @@ export default function PackBuilder({
                   Close
                 </button>
               </div>
+            ) : status === "code" || status === "verifying" ? (
+              <form onSubmit={onVerify} className="overflow-y-auto overscroll-contain px-6 py-6 sm:px-8" noValidate>
+                <p className="text-[0.95rem] leading-relaxed text-ink/65">
+                  So nobody can send a brief with someone else&apos;s details, we&apos;ve sent a
+                  6-digit code to {emailToken && phoneToken ? "each of these" : "this"}. Enter{" "}
+                  {emailToken && phoneToken ? "both" : "it"} to send your brief for{" "}
+                  <span className="font-semibold text-forest-900">{institution.trim()}</span>.
+                </p>
+
+                <div className="mt-6 space-y-5">
+                  {emailToken ? (
+                    <CodeField
+                      label={`Code sent to ${email.trim()}`}
+                      value={emailCode}
+                      onChange={setEmailCode}
+                      error={fields.emailCode}
+                      hint="Check spam too. The code works for 10 minutes."
+                      devCode={devCodes.email}
+                      disabled={status === "verifying"}
+                    />
+                  ) : (
+                    <Confirmed>Email confirmed: {email.trim()}</Confirmed>
+                  )}
+                  {phoneToken ? (
+                    <CodeField
+                      label={`Code sent by SMS to ${phone.trim()}`}
+                      value={phoneCode}
+                      onChange={setPhoneCode}
+                      error={fields.phoneCode}
+                      hint="It can take a minute to arrive. The code works for 10 minutes."
+                      devCode={devCodes.phone}
+                      disabled={status === "verifying"}
+                    />
+                  ) : (
+                    <Confirmed>Phone confirmed: {phone.trim()}</Confirmed>
+                  )}
+                </div>
+
+                {error && (
+                  <Alert tone="error" className="mt-6">
+                    {error}
+                  </Alert>
+                )}
+                {notice && !error && (
+                  <Alert tone="success" className="mt-6">
+                    {notice}
+                  </Alert>
+                )}
+
+                <div className="mt-8 flex flex-wrap items-center gap-4 border-t border-forest-800/10 pt-6">
+                  <button
+                    type="submit"
+                    disabled={status === "verifying"}
+                    className="inline-flex items-center gap-2.5 rounded-full bg-gold px-7 py-3 text-[0.95rem] font-semibold text-forest-950 transition-colors duration-300 hover:bg-gold-dark disabled:opacity-60"
+                  >
+                    {status === "verifying" && <Spinner className="h-4 w-4" />}
+                    {status === "verifying" ? "Checking…" : "Verify and send brief"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={resendCodes}
+                    disabled={status === "verifying"}
+                    className="link-draw text-[0.88rem] font-medium text-forest-800 disabled:opacity-60"
+                  >
+                    Send new {emailToken && phoneToken ? "codes" : "code"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={editDetails}
+                    disabled={status === "verifying"}
+                    className="link-draw text-[0.88rem] font-medium text-forest-800 disabled:opacity-60"
+                  >
+                    Edit details
+                  </button>
+                </div>
+              </form>
             ) : (
-              <form onSubmit={onSubmit} className="overflow-y-auto px-6 py-6 sm:px-8" noValidate>
+              <form onSubmit={onSubmit} className="overflow-y-auto overscroll-contain px-6 py-6 sm:px-8" noValidate>
                 <p className="text-[0.95rem] leading-relaxed text-ink/65">
                   Four questions, then pick what you&apos;d want in the program. Nothing here is
                   binding — it just means our first reply is useful instead of generic.
@@ -328,7 +542,7 @@ export default function PackBuilder({
                           aria-pressed={on}
                           disabled={status === "sending"}
                           className={cn(
-                            "rounded-full border px-4 py-2 text-left text-[0.85rem] font-medium transition-all duration-300 ease-silk disabled:opacity-60",
+                            "rounded-full border px-4 py-2 text-left text-[0.85rem] font-medium transition duration-300 ease-silk disabled:opacity-60",
                             on
                               ? "border-gold bg-gold text-forest-950 shadow-lift"
                               : "border-forest-800/20 text-forest-800 hover:border-forest-800 hover:bg-forest-800/5"
@@ -371,7 +585,8 @@ export default function PackBuilder({
                       error={fields.phone}
                       autoComplete="tel"
                       inputMode="tel"
-                      hint="Optional — often faster than email."
+                      hint="We'll text a code to confirm it's yours."
+                      required
                       disabled={status === "sending"}
                     />
                   </div>
@@ -405,7 +620,7 @@ export default function PackBuilder({
                     {status === "sending" ? "Sending…" : "Send my brief"}
                   </button>
                   <p className="text-[0.8rem] text-ink/50">
-                    We reply within one working day. No sales sequence.
+                    Next, we&apos;ll confirm your email and phone with a quick code.
                   </p>
                 </div>
               </form>
@@ -414,6 +629,7 @@ export default function PackBuilder({
         </motion.div>
       )}
     </AnimatePresence>
+    </Portal>
   );
 }
 
@@ -482,5 +698,75 @@ function SelectField({
         </p>
       ) : null}
     </div>
+  );
+}
+
+/** A 6-digit code box for the confirm step. */
+function CodeField({
+  label,
+  value,
+  onChange,
+  error,
+  hint,
+  devCode,
+  disabled,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  error?: string;
+  hint: string;
+  devCode?: string;
+  disabled?: boolean;
+}) {
+  const id = useId();
+  return (
+    <div>
+      <label
+        htmlFor={id}
+        className="mb-1.5 block text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink/55"
+      >
+        {label}
+      </label>
+      <input
+        id={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value.replace(/\D/g, "").slice(0, 6))}
+        inputMode="numeric"
+        autoComplete="one-time-code"
+        maxLength={6}
+        placeholder="000000"
+        disabled={disabled}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={`${id}-note`}
+        className={cn(
+          "w-full max-w-[14rem] rounded-xl border bg-ivory-light px-4 py-3 text-center font-display text-2xl tracking-[0.4em] text-forest-900 placeholder:text-ink/20 transition-colors focus:outline-none disabled:opacity-60",
+          error ? "border-red-300 focus:border-red-500" : "border-forest-800/15 focus:border-forest-800"
+        )}
+      />
+      <p
+        id={`${id}-note`}
+        className={cn("mt-1.5 text-[0.8rem]", error ? "text-red-700" : "text-ink/50")}
+      >
+        {error ?? hint}
+      </p>
+      {devCode && (
+        <p className="mt-2 rounded-xl border border-gold/40 bg-gold/10 px-3 py-2 text-[0.8rem] text-ink/70">
+          Development only: nothing was delivered, so the code is{" "}
+          <span className="font-semibold">{devCode}</span>.
+        </p>
+      )}
+    </div>
+  );
+}
+
+function Confirmed({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="flex items-center gap-2 rounded-xl border border-forest-800/10 bg-sage-light/40 px-4 py-3 text-[0.9rem] text-forest-900">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M3.5 8.5 6.5 11.5 12.5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      {children}
+    </p>
   );
 }

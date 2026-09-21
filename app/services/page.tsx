@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Reveal from "@/components/ui/Reveal";
 import FloatingOrbs from "@/components/ui/FloatingOrbs";
@@ -7,9 +6,8 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import CTABand from "@/components/sections/CTABand";
 import ServiceGrid from "@/components/services/ServiceGrid";
 import SelfCheckCta from "@/components/services/SelfCheckCta";
-import { comparison, sessionSteps } from "@/lib/services";
-import { therapyPages } from "@/lib/therapy-pages";
-import { cn } from "@/lib/utils";
+import { listExperts } from "@/lib/experts-store";
+import { sessionSteps } from "@/lib/services";
 import TheRoom from "@/components/visuals/TheRoom";
 
 export const metadata: Metadata = {
@@ -18,17 +16,8 @@ export const metadata: Metadata = {
     "Psychiatry, individual therapy from ₹999, couples and family therapy, student, career and love-life counselling, LGBTQIA+ affirmative care, and group sessions from ₹399. Online and confidential.",
 };
 
-function Check({ yes }: { yes: boolean }) {
-  return yes ? (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="mx-auto text-gold" aria-hidden="true">
-      <path d="M3.5 9.5 7 13l7.5-8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  ) : (
-    <span className="text-ink/25" aria-hidden="true">—</span>
-  );
-}
-
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const experts = await listExperts();
   return (
     <>
       {/* manifesto hero */}
@@ -79,9 +68,7 @@ export default function ServicesPage() {
               <Button href="/book" variant="gold">
                 Book a session
               </Button>
-              <Button href="/match" variant="outline">
-                Not sure which? Take two minutes
-              </Button>
+              <SelfCheckCta variant="outline" experts={experts}>Take the self-check</SelfCheckCta>
             </div>
             <p className="mt-6 text-sm text-ink/50">
               Fifty minutes, from &#8377;599. No diagnosis on day one, and no one
@@ -136,64 +123,6 @@ export default function ServicesPage() {
 
           <ServiceGrid />
 
-          {/* ten options is a lot to choose between when you are not well — this
-              is the way through for anyone who scrolled and felt worse */}
-          <Reveal>
-            <div className="mt-12 flex flex-col gap-6 rounded-2xl border border-forest-800/12 bg-forest-950 p-8 text-ivory sm:flex-row sm:items-center sm:justify-between md:mt-14 md:px-10">
-              <div className="max-w-xl">
-                <p className="eyebrow flex items-center gap-3 text-sage">
-                  <span className="font-deva normal-case tracking-normal text-gold" aria-hidden="true">
-                    मन
-                  </span>
-                  not sure which
-                </p>
-                <h3 className="mt-3 font-display text-2xl font-medium leading-snug text-ivory md:text-[1.7rem]">
-                  Let the answers pick for you.
-                </h3>
-                <p className="mt-3 text-[0.95rem] leading-relaxed text-sage-light/75">
-                  Nineteen questions from the same three screeners a psychologist
-                  would use. You get a percentage for worry, mood and load, one
-                  service to start with, and two therapists who work on it. Nothing
-                  is sent anywhere — the answers never leave your device.
-                </p>
-              </div>
-              <SelfCheckCta className="shrink-0">Take the self-check</SelfCheckCta>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      <section className="section bg-forest-950 text-ivory">
-        <div className="wrap-wide grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
-          <SectionHeading
-            eyebrow="care that meets you there"
-            deva="मन"
-            title="Find therapy by place or language."
-            description="Sessions are online across India. These guides help you find the practical and cultural fit that makes starting easier."
-            dark
-          />
-          <div className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
-            {(["city", "language"] as const).map((kind) => (
-              <Reveal key={kind}>
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">
-                    {kind === "city" ? "By city" : "By language"}
-                  </p>
-                  <div className="mt-4 flex flex-col items-start gap-3">
-                    {therapyPages.filter((page) => page.kind === kind).map((page) => (
-                      <Link
-                        key={page.slug}
-                        href={`/therapy/${page.slug}`}
-                        className="link-draw font-display text-xl font-medium text-sage-light hover:text-ivory"
-                      >
-                        {page.name}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -218,52 +147,6 @@ export default function ServicesPage() {
               </Reveal>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* comparison table */}
-      <section className="section bg-sage-light/30">
-        <div className="wrap">
-          <SectionHeading
-            eyebrow="at a glance"
-            deva="मन"
-            title="Every format, side by side"
-            description="The four core session formats, and only the differences that actually change your decision."
-          />
-
-          <Reveal delay={0.1}>
-            <div className="overflow-x-auto rounded-3xl border border-forest-800/10 bg-ivory-light shadow-lift">
-              <table className="w-full min-w-[640px] text-left text-[0.95rem]">
-                <caption className="sr-only">Comparison of Emoraa session formats</caption>
-                <thead>
-                  <tr>
-                    <th scope="col" className="px-7 py-6 font-medium text-ink/50">
-                      What&apos;s included
-                    </th>
-                    {comparison.columns.map((c) => (
-                      <th scope="col" key={c} className="px-5 py-6 text-center font-display text-lg font-medium text-forest-900">
-                        {c}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {comparison.rows.map((row, i) => (
-                    <tr key={row.label} className={cn(i % 2 === 0 && "bg-sage-light/20")}>
-                      <th scope="row" className="px-7 py-4 font-normal text-ink/80">
-                        {row.label}
-                      </th>
-                      {row.values.map((v, j) => (
-                        <td key={j} className="px-5 py-4 text-center font-medium text-forest-800">
-                          {typeof v === "boolean" ? <Check yes={v} /> : v}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Reveal>
         </div>
       </section>
 

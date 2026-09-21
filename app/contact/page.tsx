@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Reveal from "@/components/ui/Reveal";
 import Accordion from "@/components/ui/Accordion";
 import ContactForm from "@/components/sections/ContactForm";
+import EmailLink from "@/components/contact/EmailLink";
 import FloatingOrbs from "@/components/ui/FloatingOrbs";
 import { faqs } from "@/lib/faqs";
 import { site } from "@/lib/site";
@@ -39,9 +40,7 @@ export default function ContactPage() {
               <div>
                 <dt className="text-xs uppercase tracking-[0.18em] text-ink/50">Email</dt>
                 <dd className="mt-1">
-                  <a href={`mailto:${site.email}`} className="link-draw font-display text-2xl font-medium text-forest-900">
-                    {site.email}
-                  </a>
+                  <EmailLink className="link-draw font-display text-2xl font-medium text-forest-900" />
                 </dd>
               </div>
               <div>
