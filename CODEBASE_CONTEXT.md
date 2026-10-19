@@ -1,11 +1,14 @@
 # CODEBASE_CONTEXT.md
 
-> Canonical memory + map of this repository. **Read this first.** Only open source
+> Canonical memory + map of this repository. **Read this first.** Product truth (users, positioning,
+> evidence, principles) lives in [PRODUCT.md](PRODUCT.md); read it before design or copy work. Only open source
 > files listed under *Change Impact Map* / *File Importance Ranking* for the specific
 > change you're making. Do not rescan the repo unless architecture changed.
 > Last full scan: 2026-08-27 · branch `Tarush` · 1 commit (`1b29a2d Initial commit`).
 > Renamed 2026-08-30: **mann Matters → Emoraa** (domain `emoraa.com`, with `emoraa.in` and `www.` redirecting to it, cookie `emoraa_session`,
-> booking refs `EM-`). Bookings created before the rename keep their `MM-` refs.
+> booking refs `EM-`). The two pre-rename bookings were renumbered to `EM-` on
+> 2026-10-01; both belonged to the owner's own accounts, so no client was
+> holding a receipt that stopped matching.
 > Last updated: 2026-09-04 — booking feature boundary introduced; client journey build-out (payments, reschedule, profile,
 > real availability, state coverage, security hardening). Sections revised: Tech Stack,
 > Project Structure, Architecture, Core Modules, API Reference, Database, Business Rules,
@@ -22,13 +25,16 @@ Everything needed to start work with no extra reading:
   commission not template" visual bar.
 - **Root**: `c:\Users\dell\Desktop\Emoraa` · Windows · PowerShell primary.
 - **Run**: `npm install` → `npm run dev` (:3000). Build `npm run build`; serve `npm start`.
-  No lint/test scripts exist. ESLint is **disabled at build** (`next.config.mjs`).
-- **DB**: SQLite via Prisma 6 at `prisma/dev.db`. `npx prisma db push` to sync schema,
-  `npx prisma db seed` (→ `prisma/seed.mjs`) to create the admin. **No migrations dir** — schema is push-only.
-  Tables include `User`, `VerificationToken`, `PhoneOtp`, `Booking`, `Payment`.
+  Checks: `npm run typecheck`, `npm test` (unit), `npm run test:integration` (needs a running server).
+  No lint script; ESLint is **disabled at build** (`next.config.mjs`).
+- **DB**: PostgreSQL on **Neon** via Prisma 6 (since 2026-10-08; was SQLite). `DATABASE_URL` = pooled
+  URL, `DIRECT_URL` = direct URL (migrations). Separate Neon branches: `dev` locally, main only in
+  production. Schema changes are **migrations** in `prisma/migrations/` (`npm run db:migrate` locally,
+  `npm run db:deploy` on deploy); never `db push`. `npm run db:seed` creates the admin.
+  Tables include `User`, `VerificationToken`, `PhoneOtp`, `Booking`, `Payment`, `RateLimit`.
 - **Auth**: email + password or verified phone + one-time code. Both issue a JWT (`jose`, HS256)
   in the httpOnly cookie `emoraa_session`, 7-day TTL. `middleware.ts`
-  guards `/dashboard/*` and `/admin/*`. Roles `USER` | `ADMIN` (string, not enum — SQLite).
+  guards `/dashboard/*` and `/admin/*`. Roles `USER` | `EXPERT` | `ADMIN` (string column, not an enum — a holdover from SQLite).
 - **Import alias**: `@/*` → repo root. Strict TS, `noEmit`.
 - **Data model**: content (experts, services, posts, tools, testimonials, faqs, helplines)
   is **static typed TS in `lib/`**, not a CMS/DB. Only users/bookings/payments/tokens are persisted.
@@ -46,14 +52,15 @@ Everything needed to start work with no extra reading:
 - **Motion**: framer-motion everywhere + Lenis smooth scroll. Every animation must honor
   `prefers-reduced-motion` (already wired via `MotionConfig reducedMotion="user"`).
 - **Money**: INR, `formatINR()`. **Dates**: `YYYY-MM-DD` strings, times `HH:mm`, always IST —
-  use `todayIST()` / `sessionStart()` from booking-policy, **not** `utils.todayISO()` (server-local).
+  use `todayIST()` / `sessionStart()` from `lib/features/booking/policy.ts`, **not** `utils.todayISO()` (server-local).
 - **Payments are simulated** (`lib/payments.ts`) with deterministic triggers, swappable for a
   real gateway by keeping `charge()`'s signature. Card PAN/CVV are never stored or logged —
   only brand + last4.
 - **Safety rule (product-critical)**: this is *not* a crisis service. Crisis routing to
   Tele-MANAS `14416` / emergency `112` must remain reachable from every page
   (`SafetyNotice`, `ChatAssistant`, `/crisis`). Never remove or bury it.
-- **Nothing is deployed/CI'd**: no Dockerfile, no GH Actions, no vercel.json. Vercel-ready by convention.
+- **Not deployed yet**: no Dockerfile, no vercel.json. Vercel-ready by convention. CI is GitHub Actions
+  (`.github/workflows/ci.yml`) — see Testing.
 
 ---
 
@@ -76,7 +83,8 @@ Everything needed to start work with no extra reading:
   - Content-as-code in `lib/` (single source per domain object; UI never re-declares data).
   - Auth is DIY (jose + bcryptjs), no NextAuth. Session claims carry `role` so middleware
     can gate without a DB hit.
-  - Tools are 100% client-side and privacy-preserving (journal → `localStorage` only).
+  - Tools are 100% client-side and privacy-preserving (journal → `localStorage` only), but they
+    now sit **behind a sign-in gate**. See "Free tools need an account" below.
   - Availability is **real**, derived from the UNIQUE `Booking.slotKey`; the constraint —
     not a read-then-write check — is what prevents double booking.
   - The booking flow gates on auth **before** asking about a concern: health information is
@@ -99,15 +107,15 @@ Everything needed to start work with no extra reading:
 | Styling | Tailwind 3.4 + custom tokens, PostCSS, autoprefixer |
 | Motion | framer-motion 11, lenis 1.1 |
 | 3D | three 0.169, @react-three/fiber 8, @react-three/drei 9 (hero only, lazy) |
-| DB | SQLite + Prisma 6 (`@prisma/client`) |
+| DB | PostgreSQL (Neon) + Prisma 6 (`@prisma/client`), migrations in `prisma/migrations/` |
 | Auth | jose 6 (JWT HS256), bcryptjs 3 (cost 10) |
 | Avatars | @dicebear/core + collection 9 |
 | Email | nodemailer (Gmail SMTP) → Resend REST → console fallback, in that order |
 | Fonts | next/font Google: Fraunces (display), Plus Jakarta Sans (sans), Tiro Devanagari Hindi (देवनागरी) |
 | Images | next/image; remote allowlist: `images.unsplash.com` only |
 | Payments | simulated in-house (`lib/payments.ts`); no gateway SDK |
-| Security | per-route rate limiting (in-memory), same-origin checks, security headers in `next.config.mjs` |
-| Build | next build; **no test framework or CI** (see Testing for what was verified and how) |
+| Security | per-route rate limiting (shared Postgres counters, `RateLimit` table), same-origin checks, security headers in `next.config.mjs` |
+| Build / tests | next build · Vitest (unit + integration) · GitHub Actions CI (see Testing) |
 
 ---
 
@@ -191,6 +199,12 @@ Everything needed to start work with no extra reading:
   brain's limbic/frontal hues so the palettes agree across pages), **strand count = people in
   the room**, **lane length = session duration**. Click fires a four-stage sequence: burst ring
   at the cursor → lit front travelling the lane and calming it → arrival flare → ease back).
+  `ScriptConstellation` (`/therapists` — the care team as the languages they speak: one star per
+  practitioner in their card's hue, orbited by a letter from each script in their `languages` (ह, த, അ, અ…;
+  unknown languages fall back to their initial). Threads join people who share a *rarer* language — any
+  language more than half the team speaks, and English, gets none — and that letter travels along them.
+  Hover a letter: its speakers lean in, the rest step back, and the language is named in its own script.
+  Click holds the selection. Fonts: `--font-deva` / `--font-display`, then the device's Indic fonts).
   Each uses a *different mechanic* from the brain on purpose, not a different silhouette.
   **Reduced motion must freeze *position*, not just progress** — a scene that stops advancing
   its own clock but still reads live `t` for sway, or derives age from `performance.now()`, keeps
@@ -222,8 +236,8 @@ Everything needed to start work with no extra reading:
 
 ### `lib/` — data + logic (no React)
 - **Feature modules**: `features/booking/policy.ts` is isomorphic; `features/booking/server.ts`
-  owns slot holds, sweeps, ownership, and serialization. Root `booking-policy.ts` and
-  `bookings.ts` are compatibility exports for incremental migration only.
+  owns slot holds, sweeps, ownership, and serialization. (The old root `booking-policy.ts` /
+  `bookings.ts` compatibility exports have been removed; import from `features/booking/*`.)
 - **Server-only**: `auth.ts`, `db.ts`, `verification.ts`, `email.ts`,
   `payments.ts` (gateway simulator),
   `http.ts` (response envelope, no-store, same-origin, safe logging), `rate-limit.ts`.
@@ -232,7 +246,7 @@ Everything needed to start work with no extra reading:
 - **Static content**: `experts.ts`, `services.ts`, `posts.ts`, `tools.ts`, `testimonials.ts`,
   `faqs.ts`, `organisations.ts`, `site.ts`, `service-details.ts`, `therapy-pages.ts`.
 
-### `prisma/` — `schema.prisma`, `seed.mjs`, `dev.db` (gitignored).
+### `prisma/` — `schema.prisma`, `migrations/` (committed; the schema's history), `seed.mjs`. An old SQLite `dev.db` may linger locally (gitignored, unused).
 ### `public/` — `reviews/` (30 pngs), `team/`, `sounds/`. `assets/avatars/` — source art.
 ### `.claude/` — `launch.json` (next-dev debug), `settings.local.json` (permission allowlist).
 
@@ -250,7 +264,7 @@ flowchart TD
   MW -->|ok| RSC
   B -->|public routes| RSC[Server Components<br/>app/**/page.tsx]
   RSC --> LIBDATA[lib/*.ts static content]
-  RSC -->|dashboard, admin only| PRISMA[(SQLite prisma/dev.db)]
+  RSC -->|dashboard, admin only| PRISMA[(Postgres on Neon)]
   B -->|fetch| API[app/api/**/route.ts]
   API --> AUTH[lib/auth.ts<br/>jose + bcryptjs]
   API --> VER[lib/verification.ts<br/>sha-256 tokens]
@@ -274,7 +288,7 @@ sequenceDiagram
   participant U as User
   participant F as BookingFlow
   participant A as API
-  participant D as SQLite
+  participant D as Postgres
   U->>F: opens /book
   Note over F: auth resolved server-side; logged out sees the gate, not the form
   U->>F: concern, expert
@@ -303,7 +317,7 @@ sequenceDiagram
 ```
 
 **Data flow**: static content flows `lib/` → server component → props → client leaf.
-Mutable state flows client `fetch` → route handler → Prisma → SQLite, and comes back through
+Mutable state flows client `fetch` → route handler → Prisma → Postgres, and comes back through
 `serializeBooking()`, a column allow-list. Tool state never leaves the browser.
 
 **Auth flow**
@@ -433,15 +447,404 @@ helplines; Tele-MANAS and 112 flagged `primary`), `navLinks`, `toolLinks`, `stat
   `{error, code, fields?}`. `isSameOrigin()`, `clientKey()`, `readJson()`, `logFailure()`
   (message only, never a person or a secret).
 
-### `lib/rate-limit.ts` — in-memory sliding window
+### `lib/rate-limit.ts` — shared fixed-window limiter (Postgres)
 - `LIMITS`: login 8/10min, signup 5/hr, resend 4/hr, verify 12/10min, payment 10/10min,
-  booking 20/10min, password 6/hr, Manu 20/10min. `resetLimit()` clears a bucket after a genuine success.
-- **Per-instance** — see Technical Debt.
+  booking 20/10min, password 6/hr, forgot 4/hr, reset 10/hr, enquiry/contact 20/hr, feedback 10/hr,
+  Manu 20/10min, coupon 15/10min. `await rateLimit()`; `resetLimit()` clears a bucket after a genuine success.
+- Counters live in the `RateLimit` table, so every instance shares them; identifiers are HMAC'd with
+  `AUTH_SECRET` before storage. Fails open if the database is unreachable.
 
 ### `lib/validation.ts` / `lib/payment-fields.ts` — shared field rules
 - Imported by the form and the handler both, so an inline message and a server rejection can't
   disagree. Phone parsing tolerates spaces, dashes, `+91`, leading `0`. Masking helpers
   (`maskEmail`, `maskPhone`, `maskVpa`, `formatCardDisplay`) live alongside.
+- `STATE_OPTIONS` (28 states + 8 UTs) and `LANGUAGE_OPTIONS` are allow-lists; `validateCity`
+  rejects by exception instead (digits and markup), so every Indian script passes.
+
+### `lib/admin-period.ts` + `components/admin/PeriodPicker.tsx` — the time filter
+- **One resolver for every admin screen that filters by time.** `resolveRange(searchParams)`
+  turns `?period=week` or `?from=&to=` into a `Range`: a pair of `YYYY-MM-DD` dates in clinic
+  time, the matching IST-midnight instants, a label and a day count. Nothing downstream needs
+  to know whether a preset or a typed range produced it.
+- `dateWhere(range)` filters a `YYYY-MM-DD` string column (bookings); `instantWhere(range)`
+  filters a real timestamp (clients, audit). `toAt` is the first instant **after** the last
+  day, so an 11pm IST signup on the final day is inside the range.
+- **Everything is clamped, never rejected**: a future `to` comes back to today, a `from` before
+  2020 to 2020, a reversed pair is swapped, junk falls back to the preset. A filter is a view,
+  and a view that 500s because somebody typed a date in 1823 is worse than one that shows what
+  it can. `tests/unit/admin-period.test.ts` holds the cases.
+- `rangeParams(range)` carries the current range into a link that changes something else, so
+  picking a zoom or a status does not silently reset the dates.
+- The picker uses native `<input type="date">` — the platform's calendar, keyboard and locale
+  for free, and nothing added to the bundle. `today` is passed from the server: the browser's
+  clock is in the visitor's timezone, and an admin in London must not be offered "tomorrow".
+- On `/admin/insights`, **four panels deliberately ignore the range** (retention, free-session
+  conversion, languages) and say so on screen. A fortnight cannot tell you whether anybody came
+  back, so scoping those would produce a confident wrong answer.
+
+### `lib/admin-clients.ts` / `lib/admin-payments.ts` / `lib/admin-status.ts` — admin data
+- `admin-clients` backs the directory and the one-client page: sessions, no-shows, cancellations
+  and spend, in three grouped queries rather than one per row. It selects an allow-list and
+  **never** `notes` or the intake form — clinical, and not an admin's to read.
+- `admin-payments` has `listPayments` (by status) and `moneyLeftOnTheTable`: a pending or failed
+  payment on a session whose date has passed, i.e. time a practitioner may have given for free.
+  A booking sitting at PENDING while somebody types their card in is not a debt, so the date
+  filter is what makes the list mean anything.
+- `admin-status` maps a stored status to its label and tone once, so the screens cannot call the
+  same row "awaited" on one page and "unpaid" on the next.
+
+### Booking is request-first (changed 2026-10-11)
+A booking no longer confirms on payment. The states are
+`REQUESTED → PENDING_PAYMENT → CONFIRMED`, with `DECLINED` and `EXPIRED` as the exits.
+
+- **The client asks.** `createBooking` / `createProBonoBooking` both open at `REQUESTED`, holding
+  the slot, with a `PENDING` payment row so every screen that reads `payment` still has something
+  honest to show. **Nothing is charged.**
+- **`/api/payments` refuses a REQUESTED booking** (`409 AWAITING_THERAPIST`). That is the gate for
+  the whole flow: without it a client with the payment screen open could pay for a session nobody
+  has agreed to.
+- **The practitioner answers.** Accept → `PENDING_PAYMENT` (or straight to `CONFIRMED` if free,
+  since there is nothing to pay) and the client is emailed a link. Decline → `DECLINED`, the slot
+  is released immediately, and a reason is required. **The reason is never shown to the client** —
+  it is written for the record, and "not a good fit for my caseload" reads very differently to the
+  person it is about.
+- **Nobody answers** → `releaseExpiredHolds()` expires it. `requestExpiry()` is 24 hours, or two
+  hours before the session, whichever is sooner: a request for tomorrow morning cannot sit for a
+  full day.
+- **Colour**: `BOOKING_STATUS_META` / `statusMeta()` in `lib/expert-portal.ts` — yellow waiting,
+  green agreed, red declined, each with a label, because colour alone is no use to a screen reader.
+  `StatusBadge` now takes `ViewStatus` (every status a booking can be *in*) while `SessionStatus`
+  stays the narrower set a practitioner may *set*.
+
+### The expert portal
+- `/expert` leads with **Waiting on you** — the request board, accept in one press, decline behind
+  a reason.
+- `/expert/earnings` (`lib/expert-earnings.ts`) — their **share**, never gross: earned / received /
+  awaited, plus what clients still owe. Every query is scoped by the `expertId` from the session.
+- `/expert/sessions` gains **Today** and **Waiting on you** filters and a date range. It resolves
+  the range with `allowFuture: true` and defaults to all time — a 30-day default would open the
+  page on an empty "Upcoming".
+- The session page shows the client's **name, age, gender and preferred language** (the lists stay
+  masked), their **history with this practitioner only**, and **Suggest a follow-up**.
+- **Follow-ups** (`FollowUp` model): one live suggestion per practitioner per client, a second
+  inside a week is refused. It books nothing — a therapist who could put sessions in a client's
+  calendar would be one the client could not easily say no to.
+- **Quiet hours are gone** (migration `drop_expert_quiet_hours`), with the three columns dropped.
+
+### Rescheduling — the practitioner proposes, the client decides
+- `POST /api/expert/sessions/[id]/reschedule` stores a `RescheduleOffer` of up to **3 dates × 2
+  times** and emails the client. **It moves nothing.** A therapist who could move a client's
+  appointment unilaterally would be one whose clients cannot rely on their own calendar; if the
+  client never answers, the original time stands.
+- The offered slots are **not held** — holding six times to move one session would block most of
+  a week for one person. The client's pick is settled against the UNIQUE `Booking.slotKey`, and a
+  lost race returns `SLOT_TAKEN` with the offer still open so the other times remain.
+- `rescheduleCount` is the client's own allowance of changes and is **deliberately not spent** by
+  a move the practitioner asked for.
+- Rules live in `lib/reschedule-offers.ts` (`checkOffer`, `wasOffered`, `offerExpiry`), tested in
+  `tests/unit/reschedule-offers.test.ts`. An offer never outlives the earliest slot it offers.
+
+### Prescriptions — psychiatrists only
+- **The gate is `canPrescribe(profession)` on the route**, not on the screen. A clinical
+  psychologist cannot prescribe in India, and a hidden button is not a control. A missing
+  medical-council registration number is also refused: a prescription without one is not one a
+  pharmacy can act on.
+- `prescriberName` / `prescriberCreds` / `registrationNo` are **snapshotted at issue**. Read live
+  from the profile, editing that profile would rewrite every prescription issued under it.
+- **Nothing is ever edited.** A mistake is withdrawn (with a reason, kept) and replaced, so the
+  record shows what was authorised and what withdrew it.
+- Numbered `EMR/RX/<fy>/0001`, gapless, from the `ReceiptSequence` table under an `RX-` key so
+  the two series cannot collide.
+- `looksRestricted()` flags Schedule X / NDPS-style names against the Telemedicine Practice
+  Guidelines but **does not block** — the prescriber is the accountable professional. The list is
+  indicative and the form says so: **an unflagged drug has not been cleared by anything.**
+- Rendered at `/prescription/[id]` as a print-styled page, like receipts — no PDF library. Readable
+  by the patient, the prescriber and an admin; anyone else gets a 404, because a 403 would confirm
+  the prescription exists.
+- **Nobody can prescribe today**: the catalogue has no psychiatrist and no registration numbers.
+  The feature is dormant until a real, verified prescriber is added.
+
+### Home: the hero brain is labelled (`components/three/NeuralBrain.tsx`)
+- Eight concerns named **around the existing hero brain** — Anxiety, Low mood, Exam stress, Career
+  worry on the left; Family pressure, Love life, Burnout, Can't sleep on the right — each a link.
+  `CALLOUTS` sits beside `REGIONS`.
+- **Nothing points at the brain.** There is no leader and no dot on the silhouette. An earlier pass
+  softened the leader from a solid line into a trail of dots and it still read as an anatomical
+  figure, because **the leader is the diagram**: a word joined to a spot on a specimen is a
+  labelled figure however the join is drawn. Styling the pointer was treating the symptom.
+- Three things carry the "thoughts around a mind" read instead: the words are scattered (varied
+  height, varied distance, left and right staggered), their size varies widely (`c.fs`,
+  0.80–1.10rem), and so does their presence (`c.dim`, 0.62–1.00) — nearer thoughts clear, further
+  ones faint.
+- **Only half carry a sub-line** (`c.also`). Term-plus-caption on all eight is a legend; on four of
+  eight it reads as chosen. That and the size variation are what stop the set scanning as a key.
+- The words still light on the brain's own pulse (`calNode` / `calUntil`), which is what keeps them
+  from being static now that nothing connects them to it.
+- **No second brain anywhere.** An earlier attempt at a separate labelled-brain section was
+  removed; there is one brain on the home page and these labels are on it.
+- **Each word is anchored in the brain's own 600×560 space** (`ax`/`ay`), at a point just clear of
+  the silhouette at that word's own height — not at a fraction of the container. This is the whole
+  layout. The first version reserved a full label column either side of the brain's entire 600-wide
+  box and then pinned the words to the container's edges, which cost far more room than it needed
+  to: the silhouette is only ~480 wide and narrows sharply top and bottom, so the result was a
+  small brain trailing long leaders across empty ivory.
+- **`brainScale` is derived, not typed in.** `REACH` is computed from `CALLOUTS` — each word's
+  reach from the brain's centre paired with its own box width — and the scale is the tightest of
+  those, so the only thing that must fit beside the brain is one word at a time. Adding or moving
+  a callout re-derives the scale, which is what stops the old failure where a stale constant
+  pushed a word back onto the artwork.
+### Free tools need an account
+- Free, never paid — but every tool requires sign-in: the seven under `/tools/*`, plus `/breathe`,
+  `/check-in` and `/match`. The `/tools` menu is deliberately outside the gate so somebody can see
+  what is on offer before being asked for an account.
+- `components/tools/ToolGate.tsx` (server, checks the session) renders `ToolWall` (client, reads
+  `usePathname` for the `next` param) instead of the page. A **wall, not a `redirect()`**: a
+  redirect drops someone on /login with no explanation and no route to help, and loses the URL.
+- Applied from four layouts — `app/tools/(gated)/layout.tsx` and one each for breathe, check-in and
+  match — so a tool added later is gated by default rather than by memory. The `(gated)` route
+  group changes no URLs.
+- **The wall always carries crisis routing** (Tele-MANAS 14416, 112, and a link to `/crisis`).
+  This is not decoration: the gate now stands between a distressed person and the grounding
+  exercise, which runs against PRODUCT.md's first principle. `/crisis` is never gated and embeds
+  `BreathingExercise` directly, so breathing is always reachable with no account. Asserted in
+  `tests/integration/access-control.test.ts`.
+- **The journal still stays in `localStorage`.** Requiring an account to open a tool is not a
+  reason to store what someone writes in it.
+- **The service worker stopped precaching the tools** (`public/sw.js`, cache bumped to `emoraa-v2`).
+  Their HTML now varies by account, which is exactly what that file says never to cache — and the
+  precache runs on install, when nobody is signed in, so it would have stored a sign-in wall and
+  served it offline to a signed-in person. `/crisis` is still precached, so the one page that must
+  survive a dead signal still does. The install prompt no longer promises offline tools.
+
+### Printed documents fit one sheet
+A practice plan printed on two pages, with the dark footer band cut in half and the
+confidentiality line — the most important sentence on it — alone on page two.
+- **The document was never too tall.** It measures 828px under print emulation against 1032px of
+  A4 at the 12mm margins `@page` asks for. What overflowed was the page's own screen spacing:
+  `pb-24` is 96px of empty paper below the footer, and that is what crossed the boundary. Print
+  now zeroes bottom padding and margin on `.page-top`, `.wrap` and `.wrap-wide`.
+- **`break-inside: avoid` is named on the footer and header too.** It was already on `[data-receipt]`,
+  but that is ignored the moment a document is taller than a sheet, and the browser then breaks
+  wherever it likes. Naming the bands keeps each one whole.
+- Verified by printing to PDF through the browser and counting `/Type /Page`: two pages before the
+  change, one after, and the receipt also one. Re-run `scratchpad/printcheck.mjs` after touching
+  the print block or any document layout.
+
+### Claims that appear in many places read from one module
+Three facts were typed into dozens of files and had drifted apart. Each now has one source, and
+`tests/unit/copy-claims.test.ts` fails if a second version appears.
+- **Languages — `lib/languages.ts`.** The home page said "8 Indian languages", `/made-in-india` said
+  "Hindi and English today", the FAQ said "2+". All three derive from the practitioner roster now.
+  Two things the old copy got wrong: English was counted as an Indian language (it is 7, not 8),
+  and Telugu and Bengali were promised "through 2026" while nobody on the roster spoke either.
+  A language reaches the site only by being in somebody's profile.
+- **Price — `lib/price-claims.ts`.** "From ₹599" appeared in ~10 places, but ₹599 is the **student**
+  rate; individual therapy is ₹999. Copy now names both, or names ₹999. A single headline figure
+  should be the one most readers are charged.
+- **The practitioner descriptor — `site.practitionerWord` ("certified").** Three words were in
+  circulation. One constant now. The site never says the practitioners as a group hold a council
+  registration, because Emoraa does not require one — "licensed" is read in India as exactly that
+  claim, so it is not used either.
+- **A register is shown per practitioner, not claimed for the group.** `Expert.registrationBody`
+  ("RCI" | "NMC" | "STATE" | "") renders on that person’s profile as e.g. "RCI registered", beside
+  their number when they have given one. Set by an admin; the API accepts only a value from
+  `REGISTER_OPTIONS`, so a crafted request cannot invent a register on a public profile.
+  `tests/unit/copy-claims.test.ts` fails if any copy pairs a register with a plural practitioner
+  noun — the difference between "RCI registered" under one name and "our RCI-registered
+  psychologists", which would be false.
+- **Analytics excludes the individual tools** (`AnalyticsProvider`). `/tools` (the menu) is counted;
+  `/tools/*`, `/breathe`, `/check-in` and `/match` are not. Which tool somebody opened is a
+  mental-health signal, and the `/tools` page promises no tracking — counting them made that untrue.
+
+### Blog: posts are rows, written in the portals
+- **`lib/posts.ts` no longer holds posts.** It keeps the shared types, the category list and the
+  heading helpers; the posts themselves are `Post` rows read through **`lib/blog.ts`**. The ten
+  original essays were moved in by `scripts/import-posts.mjs` (idempotent, matches on slug) and
+  their slugs, dates and bylines are unchanged, so no URL broke.
+- `prisma/seed-posts.json` is the frozen copy for seeding a fresh environment. It is JSON, outside
+  `lib/`, so it cannot be imported by accident as if it were live content — a second copy of a post
+  an admin can edit starts lying the moment they edit it.
+- **An expert writes and submits; an admin publishes.** An expert cannot publish, including their
+  own work and including by calling the admin route directly. These go out under a named clinician
+  on a mental-health service, where an unsourced statistic or advice that is wrong for someone in
+  crisis is a real harm, so a second person reads it first. Admins publish their own directly — a
+  reviewer approving themselves is a formality, not a check.
+- **`lib/post-policy.ts` is the single source of the rules**: who may edit, who may delete, and
+  every status transition. `lib/post-api.ts` implements the handlers once and both
+  `/api/expert/posts` and `/api/admin/posts` mount them, so the two cannot drift apart. The
+  editor's buttons come from `movesFor(...)`, the same function the API checks with, so the screen
+  can only offer what the server would accept.
+- **Access is a `where` clause, not a filter.** An expert's list query is scoped to `authorId`, so
+  a post they may not see is never read out of the database. Reading someone else's draft returns
+  **404, not 403** — a 403 confirms the post exists.
+- The slug is frozen once a post has been published, because somebody may have shared the link.
+- Cover art and the Devanagari word are chosen from the category (`artFor`), reusing the images the
+  original essays ship with. Asking a practitioner to source a photograph before they can publish
+  is how a blog ends up with one post. Admins can override both.
+- `/blog` and `/blog/[slug]` are ISR at `revalidate = 600`, and the sitemap reads `listPublished()`.
+  Drafts are not reachable by URL — `getPublished` filters on `status: "PUBLISHED"`.
+- Covered in `tests/integration/access-control.test.ts`: another expert cannot read, edit or reach
+  the draft (incl. via the admin route), an expert cannot publish by either route, a too-short post
+  is refused, and a published post can no longer be edited or deleted by its author.
+
+### Home: "Not sure?" — the self-check starts on the page
+- `components/sections/NotSure.tsx`, between `HowItWorks` and `WhyEmoraa`. That position is
+  deliberate: the doubt "is this even for me?" arrives once somebody knows what a session is.
+- **The page asks question one instead of advertising the test.** A button saying "take the test"
+  asks for a decision first, and that decision is the whole barrier for someone who is not sure
+  anything is wrong enough to count. Tapping an option answers it and opens the dialog at question
+  two, so they are in before they chose to start.
+- **It is the real first GAD-7 item**, with the real response set — not a teaser. A fake warm-up
+  question would either be discarded (wasting the tap) or folded into a validated instrument,
+  which would break the score.
+- `SelfCheck` takes an optional `seed` prop for this: the answer is written into state and the
+  step set to 2. Pressing Back shows question one with that option selected, which is the test
+  that it is a real answer and not a skip.
+- **No result is shown or implied on the page.** One item of a seven-item scale means nothing
+  alone, and hinting otherwise would be handing out a diagnosis. The "check, not a diagnosis" line
+  sits above the question, not below it.
+- Answers stay in component state. Nothing is stored, sent or logged — the same rule `SelfCheck`
+  already works under.
+- Placed above `ManuOnWhatsApp`, so the doubt is answered before the free alternatives.
+- **The result needs an account** (`SelfCheck`'s `signedIn` prop, from `/api/auth/me`). Two rules
+  make that acceptable rather than a trap:
+  - **The visitor is told before question one**, not after nineteen. The notice renders by
+    default and is hidden only once we know they are signed in — a warning that arrives a second
+    late, after the first tap, has not done its job. The privacy page promises no dark patterns.
+  - **The gate fails closed.** While `signedIn` is `undefined` the dialog shows "One moment…",
+    never the result. An earlier version treated unknown as allowed, which meant a slow or failed
+    auth fetch handed out the result.
+- **Answers are not carried through the sign-in.** Keeping them would mean writing GAD-7 and PHQ-8
+  responses to storage, which PRODUCT.md forbids. The panel says plainly that the check must be
+  retaken instead of silently losing it.
+- The wall still routes to crisis help (14416 and `/crisis`), and `next` returns the visitor to
+  the page they started from — the check is hosted on both `/` and `/services`.
+
+### Home: the hero's explanatory line (`components/sections/Hero.tsx`)
+- The line under the headline says **what Emoraa is**, and that is deliberate. It previously ran
+  "Somewhere to start, when you are not sure therapy is for you" — warm, but it explained nothing,
+  and once the WHO/HOW/COST ledger became bare figures a visitor could read the whole hero and not
+  learn this is online therapy. The headline is emotional, the figures are terms, and the eyebrow
+  at 0.68rem uppercase reads as decoration.
+- Set in **reverse hierarchy** so it is not a grey paragraph: what happens, who you see and what
+  is free carry weight and colour; the words joining them sit at `ink/55`. The warmth moved to the
+  headline, which is where it belongs.
+- It repeats the site-wide **"qualified psychologists"** promise, which PRODUCT.md records as a
+  launch commitment not yet met while the placeholder therapists are in place. (Changed from
+  "licensed" on 2026-10-16: practitioners need not hold a council registration — see
+  `lib/professions.ts`.)
+
+### Home: the hero's opening block
+- **The first line says what Emoraa is.** It read "Private video sessions with certified
+  psychologists" — a description of the service that never named it, so a visitor could read the
+  whole hero and not know what the site was. It now opens "Emoraa is an online therapy platform
+  for India", then lists what people arrive with (anxiety, low mood, family, relationships, work,
+  sleep). The list is what carries "wide range"; no word in it is hard.
+- **The three large figures are gone.** ₹0 / ₹599–999 / 7 was the stat block every landing page
+  has, and it stopped holding together once two of the three values were not numbers: an offer, a
+  price and a promise about language are not parallel data. The terms are one quiet line above a
+  hairline — "First session free · then from ₹599 · in your language" — which lets the left column
+  be the calm half of a hero that already carries a 700px animated brain.
+- `lib/brain-pulse.ts` went with them. It existed to light the figures on the brain's beat; with
+  no listener left, emitting was dead code.
+
+### Practice plans — what any practitioner can set
+- **Not a prescription, and deliberately not called one.** Only a registered medical
+  practitioner may prescribe, and the word carries that meaning whether we intend it or not. A
+  psychologist setting breathing practice is doing something real and worth writing down, but it
+  is not the same act. The printed document says so in as many words.
+- Built **on top of `Homework`, not beside it**: the same rows the client already ticks off, with
+  `frequency` and `duration` added (migration `homework_frequency_duration`) so an exercise says
+  how often and for how long. A second place for "things to do" would have confused both sides.
+- `practicePlan(bookingId)` in `lib/homework.ts` renders at `/plan/[id]` — print-styled like
+  receipts and prescriptions. A session with no practice set has no plan, so it 404s rather than
+  printing an empty sheet.
+- Readable by the client, the practitioner who set it, and an admin. Anyone else gets a 404.
+
+### Session documents — one letterhead, filled in from the booking (added 2026-10-15)
+- `/prescription/[id]` and `/plan/[id]` both render inside `components/documents/Letterhead.tsx`:
+  the printed stationery (forest wordmark, gold rule, practitioner block top-right, forest footer
+  band with contacts, confidentiality line and Tele-MANAS 14416 / 112) rebuilt as a page.
+- **The practitioner never types the patient's details.** `sessionDocHeader(bookingId)` in
+  `lib/session-documents.ts` reads booking ref, session date/time, client name, age/sex and
+  language from the booking and profile, and works out **session no.** (this practitioner's
+  CONFIRMED / COMPLETED / NO_SHOW sessions with this client, up to and including this one). The
+  same function feeds the read-only "Filled in on the letterhead" box on the expert's session page
+  (`components/expert/DocumentDetails.tsx`), so what they check and what the client gets agree.
+  It trusts its booking id: callers do the access check first.
+- The prescription keeps its **snapshotted** prescriber; the plan reads the live listing via
+  `practitionerLine()` (it is not a medico-legal record).
+- **Issuing is sending.** A prescription emails the client on issue; a plan is sent with
+  "Send plan to client" (`POST /api/expert/sessions/[id]/plan`, `planSend` rate limit), once the
+  practitioner has finished rather than one email per task. Both use `sendDocumentIssuedEmail()`,
+  which says *that* something is ready and links to it behind sign-in — **never the content**: a
+  medicine name in an inbox preview tells whoever glances at it more than the client chose to share.
+  A failed email does not undo anything; the document is on the client's dashboard regardless.
+
+### Expert billing
+- `/expert/earnings/statement` — one month, session by session, with the platform's cut shown on
+  every line, printable and downloadable as CSV.
+- `earningsBreakdown()` adds by-service and by-client splits to `/expert/earnings`.
+
+### Refunds — two paths, two different rules
+- **Client cancels** (`/api/bookings/[id]/cancel`): pays out exactly what `refundFor` allows —
+  everything outside the 24-hour window, nothing inside it.
+- **Admin overrides** (`/api/admin/bookings/[id]/refund`): any amount up to what is left, bounded
+  server-side by `refundableAmount()` in the booking policy. For a practitioner who did not turn
+  up, a room that never opened, a complaint worth settling. A reason is required — an override
+  with no reason is indistinguishable from a mistake — and it is audited, never shown to the
+  client. **It does not cancel the session**: refunding and cancelling are different decisions.
+- **Partial refunds**: `Payment.refundAmount` is the running total given back and is read
+  whatever the status says; `status` flips to `REFUNDED` only when nothing is left. A
+  half-returned payment is still half held, so calling it "Refunded" everywhere would mislead.
+
+### `lib/payouts.ts` — revenue and what practitioners are owed
+- **Who gets paid for what — `paysPractitioner()` (changed 2026-10-16).** Held sessions
+  (`CONFIRMED`, `COMPLETED`, `NO_SHOW`) always count. A **`CANCELLED`** session counts when its fee
+  was kept — i.e. the client cancelled inside the 24-hour window and was not refunded — because the
+  client is told the practitioner had set the time aside. An early cancellation was refunded in full,
+  nets to nil and drops out. Queries select `PAYABLE` and filter with `paysPractitioner`, in both
+  `payoutsForMonth` and every function in `lib/expert-earnings.ts`, so admin payouts and the
+  practitioner's earnings/statement agree. Admin revenue session counts still use `HELD` only.
+  Tests: `tests/unit/pays-practitioner.test.ts`.
+- `moneyByGrain(grain, count)` buckets takings by day / week / month / year. All of it is string
+  maths on `Booking.date`, already a YYYY-MM-DD in clinic time: converting an IST date string
+  through a server-local `Date` is how a 00:30 session migrates into the previous day.
+  Weeks start Monday; empty buckets are kept, because a week with no sessions is a fact.
+- `moneyOverRange(range, grain)` buckets takings across the selected range; `bucketsBetween`
+  always returns whole buckets at both ends and is capped at `MAX_BUCKETS` (366), so "all time"
+  at a daily zoom cannot build ten thousand rows. `suggestGrain(days)` fits the zoom to the span
+  unless the admin picks one — a fortnight read monthly is two bars.
+- `payoutsForMonth` now carries `settled` from the `Payout` table — null while awaited. Payouts
+  stay **monthly** and take no range: a payout is defined per calendar month, so a date range
+  across one would be a figure nobody could reconcile against what was actually sent.
+- `moneyOn(payment)` is the single answer to "what did this payment do to the balance", and
+  **a refunded payment still counts as collected** — it arrived, then some went back. Reading
+  `collected` as "untouched payments only" subtracted a refund twice (dropped from `collected`,
+  added to `refunds`), so `net` went negative on a session that merely broke even. On a *held*
+  session that error reached the payout: `collected − refunded` went below zero and ate the
+  practitioner's earnings from their other sessions. Fixed 2026-10-10, with
+  `tests/unit/money-on.test.ts` holding the cases. The lifetime tiles on `/admin/revenue`,
+  `/admin` and `/admin/payments` are gross for the same reason, so they agree with the tables
+  beneath them.
+
+### `lib/avatars.ts` — a client's own picture (server-only; reads the filesystem)
+- `User.avatar` holds one of two things: a watercolour from `/public/reviews` (public, stored
+  as `/reviews/12.png`), or `/api/profile/avatar/<16-hex>.<ext>` for an uploaded photo.
+- **Uploads are written to `/private/avatars`, outside the web root, and served by a route
+  that checks the caller** (owner · a practitioner with a booking for them · admin). A face on
+  a therapy site is a medical fact about a person; an unguessable `/public` path is obscure,
+  not private. `/private/` is gitignored.
+- Because the serving route needs the session cookie, an uploaded avatar must be rendered with
+  a plain `<img>` — `next/image`'s optimiser fetches server-side and would get a 401.
+- A review's avatar is a separate column on `Feedback` and stays watercolours-only on purpose:
+  a testimonial is a public statement that someone had therapy.
+
+### `components/ui/Field.tsx` — `Field` / `TextArea` / `Select`
+- One `Shell` carries the label, hint, error wiring and the required marker for all three, so
+  the `*` and the `optional` tag are consistent sitewide from this one place. `required` sets
+  `aria-required`, not the native `required` attribute — native validation would pop a browser
+  bubble and skip the inline errors every form here already shows.
 
 ### `components/booking/BookingFlow.tsx` — 5-step machine
 - Steps: Concern → Expert → Date & time → Review → Payment, then a confirmation screen.
@@ -490,6 +893,19 @@ All handlers live in `app/api/**/route.ts`. All accept/return JSON. Auth = `emor
 | `/api/auth/resend` | POST | none | Re-issue verification email (enumeration-safe) |
 | `/api/auth/me` | GET | optional | Current user or `null` |
 | `/api/auth/logout` | POST | none | Clear cookie |
+| `/api/admin/clients/[id]` | PATCH | admin | Block / unblock a client (reason required to block) |
+| `/api/admin/payouts` | POST | admin | Record a payout as sent, or undo that |
+| `/api/admin/bookings/[id]/refund` | POST | admin | Refund a payment, in whole or in part (reason required) |
+| `/api/expert/sessions/[id]` | PATCH | expert | `accept` / `decline` a request, plus the existing status + meeting-link actions |
+| `/api/expert/sessions/[id]/follow-up` | POST | expert | Suggest another session to that client (emails a booking link) |
+| `/api/follow-ups/[id]` | POST | session | The client dismissing a suggestion |
+| `/api/expert/sessions/[id]/reschedule` | POST | expert | Offer up to 3 dates × 2 times. Moves nothing. |
+| `/api/bookings/[id]/reschedule-offer` | POST | session | The client taking one of those times, or keeping theirs |
+| `/api/expert/sessions/[id]/prescription` | POST / PATCH | psychiatrist | Issue a prescription (emails the patient a link, never the content) / withdraw one |
+| `/api/expert/sessions/[id]/plan` | POST | expert | Email the client a link to their practice plan (409 if the plan is empty) |
+| `/api/profile/avatar` | PATCH | session | Set own avatar to an offered watercolour, or clear it |
+| `/api/profile/avatar` | POST | session | Upload own photo (multipart `file`, ≤5 MB, JPEG/PNG/WebP) |
+| `/api/profile/avatar/[file]` | GET | session | Serve an uploaded avatar — owner, their practitioner, or admin only |
 | `/api/profile/phone/request` | POST | session | Request OTP to confirm saved profile phone |
 | `/api/profile/phone/verify` | POST | session | Confirm ownership of saved profile phone |
 | `/api/manu` | POST | none | Crisis pre-filter, then stateless Claude response |
@@ -577,7 +993,9 @@ newsletter endpoint remain absent. There is **no admin write API** — `/admin` 
 
 ## Database
 
-SQLite, `DATABASE_URL="file:./dev.db"` resolved **relative to `prisma/`**.
+PostgreSQL on Neon. `DATABASE_URL` (pooled) for the app, `DIRECT_URL` (unpooled) for
+`prisma migrate`. Migrated from SQLite on 2026-10-08 with a fresh start: the new database got
+the schema and the seed, not the old rows (the old `prisma/dev.db` stays on disk as a backup).
 
 ```mermaid
 erDiagram
@@ -589,9 +1007,47 @@ erDiagram
 
 **User** — `id cuid PK` · `name` · `email UNIQUE` · `passwordHash` · `role` string default
 `"USER"` · `emailVerified DateTime?` (null = unconfirmed) · **`phone? UNIQUE`** ·
-**`phoneVerified DateTime?`** · **`language?`** ·
+**`phoneVerified DateTime?`** · **`language?`** · **`city?`** · **`state?`** · **`avatar?`** ·
 **`notes?`** (free text for the therapist — treated as health data) · `createdAt` · `updatedAt`.
 `@@index([role])`.
+
+`blockedAt` / `blockedReason` / `blockedById` added 2026-10-10
+(`20261010111043_block_users_and_payout_records`). **Blocking is enforced in `getSession()`**,
+which already reads the user row on every request — so a blocked account is shut out of every
+page and every API route at once, including a cookie minted a second earlier. The four places
+that mint a session without one (login, phone OTP, email verification, password reset) each
+return `errors.blocked()` **after** the caller has proved the account is theirs; before that
+point the generic credential error stands, or the endpoint becomes an account-existence
+oracle. Blocking changes nothing else: no booking is cancelled, no payment refunded.
+
+`app/dashboard/layout.tsx` exists **only** to hold that gate. `app/dashboard/loading.tsx`
+wraps the page in a Suspense boundary, so the shell starts streaming — status line already
+sent — before the page body runs; a `redirect()` thrown after that can no longer become a 307,
+and a blocked visitor sat on a skeleton that never resolved. A layout renders above that
+boundary, so the redirect happens before anything is flushed, and any new page added under
+/dashboard is guarded whether or not its author remembered to check. `/admin` and `/expert`
+already guarded in their layouts and have no `loading.tsx`.
+
+**Payout** — `id` · `expertId` (slug) · `month` `YYYY-MM` · `amount` · `status` (always
+`"PAID"`) · `paidAt` · `reference?` · `markedById` + `markedByEmail` · `@@unique([expertId,
+month])`. **Absence means awaited**: a row exists only once an admin records that money was
+sent. The amount is recomputed server-side at the moment of marking and then frozen, so a
+later change to the revenue share cannot rewrite what somebody was paid — and the gap against
+the current `due` is shown rather than hidden.
+
+Mobile is required on **both** the signup form and the profile form
+(`validateRequiredPhone`), so the two cannot disagree about whether a client has one. The
+column stays nullable: accounts created before that rule still have none, and they are asked
+for one the next time they edit their profile.
+
+`city` / `state` / `avatar` added 2026-10-10 (`20261010082042_client_city_state_avatar`), all
+nullable so existing accounts keep working. City and state are **required on the signup form
+and on the profile form** but nullable in the database, because every account created before
+that date has neither — admin screens report those as "not given" rather than guessing.
+`state` is one of `STATE_OPTIONS` in `lib/validation.ts` (28 states + 8 UTs) so the admin
+breakdown groups; `city` is free text. `avatar` holds either a public watercolour path
+(`/reviews/12.png`) or `/api/profile/avatar/<file>` for an uploaded photo — see
+`lib/avatars.ts`.
 
 **VerificationToken** — `id` · `userId FK Cascade` · `tokenHash UNIQUE` (sha-256 of raw) ·
 `expiresAt` · `createdAt` · `@@index([userId])`.
@@ -607,8 +1063,8 @@ erDiagram
 `@@index([userId,date])`, `@@index([expertId,date])`, `@@index([status,date])`.
 
 > **`slotKey` is the concurrency control.** It holds `"expertId|date|time"` while the booking
-> occupies the slot and `NULL` once released (cancelled, expired, or moved). SQLite treats
-> NULLs as distinct, so released slots never collide. A competing insert fails with P2002,
+> occupies the slot and `NULL` once released (cancelled, expired, or moved). Postgres (like SQLite
+> before it) treats NULLs in a UNIQUE column as distinct, so released slots never collide. A competing insert fails with P2002,
 > which the handlers translate into a 409 with fresh availability — there is no
 > read-then-write window. Verified: 6 parallel holds on one slot → 1 granted, 5 rejected,
 > 1 row holding the slot.
@@ -622,10 +1078,26 @@ erDiagram
 **Indexes**: PKs, `User.email`, `VerificationToken.tokenHash` + `userId`, `Booking.slotKey`
 (unique), the three Booking composites above, `Payment.bookingId` (unique) + `status`.
 
-**Migration history**: still none — no `prisma/migrations/`, applied with `prisma db push`.
-The `Payment`/slot columns were pushed onto an existing dev database and the two pre-existing
-bookings backfilled (slot keys + `PAID` payment rows marked `legacy-import`) by a one-off
-script that has since been removed. A real deployment needs a migrations directory.
+**`RateLimit`**: `key` (PK, `"<limit>:<HMAC of identifier>"` — never a raw IP or phone) · `count` ·
+`resetAt` (indexed). Shared fixed-window counters for `lib/rate-limit.ts`; expired rows are swept
+at most once a minute per instance.
+
+**Expert** (the catalogue an admin edits; read via `lib/experts-store.ts`) — `slug UNIQUE` (the id bookings
+carry) · `name` · `credentials` (free text, display only) · **`profession`** `PSYCHIATRIST |
+CLINICAL_PSYCHOLOGIST | COUNSELLING_PSYCHOLOGIST | PSYCHOLOGIST` (declared by the admin; the only
+thing that decides who may prescribe — rules in `lib/professions.ts`) · **`registrationNo`** (medical
+council number, required for an `ACTIVE` psychiatrist via `registrationRequired()`; optional
+registration or membership number for everyone else; shown on the public profile when present) · JSON
+`languages` / `specialties` / `services` / `servicePrices` · `status` `ACTIVE | HIDDEN` · `sortOrder`.
+Only a psychiatrist may hold `psychiatry-medication`: `validateExpert` refuses it, the admin form
+disables it, and `toExpert()` drops it on read from any older row.
+
+**Migration history**: `prisma/migrations/20261008102128_init` is the baseline (all 20 tables).
+`20261008183613_expert_profession` adds `Expert.profession` + `registrationNo` and backfills the
+profession once from the credential line (the same rules as `guessProfession()`).
+Every schema change from now on: edit `schema.prisma` → `npm run db:migrate -- --name <what>` →
+commit the new folder. CI fails if `schema.prisma` and the migrations disagree. Production
+applies them with `npm run db:deploy` before the new code goes live.
 
 **Important queries**
 - Availability: `booking.findMany({expertId, date, slotKey: {not: null}})` after
@@ -636,7 +1108,8 @@ script that has since been removed. A real deployment needs a migrations directo
   by `hoursUntil()` (IST-correct), not string comparison.
 - Admin: `Promise.all` of user roster (with bookings + payments), counts, and **payment**
   aggregates — `Collected` sums `PAID`, `Refunded` sums refunds. Client search is filtered in
-  JS, case-insensitively, because SQLite's `contains` is case-sensitive.
+  JS, case-insensitively (written when SQLite's `contains` was case-sensitive; Postgres could now
+  do it in the query with `mode: "insensitive"`).
 
 ---
 
@@ -646,7 +1119,9 @@ script that has since been removed. A real deployment needs a migrations directo
 
 | Var | Required | Notes |
 |---|---|---|
-| `DATABASE_URL` | yes | `file:./dev.db`, relative to `prisma/` |
+| `DATABASE_URL` | yes | Neon **pooled** connection string (host contains `-pooler`), `?sslmode=require` |
+| `DIRECT_URL` | yes | Neon **direct** connection string; used by `prisma migrate` |
+| `APP_ENV` | yes | `development` / `ci` / `production`. Integration tests and `scripts/test-logins.mjs` refuse to run unless `development`/`ci` (or the DB is on localhost) |
 | `AUTH_SECRET` | yes | HS256 signing key; `lib/auth.ts` throws if missing, middleware silently redirects to /login |
 | `ADMIN_EMAIL` | seed only | default `admin@emoraa.in` |
 | `ADMIN_PASSWORD` | seed only | seed **exits 1** if unset |
@@ -760,9 +1235,29 @@ No secret manager; no `.env.production`.
 
 ## Testing
 
-- **Still no test framework, no test files, no CI.** `package.json` has only `dev`/`build`/`start`.
-- Automated checks that do exist: `npx tsc --noEmit` (strict, passes) and `npm run build`
-  (passes; ESLint suppressed by config).
+- **Framework: Vitest** (`vitest.config.mts`, mirrors the `@/` alias). Added 2026-10-08.
+  - `npm run typecheck` — `tsc --noEmit`, strict.
+  - `npm test` — unit tests in `tests/unit/`. `booking-policy.test.ts` covers IST date math,
+    slot validation, cancel/reschedule rules, refunds and the free-session return, all
+    against a fixed clock.
+  - `npm run test:integration` — `tests/integration/access-control.test.ts`, 40 checks against
+    a **running** server (`npm run dev`, or build + start; `TEST_BASE_URL` overrides
+    `http://localhost:3000`). Proves no user can read or change another user's bookings,
+    payments, receipts, homework or profile, no practitioner can reach another's clients
+    (session page, intake, notes, homework, meeting link, time off), and roles are enforced
+    on `/api/admin/*` and `/api/expert/*`. Each refusal is paired with an owner control.
+    Creates its own users under `@idor-test.invalid`, signs their JWTs with `AUTH_SECRET`,
+    deletes everything after, and refuses to run unless `APP_ENV` is `development`/`ci` (or the
+    database is on localhost).
+  - `tests/integration/rate-limit.test.ts` — 6 checks: 8 failed logins allowed with the generic
+    error, the 9th gets 429, the count is in Postgres, no raw IP is stored, another client is
+    unaffected, an ended window starts fresh. Uses made-up `X-Forwarded-For` IPs per run.
+  - Mutation-checked: removing the ownership line in `findUserBooking` fails 6 integration
+    tests; shifting the 24-hour refund line fails a unit test.
+- **CI** (`.github/workflows/ci.yml`, on every PR and push to `main`): `npm ci` → prisma
+  generate + `db:deploy` into a throwaway Postgres service container → **migration drift check**
+  (`prisma migrate diff --exit-code`) → typecheck → unit tests → build →
+  `next start` → integration tests. Verified end to end locally before committing.
 - **The client journey was verified against a running dev server** with throwaway scripts
   (since deleted — they are not in the repo). What they proved, worth re-proving if you
   touch these paths:
@@ -779,10 +1274,9 @@ No secret manager; no `.env.production`.
   - Pages: `/book`, `/dashboard`, `/dashboard/profile` render; masked card only; `noindex`
     on gated pages; logged-out redirect; non-admin bounced off `/admin`; security headers
     present; no `x-powered-by`.
-- **Coverage gaps** — none of the above is automated, so it is all regression-prone. Also
-  untested: `matching.rank()` scoring, the tools, blog rendering, email delivery via Resend,
-  and any UI behaviour (no component or E2E harness). Adding Vitest + Playwright would be the
-  first real infrastructure this repo gains.
+- **Coverage gaps** — beyond the booking policy and access control, the journey checks above
+  are still not automated, so they remain regression-prone. Also untested: `matching.rank()` scoring, the tools, blog rendering, email delivery via Resend,
+  and any UI behaviour (no component or E2E harness — Playwright is the next step).
 - Manual smoke path: seed admin → signup → copy the verification link from the server console
   → `/verify` → `/book` → pay with `4242 4242 4242 4242` → `/dashboard` → move it → cancel it.
   Failure screens: cards ending `0002` (declined), `0003` (funds), `0004` (timeout),
@@ -797,10 +1291,9 @@ No secret manager; no `.env.production`.
 
 ```bash
 npm install
-cp .env.example .env        # set AUTH_SECRET + ADMIN_PASSWORD
-npx prisma generate
-npx prisma db push          # creates prisma/dev.db
-npx prisma db seed          # admin account
+cp .env.example .env        # set DATABASE_URL + DIRECT_URL (Neon dev branch), AUTH_SECRET, ADMIN_PASSWORD
+npm run db:deploy           # applies prisma/migrations to that database
+npm run db:seed             # admin account
 npm run dev                 # :3000
 ```
 
@@ -814,8 +1307,9 @@ Use the full numbers in `lib/payments.ts` — they are Luhn-valid, and an invent
 `4242 4242 4242 4242` succeeds.
 
 **Deploy**: Vercel, zero-config, by convention only — nothing is committed for it.
-Before deploying: set `site.url`, set a real `RESEND_API_KEY`/`EMAIL_FROM`, and **replace SQLite**
-(`prisma/dev.db` is ephemeral on serverless — switch the datasource to Postgres and add migrations).
+Before deploying: set `site.url`, set a real `RESEND_API_KEY`/`EMAIL_FROM`, point
+`DATABASE_URL`/`DIRECT_URL` at the Neon **main** branch with `APP_ENV=production`, and run
+`npm run db:deploy` as part of each deploy, before the new code serves traffic.
 
 **Release**: no versioning, tags, changelog, or branch protection. Single commit `1b29a2d`
 on `main`; active work on branch `Tarush` (large uncommitted UI refactor in flight:
@@ -831,15 +1325,16 @@ on `main`; active work on branch `Tarush` (large uncommitted UI refactor in flig
 - ~~No rate limiting / no CSRF defence~~ → per-route limits + same-origin checks.
 - ~~No payment step~~ → full hold → pay → confirm lifecycle with refunds.
 - ~~Fake availability shown as real~~ → availability derived from the enforcing column.
-- ~~Copy promised a 24h policy no code enforced~~ → enforced in `booking-policy.ts`.
+- ~~Copy promised a 24h policy no code enforced~~ → enforced in `lib/features/booking/policy.ts`.
 - ~~Admin search case-sensitive~~; ~~revenue counted bookings, not payments~~ → both fixed.
 - ~~`dashboard` re-declared `BookingRow`~~ → typed from `serializeBooking`.
 
 **Open risks**
-1. **SQLite on a serverless-targeted app** — still the biggest one. `prisma/dev.db` is
-   ephemeral on Vercel; needs Postgres + a migrations directory before any real deploy.
-2. **Rate limiting is in-memory and per-instance.** Fine for one node, useless behind a
-   load balancer. Needs Redis or an edge/WAF limiter in production.
+1. ~~SQLite on a serverless-targeted app~~ → Postgres on Neon + migrations (2026-10-08).
+   Admin portrait uploads still write to local disk, which is also ephemeral on serverless.
+2. ~~Rate limiting in-memory and per-instance~~ → shared Postgres counters (2026-10-08). Remaining
+   caveat: `clientKey()` trusts `X-Forwarded-For`, so the limit is only as honest as the host's
+   proxy. Confirm your host sets that header itself and doesn't pass a client's value through.
 3. **Payments are simulated.** `lib/payments.ts` must be swapped for a real gateway; when it
    is, the charge should move to a server-confirmed webhook rather than a synchronous
    response, and refunds should reconcile asynchronously instead of being recorded optimistically.
@@ -867,7 +1362,7 @@ on `main`; active work on branch `Tarush` (large uncommitted UI refactor in flig
     from `lib/auth` (Edge runtime can't import it) — two places to change, easy to desync.
 14. `/admin` still loads every user with every booking and payment, unpaginated.
 15. `lib/utils.todayISO()` uses server-local time and is now superseded by
-    `booking-policy.todayIST()`. Remaining callers should migrate; it is a latent
+    `todayIST()` in `lib/features/booking/policy.ts`. Remaining callers should migrate; it is a latent
     off-by-one-day bug on a non-IST server.
 16. ESLint still disabled during builds; cover images still depend on a third-party CDN.
 
@@ -925,7 +1420,7 @@ in-place switch mismatches. `TryManuDemo.tsx` needs no change.
 `components/layout/SafetyNotice.tsx` · `components/tools/ChatAssistant.tsx` (keyword branch) ·
 `components/ui/Feedback.tsx` (`CrisisLine`, used across the journey).
 
-**Schema change →** `prisma/schema.prisma` → `npx prisma db push` + `prisma generate` →
+**Schema change →** `prisma/schema.prisma` → `npm run db:migrate -- --name <what>` (creates the migration + regenerates the client) →
 consumers: `lib/features/booking/server.ts` (**`serializeBooking` is an allow-list — a new column is invisible
 to the client until added there, which is the safe default**), `app/api/**`, `dashboard`,
 `dashboard/profile`, `admin`, `prisma/seed.mjs`.
@@ -990,10 +1485,10 @@ All `components/sections/*`, `components/tools/*`, `components/blog/*`, remainin
 | **mann** | Hindi मन — mind/heart. Brand is styled lowercase-m: `Emoraa`. |
 | **Manu** | The WhatsApp companion bot persona (demoed in `TryManuDemo`; the on-site counterpart is `ChatAssistant`). |
 | **Concern** | The presenting issue chosen at step 1 of booking (anxiety, stress, relationships, career, sleep, other). |
-| **Expert** | A licensed psychologist in `lib/experts.ts`. Not a DB entity. |
+| **Expert** | A qualified practitioner listed on Emoraa (psychiatrist, psychologist or counsellor). |
 | **ref** | Human-quotable booking reference, `EM-XXXXXX`. |
 | **Tele-MANAS / 14416** | Government of India 24×7 mental-health helpline — the mandatory crisis fallback. |
-| **RCI** | Rehabilitation Council of India — the licensing body cited in therapist credentials. |
+| **Council registration** | A specialist register some Indian psychologists hold. Emoraa does not require it, and copy must never promise it — including by saying "licensed", which is read as that claim. The only descriptor is `site.practitionerWord` ("qualified"). |
 | **Tool** | A free, anonymous, client-only self-help exercise under `/tools`, `/breathe`, `/check-in`. |
 | **Segment** | A B2B audience on `/for-organisations` (colleges, corporates) — `lib/organisations.ts`. |
 | **IST** | All booking dates/times are Asia/Kolkata, stored as plain strings, never UTC timestamps. |

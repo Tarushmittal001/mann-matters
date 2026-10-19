@@ -20,7 +20,7 @@ export default function LogoutButton({ className }: { className?: string }) {
       disabled={busy}
       className={
         className ??
-        "link-draw text-sm font-medium text-ink/60 transition-colors hover:text-forest-900"
+        "link-draw text-sm font-medium text-ink/70 transition-colors hover:text-forest-900"
       }
     >
       {busy ? "Logging out…" : "Log out"}

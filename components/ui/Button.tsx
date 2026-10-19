@@ -6,6 +6,17 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 type Variant = "gold" | "forest" | "outline" | "outline-light";
+type Size = "sm" | "md";
+
+/*
+ * Sizes are a prop, not a className override: `cn` here is a plain join, not
+ * tailwind-merge, so passing `px-5` next to the base `px-7` would emit both and
+ * leave the winner to stylesheet order rather than to the caller.
+ */
+const sizes: Record<Size, string> = {
+  sm: "px-5 py-2.5 text-[0.88rem]",
+  md: "px-7 py-3.5 text-[0.95rem]",
+};
 
 const styles: Record<Variant, string> = {
   gold: "bg-gold text-forest-950 hover:bg-gold-dark",
@@ -21,6 +32,7 @@ export default function Button({
   onClick,
   children,
   variant = "gold",
+  size = "md",
   className,
   type,
   disabled,
@@ -31,6 +43,7 @@ export default function Button({
   onClick?: () => void;
   children: ReactNode;
   variant?: Variant;
+  size?: Size;
   className?: string;
   type?: "button" | "submit";
   disabled?: boolean;
@@ -40,7 +53,8 @@ export default function Button({
   const reduced = useReducedMotion();
 
   const cls = cn(
-    "inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-[0.95rem] font-semibold tracking-wide transition-colors duration-300",
+    "inline-flex items-center justify-center gap-2 rounded-full font-semibold tracking-wide transition-colors duration-300",
+    sizes[size],
     styles[variant],
     disabled && "pointer-events-none opacity-50",
     className

@@ -1,12 +1,38 @@
 export const site = {
   name: "Emoraa",
-  tagline: "Better days begin.",
+  tagline: "Your emotions matter.",
   // the one canonical address; emoraa.in and www. redirect here (next.config.mjs)
   url: "https://emoraa.com",
   email: "connect@emoraa.com",
-  phone: "+91 90270 44817",
+  /**
+   * The one word the site uses for its practitioners.
+   *
+   * Three were in circulation — "qualified" (20 places), "verified" (1) and
+   * "licensed" (PRODUCT.md) — and they do not mean the same thing. It reads
+   * from here so there is one answer and one edit.
+   *
+   * The site says its practitioners are **certified**: a postgraduate
+   * qualification we have checked. It deliberately does not say the group is
+   * council-registered, because Emoraa does not require that — and
+   * "licensed" is read in India as exactly that claim, which is why it is not
+   * used either.
+   *
+   * A practitioner who IS on a council register shows it on their own
+   * profile, from `registrationBody` + `registrationNo`. Per person, where it
+   * is true; never as a claim about everyone.
+   */
+  practitionerWord: "certified",
+  phone: "+91 86305 65756",
+  // A different number on purpose: the official line above has no WhatsApp yet, so
+  // chats go to +91 90270 44817 for now. Point this at the official number once it does.
   whatsapp:
     "https://wa.me/919027044817?text=Hi%20Emoraa%2C%20I%27d%20like%20to%20book%20a%20session",
+  /**
+   * Where emoraa.com/join sends practitioners who want to apply (the Google Form).
+   * Printed brochures carry a QR code for /join, never this address, so it can
+   * change without a reprint. Empty until the form exists: /join falls back to /contact.
+   */
+  practitionerForm: "",
   location: "Noida, India — sessions online, everywhere",
   crisisNote:
     "If you're in crisis or thinking about harming yourself, please don't wait for an appointment. Call Tele-MANAS at 14416 — free, confidential, 24x7, in 20+ Indian languages.",
@@ -106,6 +132,11 @@ export const primaryNav = [
 
 /** The rest, behind "More": read when someone is deciding, not when booking. */
 export const moreNav = [
+  {
+    href: "/therapists",
+    label: "Our care team",
+    desc: "The psychologists and psychiatrists you'd see",
+  },
   { href: "/about", label: "About", desc: "Who we are, and why we built this" },
   { href: "/made-in-india", label: "Made in India", desc: "Built here, for here" },
   { href: "/contact", label: "Contact", desc: "Talk to a real person" },
@@ -113,12 +144,12 @@ export const moreNav = [
 ];
 
 export const toolLinks = [
+  { href: "/tools/burnout", label: "Burnout check", desc: "Burnout, or a bad week?" },
   { href: "/breathe", label: "Take a breath", desc: "1-minute guided breathing" },
   { href: "/tools/grounding", label: "5-4-3-2-1 grounding", desc: "Anchor an anxious mind" },
   { href: "/tools/relax", label: "Muscle relaxation", desc: "Tense & release, head to toe" },
   { href: "/tools/sounds", label: "Calming sounds", desc: "Rain, river, tanpura drone" },
   { href: "/tools/affirmations", label: "Affirmations", desc: "Small true things, हिंदी + English" },
-  { href: "/tools/sleep", label: "Sleep wind-down", desc: "A 5-minute bedtime body scan" },
   { href: "/tools/journal", label: "Worry journal", desc: "Write it out, let it go" },
   { href: "/tools/bmi", label: "BMI calculator", desc: "A number in context, not a verdict" },
   { href: "/check-in", label: "Mood check-in", desc: "A 2-minute reflection" },
@@ -126,9 +157,16 @@ export const toolLinks = [
   { href: "/tools", label: "All free tools", desc: "Everything in one place" },
 ];
 
-export const stats = [
-  { value: 100, suffix: "+", label: "sessions delivered" },
-  { value: 5, suffix: "+", label: "certified psychologists" },
-  { value: 2, suffix: "+", label: "languages" },
-  { value: 4.9, suffix: "/5", label: "average session rating", decimals: 1 },
-];
+/**
+ * Homepage trust strip. Every number here must be one we can prove today —
+ * an invented count or rating is a misleading claim under consumer law. The
+ * strip also has drawings for "sessions", "psychologists" and "rating"; add
+ * those back (with real figures) once there are records to back them.
+ */
+export const stats: {
+  kind: "sessions" | "psychologists" | "languages" | "rating";
+  value: number;
+  suffix: string;
+  label: string;
+  decimals?: number;
+}[] = [{ kind: "languages", value: 2, suffix: "+", label: "languages" }];

@@ -26,6 +26,12 @@ const ICONS: Record<string, JSX.Element> = {
       <path d="M12 7.6V12l3.1 1.9" />
     </>
   ),
+  "/expert/earnings": (
+    <>
+      <path d="M12 3.4v17.2" />
+      <path d="M16.2 7.1H9.9a2.6 2.6 0 0 0 0 5.2h4.2a2.6 2.6 0 0 1 0 5.2H7.4" />
+    </>
+  ),
   "/expert/sessions": (
     <>
       <rect x="3.6" y="5" width="16.8" height="15.4" rx="3" />
@@ -150,7 +156,7 @@ export default function ExpertNav({ items, role }: { items: NavItem[]; role: Rol
                   <span
                     className={cn(
                       "mt-0.5 block text-[0.78rem] leading-snug",
-                      active ? "text-sage-light/80" : "text-ink/55"
+                      active ? "text-sage-light/80" : "text-ink/70"
                     )}
                   >
                     {item.hint}
@@ -163,7 +169,7 @@ export default function ExpertNav({ items, role }: { items: NavItem[]; role: Rol
       </ul>
 
       <div className="mt-5 hidden border-t border-forest-800/10 pt-5 lg:block">
-        <p className="px-3.5 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-ink/40">
+        <p className="px-3.5 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
           {role === "ADMIN" ? "Also yours" : "Elsewhere"}
         </p>
         <ul className="mt-2 space-y-0.5">

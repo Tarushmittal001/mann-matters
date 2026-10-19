@@ -1,10 +1,43 @@
+import type { Profession } from "@/lib/professions";
+
 export type Expert = {
   id: string;
   name: string;
   credentials: string;
+  /** Declared by an admin — see lib/professions.ts. Decides who can prescribe. */
+  profession: Profession;
+  /** Registration or membership number. Required for a live psychiatrist; optional for everyone else. */
+  registrationNo: string;
+  /**
+   * Which register the number above is on: "RCI", "NMC", "STATE", or "".
+   *
+   * Per practitioner, never a claim about the group. Emoraa does not require
+   * a council registration, so the site says its psychologists are certified
+   * and shows the register only on the profile of someone who is on one.
+   */
+  registrationBody: string;
   experience: string;
   languages: string[];
   specialties: string[];
+  /** Service slugs this practitioner may be booked for. Empty = not bookable. */
+  services: string[];
+  /** Their own words, for the public profile. Often empty — never rely on it. */
+  bio: string;
+  /**
+   * What this practitioner charges, per service slug — overrides only.
+   *
+   * A slug missing from here is charged at the service's standard price, which
+   * is why it is a sparse map and not a full table. Ticking a service is
+   * therefore enough to make it sellable: no service can end up qualified-for
+   * but unpriced, which is the exact state that once made ₹399, ₹599 and ₹799
+   * unbuyable on a site that advertised all three.
+   */
+  servicePrices: Record<string, number>;
+  /**
+   * Historical. Sessions have never been charged at this rate since the service
+   * became the unit of sale, and it is no longer shown or editable — see
+   * lib/service-catalogue.ts. Kept so old rates are not lost.
+   */
   price: number;
   rating: number;
   photo: string;
@@ -17,14 +50,20 @@ export type Expert = {
  * admin can edit it; this list is only the seed for a database that has none
  * yet, and the shape the rest of the site codes against.
  */
-export const seedExperts: Expert[] = [
+export const seedExperts: Omit<
+  Expert,
+  "profession" | "registrationNo" | "registrationBody"
+>[] = [
   {
     id: "ananya-iyer",
     name: "Ananya Iyer",
-    credentials: "M.Phil. Clinical Psychology, RCI Licensed",
+    credentials: "M.Phil. Clinical Psychology",
     experience: "9 years",
     languages: ["English", "Hindi", "Tamil"],
     specialties: ["Anxiety", "Workplace stress", "Self-esteem"],
+    services: ["individual-therapy", "daily-life-stress", "career-counselling"],
+    bio: "",
+    servicePrices: {},
     price: 1199,
     rating: 4.9,
     photo:
@@ -37,6 +76,9 @@ export const seedExperts: Expert[] = [
     experience: "12 years",
     languages: ["English", "Hindi", "Gujarati"],
     specialties: ["Relationships", "Couples therapy", "Grief"],
+    services: ["individual-therapy", "couples-counseling", "love-life-counselling", "family-therapy", "grief-loss"],
+    bio: "",
+    servicePrices: {},
     price: 1499,
     rating: 4.9,
     photo:
@@ -49,6 +91,9 @@ export const seedExperts: Expert[] = [
     experience: "7 years",
     languages: ["English", "Malayalam", "Kannada"],
     specialties: ["Student stress", "Exam anxiety", "Sleep"],
+    services: ["student-support", "sleep-programme", "individual-therapy"],
+    bio: "",
+    servicePrices: {},
     price: 899,
     rating: 4.9,
     photo:
@@ -61,6 +106,9 @@ export const seedExperts: Expert[] = [
     experience: "6 years",
     languages: ["English", "Hindi", "Marathi"],
     specialties: ["Career anxiety", "Burnout", "Life transitions"],
+    services: ["career-counselling", "daily-life-stress", "individual-therapy"],
+    bio: "",
+    servicePrices: {},
     price: 999,
     rating: 4.8,
     photo:
@@ -69,10 +117,13 @@ export const seedExperts: Expert[] = [
   {
     id: "sana-qureshi",
     name: "Sana Qureshi",
-    credentials: "M.Phil. Clinical Psychology, RCI Licensed",
+    credentials: "M.Phil. Clinical Psychology",
     experience: "10 years",
     languages: ["English", "Hindi", "Urdu"],
     specialties: ["Depression", "Family expectations", "Women's mental health"],
+    services: ["individual-therapy", "family-therapy", "parent-coaching", "grief-loss"],
+    bio: "",
+    servicePrices: {},
     price: 1299,
     rating: 5.0,
     photo:
@@ -85,6 +136,9 @@ export const seedExperts: Expert[] = [
     experience: "5 years",
     languages: ["English", "Malayalam", "Hindi"],
     specialties: ["Sleep", "Anxiety", "Mindfulness-based therapy"],
+    services: ["sleep-programme", "individual-therapy", "daily-life-stress"],
+    bio: "",
+    servicePrices: {},
     price: 849,
     rating: 4.9,
     photo:

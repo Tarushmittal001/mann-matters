@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { expertIdFromSession } from "@/lib/expert-data";
+import { sendBookingAcceptedEmail, sendBookingDeclinedEmail } from "@/lib/email";
+import { BOOKING_STATUS, requestExpiry } from "@/lib/features/booking/policy";
+import { rewardReferrerFor } from "@/lib/referral";
+import { site } from "@/lib/site";
+import { formatDateISO } from "@/lib/utils";
 import {
   isSessionStatus,
   meetingAccess,
@@ -108,6 +113,83 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     return NextResponse.json({ error: "We could not find that session on your calendar." }, { status: 404 });
   }
 
+  /* ── answering a request ─────────────────────────────────────────────
+     The whole point of the request-first flow: nothing has been charged, so
+     accepting opens the payment and declining simply gives the slot back. */
+  if (body.action === "accept" || body.action === "decline") {
+    if (booking.status !== BOOKING_STATUS.requested) {
+      return NextResponse.json(
+        { error: "That request has already been answered." },
+        { status: 409 }
+      );
+    }
+
+    const accepting = body.action === "accept";
+    const reason = (body.reason ?? "").trim();
+    if (!accepting && reason.length < 4) {
+      return NextResponse.json(
+        { error: "Add a short reason. It is for the record — the client is never shown it." },
+        { status: 400 }
+      );
+    }
+
+    const free = booking.amount === 0;
+    const client = await prisma.user.findUniqueOrThrow({
+      where: { id: booking.userId },
+      select: { name: true, email: true },
+    });
+    const updated = await prisma.booking.update({
+      where: { id: booking.id },
+      data: accepting
+        ? {
+            /* A free session has nothing to pay, so accepting it IS the
+               confirmation. A paid one waits for the client to come back. */
+            status: free ? BOOKING_STATUS.confirmed : BOOKING_STATUS.pendingPayment,
+            holdExpiresAt: free ? null : requestExpiry(booking.date, booking.time),
+          }
+        : {
+            status: BOOKING_STATUS.declined,
+            // the slot goes straight back on the board
+            slotKey: null,
+            holdExpiresAt: null,
+            closedAt: new Date(),
+            closedBy: "EXPERT",
+            closeReason: reason,
+          },
+    });
+
+    /* Told, not left wondering. A request that silently changes state on a
+       dashboard the client may not open for a week is the same as no answer.
+       Delivery failure does not fail the decision — the practitioner has
+       answered either way, and the dashboard still shows it. */
+    const when = `${formatDateISO(booking.date)} at ${booking.time}`;
+    const firstName = client.name.split(" ")[0] || "there";
+    try {
+      if (accepting) {
+        await sendBookingAcceptedEmail({
+          to: client.email,
+          clientName: firstName,
+          expertName: booking.expertName,
+          when,
+          link: `${site.url}/dashboard`,
+          amount: booking.amount,
+          free,
+        });
+      } else {
+        await sendBookingDeclinedEmail({
+          to: client.email,
+          clientName: firstName,
+          when,
+          link: `${site.url}/book`,
+        });
+      }
+    } catch {
+      // the answer stands; only the telling of it failed
+    }
+
+    return NextResponse.json({ ok: true, status: updated.status });
+  }
+
   /* ── outcome ─────────────────────────────────────────────────────────── */
   if (body.action === "status") {
     if (!isSessionStatus(body.status)) {
@@ -141,6 +223,18 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
         closeReason: reason || null,
       },
     });
+
+    // A referral is earned by attendance, not by booking. This is the moment we
+    // know it happened, and the reward is idempotent, so a corrected outcome
+    // that lands here twice still pays exactly once.
+    if (body.status === "COMPLETED") {
+      try {
+        await rewardReferrerFor(booking.id);
+      } catch {
+        // the outcome is the important record; a missed reward is recoverable
+        // by hand and must not fail the practitioner's save
+      }
+    }
 
     return NextResponse.json({
       status: updated.status,

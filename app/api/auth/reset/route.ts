@@ -18,7 +18,7 @@ export async function POST(req: Request) {
   try {
     if (!isSameOrigin(req)) return errors.crossOrigin();
 
-    const limited = rateLimit("reset", clientKey(req));
+    const limited = await rateLimit("reset", clientKey(req));
     if (!limited.ok) return errors.rateLimited(limited.retryAfter);
 
     const body = await readJson<{ token?: string; password?: string }>(req);
@@ -33,6 +33,11 @@ export async function POST(req: Request) {
         code: "RESET_LINK_INVALID",
       });
     }
+
+    /* Checked before the password is written, not after. A blocked account
+       having its credentials quietly rotated by whoever holds the link is a
+       change we would be making to an account we have closed. */
+    if (user.blockedAt) return errors.blocked();
 
     await prisma.user.update({
       where: { id: user.id },

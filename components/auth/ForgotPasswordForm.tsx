@@ -92,7 +92,7 @@ export default function ForgotPasswordForm() {
                 Use a different email
               </button>
             </div>
-            <p className="mt-8 text-xs leading-relaxed text-ink/45">
+            <p className="mt-8 text-xs leading-relaxed text-ink/70">
               No email after a few minutes? Check your spam folder, or ask for another link.
             </p>
           </>
@@ -129,7 +129,7 @@ export default function ForgotPasswordForm() {
               </div>
             </form>
 
-            <p className="mt-7 text-sm text-ink/60">
+            <p className="mt-7 text-sm text-ink/70">
               Remembered it?{" "}
               <Link href="/login" className="font-semibold text-forest-800 underline underline-offset-4">
                 Sign in

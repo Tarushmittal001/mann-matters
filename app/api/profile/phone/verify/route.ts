@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     const codeError = validateOtp(code);
     if (codeError) return errors.validation({ code: codeError });
 
-    const limited = rateLimit("otpVerify", clientKey(request));
+    const limited = await rateLimit("otpVerify", clientKey(request));
     if (!limited.ok) return errors.rateLimited(limited.retryAfter);
 
     const user = await prisma.user.findUnique({

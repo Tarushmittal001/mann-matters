@@ -387,7 +387,7 @@ export default function TryManuDemo({
 
       {/* Language switcher */}
       <div className="flex items-center justify-between gap-3 border-b border-sage/10 bg-ivory/40 px-4 py-2.5">
-        <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.14em] text-ink/45">
+        <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.14em] text-ink/70">
           {ui.languageLabel}
         </span>
         <div
@@ -608,7 +608,7 @@ export default function TryManuDemo({
             onChange={(e) => setInput(e.target.value)}
             placeholder={ui.placeholder}
             lang={langTag}
-            className={`flex-1 rounded-xl bg-ivory px-4 py-2.5 text-sm text-forest-900 placeholder:text-ink/40 border border-sage/20 focus:border-gold focus:ring-1 focus:ring-gold/50 outline-none transition-colors ${bodyFont}`}
+            className={`flex-1 rounded-xl bg-ivory px-4 py-2.5 text-sm text-forest-900 placeholder:text-ink/60 border border-sage/20 focus:border-gold focus:ring-1 focus:ring-gold/50 outline-none transition-colors ${bodyFont}`}
             aria-label={ui.inputLabel}
           />
           <button
@@ -669,7 +669,7 @@ export default function TryManuDemo({
         </AnimatePresence>
 
         <div className="mt-3 flex flex-col items-center gap-2">
-          <p className={`text-xs text-ink/40 text-center ${bodyFont}`} lang={langTag}>
+          <p className={`text-xs text-ink/70 text-center ${bodyFont}`} lang={langTag}>
             {signedIn ? (
               <>
                 {ui.liveNote}{" "}

@@ -1,0 +1,599 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-08T17:45:29.853433+00:00",
+  "title": "Design System: Emoraa",
+  "extensions": {
+    "colorMeta": {
+      "forest-950": {
+        "role": "primary",
+        "displayName": "Night Forest",
+        "canonical": "#06211C",
+        "tonalRamp": [
+          "#06211C",
+          "#0A2E28",
+          "#0E3B33",
+          "#13483E",
+          "#1A5A4D",
+          "#247261",
+          "#A8C3B5",
+          "#E3EDE8"
+        ]
+      },
+      "forest-900": {
+        "role": "primary",
+        "displayName": "Deep Canopy",
+        "canonical": "#0A2E28",
+        "tonalRamp": [
+          "#06211C",
+          "#0A2E28",
+          "#0E3B33",
+          "#13483E",
+          "#1A5A4D",
+          "#247261",
+          "#A8C3B5",
+          "#E3EDE8"
+        ]
+      },
+      "forest-800": {
+        "role": "primary",
+        "displayName": "Deep Forest",
+        "canonical": "#0E3B33",
+        "tonalRamp": [
+          "#06211C",
+          "#0A2E28",
+          "#0E3B33",
+          "#13483E",
+          "#1A5A4D",
+          "#247261",
+          "#A8C3B5",
+          "#E3EDE8"
+        ]
+      },
+      "forest-700": {
+        "role": "primary",
+        "displayName": "Forest Shade",
+        "canonical": "#13483E",
+        "tonalRamp": [
+          "#06211C",
+          "#0A2E28",
+          "#0E3B33",
+          "#13483E",
+          "#1A5A4D",
+          "#247261",
+          "#A8C3B5",
+          "#E3EDE8"
+        ]
+      },
+      "forest-600": {
+        "role": "primary",
+        "displayName": "Forest Label",
+        "canonical": "#1A5A4D",
+        "tonalRamp": [
+          "#06211C",
+          "#0A2E28",
+          "#0E3B33",
+          "#13483E",
+          "#1A5A4D",
+          "#247261",
+          "#A8C3B5",
+          "#E3EDE8"
+        ]
+      },
+      "forest-500": {
+        "role": "primary",
+        "displayName": "Forest Leaf",
+        "canonical": "#247261",
+        "tonalRamp": [
+          "#06211C",
+          "#0A2E28",
+          "#0E3B33",
+          "#13483E",
+          "#1A5A4D",
+          "#247261",
+          "#A8C3B5",
+          "#E3EDE8"
+        ]
+      },
+      "forest-100": {
+        "role": "primary",
+        "displayName": "Forest Mist",
+        "canonical": "#E3EDE8",
+        "tonalRamp": [
+          "#06211C",
+          "#0A2E28",
+          "#0E3B33",
+          "#13483E",
+          "#1A5A4D",
+          "#247261",
+          "#A8C3B5",
+          "#E3EDE8"
+        ]
+      },
+      "ivory": {
+        "role": "neutral",
+        "displayName": "Ivory Paper",
+        "canonical": "#F7F4EE",
+        "tonalRamp": [
+          "#342B18",
+          "#574729",
+          "#796439",
+          "#9C8149",
+          "#BAA16D",
+          "#CEBC97",
+          "#E3D9C4",
+          "#F7F4EE"
+        ]
+      },
+      "ivory-light": {
+        "role": "neutral",
+        "displayName": "Ivory Light",
+        "canonical": "#FCFAF6",
+        "tonalRamp": [
+          "#392D13",
+          "#604A20",
+          "#86682D",
+          "#AC8639",
+          "#C9A65E",
+          "#D9BF8C",
+          "#E9DBBE",
+          "#F9F4EC"
+        ]
+      },
+      "ivory-dark": {
+        "role": "neutral",
+        "displayName": "Ivory Dark",
+        "canonical": "#EFEAE0",
+        "tonalRamp": [
+          "#322A1A",
+          "#54472B",
+          "#76633D",
+          "#977F4E",
+          "#B69F72",
+          "#CBBB9A",
+          "#E1D8C6",
+          "#F6F4EE"
+        ]
+      },
+      "sage": {
+        "role": "neutral",
+        "displayName": "Sage",
+        "canonical": "#A8C3B5",
+        "tonalRamp": [
+          "#1F2D26",
+          "#344B3F",
+          "#496A59",
+          "#5E8872",
+          "#80A893",
+          "#A4C1B2",
+          "#CCDCD3",
+          "#F0F5F2"
+        ]
+      },
+      "sage-light": {
+        "role": "neutral",
+        "displayName": "Sage Light",
+        "canonical": "#D9E6DE",
+        "tonalRamp": [
+          "#1E2E24",
+          "#334D3D",
+          "#476C55",
+          "#5B8A6D",
+          "#7EAA8F",
+          "#A3C2AF",
+          "#CBDDD2",
+          "#F0F5F2"
+        ]
+      },
+      "sage-dark": {
+        "role": "neutral",
+        "displayName": "Sage Dark",
+        "canonical": "#86A593",
+        "tonalRamp": [
+          "#212C25",
+          "#36493E",
+          "#4C6657",
+          "#628470",
+          "#84A491",
+          "#A7BEB1",
+          "#CDDAD3",
+          "#F0F4F2"
+        ]
+      },
+      "gold": {
+        "role": "secondary",
+        "displayName": "Temple Gold",
+        "canonical": "#C8A45D",
+        "tonalRamp": [
+          "#392C13",
+          "#5F4A20",
+          "#85682D",
+          "#AB853A",
+          "#C9A55F",
+          "#D8BF8D",
+          "#E9DBBE",
+          "#F9F4EC"
+        ]
+      },
+      "gold-light": {
+        "role": "secondary",
+        "displayName": "Gold Light",
+        "canonical": "#DCC28C",
+        "tonalRamp": [
+          "#3B2D12",
+          "#624C1E",
+          "#896A2A",
+          "#B08836",
+          "#CDA85B",
+          "#DBC18A",
+          "#EBDCBD",
+          "#F9F5EB"
+        ]
+      },
+      "gold-dark": {
+        "role": "secondary",
+        "displayName": "Gold Dark",
+        "canonical": "#A98943",
+        "tonalRamp": [
+          "#372C16",
+          "#5B4A24",
+          "#806833",
+          "#A48541",
+          "#C2A566",
+          "#D4BF91",
+          "#E6DBC1",
+          "#F8F4ED"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#1F2D28",
+        "tonalRamp": [
+          "#1F2D28",
+          "#344B43",
+          "#496A5E",
+          "#5E8879",
+          "#80A89A",
+          "#A4C1B7",
+          "#CCDCD6",
+          "#F0F5F3"
+        ]
+      },
+      "region-indigo": {
+        "role": "tertiary",
+        "displayName": "Frontal Indigo",
+        "canonical": "#4C6FA5",
+        "tonalRamp": [
+          "#182334",
+          "#283B57",
+          "#38527A",
+          "#486A9D",
+          "#6C8BBB",
+          "#96ACCF",
+          "#C4D0E4",
+          "#EEF1F7"
+        ]
+      },
+      "region-violet": {
+        "role": "tertiary",
+        "displayName": "Prefrontal Violet",
+        "canonical": "#7A6BA8",
+        "tonalRamp": [
+          "#211C30",
+          "#372F50",
+          "#4D4270",
+          "#645591",
+          "#8678B0",
+          "#A89FC6",
+          "#CEC8DF",
+          "#F1EFF6"
+        ]
+      },
+      "region-teal": {
+        "role": "tertiary",
+        "displayName": "Parietal Teal",
+        "canonical": "#2E8C8C",
+        "tonalRamp": [
+          "#133A3A",
+          "#206060",
+          "#2C8686",
+          "#39ADAD",
+          "#5ECACA",
+          "#8CD9D9",
+          "#BEEAEA",
+          "#ECF9F9"
+        ]
+      },
+      "region-rose": {
+        "role": "tertiary",
+        "displayName": "Limbic Rose",
+        "canonical": "#C56A72",
+        "tonalRamp": [
+          "#371518",
+          "#5C2429",
+          "#803239",
+          "#A54049",
+          "#C3656D",
+          "#D49197",
+          "#E7C1C4",
+          "#F8EDEE"
+        ]
+      },
+      "region-plum": {
+        "role": "tertiary",
+        "displayName": "Occipital Plum",
+        "canonical": "#9B5F8A",
+        "tonalRamp": [
+          "#2F1D2A",
+          "#4F3046",
+          "#6F4463",
+          "#8E577F",
+          "#AE7A9F",
+          "#C5A0BA",
+          "#DEC9D8",
+          "#F5EFF4"
+        ]
+      },
+      "region-moss": {
+        "role": "tertiary",
+        "displayName": "Cerebellum Moss",
+        "canonical": "#7D9150",
+        "tonalRamp": [
+          "#2B311B",
+          "#47522D",
+          "#63733F",
+          "#809452",
+          "#A0B375",
+          "#BBC99C",
+          "#D8E0C7",
+          "#F4F6EF"
+        ]
+      },
+      "region-mint": {
+        "role": "tertiary",
+        "displayName": "Brain-stem Mint",
+        "canonical": "#5FA98A",
+        "tonalRamp": [
+          "#1B3228",
+          "#2D5343",
+          "#3E745E",
+          "#509578",
+          "#74B499",
+          "#9BCAB6",
+          "#C7E1D6",
+          "#EEF6F3"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Page heroes only; one per page."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section headings."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card headings and mobile menu groups."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "All interface prose."
+      },
+      "body-article": {
+        "displayName": "Article",
+        "purpose": "Long-form copy in .prose-mm, 68ch measure."
+      },
+      "label": {
+        "displayName": "Eyebrow",
+        "purpose": "Uppercase micro-label above section headings."
+      },
+      "field-label": {
+        "displayName": "Field label",
+        "purpose": "Form control labels."
+      },
+      "deva": {
+        "displayName": "Devanagari",
+        "purpose": "Hindi copy and accents, typeset as an equal."
+      }
+    },
+    "shadows": [
+      {
+        "name": "lift",
+        "value": "0 1px 2px rgba(14,59,51,0.05), 0 8px 24px rgba(14,59,51,0.07)",
+        "purpose": "Resting shadow for cards, panels, forms and sheets."
+      },
+      {
+        "name": "bloom",
+        "value": "0 2px 6px rgba(14,59,51,0.06), 0 24px 48px -12px rgba(14,59,51,0.18)",
+        "purpose": "Card hover; dropdowns, dialogs, floating notices."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-silk",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "The one easing curve for every transition."
+      },
+      {
+        "name": "button-spring",
+        "value": "spring stiffness 420, damping 30, mass 0.6",
+        "purpose": "Button hover lift -2px, tap scale 0.97."
+      },
+      {
+        "name": "card-lift",
+        "value": "300ms silk, translateY(-4px) plus bloom",
+        "purpose": "House hover for cards."
+      },
+      {
+        "name": "link-draw",
+        "value": "450ms silk scaleX",
+        "purpose": "Underline drawing in from the left."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Gold Button",
+      "kind": "button",
+      "refersTo": "button-gold",
+      "description": "Primary call to action; one per view.",
+      "html": "<button class=\"ds-btn-gold\">Book a session</button>",
+      "css": ".ds-btn-gold{display:inline-flex;align-items:center;gap:8px;border:none;border-radius:9999px;padding:14px 28px;background:#C8A45D;color:#06211C;font:600 0.95rem/1.2 'Plus Jakarta Sans', system-ui, sans-serif;letter-spacing:0.025em;cursor:pointer;transition:background-color .3s cubic-bezier(0.22,1,0.36,1),transform .3s cubic-bezier(0.22,1,0.36,1)} .ds-btn-gold:hover{background:#A98943;transform:translateY(-2px)} .ds-btn-gold:active{transform:scale(0.97)} .ds-btn-gold:focus-visible{outline:2px solid #C8A45D;outline-offset:3px}"
+    },
+    {
+      "name": "Forest Button",
+      "kind": "button",
+      "refersTo": "button-forest",
+      "description": "Strong secondary, or primary on gold/dark grounds.",
+      "html": "<button class=\"ds-btn-forest\">See all services</button>",
+      "css": ".ds-btn-forest{display:inline-flex;align-items:center;gap:8px;border:none;border-radius:9999px;padding:14px 28px;background:#0E3B33;color:#F7F4EE;font:600 0.95rem/1.2 'Plus Jakarta Sans', system-ui, sans-serif;letter-spacing:0.025em;cursor:pointer;transition:background-color .3s cubic-bezier(0.22,1,0.36,1),transform .3s cubic-bezier(0.22,1,0.36,1)} .ds-btn-forest:hover{background:#13483E;transform:translateY(-2px)} .ds-btn-forest:active{transform:scale(0.97)} .ds-btn-forest:focus-visible{outline:2px solid #C8A45D;outline-offset:3px}"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Quiet alternative action; fills forest on hover.",
+      "html": "<button class=\"ds-btn-outline\">How it works</button>",
+      "css": ".ds-btn-outline{display:inline-flex;align-items:center;border:1px solid rgba(14,59,51,0.25);border-radius:9999px;padding:14px 28px;background:transparent;color:#0E3B33;font:600 0.95rem/1.2 'Plus Jakarta Sans', system-ui, sans-serif;letter-spacing:0.025em;cursor:pointer;transition:background-color .3s,color .3s,border-color .3s} .ds-btn-outline:hover{border-color:#0E3B33;background:#0E3B33;color:#F7F4EE} .ds-btn-outline:focus-visible{outline:2px solid #C8A45D;outline-offset:3px}"
+    },
+    {
+      "name": "Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Labelled text field with hint and error wiring.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Your name</span><input class=\"ds-input\" placeholder=\"What should we call you?\"></label>",
+      "css": ".ds-field{display:block;width:280px} .ds-field-label{display:block;margin-bottom:6px;font:600 0.78rem/1.4 'Plus Jakarta Sans', system-ui, sans-serif;letter-spacing:0.14em;text-transform:uppercase;color:rgba(31,45,40,0.7)} .ds-input{width:100%;box-sizing:border-box;border:1px solid rgba(14,59,51,0.15);border-radius:12px;padding:12px 16px;background:#FCFAF6;color:#0A2E28;font:400 0.95rem/1.5 'Plus Jakarta Sans', system-ui, sans-serif;transition:border-color .3s} .ds-input::placeholder{color:rgba(31,45,40,0.35)} .ds-input:focus{outline:none;border-color:#0E3B33}"
+    },
+    {
+      "name": "Tag Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Language, speciality and status tags.",
+      "html": "<span class=\"ds-chip\">Hindi</span> <span class=\"ds-chip\">Anxiety</span>",
+      "css": ".ds-chip{display:inline-block;border-radius:9999px;padding:4px 10px;background:rgba(217,230,222,0.7);color:#0E3B33;font:500 0.8rem/1.3 'Plus Jakarta Sans', system-ui, sans-serif}"
+    },
+    {
+      "name": "Choice Chip",
+      "kind": "chip",
+      "refersTo": "chip-choice",
+      "description": "Selectable pill; fills forest when chosen.",
+      "html": "<button class=\"ds-choice\">Mornings</button> <button class=\"ds-choice ds-choice-on\" aria-pressed=\"true\">Evenings</button>",
+      "css": ".ds-choice{border:1px solid rgba(14,59,51,0.15);border-radius:9999px;padding:8px 16px;background:transparent;color:#0E3B33;font:500 0.875rem/1.3 'Plus Jakarta Sans', system-ui, sans-serif;cursor:pointer;transition:background-color .3s,color .3s,border-color .3s} .ds-choice:hover,.ds-choice-on{border-color:#0E3B33;background:#0E3B33;color:#F7F4EE} .ds-choice:focus-visible{outline:2px solid #C8A45D;outline-offset:3px}"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Rests on lift; rises and blooms on hover.",
+      "html": "<article class=\"ds-card\"><p class=\"ds-eyebrow\">Individual therapy</p><h3 class=\"ds-card-title\">Room to think out loud</h3><p class=\"ds-card-body\">One-to-one, online, in your language.</p></article>",
+      "css": ".ds-card{width:300px;border:1px solid rgba(14,59,51,0.10);border-radius:16px;padding:24px;background:#FCFAF6;box-shadow:0 1px 2px rgba(14,59,51,0.05),0 8px 24px rgba(14,59,51,0.07);transition:transform .3s cubic-bezier(0.22,1,0.36,1),box-shadow .3s cubic-bezier(0.22,1,0.36,1)} .ds-card:hover{transform:translateY(-4px);box-shadow:0 2px 6px rgba(14,59,51,0.06),0 24px 48px -12px rgba(14,59,51,0.18)} .ds-eyebrow{margin:0;font:600 0.72rem/1.4 'Plus Jakarta Sans', system-ui, sans-serif;letter-spacing:0.22em;text-transform:uppercase;color:#1A5A4D} .ds-card-title{margin:10px 0 6px;font:500 1.5rem/1.2 Fraunces, Georgia, serif;letter-spacing:-0.02em;color:#0A2E28} .ds-card-body{margin:0;font:400 0.95rem/1.7 'Plus Jakarta Sans', system-ui, sans-serif;color:rgba(31,45,40,0.85)}"
+    },
+    {
+      "name": "Section Heading",
+      "kind": "custom",
+      "refersTo": "headline",
+      "description": "Eyebrow, gold rule and Fraunces headline.",
+      "html": "<div><p class=\"ds-head-eyebrow\">How it works</p><span class=\"ds-rule\"></span><h2 class=\"ds-head-h\">Your emotions matter.</h2></div>",
+      "css": ".ds-head-eyebrow{margin:0;font:600 0.72rem/1.4 'Plus Jakarta Sans', system-ui, sans-serif;letter-spacing:0.22em;text-transform:uppercase;color:#1A5A4D} .ds-rule{display:block;width:48px;height:1px;background:#C8A45D;margin:14px 0} .ds-head-h{margin:0;font:500 3rem/1.04 Fraunces, Georgia, serif;letter-spacing:-0.025em;color:#0A2E28}"
+    },
+    {
+      "name": "Nav Link",
+      "kind": "nav",
+      "refersTo": "nav-scrolled",
+      "description": "Scrolled header with draw-in underline links.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-a\" href=\"#\">Services</a><a class=\"ds-nav-a\" href=\"#\">Free tools</a><a class=\"ds-nav-a\" href=\"#\">About</a></nav>",
+      "css": ".ds-nav{display:flex;gap:28px;padding:12px 20px;background:rgba(247,244,238,0.95);border-bottom:1px solid rgba(14,59,51,0.10)} .ds-nav-a{position:relative;color:#0A2E28;text-decoration:none;font:500 0.95rem/1.4 'Plus Jakarta Sans', system-ui, sans-serif} .ds-nav-a::after{content:\"\";position:absolute;left:0;bottom:-3px;height:1px;width:100%;background:currentColor;transform:scaleX(0);transform-origin:right center;transition:transform .45s cubic-bezier(0.22,1,0.36,1)} .ds-nav-a:hover::after,.ds-nav-a:focus-visible::after{transform:scaleX(1);transform-origin:left center}"
+    },
+    {
+      "name": "Safety Notice Launcher",
+      "kind": "custom",
+      "refersTo": "button-forest",
+      "description": "Always-present crisis route; never hidden.",
+      "html": "<button class=\"ds-safety\"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\" aria-hidden=\"true\"><path fill=\"#1A5A4D\" d=\"M10 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm0 4a1 1 0 0 1 1 1v3.5a1 1 0 1 1-2 0V7a1 1 0 0 1 1-1Zm0 8.5a1.1 1.1 0 1 1 0-2.2 1.1 1.1 0 0 1 0 2.2Z\"/></svg>Need help now? 14416</button>",
+      "css": ".ds-safety{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(26,90,77,0.2);border-radius:9999px;padding:8px 16px;background:#E3EDE8;color:#0E3B33;font:600 0.875rem/1.3 'Plus Jakarta Sans', system-ui, sans-serif;box-shadow:0 2px 6px rgba(14,59,51,0.06),0 24px 48px -12px rgba(14,59,51,0.18);cursor:pointer;transition:background-color .3s} .ds-safety:hover{background:#D9E6DE} .ds-safety:focus-visible{outline:2px solid #C8A45D;outline-offset:3px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Living Mind",
+    "overview": "A mind is many regions with different feelings, all connected, and calm until something stirs it. Emoraa's surface works the same way. At rest it is quiet: warm ivory paper with a faint film grain, deep forest type set in Fraunces, and a single thread of gold. Colour is something you earn by interacting. The home-page brain shows its eight region colours only when touched, and those same eight colours then reappear across the site as a language: each service, each lane in `/services` and each canvas scene borrows the region whose feeling it shares. That makes the services read as parts of one mind, not items in a product list.\n\nThe system is unhurried and editorial. There is plenty of room to breathe, a serif display face carries the emotional voice, and the sans body text is set large (17px, line-height 1.75) because people read here when they are tired or anxious. Every page hero has a live canvas scene built on the shared `useCanvasScene` machinery. Each scene uses a *different mechanic* (wave, weave, ink, steam, ripple, lanes), not a different silhouette, and each one encodes real data from the page it sits on.\n\nVisual anti-references: never clinical (white and blue, medical portal), never cute wellness-app (pastel blobs, mascots, streaks, cartoons), never startup SaaS (purple gradients, glassy feature grids, stock-photo teams).",
+    "keyCharacteristics": [
+      "Ivory paper ground with fixed film grain (4.5% opacity), forest ink, gold as the single warm accent.",
+      "Eight brain-region colours, used only where they carry meaning (which format, which feeling), never as decoration.",
+      "Fraunces display at weight 500, tight tracking, line-height 1.04, with Devanagari accents in Tiro.",
+      "Pill buttons, softly rounded cards, hairline forest borders at 10% opacity.",
+      "Softly layered: cards rest on a quiet forest-tinted lift shadow, and bloom with a 4px rise on hover.",
+      "Motion uses one easing curve (silk) and always respects `prefers-reduced-motion`, which freezes position, not just progress."
+    ],
+    "rules": [
+      {
+        "name": "The Earned Colour Rule",
+        "body": "At rest, the screen is ivory, forest and gold. Region hues appear when the user interacts with something, or when a colour encodes meaning (which service, which feeling). Never use them as decoration or as a gradient fill.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Gold Rule",
+        "body": "Gold marks the single most important action or accent in a view: one gold button, one gold rule. Two gold calls to action competing in one viewport break the hierarchy.",
+        "section": "colors"
+      },
+      {
+        "name": "The Single Source Rule",
+        "body": "Region colours are read from `lib/palette.ts` (`REGIONS`), and canvases use `PALETTE` from `useCanvasScene`. Never retype a hex value in a component.",
+        "section": "colors"
+      },
+      {
+        "name": "The Serif Speaks Rule",
+        "body": "Feeling and invitation go in Fraunces; instructions, data and controls go in Jakarta. Don't set form labels, prices or error messages in the display face.",
+        "section": "typography"
+      },
+      {
+        "name": "The Equal Script Rule",
+        "body": "Devanagari (`font-deva`) is typeset with the same care as Latin. It is never a smaller, fainter decoration.",
+        "section": "typography"
+      },
+      {
+        "name": "The Two-Layer Rule",
+        "body": "There are exactly two heights: lift for anything resting on the page, bloom for anything hovered or floating. Never add a third shadow, a heavier one, or a neutral grey one.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** use the shared classes (`.wrap`, `.section`, `.page-top`, `.eyebrow`, `.h-display`, `.prose-mm`, `.card-lift`, `.press`, `.link-draw`, `.gold-rule`) before writing new spacing or type.",
+      "**Do** keep the screen ivory, forest and gold at rest, and let region hues appear through interaction or meaning.",
+      "**Do** tint every shadow and translucent line with forest (rgba 14,59,51), never black.",
+      "**Do** use the silk curve (`cubic-bezier(0.22, 1, 0.36, 1)`) for transitions, and animate only transform, opacity and shadow.",
+      "**Do** make reduced motion freeze position. Colour and shadow may still respond.",
+      "**Do** give every canvas scene a keyboard and screen-reader equivalent."
+    ],
+    "donts": [
+      "**Don't** make it look clinical: no white-and-blue, medical iconography or hospital-portal layouts.",
+      "**Don't** make it wellness-app cute: no pastel blobs, mascots, streaks or cartoon illustration.",
+      "**Don't** make it startup SaaS: no purple gradients, glassy feature grids or stock-photo teams.",
+      "**Don't** use region hues as decorative fills or rainbow gradients, or retype their hex values outside `lib/palette.ts`.",
+      "**Don't** put two gold calls to action in one viewport.",
+      "**Don't** use `transition-all`. It makes hovers feel gummy.",
+      "**Don't** hide, shrink or visually bury the Safety Notice or crisis links.",
+      "**Don't** use a magnetic or cursor-following effect on controls. It does nothing on a phone and feels restless on a calm page."
+    ]
+  }
+}

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import Portal from "@/components/ui/Portal";
 import type { Expert } from "@/lib/experts";
@@ -14,6 +15,7 @@ import {
   recommend,
   type ScaleId,
 } from "@/lib/assessment";
+import { priceForExpertService, priceRangeForService } from "@/lib/services";
 import { regionFor, regionForScale } from "@/lib/palette";
 import { site } from "@/lib/site";
 import { formatINR, cn } from "@/lib/utils";
@@ -69,12 +71,36 @@ export default function SelfCheck({
   open,
   onClose,
   experts,
+  seed = null,
+  signedIn,
 }: {
   open: boolean;
   onClose: () => void;
   experts: Expert[];
+  /**
+   * An answer to the FIRST question, already given somewhere else.
+   *
+   * The home page asks question one inline, so somebody can start the check
+   * without first deciding to take it. When they tap an option there, the
+   * dialog opens already holding that answer and showing question two — the
+   * run is continued, not restarted. It is still the real GAD-7 item, so the
+   * score stays valid.
+   */
+  seed?: number | null;
+  /**
+   * Whether the visitor is signed in. The result is held back until they are.
+   *
+   * `undefined` means we have not heard back from /api/auth/me yet. The result
+   * waits in that case rather than flashing a sign-in wall at somebody who is
+   * already signed in — but it waits, it does not show. A gate that opens
+   * because a fetch was slow or failed is not a gate.
+   */
+  signedIn?: boolean;
 }) {
   const titleId = useId();
+  /* Sign-in should return them to the page they opened the check from — the
+     home page and /services both host it. */
+  const backTo = encodeURIComponent(usePathname() || "/");
   const panelRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const openerRef = useRef<HTMLElement | null>(null);
@@ -110,6 +136,21 @@ export default function SelfCheck({
     }, 250);
     return () => window.clearTimeout(t);
   }, [open]);
+
+  /*
+   * Opened with question one already answered elsewhere: record it and show
+   * question two. Runs only on the transition into `open`, so pressing Back
+   * to question one still works normally afterwards.
+   */
+  useEffect(() => {
+    if (!open || seed === null) return;
+    setAnswers((prev) => {
+      const next = { ...prev, [QUESTIONS[0].scale.id]: [...prev[QUESTIONS[0].scale.id]] };
+      next[QUESTIONS[0].scale.id][QUESTIONS[0].index] = seed;
+      return next;
+    });
+    setStep(2);
+  }, [open, seed]);
 
   useEffect(() => () => {
     if (advanceRef.current) window.clearTimeout(advanceRef.current);
@@ -214,7 +255,9 @@ export default function SelfCheck({
                 </p>
                 <h2 id={titleId} className="mt-2 font-display text-xl font-medium text-forest-900">
                   {step === RESULT_STEP
-                    ? "Who we would put you with"
+                    ? signedIn === true
+                      ? "Who we would put you with"
+                      : "Your result"
                     : question
                       ? question.scale.title
                       : step === CONTEXT_STEP
@@ -226,7 +269,7 @@ export default function SelfCheck({
                 type="button"
                 onClick={onClose}
                 aria-label="Close"
-                className="-mr-1 shrink-0 rounded-full p-2 text-ink/45 transition-colors hover:bg-forest-800/[0.06] hover:text-forest-900"
+                className="-mr-1 shrink-0 rounded-full p-2 text-ink/70 transition-colors hover:bg-forest-800/[0.06] hover:text-forest-900"
               >
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
                   <path d="M4 4l10 10M14 4L4 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
@@ -362,7 +405,66 @@ export default function SelfCheck({
               )}
 
               {/* ── the result: people first ─────────────────────── */}
-              {step === RESULT_STEP && result && (
+              {/*
+                The result is for signed-in people only.
+
+                They were told so before the first question, which is the
+                whole reason this is acceptable: answering nineteen questions
+                about your mental health and THEN being asked to make an
+                account is a dark pattern, and the privacy page promises there
+                are none. The warning up front is not decoration.
+
+                Their answers are NOT carried through a sign-in. Keeping them
+                would mean writing GAD-7 and PHQ-8 responses to storage, and
+                PRODUCT.md is explicit that this never happens. So the panel
+                says plainly that the check has to be retaken, rather than
+                quietly losing it.
+              */}
+              {step === RESULT_STEP && signedIn === false && (
+                <div className="text-center">
+                  <p className="eyebrow mb-4 text-forest-600">your result is ready</p>
+                  <h3 className="h-display text-2xl md:text-3xl">
+                    Sign in to see it
+                  </h3>
+                  <p className="mx-auto mt-4 max-w-sm leading-relaxed text-ink/70">
+                    Your result names one place to start, and who to start with.
+                    An account is free. We ask for one so the suggestion is
+                    yours, and not left open on a shared phone.
+                  </p>
+                  <p className="mx-auto mt-4 max-w-sm text-[0.88rem] leading-relaxed text-ink/55">
+                    Your answers were never saved, so you will need to take the
+                    check again after signing in. It takes about three minutes.
+                  </p>
+                  <div className="mt-7 flex flex-wrap justify-center gap-3">
+                    <Button href={`/signup?next=${backTo}`} variant="gold" size="sm">
+                      Create an account
+                    </Button>
+                    <Button href={`/login?next=${backTo}`} variant="outline" size="sm">
+                      Sign in
+                    </Button>
+                  </div>
+                  <p className="mx-auto mt-7 max-w-sm border-t border-forest-800/15 pt-5 text-[0.84rem] leading-relaxed text-ink/65">
+                    If you need someone now, you do not need an account.{" "}
+                    <a href="tel:14416" className="font-semibold text-forest-800">
+                      Tele-MANAS 14416
+                    </a>{" "}
+                    is free and open 24x7, and{" "}
+                    <Link href="/crisis" className="link-draw font-medium text-forest-700">
+                      the crisis page
+                    </Link>{" "}
+                    is open to everyone.
+                  </p>
+                </div>
+              )}
+
+              {/* still asking who this is: hold, never reveal */}
+              {step === RESULT_STEP && signedIn === undefined && (
+                <p className="py-10 text-center text-[0.95rem] text-ink/55">
+                  One moment…
+                </p>
+              )}
+
+              {step === RESULT_STEP && signedIn === true && result && (
                 <div>
                   {result.clinical && (
                     <div className="mb-8 rounded-xl border-l-2 border-gold bg-ivory-dark/70 px-5 py-4">
@@ -403,24 +505,38 @@ export default function SelfCheck({
                           <p className="font-display text-[1.25rem] font-medium leading-snug text-forest-900">
                             {e.name}
                           </p>
-                          <p className="mt-0.5 text-[0.78rem] leading-snug text-ink/55">
+                          <p className="mt-0.5 text-[0.78rem] leading-snug text-ink/70">
                             {e.credentials} · {e.experience}
                           </p>
                           <p className="mt-2 text-[0.85rem] leading-snug text-ink/70">
                             {e.specialties.slice(0, 3).join(" · ")}
                           </p>
-                          <p className="mt-1.5 text-[0.8rem] text-ink/55">
-                            {e.languages.join(", ")} · {formatINR(e.price)} per session
+                          <p className="mt-1.5 text-[0.8rem] text-ink/70">
+                            {e.languages.join(", ")}
+                            {/* what this practitioner charges for the service
+                                being recommended — the number they would
+                                actually be booked at */}
+                            {(() => {
+                              const own = priceForExpertService(e, result.service.slug);
+                              if (typeof own !== "number") return null;
+                              return <> · {formatINR(own)} {result.service.priceNote}</>;
+                            })()}
                           </p>
                         </div>
-                        <Button href={`/book?expert=${e.id}`} variant="gold" className="shrink-0">
+                        {/* both choices travel: the service sets the price
+                            and the therapist list, and they are cleared for it */}
+                        <Button
+                          href={`/book?service=${result.service.slug}&expert=${e.id}`}
+                          variant="gold"
+                          className="shrink-0"
+                        >
                           Book with {firstName(e.name)}
                         </Button>
                       </div>
                     ))}
                   </div>
 
-                  <p className="mt-4 text-[0.85rem] text-ink/55">
+                  <p className="mt-4 text-[0.85rem] text-ink/70">
                     Prefer to choose yourself?{" "}
                     <Link href="/match" className="link-draw font-medium text-forest-800">
                       See every therapist
@@ -443,11 +559,17 @@ export default function SelfCheck({
                       {result.service.title}
                     </h3>
                     <p className="mt-2.5 text-[0.92rem] leading-relaxed text-ink/70">{result.because}</p>
-                    <p className="mt-3 text-[0.85rem] text-ink/55">
+                    <p className="mt-3 text-[0.85rem] text-ink/70">
                       {result.service.duration}
-                      {result.service.price
-                        ? ` · ${formatINR(result.service.price)} ${result.service.priceNote}`
-                        : ` · ${result.service.priceNote}`}
+                      {(() => {
+                        const r = priceRangeForService(result.service.slug, result.experts);
+                        if (!r) return ` · ${result.service.priceNote}`;
+                        const span =
+                          r.min === r.max
+                            ? formatINR(r.min)
+                            : `${formatINR(r.min)}–${formatINR(r.max)}`;
+                        return ` · ${span} ${result.service.priceNote}`;
+                      })()}
                       {" · "}
                       <Link
                         href={`/services/${result.service.slug}`}
@@ -457,7 +579,7 @@ export default function SelfCheck({
                       </Link>
                     </p>
                     {result.alternative && (
-                      <p className="mt-3 text-[0.85rem] leading-relaxed text-ink/60">
+                      <p className="mt-3 text-[0.85rem] leading-relaxed text-ink/70">
                         {result.clinical ? "And alongside it:" : "A lighter way in:"}{" "}
                         <Link
                           href={`/services/${result.alternative.slug}`}
@@ -490,7 +612,7 @@ export default function SelfCheck({
                             </p>
                             <p className="font-display text-[1.05rem] tabular-nums text-forest-900">
                               {r.percent}%
-                              <span className="ml-1.5 font-sans text-[0.72rem] font-normal text-ink/45">
+                              <span className="ml-1.5 font-sans text-[0.72rem] font-normal text-ink/70">
                                 {r.score}/{r.max}
                               </span>
                             </p>
@@ -501,13 +623,13 @@ export default function SelfCheck({
                               style={{ width: `${r.percent}%`, background: regionForScale(r.scale.id).hex }}
                             />
                           </div>
-                          <p className="mt-1.5 text-[0.82rem] leading-relaxed text-ink/60">{r.band.note}</p>
+                          <p className="mt-1.5 text-[0.82rem] leading-relaxed text-ink/70">{r.band.note}</p>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <p className="mt-8 border-t border-forest-800/10 pt-5 text-[0.82rem] leading-relaxed text-ink/55">
+                  <p className="mt-8 border-t border-forest-800/10 pt-5 text-[0.82rem] leading-relaxed text-ink/70">
                     This is a screener, not a diagnosis — only a licensed clinician can
                     give you one of those, and these numbers are a starting point for
                     that conversation rather than a substitute for it. If you are in
@@ -522,7 +644,7 @@ export default function SelfCheck({
             <div className="flex items-center justify-between gap-4 border-t border-forest-800/10 bg-ivory px-7 py-4 md:px-9">
               {step === 0 ? (
                 <>
-                  <p className="text-[0.8rem] text-ink/50">Nineteen questions · about three minutes</p>
+                  <p className="text-[0.8rem] text-ink/70">Nineteen questions · about three minutes</p>
                   <Button onClick={() => setStep(1)} variant="gold">
                     Begin
                   </Button>
@@ -536,7 +658,7 @@ export default function SelfCheck({
                       setContext(null);
                       setStep(1);
                     }}
-                    className="text-[0.85rem] font-medium text-ink/55 transition-colors hover:text-forest-800"
+                    className="text-[0.85rem] font-medium text-ink/70 transition-colors hover:text-forest-800"
                   >
                     Start again
                   </button>
@@ -549,11 +671,11 @@ export default function SelfCheck({
                   <button
                     type="button"
                     onClick={() => setStep((s) => Math.max(0, s - 1))}
-                    className="text-[0.85rem] font-medium text-ink/55 transition-colors hover:text-forest-800"
+                    className="text-[0.85rem] font-medium text-ink/70 transition-colors hover:text-forest-800"
                   >
                     Back
                   </button>
-                  <p className="text-[0.8rem] tabular-nums text-ink/45">
+                  <p className="text-[0.8rem] tabular-nums text-ink/70">
                     {step === CONTEXT_STEP
                       ? `${answered} of ${QUESTIONS.length} answered`
                       : `${step} of ${QUESTIONS.length}`}

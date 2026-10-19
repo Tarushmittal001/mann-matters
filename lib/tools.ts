@@ -11,11 +11,11 @@ export type ToolIconKey =
   | "grounding"
   | "relax"
   | "sounds"
-  | "sleep"
   | "journal"
   | "affirmations"
   | "bmi"
-  | "checkin";
+  | "checkin"
+  | "burnout";
 
 export type Tool = {
   href: string;
@@ -31,6 +31,15 @@ export type Tool = {
 };
 
 export const tools: Tool[] = [
+  {
+    href: "/tools/burnout",
+    title: "Burnout check",
+    short: "Is it burnout, or a bad week?",
+    body: "Twelve questions across the three things burnout is made of: exhaustion, distance from the work, and whether it still feels worth it.",
+    time: "3 min",
+    best: "running on empty",
+    icon: "burnout",
+  },
   {
     href: "/breathe",
     title: "Take a breath",
@@ -66,16 +75,7 @@ export const tools: Tool[] = [
     time: "as long as you like",
     best: "focus & sleep",
     icon: "sounds",
-    art: { src: "/sounds/monsoon-rain.png", pos: "object-[center_30%]" },
-  },
-  {
-    href: "/tools/sleep",
-    title: "Sleep wind-down",
-    short: "A slow body scan, toes to head.",
-    body: "A slow guided body scan from your toes to the top of your head, until the whole body is too heavy to keep worrying with.",
-    time: "5 min",
-    best: "can't sleep",
-    icon: "sleep",
+    art: { src: "/sounds/monsoon-rain.webp", pos: "object-[center_30%]" },
   },
   {
     href: "/tools/journal",
@@ -115,7 +115,5 @@ export const tools: Tool[] = [
   },
 ];
 
-/** The tools that already run inline on the home page, so the rail can skip them. */
-export const inlineOnHome = ["/breathe", "/check-in"];
-
-export const railTools = tools.filter((t) => !inlineOnHome.includes(t.href));
+/* railTools fed the home-page tool rail, deleted with ToolRail; `tools` is the
+   only list anything reads now. */

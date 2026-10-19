@@ -20,7 +20,7 @@ export async function POST(req: Request) {
   try {
     if (!isSameOrigin(req)) return errors.crossOrigin();
 
-    const limited = rateLimit("resend", clientKey(req));
+    const limited = await rateLimit("resend", clientKey(req));
     // even the limiter's reply is the generic one, so a blocked caller learns
     // nothing about the address they asked about
     if (!limited.ok) return generic();

@@ -16,7 +16,6 @@ type Palette = {
   scrim: string;
   ink: string;
   accent: string;
-  devaOpacity: number;
 };
 
 /** base = the colour both scrims are made of; tint = the brand wash over the photo. */
@@ -33,31 +32,26 @@ const PALETTES: Record<Post["category"], Palette> = {
     scrim: scrimFor("6,33,28", "10,46,40", 0.93, 0.58, 0.24),
     ink: "#EDF3EF",
     accent: "#C8A45D",
-    devaOpacity: 0.3,
   },
   Relationships: {
     scrim: scrimFor("14,59,51", "20,74,63", 0.92, 0.56, 0.22),
     ink: "#FCFAF6",
     accent: "#DCC28C",
-    devaOpacity: 0.3,
   },
   "Student Life": {
     scrim: scrimFor("247,244,238", "217,230,222", 0.94, 0.62, 0.22),
     ink: "#0E3B33",
     accent: "#A98943",
-    devaOpacity: 0.26,
   },
   Workplace: {
     scrim: scrimFor("10,46,40", "31,45,40", 0.93, 0.58, 0.24),
     ink: "#EDF3EF",
     accent: "#C8A45D",
-    devaOpacity: 0.3,
   },
   "Self-care": {
     scrim: scrimFor("237,243,239", "200,222,210", 0.94, 0.62, 0.22),
     ink: "#0A2E28",
     accent: "#A98943",
-    devaOpacity: 0.26,
   },
 };
 
@@ -95,11 +89,6 @@ export default function PostCover({
         preserveAspectRatio="xMidYMid slice"
         aria-hidden="true"
       >
-        {/* the word */}
-        <text x="52" y="1010" className="font-deva" fontSize="440" fill={p.ink} opacity={p.devaOpacity}>
-          {post.deva}
-        </text>
-
         {/* category, set like a masthead */}
         <text x="60" y="112" fontSize="34" letterSpacing="7" fill={p.ink} opacity="0.8" className="font-sans">
           {post.category.toUpperCase()}

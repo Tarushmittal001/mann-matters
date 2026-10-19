@@ -234,7 +234,7 @@ export default function AvailabilityEditor({
                 <legend className="text-[0.9rem] font-semibold text-forest-900">
                   {day.long}
                   {onDay.length === 0 && (
-                    <span className="ml-2 text-[0.8rem] font-normal text-ink/45">not bookable</span>
+                    <span className="ml-2 text-[0.8rem] font-normal text-ink/70">not bookable</span>
                   )}
                 </legend>
                 <ActionButton tone="ghost" size="sm" onClick={() => addBand(day.index)}>
@@ -266,7 +266,7 @@ export default function AvailabilityEditor({
                               </option>
                             ))}
                           </Select>
-                          <span aria-hidden="true" className="text-ink/45">
+                          <span aria-hidden="true" className="text-ink/70">
                             to
                           </span>
                           <label className="sr-only" htmlFor={row.key + "-end"}>
@@ -285,14 +285,14 @@ export default function AvailabilityEditor({
                               </option>
                             ))}
                           </Select>
-                          <span className="text-[0.8rem] text-ink/50 tabular-nums">
+                          <span className="text-[0.8rem] text-ink/70 tabular-nums">
                             {Math.max(0, Math.round(((timeToMinutes(row.end) - timeToMinutes(row.start)) / sessionMinutes) * 10) / 10)}{" "}
                             slots
                           </span>
                           <button
                             type="button"
                             onClick={() => remove(row.key)}
-                            className="ml-auto rounded-full px-3 py-1.5 text-[0.82rem] font-medium text-ink/55 transition-colors hover:bg-red-50 hover:text-red-700"
+                            className="ml-auto rounded-full px-3 py-1.5 text-[0.82rem] font-medium text-ink/70 transition-colors hover:bg-red-50 hover:text-red-700"
                           >
                             Remove
                             <span className="sr-only">
@@ -356,7 +356,7 @@ export default function AvailabilityEditor({
         </p>
       )}
 
-      <p className="mt-4 text-[0.8rem] text-ink/50">
+      <p className="mt-4 text-[0.8rem] text-ink/70">
         Changes apply to new bookings only, from {formatDate(today)}. Anything already booked keeps
         its slot.
       </p>

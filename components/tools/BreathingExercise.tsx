@@ -97,7 +97,7 @@ export default function BreathingExercise({ tone = "light" }: { tone?: "light" |
           <p className={cn("font-display text-2xl font-medium", dark ? "text-ivory" : "text-forest-900")}>
             {running ? current.label : "Ready?"}
           </p>
-          <p className={cn("mt-1 text-sm", dark ? "text-sage-light/75" : "text-ink/60")}>
+          <p className={cn("mt-1 text-sm", dark ? "text-sage-light/75" : "text-ink/70")}>
             {running ? current.sub : "four counts each, in and out"}
           </p>
         </div>
@@ -115,7 +115,7 @@ export default function BreathingExercise({ tone = "light" }: { tone?: "light" |
         >
           {running ? "Stop" : "Begin breathing"}
         </button>
-        <p className={cn("text-sm tabular-nums", dark ? "text-sage-light/60" : "text-ink/55")}>
+        <p className={cn("text-sm tabular-nums", dark ? "text-sage-light/60" : "text-ink/70")}>
           {cycles} {cycles === 1 ? "round" : "rounds"}
         </p>
       </div>

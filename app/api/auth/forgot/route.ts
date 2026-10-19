@@ -24,8 +24,8 @@ export async function POST(req: Request) {
     const invalid = validateEmail(email);
     if (invalid) return errors.validation({ email: invalid });
 
-    const perIp = rateLimit("forgot", clientKey(req));
-    const perEmail = rateLimit("forgot", `email:${email}`);
+    const perIp = await rateLimit("forgot", clientKey(req));
+    const perEmail = await rateLimit("forgot", `email:${email}`);
     if (!perIp.ok) return errors.rateLimited(perIp.retryAfter);
     if (!perEmail.ok) return errors.rateLimited(perEmail.retryAfter);
 

@@ -60,7 +60,7 @@ function resultFor(score: number): Result {
     return {
       tone: "steady",
       title: "You sound mostly steady.",
-      body: "That's genuinely good to hear. The best time to build a habit of checking in with yourself is when things are calm — a few minutes of breathing or journaling can keep it that way.",
+      body: "That is genuinely good to hear. The best time to build a habit of checking in with yourself is when things are calm. A few minutes of breathing or journaling can help keep it that way.",
       primary: { label: "Try a breathing exercise", href: "/breathe" },
     };
   }
@@ -75,7 +75,7 @@ function resultFor(score: number): Result {
   return {
     tone: "a-lot",
     title: "That sounds like a lot to hold.",
-    body: "Thank you for being honest — that takes something. You don't have to carry this alone, and you don't have to wait until it's worse. Talking to a licensed psychologist can really help. If things ever feel unbearable, please reach out to Tele-MANAS at 14416, any time.",
+    body: "Thank you for being honest — that takes something. You don't have to carry this alone, and you don't have to wait until it's worse. Talking to a certified psychologist can really help. If things ever feel unbearable, please reach out to Tele-MANAS at 14416, any time.",
     primary: { label: "Book a session", href: "/book" },
   };
 }
@@ -166,11 +166,11 @@ export default function MoodCheckIn() {
               >
                 Talk it through
               </a>
-              <button onClick={restart} className="link-draw text-sm text-ink/55">
+              <button onClick={restart} className="link-draw text-sm text-ink/70">
                 Start over
               </button>
             </div>
-            <p className="mt-7 text-xs leading-relaxed text-ink/45">
+            <p className="mt-7 text-xs leading-relaxed text-ink/70">
               This check-in is a moment of reflection, not a diagnosis or medical advice.
             </p>
           </motion.div>

@@ -52,7 +52,7 @@ export default function ArticleContents({
                   "-ml-px block border-l-2 py-1.5 pl-4 text-[0.85rem] leading-snug transition-colors duration-300 " +
                   (on
                     ? "border-gold font-medium text-forest-900"
-                    : "border-transparent text-ink/50 hover:border-forest-800/30 hover:text-forest-800")
+                    : "border-transparent text-ink/70 hover:border-forest-800/30 hover:text-forest-800")
                 }
               >
                 {h.text}

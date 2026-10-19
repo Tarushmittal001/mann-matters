@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function VerifyPage() {
   return (
     <section className="page-top wrap flex min-h-[70vh] items-center justify-center pb-24">
-      <Suspense fallback={<p className="text-ink/60">Loading…</p>}>
+      <Suspense fallback={<p className="text-ink/70">Loading…</p>}>
         <VerifyClient />
       </Suspense>
     </section>

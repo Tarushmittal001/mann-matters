@@ -26,17 +26,16 @@ export const STANDARD_SERVICE_PRICE: Record<string, number> = {
   "couples-counseling": 2299,
   "family-therapy": 2699,
   "lgbtqia-affirmative": 1499,
+  // added with the four newer formats, at the same 1.5x the other ten already
+  // use. These are prices we will actually charge from LAUNCH_ENDS_ON — if
+  // that is not the intention, change the number rather than delete the line:
+  // a service with no standard price silently loses its strike-through and
+  // looks like a different card from the ten beside it.
+  "teen-therapy": 1199,
+  "parent-coaching": 1499,
+  "sleep-programme": 1499,
+  "grief-loss": 1499,
   "group-sessions": 599,
-};
-
-/** What a therapist's session costs once the launch offer ends, by expert id. */
-export const STANDARD_EXPERT_PRICE: Record<string, number> = {
-  "ananya-iyer": 1799,
-  "kabir-shah": 2299,
-  "meera-krishnan": 1349,
-  "arjun-mehta": 1499,
-  "sana-qureshi": 1949,
-  "rohan-nair": 1299,
 };
 
 /** Is the launch offer still running? Compared in IST, where our day ends. */
@@ -58,14 +57,13 @@ export function launchEndsLabel(): string {
  * show (offer over, no standard price set, or it isn't actually higher).
  */
 export function standardPrice(
-  kind: "service" | "expert",
+  kind: "service",
   key: string,
   current: number | null | undefined,
   now?: Date
 ): number | null {
   if (!current || !launchOfferActive(now)) return null;
-  const table = kind === "service" ? STANDARD_SERVICE_PRICE : STANDARD_EXPERT_PRICE;
-  const standard = table[key];
+  const standard = STANDARD_SERVICE_PRICE[key];
   return standard && standard > current ? standard : null;
 }
 

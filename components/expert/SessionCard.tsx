@@ -49,7 +49,7 @@ export default function SessionCard({
           <p className="font-display text-2xl font-medium leading-none text-forest-900 tabular-nums">
             {formatTime(session.time)}
           </p>
-          <p className="text-[0.8rem] text-ink/55">
+          <p className="text-[0.8rem] text-ink/70">
             <span className="sm:hidden">– </span>
             {formatTime(session.endTime)} IST
           </p>
@@ -61,11 +61,18 @@ export default function SessionCard({
         {/* who and what */}
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            {/* A plain <img>: the avatar route checks your session, and
+                next/image's optimiser fetches without it. */}
             <span
               aria-hidden="true"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sage-light/70 text-[0.8rem] font-bold text-forest-800"
+              className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sage-light/70 text-[0.8rem] font-bold text-forest-800"
             >
-              {session.client.initials}
+              {session.client.avatar ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={session.client.avatar} alt="" className="h-full w-full object-cover" />
+              ) : (
+                session.client.initials
+              )}
             </span>
             <h3 className="font-display text-lg font-medium text-forest-900">
               <Link href={"/expert/sessions/" + session.id} className="link-draw">
@@ -83,11 +90,15 @@ export default function SessionCard({
 
           <p className="mt-2.5 text-[0.9rem] text-ink/70">
             <span className="font-medium text-forest-900">{session.concernLabel}</span>
-            {session.concernHint && <span className="text-ink/55"> · {session.concernHint}</span>}
+            {session.concernHint && <span className="text-ink/70"> · {session.concernHint}</span>}
           </p>
-          <p className="mt-1 text-[0.82rem] text-ink/50">
+          <p className="mt-1 text-[0.82rem] text-ink/70">
             Ref <span className="font-mono font-semibold text-forest-800">{session.ref}</span> ·{" "}
-            {sessionMinutes} min · {formatDate(session.date)}
+            {/* this session's own length, from the service that was booked —
+                not the practitioner's default, which read "50 min" above a
+                ninety-minute group */}
+            {session.serviceTitle ? `${session.serviceTitle} · ` : ""}
+            {session.lengthMinutes} min · {formatDate(session.date)}
           </p>
 
           <div className="mt-4">
@@ -98,6 +109,7 @@ export default function SessionCard({
               time={session.time}
               status={session.status}
               meetingUrl={session.meetingUrl}
+              serviceSlug={session.serviceSlug}
               sessionMinutes={sessionMinutes}
               serverNow={serverNow}
             />

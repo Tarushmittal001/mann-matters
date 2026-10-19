@@ -10,23 +10,29 @@ import {
   AGE_GUARDIAN_BELOW,
   GENDER_OPTIONS,
   NOTES_MAX,
+  CITY_MAX,
   ORGANISATION_MAX,
+  STATE_OPTIONS,
   OTP_LENGTH,
   collect,
   hasErrors,
   validateAge,
+  validateCity,
   validateGender,
   validateName,
   validateNotes,
   validateOrganisation,
   validateOtp,
-  validatePhone,
+  validateRequiredPhone,
+  validateState,
 } from "@/lib/validation";
 
 export type Profile = {
   name: string;
   age: string;
   gender: string;
+  city: string;
+  state: string;
   organisation: string;
   email: string;
   phone: string;
@@ -42,6 +48,8 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
   const [name, setName] = useState(initial.name);
   const [age, setAge] = useState(initial.age);
   const [gender, setGender] = useState(initial.gender);
+  const [city, setCity] = useState(initial.city);
+  const [state, setState] = useState(initial.state);
   const [organisation, setOrganisation] = useState(initial.organisation);
   const [phone, setPhone] = useState(initial.phone);
   const [savedPhone, setSavedPhone] = useState(initial.phone);
@@ -62,6 +70,8 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
     name !== initial.name ||
     age !== initial.age ||
     gender !== initial.gender ||
+    city !== initial.city ||
+    state !== initial.state ||
     organisation !== initial.organisation ||
     phone !== initial.phone ||
     language !== initial.language ||
@@ -74,8 +84,10 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
       ["name", validateName(name)],
       ["age", validateAge(age)],
       ["gender", validateGender(gender)],
+      ["city", validateCity(city)],
+      ["state", validateState(state)],
       ["organisation", validateOrganisation(organisation)],
-      ["phone", validatePhone(phone)],
+      ["phone", validateRequiredPhone(phone)],
       ["notes", validateNotes(notes)],
     ]);
     setFields(local);
@@ -88,7 +100,7 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
       const res = await fetch("/api/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, age, gender, organisation, phone, language, notes }),
+        body: JSON.stringify({ name, age, gender, city, state, organisation, phone, language, notes }),
       });
       const data = await res.json().catch(() => ({}));
 
@@ -220,6 +232,33 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
         </Alert>
       )}
 
+      {/* Kept editable: people move, and a stale city is worse than none —
+          it is what tells us whether this practice reaches their part of
+          India at all. */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field
+          label="City or town"
+          required
+          value={city}
+          onChange={setCity}
+          autoComplete="address-level2"
+          maxLength={CITY_MAX}
+          disabled={busy}
+          error={fields.city}
+          placeholder="Jaipur"
+        />
+        <Select
+          label="State"
+          required
+          value={state}
+          onChange={setState}
+          options={STATE_OPTIONS.map((x) => ({ value: x, label: x }))}
+          placeholder="Choose…"
+          disabled={busy}
+          error={fields.state}
+        />
+      </div>
+
       <Field
         label="School, college or workplace"
         value={organisation}
@@ -234,7 +273,7 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
           verification round-trip, and doing it silently would let a stolen
           session lock the real owner out */}
       <div>
-        <p className="mb-1.5 text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink/55">
+        <p className="mb-1.5 text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
           Email
         </p>
         <div className="flex flex-wrap items-center gap-3 rounded-xl border border-forest-800/10 bg-forest-800/[0.03] px-4 py-3">
@@ -245,7 +284,7 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
             </span>
           )}
         </div>
-        <p className="mt-1.5 text-[0.8rem] text-ink/50">
+        <p className="mt-1.5 text-[0.8rem] text-ink/70">
           To change your email,{" "}
           <a href="/contact" className="font-medium text-forest-800 underline underline-offset-2">
             message us
@@ -254,8 +293,11 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
         </p>
       </div>
 
+      {/* Required, as it is at signup: it is how a session change reaches
+          somebody who is not reading email that day. */}
       <Field
         label="Mobile"
+        required
         value={phone}
         onChange={(value) => {
           setPhone(value);
@@ -272,7 +314,7 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
         placeholder="98765 43210"
         disabled={busy || submittingPhone}
         error={fields.phone}
-        hint="Verify it once to enable phone sign-in. Never shared."
+        hint="How we reach you about a session. Verify it once to enable phone sign-in — never shared."
       />
 
       {phone && phone === savedPhone && (
@@ -287,7 +329,7 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
           ) : (
             <div className="space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <p className="text-sm text-ink/60">Confirm this number before using phone sign-in.</p>
+                <p className="text-sm text-ink/70">Confirm this number before using phone sign-in.</p>
                 <button
                   type="button"
                   onClick={requestPhoneVerification}
@@ -335,7 +377,7 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
       )}
 
       {phone && phone !== savedPhone && (
-        <p className="-mt-3 text-sm text-ink/50">Save changes before verifying this number.</p>
+        <p className="-mt-3 text-sm text-ink/70">Save changes before verifying this number.</p>
       )}
 
       <Select
@@ -366,7 +408,7 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
           {busy ? <Spinner label="Saving…" /> : "Save changes"}
         </Button>
         {!dirty && status === "idle" && (
-          <span className="text-[0.85rem] text-ink/45">Nothing to save yet.</span>
+          <span className="text-[0.85rem] text-ink/70">Nothing to save yet.</span>
         )}
       </div>
     </form>

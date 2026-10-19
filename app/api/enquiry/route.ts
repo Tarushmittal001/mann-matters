@@ -155,7 +155,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const limited = rateLimit("enquiry", ip);
+    const limited = await rateLimit("enquiry", ip);
     if (!limited.ok) return errors.rateLimited(limited.retryAfter);
 
     const enquiry: PackEnquiry = {

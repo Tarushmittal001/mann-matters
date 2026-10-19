@@ -61,7 +61,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const limited = rateLimit("contact", ip);
+    const limited = await rateLimit("contact", ip);
     if (!limited.ok) return errors.rateLimited(limited.retryAfter);
 
     const result = await sendContactMessage({ name, email, message });

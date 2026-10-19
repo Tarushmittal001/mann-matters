@@ -170,7 +170,7 @@ export default function PaymentPanel({
     <div className="space-y-6">
       {/* hold timer */}
       {hold && !hold.expired && (
-        <p className="flex items-center gap-2 text-[0.85rem] text-ink/60">
+        <p className="flex items-center gap-2 text-[0.85rem] text-ink/70">
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-60 motion-reduce:animate-none" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-gold" />
@@ -201,7 +201,7 @@ export default function PaymentPanel({
 
       {/* method */}
       <div>
-        <p className="mb-2.5 text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink/55">
+        <p className="mb-2.5 text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
           How would you like to pay?
         </p>
         <div className="flex flex-wrap gap-2.5" role="radiogroup" aria-label="Payment method">
@@ -226,7 +226,7 @@ export default function PaymentPanel({
               )}
             >
               <span className="block text-[0.95rem] font-semibold text-forest-900">{m.label}</span>
-              <span className="mt-0.5 block text-[0.78rem] text-ink/55">{m.hint}</span>
+              <span className="mt-0.5 block text-[0.78rem] text-ink/70">{m.hint}</span>
             </button>
           ))}
         </div>
@@ -315,7 +315,7 @@ export default function PaymentPanel({
         )}
       </Button>
 
-      <p className="flex items-start gap-2 text-[0.78rem] leading-relaxed text-ink/45">
+      <p className="flex items-start gap-2 text-[0.78rem] leading-relaxed text-ink/70">
         <svg viewBox="0 0 16 16" className="mt-[2px] h-3.5 w-3.5 shrink-0 fill-forest-600" aria-hidden="true">
           <path d="M8 1 3 3.2v3.6c0 3.1 2.1 6 5 6.9 2.9-.9 5-3.8 5-6.9V3.2L8 1Zm0 4.2a1.3 1.3 0 0 1 .65 2.43V9.3a.65.65 0 0 1-1.3 0V7.63A1.3 1.3 0 0 1 8 5.2Z" />
         </svg>

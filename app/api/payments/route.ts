@@ -4,6 +4,7 @@ import { findUserBooking, releaseExpiredHolds, serializeBooking } from "@/lib/fe
 import { BOOKING_STATUS, PAYMENT_STATUS } from "@/lib/features/booking/policy";
 import { validateCard, validateUpi, type PayMethod } from "@/lib/payment-fields";
 import { charge } from "@/lib/payments";
+import { redeemForBooking } from "@/lib/coupons";
 import { clientKey, errors, isSameOrigin, logFailure, privateJson, readJson } from "@/lib/http";
 import { rateLimit } from "@/lib/rate-limit";
 
@@ -38,7 +39,7 @@ export async function POST(req: Request) {
     const session = await getSession();
     if (!session) return errors.unauthenticated();
 
-    const limited = rateLimit("payment", clientKey(req));
+    const limited = await rateLimit("payment", clientKey(req));
     if (!limited.ok) return errors.rateLimited(limited.retryAfter);
 
     const body = await readJson<Body>(req);
@@ -54,6 +55,29 @@ export async function POST(req: Request) {
     if (booking.status === BOOKING_STATUS.cancelled) {
       return privateJson(
         { error: "This session was cancelled and can't be paid for.", code: "CANCELLED" },
+        { status: 409 }
+      );
+    }
+    if (booking.status === BOOKING_STATUS.declined) {
+      return privateJson(
+        {
+          error: "This request wasn't taken up, so there is nothing to pay for.",
+          code: "DECLINED",
+        },
+        { status: 409 }
+      );
+    }
+    /* The gate for the whole request-first flow. A booking is only payable
+       once the practitioner has accepted it — otherwise a client who kept the
+       payment screen open, or guessed at the endpoint, could pay for a session
+       nobody has agreed to hold. */
+    if (booking.status === BOOKING_STATUS.requested) {
+      return privateJson(
+        {
+          error:
+            "This is still with the therapist. We'll email you the moment they accept, and you can pay then — nothing has been charged.",
+          code: "AWAITING_THERAPIST",
+        },
         { status: 409 }
       );
     }
@@ -132,6 +156,16 @@ export async function POST(req: Request) {
           paidAt: new Date(),
         },
       });
+      // The code is banked here rather than at booking, so a hold somebody
+      // walked away from never spends a use of a limited code.
+      await redeemForBooking(tx, {
+        id: fresh.id,
+        userId: fresh.userId,
+        couponCode: fresh.couponCode,
+        fullAmount: fresh.fullAmount,
+        amount: fresh.amount,
+      });
+
       return tx.booking.update({
         where: { id: fresh.id },
         data: {

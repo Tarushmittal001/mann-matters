@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "app/admin/clients/page.tsx"
+        ],
+        "createdAt": "2026-10-10T09:06:53.087Z",
+        "reason": "Conditional src with a decorative empty alt beside the client's name; the <img> only renders when client.avatar is set, and duplicating the adjacent name in alt would be screen-reader noise. Verified rendering in the browser."
+      }
+    ]
+  }
+}

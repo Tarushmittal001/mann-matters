@@ -10,12 +10,16 @@ import {
   hasErrors,
   normalisePhone,
   validateAge,
+  validateCity,
   validateEmail,
   validateGender,
   validateNamePart,
+  validateLanguage,
   validateOrganisation,
   validatePassword,
   validateRequiredPhone,
+  validateState,
+  validateTermsConsent,
 } from "@/lib/validation";
 
 export const dynamic = "force-dynamic";
@@ -39,19 +43,23 @@ type Body = {
   lastName?: string;
   age?: string;
   gender?: string;
+  city?: string;
+  state?: string;
   organisation?: string;
+  language?: string;
   email?: string;
   phone?: string;
   password?: string;
   phoneToken?: string;
   phoneCode?: string;
+  acceptTerms?: boolean;
 };
 
 export async function POST(req: Request) {
   try {
     if (!isSameOrigin(req)) return errors.crossOrigin();
 
-    const limited = rateLimit("signup", clientKey(req));
+    const limited = await rateLimit("signup", clientKey(req));
     if (!limited.ok) return errors.rateLimited(limited.retryAfter);
 
     const body = await readJson<Body>(req);
@@ -61,7 +69,10 @@ export async function POST(req: Request) {
     const lastName = (body.lastName ?? "").trim();
     const ageRaw = (body.age ?? "").trim();
     const gender = (body.gender ?? "").trim();
+    const city = (body.city ?? "").trim();
+    const state = (body.state ?? "").trim();
     const organisation = (body.organisation ?? "").trim();
+    const language = (body.language ?? "").trim();
     const email = (body.email ?? "").trim().toLowerCase();
     const phoneRaw = (body.phone ?? "").trim();
     const password = body.password ?? "";
@@ -71,10 +82,15 @@ export async function POST(req: Request) {
       ["lastName", validateNamePart(lastName, "last")],
       ["age", validateAge(ageRaw)],
       ["gender", validateGender(gender)],
+      ["city", validateCity(city)],
+      ["state", validateState(state)],
       ["organisation", validateOrganisation(organisation)],
+      // checked here too: the dropdown is a convenience, not the boundary
+      ["language", validateLanguage(language)],
       ["email", validateEmail(email)],
       ["phone", validateRequiredPhone(phoneRaw)],
       ["password", validatePassword(password)],
+      ["terms", validateTermsConsent(body.acceptTerms)],
     ]);
     if (hasErrors(fields)) return errors.validation(fields);
 
@@ -126,12 +142,19 @@ export async function POST(req: Request) {
         lastName,
         age: Number(ageRaw),
         gender,
+        city,
+        state,
         organisation: organisation || null,
+        // blank is a real answer — "no preference" is stored as nothing rather
+        // than as a language they did not pick
+        language: language || null,
         email,
         phone,
         // the code they just entered is the proof
         phoneVerified: new Date(),
         passwordHash: await hashPassword(password),
+        // when they ticked the Terms & Privacy box: the record of consent
+        termsAcceptedAt: new Date(),
       },
     });
 

@@ -70,12 +70,6 @@ export default function SegmentGrid() {
                       mixBlendMode: "multiply",
                     }}
                   />
-                  <span
-                    className="pointer-events-none absolute bottom-3 right-4 select-none font-deva text-[2.4rem] leading-none text-ivory/70 transition-colors duration-500 group-hover:text-[color:var(--accent)]"
-                    aria-hidden="true"
-                  >
-                    {s.deva}
-                  </span>
                 </div>
 
                 <div className="flex flex-1 flex-col p-7">

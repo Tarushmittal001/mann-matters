@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import PeriodPicker from "@/components/admin/PeriodPicker";
+import { resolveRange } from "@/lib/admin-period";
 import { listExpertSessions, requireExpertContext } from "@/lib/expert-data";
+import { BOOKING_STATUS } from "@/lib/features/booking/policy";
 import { sessionPhase, canWriteNotes, isSessionStatus, STATUS_META } from "@/lib/expert-portal";
 import { EmptyState, Panel, PanelHeader } from "@/components/expert/Panel";
 import SessionsTable from "@/components/expert/SessionsTable";
@@ -9,14 +12,16 @@ export const metadata: Metadata = { title: "Sessions" };
 
 const WHEN_OPTIONS = [
   { value: "upcoming", label: "Upcoming" },
+  { value: "today", label: "Today" },
   { value: "past", label: "Past and closed" },
+  { value: "pending", label: "Waiting on you" },
   { value: "all", label: "Everything" },
 ];
 
 export default async function ExpertSessionsPage({
   searchParams,
 }: {
-  searchParams: { status?: string; when?: string; q?: string };
+  searchParams: { status?: string; when?: string; q?: string; period?: string; from?: string; to?: string };
 }) {
   const ctx = await requireExpertContext("/expert/sessions");
   const sessionMinutes = ctx.profile.sessionMinutes;
@@ -28,11 +33,22 @@ export default async function ExpertSessionsPage({
   const status = isSessionStatus(searchParams.status) ? searchParams.status : null;
   const q = (searchParams.q ?? "").trim();
 
-  const all = await listExpertSessions(ctx.profile.expertId, sessionMinutes);
+  /* `allowFuture`, unlike every money screen: this is a calendar, and
+     clamping the range to today would hide every upcoming session. The
+     default is all time for the same reason — a 30-day default would open
+     the page on an empty "Upcoming". */
+  const range = resolveRange(searchParams, new Date(), { allowFuture: true });
+
+  const all = await listExpertSessions(ctx.profile.expertId, sessionMinutes, {
+    ...(range.from ? { from: range.from } : {}),
+    ...(range.preset === "all" ? {} : { to: range.to }),
+  });
 
   const byWhen = all.filter((s) => {
     const finished = sessionPhase(s, sessionMinutes, now) === "past";
     if (when === "upcoming") return s.status === "CONFIRMED" && !finished;
+    if (when === "today") return s.date === ctx.today;
+    if (when === "pending") return s.status === BOOKING_STATUS.requested;
     if (when === "past") return finished || s.status !== "CONFIRMED";
     return true;
   });
@@ -53,7 +69,8 @@ export default async function ExpertSessionsPage({
         : a.date.localeCompare(b.date) || a.time.localeCompare(b.time)
     );
 
-  const filtersActive = Boolean(status) || Boolean(q) || when !== "upcoming";
+  const filtersActive =
+    Boolean(status) || Boolean(q) || when !== "upcoming" || range.preset !== "all";
 
   return (
     <div className="space-y-6">
@@ -73,12 +90,33 @@ export default async function ExpertSessionsPage({
 
         {/* filters — a plain GET form, so it works with the keyboard, the back
             button and no JavaScript at all */}
+        <div className="border-b border-forest-800/10 px-5 py-4 sm:px-6">
+          <PeriodPicker
+            range={range}
+            today={ctx.today}
+            extra={{ when, ...(status ? { status } : {}), ...(q ? { q } : {}) }}
+          />
+          <p className="mt-2.5 text-[0.8rem] text-ink/55">
+            Filters the session date. Unlike the money screens this one reaches forward too, so
+            you can look at a week that has not happened yet.
+          </p>
+        </div>
+
         <form method="GET" className="border-b border-forest-800/10 px-5 py-4 sm:px-6" role="search">
+          {/* keep the chosen dates when this form submits */}
+          {range.preset === "custom" ? (
+            <>
+              <input type="hidden" name="from" value={range.from ?? ""} />
+              <input type="hidden" name="to" value={range.to} />
+            </>
+          ) : (
+            <input type="hidden" name="period" value={range.preset} />
+          )}
           <div className="flex flex-wrap items-end gap-3">
             <div className="min-w-[9rem] flex-1 sm:flex-none">
               <label
                 htmlFor="filter-when"
-                className="block text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-ink/50"
+                className="block text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-ink/70"
               >
                 Show
               </label>
@@ -99,7 +137,7 @@ export default async function ExpertSessionsPage({
             <div className="min-w-[9rem] flex-1 sm:flex-none">
               <label
                 htmlFor="filter-status"
-                className="block text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-ink/50"
+                className="block text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-ink/70"
               >
                 Status
               </label>
@@ -121,7 +159,7 @@ export default async function ExpertSessionsPage({
             <div className="min-w-[12rem] flex-[2]">
               <label
                 htmlFor="filter-q"
-                className="block text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-ink/50"
+                className="block text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-ink/70"
               >
                 Find
               </label>
@@ -145,7 +183,7 @@ export default async function ExpertSessionsPage({
               {filtersActive && (
                 <Link
                   href="/expert/sessions"
-                  className="whitespace-nowrap text-[0.86rem] font-medium text-ink/55 transition-colors hover:text-forest-900"
+                  className="whitespace-nowrap text-[0.86rem] font-medium text-ink/70 transition-colors hover:text-forest-900"
                 >
                   Clear
                 </Link>

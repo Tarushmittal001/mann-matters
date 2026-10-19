@@ -86,7 +86,7 @@ function ToastCard({ toast, onClose }: { toast: Toast; onClose: () => void }) {
       <button
         type="button"
         onClick={onClose}
-        className="-mr-1 -mt-1 rounded-full p-1.5 text-ink/45 transition-colors hover:bg-forest-800/[0.06] hover:text-forest-900"
+        className="-mr-1 -mt-1 rounded-full p-1.5 text-ink/70 transition-colors hover:bg-forest-800/[0.06] hover:text-forest-900"
         aria-label={"Dismiss: " + toast.title}
       >
         <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">

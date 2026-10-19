@@ -348,7 +348,7 @@ export default function PackBuilder({
                 type="button"
                 onClick={onClose}
                 aria-label="Close"
-                className="-mr-2 -mt-1 shrink-0 rounded-full p-2 text-ink/45 transition-colors hover:bg-forest-800/5 hover:text-forest-900"
+                className="-mr-2 -mt-1 shrink-0 rounded-full p-2 text-ink/70 transition-colors hover:bg-forest-800/5 hover:text-forest-900"
               >
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                   <path
@@ -379,7 +379,7 @@ export default function PackBuilder({
                   <span className="font-semibold text-forest-900">{institution}</span>, and a
                   confirmation is on its way to {email}.
                 </p>
-                <p className="mt-3 text-sm text-ink/55">
+                <p className="mt-3 text-sm text-ink/70">
                   A real person reads every one of these and replies within one working day.
                 </p>
 
@@ -525,10 +525,10 @@ export default function PackBuilder({
 
                 {/* the pack itself */}
                 <fieldset className="mt-8">
-                  <legend className="text-xs font-semibold uppercase tracking-[0.16em] text-ink/50">
+                  <legend className="text-xs font-semibold uppercase tracking-[0.16em] text-ink/70">
                     What should be in it?
                   </legend>
-                  <p className="mt-2 text-[0.85rem] text-ink/55">
+                  <p className="mt-2 text-[0.85rem] text-ink/70">
                     Optional. Most programs start with two or three and grow.
                   </p>
                   <div className="mt-4 flex flex-wrap gap-2.5">
@@ -619,7 +619,7 @@ export default function PackBuilder({
                     {status === "sending" && <Spinner className="h-4 w-4" />}
                     {status === "sending" ? "Sending…" : "Send my brief"}
                   </button>
-                  <p className="text-[0.8rem] text-ink/50">
+                  <p className="text-[0.8rem] text-ink/70">
                     Next, we&apos;ll confirm your email and phone with a quick code.
                   </p>
                 </div>
@@ -659,7 +659,7 @@ function SelectField({
     <div>
       <label
         htmlFor={id}
-        className="mb-1.5 block text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink/55"
+        className="mb-1.5 block text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink/70"
       >
         {label}
       </label>
@@ -693,7 +693,7 @@ function SelectField({
           {error}
         </p>
       ) : hint ? (
-        <p id={hintId} className="mt-1.5 text-[0.8rem] leading-relaxed text-ink/50">
+        <p id={hintId} className="mt-1.5 text-[0.8rem] leading-relaxed text-ink/70">
           {hint}
         </p>
       ) : null}
@@ -724,7 +724,7 @@ function CodeField({
     <div>
       <label
         htmlFor={id}
-        className="mb-1.5 block text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink/55"
+        className="mb-1.5 block text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink/70"
       >
         {label}
       </label>
@@ -746,7 +746,7 @@ function CodeField({
       />
       <p
         id={`${id}-note`}
-        className={cn("mt-1.5 text-[0.8rem]", error ? "text-red-700" : "text-ink/50")}
+        className={cn("mt-1.5 text-[0.8rem]", error ? "text-red-700" : "text-ink/70")}
       >
         {error ?? hint}
       </p>
