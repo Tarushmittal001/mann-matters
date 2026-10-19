@@ -3,11 +3,11 @@ import Link from "next/link";
 import Price from "@/components/ui/Price";
 import { standardPrice } from "@/lib/pricing";
 import Reveal from "@/components/ui/Reveal";
-import { services } from "@/lib/services";
+import { serviceAvailability } from "@/lib/service-catalogue";
 import { regionFor, rgba } from "@/lib/palette";
 
 /**
- * The ten services, as a menu: photo, name, one line, price, and the way in.
+ * Every service, as a menu: photo, name, one line, price, and the way in.
  *
  * The full description and the what-you-get bullets used to sit on every card,
  * which made the grid five screens of reading. They live on each service page
@@ -31,10 +31,15 @@ import { regionFor, rgba } from "@/lib/palette";
  * set once as a CSS variable on the article and everything inside reads it, so
  * a card's identity is one line in lib/palette.ts rather than ten class names.
  */
-export default function ServiceGrid() {
+export default async function ServiceGrid() {
+  // Which of these anybody is actually qualified to deliver. A card for a
+  // service with no practitioner says so instead of offering a Book button
+  // that would land on a booking flow which cannot complete it.
+  const rows = await serviceAvailability();
+
   return (
     <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-      {services.map((s, i) => {
+      {rows.map(({ service: s, experts, bookable, priceRange }, i) => {
         const region = regionFor(s.slug);
         return (
         <Reveal key={s.slug} delay={0.06 * (i % 3)} className="h-full">
@@ -74,12 +79,6 @@ export default function ServiceGrid() {
                   mixBlendMode: "multiply",
                 }}
               />
-              <span
-                className="pointer-events-none absolute bottom-3 right-4 select-none font-deva text-[2.4rem] leading-none text-ivory/70 transition-colors duration-500 group-hover:text-[color:var(--accent)]"
-                aria-hidden="true"
-              >
-                {s.deva}
-              </span>
             </div>
 
             <div className="flex flex-1 flex-col p-7">
@@ -99,27 +98,47 @@ export default function ServiceGrid() {
                   two baselines in every card. */}
               <div className="mt-auto grid grid-cols-2 items-start gap-x-5 border-t border-forest-800/10 pt-6">
                 <div>
-                  <p className="text-[0.68rem] uppercase tracking-[0.18em] text-ink/45">Duration</p>
+                  <p className="text-[0.68rem] uppercase tracking-[0.18em] text-ink/70">Duration</p>
                   <p className="mt-1.5 font-display text-lg font-medium leading-none text-forest-900">
                     {s.duration}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[0.68rem] uppercase tracking-[0.18em] text-ink/45">Pricing</p>
+                  <p className="text-[0.68rem] uppercase tracking-[0.18em] text-ink/70">Pricing</p>
+                  {/* No price, and above all no "save 40%", on something nobody
+                      can buy — a discount on an unavailable service is an
+                      advertisement we cannot honour. */}
+                  {!bookable ? (
+                    <p className="mt-1.5 text-[0.9rem] leading-snug text-ink/70">
+                      On request
+                    </p>
+                  ) : (
                   <div className="mt-1.5">
+                    {/* the real spread across everyone qualified, not the
+                        catalogue's standard price — those differ the moment a
+                        practitioner sets their own rate */}
                     <Price
-                      amount={s.price}
+                      amount={priceRange ? priceRange.min : s.price}
+                      upto={priceRange ? priceRange.max : null}
                       standard={standardPrice("service", s.slug, s.price)}
                       note={s.priceNote}
                       size="sm"
+                      // three lines held open in every card: the longest note
+                      // ("per session, guardian consent needed · launch price
+                      // until 31 Dec 2026") runs to three at this width, and
+                      // without the reservation the shorter ones lift their
+                      // card's labels above the card beside them.
+                      noteClassName="block min-h-[3.3rem]"
                     />
                   </div>
+                  )}
                 </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-6">
+                {bookable ? (
                 <Link
-                  href="/book"
+                  href={`/book?service=${s.slug}`}
                   className="inline-flex items-center gap-2 rounded-full border border-[color:var(--accent)]/35 px-5 py-2.5 text-[0.85rem] font-semibold text-forest-800 transition duration-300 ease-silk hover:border-[color:var(--accent)] hover:bg-[color:var(--accent)] hover:text-ivory"
                 >
                   Book this
@@ -140,6 +159,14 @@ export default function ServiceGrid() {
                     />
                   </svg>
                 </Link>
+                ) : (
+                  <Link
+                    href="/contact"
+                    className="inline-flex items-center rounded-full border border-forest-800/20 px-5 py-2.5 text-[0.85rem] font-semibold text-ink/70 transition-colors hover:border-forest-800 hover:text-forest-900"
+                  >
+                    Ask us about this
+                  </Link>
+                )}
                 <Link
                   href={`/services/${s.slug}`}
                   className="link-draw text-[0.85rem] font-medium text-forest-800"
@@ -147,6 +174,18 @@ export default function ServiceGrid() {
                   Read the detail
                 </Link>
               </div>
+
+              {!bookable && (
+                <p className="mt-3 text-[0.8rem] leading-relaxed text-ink/70">
+                  We don&apos;t have anyone taking this right now. Tell us what you need and
+                  we&apos;ll say honestly whether we can help or point you elsewhere.
+                </p>
+              )}
+              {bookable && experts.length === 1 && (
+                <p className="mt-3 text-[0.8rem] text-ink/70">
+                  One therapist takes this, so times can be limited.
+                </p>
+              )}
             </div>
 
             <span

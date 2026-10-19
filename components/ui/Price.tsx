@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { launchEndsLabel, savingPercent } from "@/lib/pricing";
+import { useCopy } from "@/lib/i18n/client";
 import { cn, formatINR } from "@/lib/utils";
 
 /**
@@ -15,22 +16,44 @@ import { cn, formatINR } from "@/lib/utils";
 export default function Price({
   amount,
   standard,
+  upto = null,
   note,
   size = "md",
   tone = "light",
   className,
   showBadge = true,
+  noteClassName,
 }: {
   amount: number | null;
   standard: number | null;
+  /**
+   * The top of the range, when practitioners charge differently for the same
+   * service. Given, this renders "₹999–₹1,499" in place of a single figure.
+   *
+   * There is no struck-through price on a range, deliberately. The launch
+   * "was" price is per service, so drawing it through a span that several
+   * practitioners set individually would claim a discount off a number none of
+   * them charges — an invented saving, which is the one thing lib/pricing.ts
+   * exists to prevent.
+   */
+  upto?: number | null;
   /** e.g. "per session" — rendered under the figures. */
   note?: string;
   size?: "sm" | "md" | "lg";
   tone?: "light" | "dark";
   className?: string;
   showBadge?: boolean;
+  /**
+   * Extra classes for the note line. A grid of cards uses this to hold the same
+   * number of lines open in every card, so a long qualifier in one of them
+   * doesn't lift its labels above the card beside it.
+   */
+  noteClassName?: string;
 }) {
   const reduced = useReducedMotion();
+  // the badge and the launch line are prose, and prose follows the URL's
+  // language — a Hindi card with "Save 33%" on it is half-translated
+  const { t } = useCopy();
 
   const text = {
     sm: { now: "text-[1.05rem]", was: "text-[0.82rem]", badge: "text-[0.62rem] px-1.5 py-[1px]" },
@@ -41,7 +64,9 @@ export default function Price({
   const colours =
     tone === "dark"
       ? { now: "text-ivory", was: "text-sage-light/55", note: "text-sage-light/60", stroke: "#DCC28C" }
-      : { now: "text-forest-900", was: "text-ink/45", note: "text-ink/55", stroke: "#B5474F" };
+      : { now: "text-forest-900", was: "text-ink/70", note: "text-ink/70", stroke: "#B5474F" };
+
+  const spread = typeof upto === "number" && upto > amount!;
 
   if (amount === null) {
     return <span className={cn("font-display font-medium", text.now, colours.now, className)}>On request</span>;
@@ -49,8 +74,17 @@ export default function Price({
 
   return (
     <span className={cn("inline-flex flex-col gap-1", className)}>
-      <span className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-        {standard && (
+      {/* At card size the badge drops onto a line of its own, so two cards in
+          one row agree about where their labels start whether the price has
+          three digits or four. Everywhere else it flows beside the figures. */}
+      <span
+        className={cn(
+          "flex gap-x-2.5 gap-y-1",
+          size === "sm" ? "flex-col items-start" : "flex-wrap items-baseline"
+        )}
+      >
+        <span className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+        {standard && !spread && (
           <span className={cn("relative inline-block font-display", text.was, colours.was)}>
             {formatINR(standard)}
             {/* the stroke, drawn by hand rather than a text-decoration line */}
@@ -76,10 +110,11 @@ export default function Price({
         )}
 
         <span className={cn("font-display font-medium leading-none", text.now, colours.now)}>
-          {formatINR(amount)}
+          {spread ? `${formatINR(amount)}–${formatINR(upto as number)}` : formatINR(amount)}
+        </span>
         </span>
 
-        {standard && showBadge && (
+        {standard && showBadge && !spread && (
           <motion.span
             className={cn(
               "rounded-full bg-gold/20 font-semibold uppercase tracking-wide text-gold-dark",
@@ -91,16 +126,16 @@ export default function Price({
             viewport={{ once: true }}
             transition={{ delay: 0.75, type: "spring", stiffness: 380, damping: 20 }}
           >
-            Save {savingPercent(standard, amount)}%
+            {t.price.save.replace("{n}", String(savingPercent(standard, amount)))}
           </motion.span>
         )}
       </span>
 
-      {(note || standard) && (
-        <span className={cn("text-[0.78rem] leading-snug", colours.note)}>
+      {(note || (standard && !spread)) && (
+        <span className={cn("text-[0.78rem] leading-snug", colours.note, noteClassName)}>
           {note}
-          {note && standard ? " · " : ""}
-          {standard ? `launch price until ${launchEndsLabel()}` : ""}
+          {note && standard && !spread ? " · " : ""}
+          {standard && !spread ? t.price.launchUntil.replace("{date}", launchEndsLabel()) : ""}
         </span>
       )}
     </span>

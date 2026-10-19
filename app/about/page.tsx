@@ -9,6 +9,7 @@ import ChaiSteam from "@/components/visuals/ChaiSteam";
 
 export const metadata: Metadata = {
   title: "About — Why we built Emoraa",
+  alternates: { canonical: "/about" },
   description:
     "The story of Emoraa: why India needs therapy that speaks its languages, who we are, and the values we won't compromise on.",
 };
@@ -25,13 +26,13 @@ const team = [
     name: "Tarush Mittal",
     role: "Founder",
     note: "The room full of 'experienced' people didn't build this. He did.",
-    photo: "/team/tarush-mittal.png",
+    photo: "/team/tarush-mittal.webp",
   },
   {
     name: "Gaurav Mittal",
     role: "Director",
-    note: "30 years in business, still the smartest guy in the room — steady not because he's cautious, but because he's already won this game before.",
-    photo: "/team/gaurav-mittal.png",
+    note: "Thirty years in business, and still the sharpest person in the room. He is steady because he has done this before, not because he is cautious.",
+    photo: "/team/gaurav-mittal.webp",
   },
   {
     name: "Bhavya Nimesh",
@@ -43,7 +44,7 @@ const team = [
     name: "Ishaan Mittal",
     role: "CTO",
     note: "Consultant, data engineer, now CTO — he's had three careers and somehow gotten sharper at all of them.",
-    photo: "/team/ishaan-mittal.png",
+    photo: "/team/ishaan-mittal.webp",
   },
 ];
 
@@ -70,7 +71,7 @@ const timeline = [
   {
     year: "2024",
     title: "A cup of tea, a shared frustration",
-    body: "Over tea with a friend — a clinical psychologist — Tarush found the conversation drifting to something they both recognized: the stress, anxiety, and quiet burnout everyone around them seemed to be carrying. Somewhere in that conversation, the idea for Emoraa was born.",
+    body: "Over tea with a friend, a clinical psychologist, Tarush noticed the conversation keep returning to one thing. The stress, the anxiety and the quiet burnout that everyone around them seemed to be carrying. That conversation became Emoraa.",
   },
   {
     year: "2025",
@@ -160,7 +161,7 @@ export default function AboutPage() {
                 hiding from your parents — or your manager.&rdquo;
               </p>
             </div>
-            <p className="mt-8 text-sm text-ink/60">
+            <p className="mt-8 text-sm text-ink/70">
               — Tarush Mittal, founder
             </p>
           </Reveal>
@@ -241,7 +242,7 @@ export default function AboutPage() {
               <span className="font-deva text-sm normal-case tracking-normal text-gold" aria-hidden="true">मन</span>
               what we won&apos;t compromise
             </p>
-            <h2 className="h-display text-4xl md:text-5xl">Four things we&apos;d rather close than break</h2>
+            <h2 className="h-display text-4xl md:text-5xl">Four promises we will not break</h2>
           </Reveal>
           <div className="grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:col-span-3">
             {values.map((v, i) => (
@@ -262,7 +263,7 @@ export default function AboutPage() {
             <p className="eyebrow mb-4 text-sage">
               <span className="font-deva normal-case tracking-normal text-gold" aria-hidden="true">मन</span> the journey
             </p>
-            <h2 className="h-display text-4xl text-ivory md:text-5xl">Small steps, taken steadily</h2>
+            <h2 className="h-display text-4xl text-ivory md:text-5xl">How Emoraa has grown, year by year</h2>
           </Reveal>
 
           <div className="relative mt-16 space-y-14 border-l border-ivory/15 pl-8 md:pl-12">

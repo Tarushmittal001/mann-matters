@@ -3,8 +3,11 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  // Neon: the pooled connection string (host contains "-pooler") for the app
+  url       = env("DATABASE_URL")
+  // Neon: the direct (unpooled) connection string, used by `prisma migrate`
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -19,6 +22,17 @@ model User {
   gender        String?
   // school, college or employer — optional, and only for context
   organisation  String?
+  /// Where they are. Asked at signup so the practice can see which parts of
+  /// India it actually reaches. `state` is picked from a fixed list so the
+  /// admin breakdown groups cleanly; `city` is free text, because no list of
+  /// Indian towns is ever complete enough to turn away a real one.
+  city          String?
+  state         String?
+  /// Their own picture: either one of the watercolour portraits in
+  /// /public/reviews or an uploaded file under /public/avatars. Private to
+  /// their account and their practitioner — the avatar on a published review
+  /// is a separate, deliberate choice stored on Feedback.
+  avatar        String?
   email         String              @unique
   passwordHash  String
   // "USER" | "EXPERT" | "ADMIN" — SQLite has no native enums
@@ -27,6 +41,8 @@ model User {
   emailVerified DateTime?
   // sessions issued before this moment are no longer accepted (set on password reset/change)
   passwordChangedAt DateTime?
+  // when they agreed to the Terms & Privacy Policy at signup (DPDP consent record)
+  termsAcceptedAt DateTime?
   // profile — all optional, all volunteered
   phone         String?             @unique
   phoneVerified DateTime?
@@ -40,10 +56,41 @@ model User {
   phoneOtps     PhoneOtp[]
   feedback      Feedback?
   passwordResets PasswordResetToken[]
+  posts          Post[]              @relation("PostAuthor")
+  postsReviewed  Post[]              @relation("PostReviewer")
+
+  /// their own code to share; generated the first time they look for it
+  referralCode   String? @unique
+  /// who brought them here, if anyone
+  referredById   String?
+  referredBy     User?   @relation("Referrals", fields: [referredById], references: [id])
+  referrals      User[]  @relation("Referrals")
+
+  intake         IntakeForm?
+  redemptions    CouponRedemption[]
+  /// referral rewards earned; only this account can spend one
+  ownedCoupons   Coupon[] @relation("CouponOwner")
+  homework       Homework[]
+  followUps      FollowUp[]
+  prescriptions  Prescription[]
   // present only for role = "EXPERT"
   expertProfile ExpertProfile?
 
+  /// Set when an admin blocks this account. While it is set, `getSession()`
+  /// refuses the account outright, so every page and API route is closed in
+  /// one place rather than each remembering to check. Nothing is deleted:
+  /// their bookings, payments and receipts stay exactly as they were, because
+  /// blocking somebody is not a reason to lose the record of what happened.
+  blockedAt     DateTime?
+  /// Why, in the admin's own words. Shown back to the admin, never to the
+  /// person — a reason written for an internal record is not a message.
+  blockedReason String?
+  /// Which admin did it. Kept as an id so the Trail can name them; the audit
+  /// event carries the readable version.
+  blockedById   String?
+
   @@index([role])
+  @@index([blockedAt])
 }
 
 model VerificationToken {
@@ -82,7 +129,16 @@ model Booking {
   // YYYY-MM-DD and HH:mm, both IST — the clinic runs on one timezone
   date       String
   time       String
+  /// what the client actually pays, after any discount
   amount     Int
+  /// Which service this session is — "individual-therapy", "grief-loss".
+  /// Null on bookings made before services were joined to the calendar; those
+  /// were priced off the therapist's rate and only carry `concern`.
+  serviceSlug String?
+  /// the full fee before a discount, so a receipt can show both
+  fullAmount Int?
+  /// the code used, kept on the booking so the receipt can name it
+  couponCode String?
 
   // The one free first session each person gets (pro bono). The claim is the
   // verified phone it was made with, and is released (set NULL) when the
@@ -125,6 +181,9 @@ model Booking {
 
   note       SessionNote?
   payment    Payment?
+  redemption CouponRedemption?
+  homework   Homework[]
+  rescheduleOffer RescheduleOffer?
 
   @@index([userId, date])
   @@index([expertId, date])
@@ -166,9 +225,6 @@ model ExpertProfile {
   // "EMAIL" | "WHATSAPP" | "BOTH"
   notifyChannel        String  @default("EMAIL")
   // no notifications inside this window, local to the expert's timezone
-  quietHoursStart      String  @default("22:00")
-  quietHoursEnd        String  @default("07:00")
-  quietHoursEnabled    Boolean @default(true)
 
   updatedAt DateTime @updatedAt
 
@@ -266,6 +322,13 @@ model Payment {
   refundedAt   DateTime?
   refundAmount Int?
 
+  /// The receipt number, allocated once and never reused: "EMR/2026-27/0007".
+  /// Null until the first receipt is drawn, because an unpaid booking has no
+  /// receipt to number. A book of receipts has to be gapless and stable, so
+  /// this is written once and then left alone.
+  receiptNo String?   @unique
+  receiptAt DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
@@ -320,10 +383,41 @@ model Expert {
 
   name            String
   credentials     String  @default("")
+  /// "PSYCHIATRIST" | "CLINICAL_PSYCHOLOGIST" | "COUNSELLING_PSYCHOLOGIST" |
+  /// "PSYCHOLOGIST" — chosen by an admin, never guessed from the credential
+  /// line. Only a psychiatrist is a medical doctor, so only a psychiatrist can
+  /// prescribe or be cleared for the medication service. See lib/professions.ts.
+  profession      String  @default("")
+  /// Medical council (NMC or state) number for a psychiatrist, required before
+  /// their listing can be ACTIVE. Optional for everyone else (a registration or
+  /// membership number if they hold one). Shown on the public profile.
+  registrationNo  String  @default("")
+  /// Which body the number above is with: "RCI" (Rehabilitation Council of
+  /// India), "NMC" (medical, for psychiatrists), "STATE" (a state medical
+  /// council), or "" when they hold none.
+  ///
+  /// It is per practitioner on purpose. Emoraa does not require a council
+  /// registration, so the site never claims that its psychologists as a group
+  /// hold one — it says they are certified, and shows the registration on the
+  /// profile of each person who actually has it.
+  registrationBody String @default("")
   experienceYears Int     @default(0)
   /// JSON arrays of strings — SQLite has no scalar lists
   languages       String  @default("[]")
   specialties     String  @default("[]")
+  /// JSON array of service slugs this practitioner is qualified to deliver.
+  /// Empty means they are not offered for anything yet — deliberately not
+  /// "everything", because a psychologist must not be sold as a psychiatrist
+  /// by default. An admin sets this.
+  services        String  @default("[]")
+  /// JSON object of { serviceSlug: rupees } — this practitioner's price where
+  /// it differs from the service's standard one. Sparse on purpose: a slug
+  /// that is absent is charged the standard price, so ticking a service is
+  /// enough to make it sellable and nothing can be qualified-for but unpriced.
+  servicePrices   String  @default("{}")
+  /// Historical. Never charged since the service became the unit of sale, and
+  /// no longer shown or editable — see lib/service-catalogue.ts. Kept so old
+  /// rates are not lost.
   price           Int
   rating          Float   @default(5)
   photo           String  @default("")
@@ -338,4 +432,403 @@ model Expert {
   updatedAt DateTime @updatedAt
 
   @@index([status, sortOrder])
+}
+
+/// A discount code: either a campaign code an admin made, or the personal
+/// ₹300 credit a referral earns. Both are redeemed the same way at booking.
+model Coupon {
+  id   String @id @default(cuid())
+  code String @unique
+
+  /// "FIXED" (rupees off) | "PERCENT" (share off)
+  kind  String @default("FIXED")
+  value Int
+
+  /// free text an admin can read later: "campus drive", "referral reward"
+  note      String  @default("")
+  /// null = anyone; set = only this account may use it (referral rewards)
+  ownerId   String?
+  owner     User?   @relation("CouponOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  /// how many times it may be used in total; null = unlimited
+  maxUses   Int?
+  usedCount Int     @default(0)
+  /// null = never expires
+  expiresAt DateTime?
+  /// "ACTIVE" | "PAUSED"
+  status    String  @default("ACTIVE")
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  redemptions CouponRedemption[]
+
+  @@index([status])
+}
+
+/// One use of one code, on one booking. Unique per booking, so a booking can
+/// never be discounted twice.
+model CouponRedemption {
+  id        String  @id @default(cuid())
+  couponId  String
+  coupon    Coupon  @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookingId String  @unique
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  /// rupees taken off
+  amount    Int
+  createdAt DateTime @default(now())
+
+  @@index([couponId])
+  @@index([userId])
+}
+
+/// What the therapist reads before the first session: the story so far, current
+/// medication, and a risk screen. Clinical data — never shown to anyone but the
+/// client and the practitioner they booked.
+model IntakeForm {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// what brings them, in their words
+  reason          String @default("")
+  /// how long it has been going on
+  duration        String @default("")
+  /// therapy or psychiatric care before
+  pastCare        String @default("")
+  /// current medication, including anything not prescribed
+  medication      String @default("")
+  /// physical health worth knowing about
+  medical         String @default("")
+  /// "NONE" | "PAST" | "RECENT" — thoughts of self-harm
+  riskSelfHarm    String @default("NONE")
+  riskNote        String @default("")
+  /// someone to call in an emergency
+  emergencyName   String @default("")
+  emergencyPhone  String @default("")
+  emergencyRelation String @default("")
+  /// for a client under 18
+  guardianName    String @default("")
+  guardianPhone   String @default("")
+  guardianConsent Boolean @default(false)
+  /// anything they want the therapist to know but not to raise first
+  notes           String @default("")
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+/// One thing to try before the next session, set by the practitioner.
+model Homework {
+  id        String  @id @default(cuid())
+  bookingId String
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expertId  String
+
+  task   String
+  /// why it matters, in the practitioner's words
+  why    String @default("")
+  /// How often to do it — "twice a day", "before bed". Free text, because a
+  /// breathing exercise and a week of journalling do not share a vocabulary.
+  frequency String @default("")
+  /// How long for — "ten minutes", "two weeks".
+  duration  String @default("")
+  dueOn  String?
+  doneAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, doneAt])
+  @@index([expertId])
+}
+
+/// The receipt book's counter, one row per financial year.
+///
+/// Receipt numbers are read from here rather than derived from the payments
+/// table, because a number must never be issued twice. Counting rows — or even
+/// taking the highest surviving one — hands a deleted receipt's number to the
+/// next person, and two clients holding "EMR/2026-27/0004" is the one failure
+/// a book of receipts cannot have. This only ever goes up.
+model ReceiptSequence {
+  /// "2026-27"
+  fy        String   @id
+  /// the number the next receipt will take
+  next      Int      @default(1)
+  updatedAt DateTime @updatedAt
+}
+
+/// A record of the things an admin did that cannot be undone by looking.
+///
+/// Deliberately NOT a relation to User: the point of this table is to survive
+/// the account it describes. If a person is deleted, their email and role are
+/// still here, written at the moment they acted, and the trail stays readable.
+model AuditEvent {
+  id    String   @id @default(cuid())
+  at    DateTime @default(now())
+
+  /// Who did it, captured at the time — never joined, never updated.
+  actorId    String
+  actorEmail String
+  actorRole  String
+
+  /// "expert.create", "expert.access.revoke", "coupon.delete" — dot-separated,
+  /// noun first, so a prefix search answers "everything done to experts".
+  action String
+  /// What it was done to: "expert" + the slug, "coupon" + the code.
+  subject String
+  subjectId String
+
+  /// One line a human can read without decoding anything.
+  summary String
+  /// Whatever else was worth keeping, as JSON. Never clinical content.
+  meta String @default("{}")
+
+  @@index([at])
+  @@index([action])
+  @@index([subject, subjectId])
+}
+
+/// Shared rate-limit counters (lib/rate-limit.ts). One row per limit + client,
+/// so every server instance sees the same count and a deploy doesn't reset it.
+/// Fixed window: `count` requests since the window opened; the window ends at
+/// `resetAt`. Expired rows are swept opportunistically, never read as live.
+/// A blog post, written by a practitioner or an admin.
+///
+/// Posts used to live in `lib/posts.ts` as a hand-edited array. They are rows
+/// now so that the people who have something to say can publish without a
+/// deploy. The seven original essays were copied in by a migration and read
+/// identically; their slugs did not change, so no URL broke.
+///
+/// ── WHY A REVIEW STEP ──────────────────────────────────────────────────────
+/// These go out under a named clinician on a mental-health service. A post can
+/// carry a claim about outcomes, advice that is wrong for somebody in crisis,
+/// or a statistic nobody can source — all of which PRODUCT.md forbids. So an
+/// expert submits and an admin publishes. Admins publish their own directly:
+/// they are the reviewers, and a reviewer reviewing themselves is theatre.
+///
+/// `status` is one of:
+///   DRAFT      — being written; only the author and admins can see it
+///   IN_REVIEW  — submitted, waiting on an admin
+///   PUBLISHED  — live on /blog
+///   ARCHIVED   — taken down, kept for the record
+model Post {
+  id      String @id @default(cuid())
+  /// The URL. Unique, generated from the title, and frozen once published so
+  /// a shared link never dies.
+  slug    String @unique
+  title   String
+  excerpt String
+  /// "Anxiety" | "Relationships" | "Student Life" | "Workplace" | "Self-care"
+  category String
+
+  /// The article itself: an ordered list of {type: "p"|"h2"|"quote", text}.
+  /// Json rather than a second table — blocks are only ever read and written
+  /// as one whole document, never queried individually.
+  body Json
+
+  /// The short version, shown before the essay. Json array of strings.
+  takeaways Json
+
+  /// Cover art. Defaulted from the category when a post is created, because
+  /// nobody should have to source a photograph before they can publish.
+  cover    String
+  coverAlt String
+  /// The Devanagari word set across the cover.
+  deva     String
+  /// Minutes, computed from the body on save.
+  readMinutes Int @default(5)
+
+  /// The free tool the piece points at, if any.
+  toolHref  String?
+  toolLabel String?
+  toolNote  String?
+
+  /// "DRAFT" | "IN_REVIEW" | "PUBLISHED" | "ARCHIVED" — a string for the same
+  /// reason `User.role` is one, so the set can grow without a migration.
+  status String @default("DRAFT")
+
+  authorId String
+  author   User   @relation("PostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  /// The byline, copied at publish time. A post keeps the name and title its
+  /// author held when it went out, even if they later change either — the
+  /// alternative is a 2026 essay silently regaining a 2028 job title.
+  authorName String
+  authorRole String
+
+  reviewedById String?
+  reviewedBy   User?   @relation("PostReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  reviewedAt   DateTime?
+  /// Why it was sent back, in the admin's words. Shown to the author only.
+  reviewNote   String?
+
+  publishedAt DateTime?
+  featured    Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, publishedAt])
+  @@index([authorId, status])
+  @@index([category])
+}
+
+model RateLimit {
+  /// "<limit name>:<HMAC of identifier>". Never a raw IP, phone or email.
+  key     String   @id
+  count   Int
+  resetAt DateTime
+
+  @@index([resetAt])
+}
+
+/// What has actually been sent to a practitioner for a month's work.
+///
+/// Everything else about payouts is *computed*: `lib/payouts.ts` derives what
+/// each person is owed from the sessions they held. That answers "what do we
+/// owe" and can never answer "what have we paid", because a calculation has no
+/// memory of a bank transfer. This table is that memory, and nothing else.
+///
+/// One row per practitioner per month, created the moment an admin marks a
+/// payout sent. No row means awaited: absence is the honest default, and it
+/// keeps us from writing rows claiming a payout exists for a month nobody has
+/// looked at yet. The amount is stored as it was at the time, so a later
+/// change to the revenue share cannot quietly rewrite what somebody was paid.
+model Payout {
+  id       String @id @default(cuid())
+  /// the practitioner's stable slug, e.g. "ananya-iyer" — matches
+  /// ExpertProfile.expertId and Booking.expertId
+  expertId String
+  /// "YYYY-MM", the month the sessions were held in
+  month    String
+
+  /// paise-free rupees, as everywhere else. What was actually sent.
+  amount    Int
+  /// "PAID" — the only status a row carries, since absence means awaited.
+  status    String   @default("PAID")
+  paidAt    DateTime @default(now())
+  /// free text: a UTR, a cheque number, "cash", whatever the admin needs
+  reference String?
+
+  /// the admin who marked it, for the Trail
+  markedById    String
+  markedByEmail String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@unique([expertId, month])
+  @@index([month])
+}
+
+/// A practitioner suggesting the client books again.
+///
+/// A record rather than just an email, for two reasons: the client's own
+/// dashboard shows it as a gentle prompt rather than relying on them finding
+/// the message, and the practitioner can see who they have already nudged so
+/// nobody gets asked twice. One live suggestion per practitioner per client —
+/// a second one replaces the first, because two nudges in a week is pressure,
+/// and pressure is the one thing this must never be.
+model FollowUp {
+  id       String @id @default(cuid())
+  expertId String
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// the session it came out of, so the practitioner has the context
+  bookingId String?
+
+  /// the practitioner's own words, shown to the client. Optional.
+  message String @default("")
+
+  /// set when the client books again, or dismisses it
+  actedAt   DateTime?
+  /// "BOOKED" | "DISMISSED"
+  outcome   String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([expertId, userId])
+  @@index([userId, actedAt])
+}
+
+/// A practitioner offering the client other times for a session already booked.
+///
+/// The slots are NOT held while the client decides. Holding six times to move
+/// one session would block most of a practitioner's week for one person, so
+/// the options are first-come: the client's pick is written against the UNIQUE
+/// `Booking.slotKey`, which is what actually settles a race. If a slot goes in
+/// the meantime they are told and shown the rest.
+///
+/// One live offer per booking. A second replaces the first, because two sets
+/// of times in a client's inbox is a puzzle, not a kindness.
+model RescheduleOffer {
+  id        String  @id @default(cuid())
+  bookingId String  @unique
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  expertId  String
+
+  /// JSON: [{ "date": "YYYY-MM-DD", "times": ["HH:mm", "HH:mm"] }], up to 3 dates
+  options String
+  /// Why, in the practitioner's words. This one IS shown to the client — a
+  /// session being moved is something they are owed an explanation for.
+  reason  String @default("")
+
+  /// After this the offer lapses and the original time simply stands.
+  expiresAt DateTime
+
+  chosenDate String?
+  chosenTime String?
+  actedAt    DateTime?
+  /// "MOVED" | "KEPT" | "EXPIRED"
+  outcome    String?
+
+  createdAt DateTime @default(now())
+
+  @@index([expertId, actedAt])
+}
+
+/// A prescription, written by a psychiatrist.
+///
+/// ── WHY SO MUCH IS COPIED IN RATHER THAN JOINED ───────────────────────────
+/// The prescriber's name, qualification and registration number are snapshotted
+/// at the moment of issue. A prescription is a legal record of what one named,
+/// registered person authorised on one day; if it read its details live from a
+/// profile, editing that profile would silently rewrite every prescription
+/// ever issued under it.
+///
+/// Nothing is ever edited. A mistake is corrected by cancelling and issuing a
+/// replacement, so the trail shows what was authorised and what withdrew it.
+model Prescription {
+  id     String @id @default(cuid())
+  /// "EMR/RX/2026-27/0007" — gapless within a financial year, like receipts
+  number String @unique
+
+  bookingId String?
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expertId  String
+
+  /// snapshotted at issue — see above
+  prescriberName  String
+  prescriberCreds String
+  registrationNo  String
+
+  /// JSON: [{ drug, strength, dose, frequency, duration, instructions }]
+  items String
+  /// anything that is not a drug: sleep, follow-up, what to watch for
+  advice String @default("")
+  /// 0 = none suggested
+  followUpDays Int @default(0)
+
+  /// Set when a prescriber withdraws it. The row stays; it is never deleted.
+  cancelledAt    DateTime?
+  cancelReason   String?
+
+  issuedAt DateTime @default(now())
+
+  @@index([userId, issuedAt])
+  @@index([expertId, issuedAt])
 }

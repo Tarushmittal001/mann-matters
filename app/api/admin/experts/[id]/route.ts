@@ -1,12 +1,44 @@
 import { prisma } from "@/lib/db";
-import { getSession } from "@/lib/auth";
+import { record } from "@/lib/audit";
+import { getSession, type Session } from "@/lib/auth";
 import { validateExpert, type ExpertDraft } from "@/lib/expert-admin";
+import { services } from "@/lib/services";
 import { refreshExpertPages } from "@/lib/expert-cache";
 import { errors, fail, isSameOrigin, logFailure, privateJson, readJson } from "@/lib/http";
+import { isRegisterBody } from "@/lib/professions";
+
+/**
+ * The rate map as it should be stored: overrides only, for services this
+ * practitioner is actually cleared for.
+ *
+ * Blanks are dropped rather than written as 0 — an empty box means "charge the
+ * standard price", and storing a zero there would quietly make the session
+ * free. Rates for unticked services are dropped too, so unticking something
+ * cannot leave a price behind that reappears if it is ever ticked again.
+ */
+function ratesFor(cleared: string[], typed: Record<string, string> | undefined) {
+  const out: Record<string, number> = {};
+  for (const slug of cleared) {
+    const raw = (typed ?? {})[slug];
+    if (raw === undefined || raw.trim() === "") continue;
+    const amount = Number(raw);
+    if (Number.isInteger(amount) && amount >= 0) out[slug] = amount;
+  }
+  return out;
+}
 
 export const dynamic = "force-dynamic";
 
-async function requireAdmin() {
+/**
+ * Typed as a discriminated union so `if (guard.error) return guard.error`
+ * actually narrows: after that line the compiler knows `guard.session` is
+ * there, and callers do not have to assert it away with a `!`.
+ */
+type AdminGuard =
+  | { error: Response; session?: undefined }
+  | { error?: undefined; session: Session };
+
+async function requireAdmin(): Promise<AdminGuard> {
   const session = await getSession();
   if (!session) return { error: errors.unauthenticated() };
   if (session.role !== "ADMIN") return { error: errors.forbidden() };
@@ -24,6 +56,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     if (!isSameOrigin(req)) return errors.crossOrigin();
     const guard = await requireAdmin();
     if (guard.error) return guard.error;
+    const { session } = guard;
 
     const draft = await readJson<ExpertDraft>(req);
     if (!draft) return errors.badBody();
@@ -34,15 +67,37 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     const existing = await prisma.expert.findUnique({ where: { id: params.id } });
     if (!existing) return errors.notFound("That therapist is no longer in the catalogue.");
 
+    /*
+     * The list that decides what can be sold, cleaned server-side. A slug not
+     * in the catalogue is dropped rather than stored: this is the
+     * qualification gate, and a typo must not invent a service somebody can
+     * then be booked for.
+     */
+    const cleared = (draft.services ?? []).filter((slug) =>
+      services.some((s) => s.slug === slug)
+    );
+
     await prisma.expert.update({
       where: { id: params.id },
       data: {
         name: draft.name.trim(),
         credentials: draft.credentials.trim(),
+        // both checked by validateExpert above
+        profession: draft.profession,
+        registrationNo: (draft.registrationNo ?? "").trim(),
+        // only a value from REGISTER_OPTIONS; anything else is dropped so a
+        // crafted request cannot invent a register name on a public profile
+        registrationBody: isRegisterBody((draft.registrationBody ?? "").trim())
+          ? (draft.registrationBody ?? "").trim()
+          : "",
         experienceYears: Number(draft.experienceYears),
         languages: JSON.stringify(draft.languages.map((v) => v.trim())),
         specialties: JSON.stringify(draft.specialties.map((v) => v.trim())),
-        price: Number(draft.price),
+        // Only slugs that are really in the catalogue: this list decides who a
+        // client can be put in front of, so a typo must not create a service.
+        services: JSON.stringify(cleared),
+        servicePrices: JSON.stringify(ratesFor(cleared, draft.servicePrices)),
+        price: Number(draft.price) || 0,
         rating: Number(draft.rating),
         photo: draft.photo.trim(),
         bio: draft.bio.trim(),
@@ -50,6 +105,19 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
         sortOrder: Number(draft.sortOrder || 0),
       },
     });
+
+    /* Hiding and showing are the two edits worth telling apart in the trail:
+       one takes a therapist off the site, the other puts them back. */
+    const statusChanged = existing.status !== draft.status;
+    await record(
+      session,
+      statusChanged ? (draft.status === "ACTIVE" ? "expert.show" : "expert.hide") : "expert.update",
+      { type: "expert", id: existing.slug },
+      statusChanged
+        ? `${draft.status === "ACTIVE" ? "Listed" : "Hid"} ${existing.name}`
+        : `Edited ${existing.name}`,
+      statusChanged ? { from: existing.status, to: draft.status } : { services: cleared }
+    );
 
     refreshExpertPages();
     return privateJson({ ok: true });
@@ -71,6 +139,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     if (!isSameOrigin(req)) return errors.crossOrigin();
     const guard = await requireAdmin();
     if (guard.error) return guard.error;
+    const { session } = guard;
 
     const expert = await prisma.expert.findUnique({ where: { id: params.id } });
     if (!expert) return errors.notFound("That therapist is no longer in the catalogue.");
@@ -85,6 +154,14 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     }
 
     await prisma.expert.delete({ where: { id: params.id } });
+
+    await record(
+      session,
+      "expert.delete",
+      { type: "expert", id: expert.slug },
+      `Deleted ${expert.name} from the catalogue`,
+      { hadBookings: bookings }
+    );
     refreshExpertPages();
     return privateJson({ ok: true });
   } catch (err) {

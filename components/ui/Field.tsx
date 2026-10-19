@@ -42,14 +42,26 @@ function Shell({
     <div className={cn("w-full")}>
       <label
         htmlFor={id}
-        className="mb-1.5 block text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink/55"
+        className="mb-1.5 block text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink/70"
       >
         {label}
-        {!required && <span className="ml-1.5 normal-case tracking-normal text-ink/35">optional</span>}
+        {/* Both ends are stated explicitly. A form that marks only the required
+            fields leaves you counting asterisks to work out what you can skip;
+            one that marks only the optional ones reads as if nothing matters.
+            The asterisk is hidden from screen readers because `aria-required`
+            on the control already says it, and "label star" is not a sentence. */}
+        {required ? (
+          <>
+            <span aria-hidden="true" className="ml-1 text-red-600">*</span>
+            <span className="sr-only"> (required)</span>
+          </>
+        ) : (
+          <span className="ml-1.5 normal-case tracking-normal text-ink/35">optional</span>
+        )}
       </label>
       {children}
       {hint && !error && (
-        <p id={hintId} className="mt-1.5 text-[0.8rem] leading-relaxed text-ink/50">
+        <p id={hintId} className="mt-1.5 text-[0.8rem] leading-relaxed text-ink/70">
           {hint}
         </p>
       )}
@@ -106,6 +118,7 @@ export function Field({
         inputMode={inputMode}
         maxLength={maxLength}
         disabled={disabled}
+        aria-required={shared.required ? true : undefined}
         aria-invalid={shared.error ? true : undefined}
         aria-describedby={shared.error ? errorId : shared.hint ? hintId : undefined}
         className={cn(base, tone(!!shared.error), isPassword && "pr-12", shared.className)}
@@ -117,7 +130,7 @@ export function Field({
           disabled={disabled}
           aria-label={shown ? "Hide password" : "Show password"}
           aria-pressed={shown}
-          className="absolute right-1 top-1/2 flex h-9 w-10 -translate-y-1/2 items-center justify-center rounded-lg text-ink/45 transition-colors hover:text-forest-800 disabled:opacity-50"
+          className="absolute right-1 top-1/2 flex h-9 w-10 -translate-y-1/2 items-center justify-center rounded-lg text-ink/70 transition-colors hover:text-forest-800 disabled:opacity-50"
         >
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" />
@@ -161,6 +174,7 @@ export function TextArea({
         rows={rows}
         maxLength={maxLength}
         disabled={disabled}
+        aria-required={shared.required ? true : undefined}
         aria-invalid={shared.error ? true : undefined}
         aria-describedby={shared.error ? errorId : shared.hint ? hintId : undefined}
         className={cn(base, "resize-y leading-relaxed", tone(!!shared.error), shared.className)}
@@ -195,6 +209,7 @@ export function Select({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
+        aria-required={shared.required ? true : undefined}
         aria-invalid={shared.error ? true : undefined}
         aria-describedby={shared.error ? errorId : shared.hint ? hintId : undefined}
         className={cn(base, tone(!!shared.error), "appearance-none", shared.className)}

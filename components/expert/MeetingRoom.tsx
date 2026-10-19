@@ -33,6 +33,7 @@ export default function MeetingRoom({
   time,
   status,
   meetingUrl,
+  serviceSlug,
   sessionMinutes,
   serverNow,
   variant = "full",
@@ -42,6 +43,8 @@ export default function MeetingRoom({
   time: string;
   status: string;
   meetingUrl: string | null;
+  /** What was booked — it decides how long the room stays open. */
+  serviceSlug?: string | null;
   sessionMinutes: number;
   serverNow: string;
   variant?: "full" | "compact";
@@ -54,7 +57,7 @@ export default function MeetingRoom({
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<"save" | "remove" | null>(null);
 
-  const access = meetingAccess({ date, time, status, meetingUrl }, sessionMinutes, now);
+  const access = meetingAccess({ date, time, status, meetingUrl, serviceSlug }, sessionMinutes, now);
   const dirty = draft.trim() !== (meetingUrl ?? "");
 
   const save = async () => {
@@ -122,7 +125,7 @@ export default function MeetingRoom({
             </svg>
           </a>
           <CopyButton value={access.url} />
-          <span className="text-[0.78rem] text-ink/55">
+          <span className="text-[0.78rem] text-ink/70">
             Room closes {humanGap(access.closesInMinutes)}
           </span>
         </div>
@@ -131,7 +134,7 @@ export default function MeetingRoom({
 
     if (access.state === "early") {
       return (
-        <p className="text-[0.84rem] text-ink/60">
+        <p className="text-[0.84rem] text-ink/70">
           {meetingUrl ? (
             <>
               Room ready on {meetingHostLabel(meetingUrl)}. The join button opens{" "}
@@ -167,7 +170,7 @@ export default function MeetingRoom({
     }
 
     return (
-      <p className="text-[0.84rem] text-ink/55">
+      <p className="text-[0.84rem] text-ink/70">
         {access.state === "closed" ? "The room for this session has closed." : access.reason}
       </p>
     );
@@ -285,7 +288,7 @@ export default function MeetingRoom({
             </ActionButton>
           )}
           {!dirty && meetingUrl && (
-            <span className="text-[0.82rem] text-ink/55">
+            <span className="text-[0.82rem] text-ink/70">
               Saved · {meetingHostLabel(meetingUrl)}
             </span>
           )}

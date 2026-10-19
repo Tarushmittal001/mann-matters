@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     const session = await getSession();
     if (!session) return errors.unauthenticated();
 
-    const limited = rateLimit("password", clientKey(req));
+    const limited = await rateLimit("password", clientKey(req));
     if (!limited.ok) return errors.rateLimited(limited.retryAfter);
 
     const body = await readJson<Body>(req);
@@ -62,7 +62,7 @@ export async function POST(req: Request) {
       email: user.email,
       role: user.role,
     });
-    resetLimit("password", clientKey(req));
+    await resetLimit("password", clientKey(req));
 
     return privateJson({ ok: true, message: "Your password has been changed." });
   } catch (err) {

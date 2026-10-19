@@ -9,8 +9,9 @@ import { tools } from "@/lib/tools";
 
 export const metadata: Metadata = {
   title: "Free tools",
+  alternates: { canonical: "/tools" },
   description:
-    "Free, private mental-health tools — guided breathing, 5-4-3-2-1 grounding, muscle relaxation, calming sounds, a sleep wind-down, a worry journal, affirmations, and a gentle mood check-in. No sign-up, no tracking.",
+    "Free, private mental-health tools — guided breathing, 5-4-3-2-1 grounding, muscle relaxation, calming sounds, a sleep wind-down, a worry journal, affirmations, and a gentle mood check-in. Free with an account, and no tracking.",
 };
 
 export default function ToolsPage() {
@@ -22,7 +23,7 @@ export default function ToolsPage() {
           <Reveal className="mx-auto mb-14 max-w-2xl text-center md:mb-20">
             <p className="eyebrow mb-4 flex items-center justify-center gap-3">
               <span className="font-deva text-sm normal-case tracking-normal text-gold" aria-hidden="true">मन</span>
-              free, private, no sign-up
+              free, private, yours
             </p>
             <h1 className="h-display text-4xl md:text-5xl lg:text-[3.4rem]">
               Small tools for a heavy day.
@@ -98,7 +99,7 @@ export default function ToolsPage() {
               </h2>
               <p className="mx-auto mt-4 max-w-xl leading-relaxed text-sage-light/80">
                 these exercises are a first step, not a substitute for real
-                support. Talking to a licensed psychologist is the next one, and
+                support. Talking to a certified psychologist is the next one, and
                 it&apos;s easier than you think.
               </p>
               <div className="mt-7 flex flex-wrap items-center justify-center gap-3">

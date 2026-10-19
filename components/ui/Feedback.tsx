@@ -78,7 +78,7 @@ export function EmptyState({
   return (
     <div className="rounded-2xl border border-dashed border-forest-800/20 bg-ivory-light/60 p-10 text-center">
       <p className="font-display text-lg font-medium text-forest-900">{title}</p>
-      <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-ink/55">{body}</p>
+      <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-ink/70">{body}</p>
       {action && <div className="mt-6 flex justify-center">{action}</div>}
     </div>
   );
@@ -163,7 +163,7 @@ export function CrisisLine({ className }: { className?: string }) {
   return (
     <p
       className={cn(
-        "flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.85rem] leading-relaxed text-ink/60",
+        "flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.85rem] leading-relaxed text-ink/70",
         className
       )}
     >

@@ -9,16 +9,48 @@ export const IST_OFFSET = "+05:30";
 const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
 
 export const HOLD_MINUTES = 15;
+
+/**
+ * How long a request waits on a practitioner before the slot goes back on the
+ * board. Longer than a payment hold because there is a person at the other end
+ * of it, not a card form — but not open-ended, or an unanswered request quietly
+ * blocks a slot nobody can book.
+ */
+export const REQUEST_HOURS = 24;
+
+/**
+ * When a request lapses: `REQUEST_HOURS` from now, or two hours before the
+ * session, whichever comes first. A request for tomorrow morning cannot sit
+ * for a full day — it would still be "pending" after the session had started.
+ */
+export function requestExpiry(date: string, time: string, now: Date = new Date()): Date {
+  const window = new Date(now.getTime() + REQUEST_HOURS * 3_600_000);
+  const shortly = new Date(sessionStart(date, time).getTime() - 2 * 3_600_000);
+  return shortly < window ? shortly : window;
+}
 export const FREE_CHANGE_HOURS = 24;
 export const MAX_RESCHEDULES = 2;
 export const HORIZON_DAYS = 14;
 export const SESSION_MINUTES = 50;
 
 export const BOOKING_STATUS = {
+  /**
+   * Asked for, not yet agreed to. The client has chosen a slot and the slot is
+   * held for them, but nothing has been charged and the practitioner has not
+   * said yes. This is where every new booking starts.
+   */
+  requested: "REQUESTED",
+  /** The practitioner said no. The slot is released; nothing was ever taken. */
+  declined: "DECLINED",
   pendingPayment: "PENDING_PAYMENT",
   confirmed: "CONFIRMED",
   cancelled: "CANCELLED",
   expired: "EXPIRED",
+  // written by the practitioner when they close a session out. These were
+  // missing here while the expert portal was already setting them, so anything
+  // reading this list fell through to its "unknown" branch.
+  completed: "COMPLETED",
+  noShow: "NO_SHOW",
 } as const;
 
 export const PAYMENT_STATUS = {
@@ -186,4 +218,37 @@ export function proBonoReturnsOnCancel(
   now: Date = new Date()
 ): boolean {
   return hoursUntil(booking.date, booking.time, now) >= FREE_CHANGE_HOURS;
+}
+/**
+ * What an admin may still give back on a payment, and why.
+ *
+ * Distinct from `refundFor`, which is the *client's* entitlement when they
+ * cancel: free outside the 24-hour window, nothing inside it. This is the
+ * override — a session the practitioner missed, a room that never opened, a
+ * complaint worth settling. It answers only "how much is left to give back",
+ * and deliberately takes no view on whether giving it back is deserved. That
+ * is a judgement, and judgements belong to the person, with their reason
+ * recorded next to it.
+ */
+export function refundableAmount(payment: {
+  status: string;
+  amount: number;
+  refundAmount: number | null;
+} | null): { max: number; alreadyBack: number; reason: string | null } {
+  if (!payment) {
+    return { max: 0, alreadyBack: 0, reason: "No payment was ever taken for this session." };
+  }
+  if (payment.status === PAYMENT_STATUS.waived) {
+    return { max: 0, alreadyBack: 0, reason: "This was a free session — nothing was charged." };
+  }
+  if (payment.status !== PAYMENT_STATUS.paid && payment.status !== PAYMENT_STATUS.refunded) {
+    return { max: 0, alreadyBack: 0, reason: "This payment never completed, so there is nothing to give back." };
+  }
+  const alreadyBack = Math.min(payment.refundAmount ?? 0, payment.amount);
+  const max = payment.amount - alreadyBack;
+  return {
+    max,
+    alreadyBack,
+    reason: max > 0 ? null : "The whole amount has already been refunded.",
+  };
 }

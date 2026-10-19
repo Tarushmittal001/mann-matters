@@ -40,19 +40,6 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: "Pick email, WhatsApp, or both." }, { status: 400 });
   }
 
-  const quietEnabled = bool(payload.quietHoursEnabled, profile.quietHoursEnabled);
-  const quietStart = payload.quietHoursStart;
-  const quietEnd = payload.quietHoursEnd;
-
-  if (quietEnabled && (!isTime(quietStart) || !isTime(quietEnd))) {
-    return NextResponse.json({ error: "Quiet hours need a start and an end time." }, { status: 400 });
-  }
-  if (quietEnabled && quietStart === quietEnd) {
-    return NextResponse.json(
-      { error: "Quiet hours that start and end at the same minute would silence everything." },
-      { status: 400 }
-    );
-  }
 
   const updated = await prisma.expertProfile.update({
     where: { id: profile.id },
@@ -65,8 +52,6 @@ export async function PATCH(req: Request) {
       notifyWeeklyDigest: bool(payload.weeklyDigest, profile.notifyWeeklyDigest),
       notifyProductUpdates: bool(payload.productUpdates, profile.notifyProductUpdates),
       notifyChannel: payload.channel,
-      quietHoursEnabled: quietEnabled,
-      ...(quietEnabled ? { quietHoursStart: quietStart as string, quietHoursEnd: quietEnd as string } : {}),
     },
   });
 

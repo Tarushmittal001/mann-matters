@@ -30,8 +30,8 @@ export async function POST(request: Request) {
     }
     if (user.phoneVerified) return privateJson({ ok: true, alreadyVerified: true });
 
-    const byClient = rateLimit("otpRequest", clientKey(request));
-    const byPhone = rateLimit("otpRequest", phoneKey(user.phone));
+    const byClient = await rateLimit("otpRequest", clientKey(request));
+    const byPhone = await rateLimit("otpRequest", phoneKey(user.phone));
     if (!byClient.ok || !byPhone.ok) {
       return errors.rateLimited(
         Math.max(byClient.ok ? 0 : byClient.retryAfter, byPhone.ok ? 0 : byPhone.retryAfter)

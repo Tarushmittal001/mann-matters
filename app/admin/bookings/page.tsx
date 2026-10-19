@@ -12,7 +12,7 @@ export default async function AdminBookingsPage() {
   const upcoming = bookings.filter((booking) => booking.status === "CONFIRMED" && booking.date > today);
 
   return (
-    <main className="wrap-wide pb-28">
+    <section className="wrap-wide pb-28">
       <div className="flex flex-wrap items-end justify-between gap-5">
         <div>
           <p className="eyebrow">booking operations</p>
@@ -21,12 +21,12 @@ export default async function AdminBookingsPage() {
         </div>
         <div className="rounded-2xl border border-forest-800/10 bg-ivory-light px-5 py-4 shadow-lift">
           <p className="font-display text-2xl font-medium text-forest-900">{upcoming.length}</p>
-          <p className="text-sm text-ink/60">upcoming sessions</p>
+          <p className="text-sm text-ink/70">upcoming sessions</p>
         </div>
       </div>
       <div className="mt-10 overflow-x-auto rounded-2xl border border-forest-800/10 bg-ivory-light shadow-lift">
         {bookings.length === 0 ? (
-          <p className="p-12 text-center text-ink/60">No bookings yet.</p>
+          <p className="p-12 text-center text-ink/70">No bookings yet.</p>
         ) : (
           <table className="w-full min-w-[900px] text-left text-sm">
             <thead className="bg-forest-800 text-[0.7rem] uppercase tracking-[0.14em] text-ivory">
@@ -48,6 +48,6 @@ export default async function AdminBookingsPage() {
           </table>
         )}
       </div>
-    </main>
+    </section>
   );
 }

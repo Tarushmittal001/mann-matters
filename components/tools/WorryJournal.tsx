@@ -114,7 +114,7 @@ export default function WorryJournal() {
             className="w-full resize-none rounded-2xl border border-forest-800/15 bg-ivory p-5 text-[0.98rem] leading-relaxed text-forest-900 placeholder:text-ink/35 focus:border-forest-600 focus:outline-none"
           />
           {releasing && (
-            <p className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-ink/50">
+            <p className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-ink/70">
               …and it&apos;s gone.
             </p>
           )}
@@ -137,8 +137,8 @@ export default function WorryJournal() {
           </button>
         </div>
 
-        <p className="mt-5 text-xs leading-relaxed text-ink/45">
-          <strong className="font-semibold text-ink/60">Completely private.</strong>{" "}
+        <p className="mt-5 text-xs leading-relaxed text-ink/70">
+          <strong className="font-semibold text-ink/70">Completely private.</strong>{" "}
           &ldquo;Let it go&rdquo; stores nothing, anywhere. &ldquo;Keep it
           here&rdquo; saves only to this device — nothing ever leaves your
           browser.
@@ -150,7 +150,7 @@ export default function WorryJournal() {
         <div className="mt-10">
           <div className="mb-5 flex items-center justify-between">
             <h2 className="eyebrow">Kept on this device</h2>
-            <button onClick={clearAll} className="link-draw text-xs text-ink/50">
+            <button onClick={clearAll} className="link-draw text-xs text-ink/70">
               Clear all
             </button>
           </div>
@@ -184,7 +184,7 @@ export default function WorryJournal() {
                       </svg>
                     </button>
                   </div>
-                  <p className="mt-3 text-xs text-ink/40">{e.date}</p>
+                  <p className="mt-3 text-xs text-ink/70">{e.date}</p>
                 </motion.li>
               ))}
             </AnimatePresence>

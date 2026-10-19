@@ -1,3 +1,5 @@
+import { canPrescribe, isProfession, registrationRequired, requiresPrescriber } from "@/lib/professions";
+
 /**
  * What an admin may set on a therapist listing, and what counts as valid.
  *
@@ -8,6 +10,7 @@
 export const EXPERT_LIMITS = {
   nameMax: 80,
   credentialsMax: 120,
+  registrationMax: 40,
   bioMax: 600,
   priceMin: 0,
   priceMax: 100000,
@@ -19,9 +22,32 @@ export const EXPERT_LIMITS = {
 export type ExpertDraft = {
   name: string;
   credentials: string;
+  /** One of PROFESSIONS — required, and the only thing that decides who may prescribe. */
+  profession: string;
+  /** Medical council number, required for an ACTIVE psychiatrist; optional for everyone else. */
+  registrationNo: string;
+  /** "RCI" | "NMC" | "STATE" | "" — see REGISTER_OPTIONS. */
+  registrationBody: string;
   experienceYears: string;
   languages: string[];
   specialties: string[];
+  /** Service slugs this practitioner is cleared to deliver. Empty = bookable for nothing. */
+  services: string[];
+  /**
+   * Their rate per service slug, as typed. A slug that is absent — or blank —
+   * means the service's standard price, which is why this is sparse: leaving
+   * the box empty is a real answer, not an unfinished one.
+   */
+  servicePrices: Record<string, string>;
+  /**
+   * Where to send their login invite, asked while the listing is being made.
+   *
+   * Only read when creating: an existing listing changes its login through
+   * Manage, where removing and re-inviting is a deliberate two-step act rather
+   * than a side effect of editing a credential line. Blank is allowed — a
+   * listing can exist before the person has an address to use.
+   */
+  loginEmail: string;
   price: string;
   rating: string;
   photo: string;
@@ -33,10 +59,16 @@ export type ExpertDraft = {
 export const emptyExpertDraft: ExpertDraft = {
   name: "",
   credentials: "",
+  profession: "",
+  registrationNo: "",
+  registrationBody: "",
   experienceYears: "",
   languages: [],
   specialties: [],
-  price: "",
+  services: [],
+  servicePrices: {},
+  loginEmail: "",
+  price: "0",
   rating: "5",
   photo: "",
   bio: "",
@@ -67,14 +99,45 @@ export function validateExpert(draft: ExpertDraft): Record<string, string> {
     f.credentials = `Keep this under ${EXPERT_LIMITS.credentialsMax} characters.`;
   }
 
+  if (!isProfession(draft.profession)) f.profession = "Choose what they are.";
+
+  /*
+   * A live psychiatrist can prescribe, so they need a medical-council number
+   * a client and a pharmacy can check. Psychologists and counsellors are
+   * listed on verified qualifications and may have no number to give. A
+   * hidden listing can always be drafted without one.
+   */
+  const reg = (draft.registrationNo ?? "").trim();
+  if (reg.length > EXPERT_LIMITS.registrationMax) {
+    f.registrationNo = `Keep this under ${EXPERT_LIMITS.registrationMax} characters.`;
+  } else if (reg && !/^[A-Za-z0-9][A-Za-z0-9 ./-]*$/.test(reg)) {
+    f.registrationNo = "Letters, numbers, spaces, dots, slashes and dashes only.";
+  } else if (!reg && draft.status === "ACTIVE" && registrationRequired(draft.profession)) {
+    f.registrationNo = "Add their medical council number before listing them, or keep them hidden.";
+  }
+
+  /* Only a medical doctor can prescribe, so only a psychiatrist can be cleared for medication. */
+  if (!canPrescribe(draft.profession) && (draft.services ?? []).some(requiresPrescriber)) {
+    f.services = "Only a psychiatrist can be cleared for Psychiatry & medication.";
+  }
+
   const years = Number(draft.experienceYears);
   if (!draft.experienceYears.trim() || !Number.isInteger(years) || years < 0 || years > EXPERT_LIMITS.yearsMax) {
     f.experienceYears = `Years of experience: a whole number from 0 to ${EXPERT_LIMITS.yearsMax}.`;
   }
 
-  const price = Number(draft.price);
-  if (!draft.price.trim() || !Number.isInteger(price) || price < EXPERT_LIMITS.priceMin || price > EXPERT_LIMITS.priceMax) {
-    f.price = `A whole rupee amount up to ${EXPERT_LIMITS.priceMax.toLocaleString("en-IN")}.`;
+  /*
+   * `draft.price` is the old flat per-therapist fee. It is no longer charged,
+   * shown or editable, so it is not validated either — a listing must not be
+   * rejected over a number nobody can see. The rates that matter are below.
+   */
+  for (const [slug, raw] of Object.entries(draft.servicePrices)) {
+    if (!draft.services.includes(slug)) continue; // a rate for an unticked service is just stale
+    if (raw.trim() === "") continue; // blank means the standard price
+    const amount = Number(raw);
+    if (!Number.isInteger(amount) || amount < EXPERT_LIMITS.priceMin || amount > EXPERT_LIMITS.priceMax) {
+      f[`servicePrices.${slug}`] = `Up to ${EXPERT_LIMITS.priceMax.toLocaleString("en-IN")}`;
+    }
   }
 
   const rating = Number(draft.rating);
@@ -89,6 +152,11 @@ export function validateExpert(draft: ExpertDraft): Record<string, string> {
     else if (list.some((v) => v.trim().length === 0 || v.length > EXPERT_LIMITS.itemMax)) {
       f[key] = `Each one up to ${EXPERT_LIMITS.itemMax} characters.`;
     }
+  }
+
+  const login = (draft.loginEmail ?? "").trim();
+  if (login && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(login)) {
+    f.loginEmail = "That doesn't look like an email address.";
   }
 
   const photo = draft.photo.trim();

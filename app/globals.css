@@ -169,12 +169,39 @@
   }
 }
 
+
+/*
+ * The concern words circling the brain in the hero.
+ *
+ * A real orbit, but a small one. Each word runs the same ellipse with its own
+ * amplitude, period and (negative) delay, so all eight move at once and never
+ * march in step. The excursion is deliberately lopsided — `--dy` larger than
+ * `--dx` — because horizontal travel is what would carry a word onto the
+ * silhouette or into the headline, and that clearance is measured in pixels.
+ * Only `transform` animates, so this never costs a layout.
+ */
+@keyframes brain-drift {
+  0%   { transform: translate(var(--dx), 0); }
+  25%  { transform: translate(0, var(--dy)); }
+  50%  { transform: translate(calc(var(--dx) * -1), 0); }
+  75%  { transform: translate(0, calc(var(--dy) * -1)); }
+  100% { transform: translate(var(--dx), 0); }
+}
+
+.brain-drift {
+  animation-name: brain-drift;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-marquee,
   .animate-breathe,
   .animate-drift-slow,
   .animate-pulse-soft,
-  .animate-ping {
+  .animate-ping,
+  .brain-drift {
     animation: none !important;
   }
 
@@ -193,5 +220,89 @@
 
   html {
     scroll-behavior: auto !important;
+  }
+}
+
+/* Printing.
+   A receipt, a safety plan and a sleep diary are all meant to leave the screen
+   on paper. Site chrome, anything marked data-print-hide and the support
+   launcher come off; the sheet itself loses its card styling so it doesn't
+   print a grey box around the page. */
+@media print {
+  header[data-site-header],
+  footer[data-site-footer],
+  .support-launcher,
+  /* the floating safety notice sits over the page and would print across a
+     receipt; it is on-screen furniture, not part of the document */
+  [data-safety-notice],
+  [data-print-hide] {
+    display: none !important;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  .page-top {
+    padding-top: 0 !important;
+  }
+
+  /*
+   * A printed document is the whole sheet, so the page's own screen spacing
+   * goes. `pb-24` alone is 6rem of empty paper below the footer band, which is
+   * what used to push a short practice plan onto a second sheet.
+   */
+  .page-top,
+  .wrap,
+  .wrap-wide {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* A4 with a sane margin, so the sheet is not glued to the paper edge. */
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  [data-receipt] {
+    max-width: none !important;
+    box-shadow: none !important;
+    /* The masthead band, the gold rule and the totals tint carry the brand and
+       tell a paid receipt from an unpaid one at a glance. Browsers drop
+       backgrounds when printing unless asked not to. */
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    break-inside: avoid;
+  }
+
+  /* keep a receipt on one sheet wherever it can be */
+  [data-receipt] section,
+  [data-receipt] table {
+    break-inside: avoid;
+  }
+
+  /*
+   * The footer band must never be cut in half.
+   *
+   * `break-inside: avoid` on the document as a whole is ignored the moment the
+   * document is taller than a sheet, and the browser then breaks wherever it
+   * likes — which put the dark band on page one and the confidentiality line,
+   * the single most important sentence on the page, alone on page two. Naming
+   * the footer keeps it whole and moves it down intact if it ever has to move.
+   */
+  [data-receipt] footer,
+  [data-receipt] header {
+    break-inside: avoid;
+  }
+
+  /* Nothing after the document: a trailing empty block prints a blank sheet. */
+  [data-receipt] {
+    margin-bottom: 0 !important;
+  }
+
+  a[href]::after {
+    content: "";
   }
 }

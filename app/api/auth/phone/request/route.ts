@@ -26,8 +26,8 @@ export async function POST(request: Request) {
     if (phoneError) return errors.validation({ phone: phoneError });
 
     const phone = normalisePhone(rawPhone);
-    const byClient = rateLimit("otpRequest", clientKey(request));
-    const byPhone = rateLimit("otpRequest", phoneKey(phone));
+    const byClient = await rateLimit("otpRequest", clientKey(request));
+    const byPhone = await rateLimit("otpRequest", phoneKey(phone));
     if (!byClient.ok || !byPhone.ok) {
       const retryAfter = Math.max(
         byClient.ok ? 0 : byClient.retryAfter,

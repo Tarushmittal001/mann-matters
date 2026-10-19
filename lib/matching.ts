@@ -44,14 +44,22 @@ export function rank(
   experts: Expert[],
   concernKeys: string[],
   language: string,
-  budget: (p: number) => boolean
+  budget: (p: number) => boolean,
+  /**
+   * What a session with this person would actually cost. Sessions are priced
+   * by the service now, so the budget question must be asked of that number —
+   * `Expert.price` is a legacy rate nobody is charged. Without it, a
+   * practitioner offering nothing never passes a budget.
+   */
+  priceOf: (e: Expert) => number | null = () => null
 ): Expert[] {
   return [...experts]
     .map((e) => {
       let score = 0;
       if (specialisesIn(e, concernKeys)) score += 4;
       if (language === "Any language" || e.languages.includes(language)) score += 2;
-      if (budget(e.price)) score += 2;
+      const price = priceOf(e);
+      if (price !== null && budget(price)) score += 2;
       score += e.rating - 4.5; // gentle tiebreak toward higher-rated
       return { e, score };
     })

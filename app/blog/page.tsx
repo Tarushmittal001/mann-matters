@@ -2,15 +2,22 @@ import type { Metadata } from "next";
 import BlogIndex from "@/components/blog/BlogIndex";
 import InkLines from "@/components/visuals/InkLines";
 import Reveal from "@/components/ui/Reveal";
-import { posts } from "@/lib/posts";
+import { listPublished } from "@/lib/blog";
 
 export const metadata: Metadata = {
   title: "Blog — Notes on minds, gently written",
+  alternates: { canonical: "/blog" },
   description:
     "Essays on anxiety, relationships, student life, workplace burnout, and self-care — written by Emoraa psychologists, for India.",
 };
 
-export default function BlogPage() {
+/* Posts are rows now, so this is rebuilt on a timer rather than at deploy.
+   Ten minutes: a post an admin publishes is live within ten minutes without
+   the blog paying for a database read on every visit. */
+export const revalidate = 600;
+
+export default async function BlogPage() {
+  const posts = await listPublished();
   return (
     <div className="page-top pb-24">
       {/* the heading, with the page writing itself alongside it */}
@@ -29,7 +36,7 @@ export default function BlogPage() {
                 "linear-gradient(to right, transparent 0%, black 30%, black 100%)",
             }}
           >
-            <InkLines />
+            <InkLines posts={posts} />
           </div>
         </div>
         {/* scrim keeps the headline legible where it meets the canvas */}
@@ -48,7 +55,7 @@ export default function BlogPage() {
             the journal
           </p>
           <h1 className="h-display max-w-3xl text-5xl md:text-7xl">
-            Notes on minds, <em className="text-forest-600">gently written</em>
+            Writing about <em className="text-forest-600">how we feel</em>
           </h1>
           <p className="mt-7 max-w-xl text-lg text-ink/70">
             Written by our psychologists. No miracle hacks, no 5 a.m. clubs —

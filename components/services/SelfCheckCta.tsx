@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "@/components/ui/Button";
 import SelfCheck from "@/components/services/SelfCheck";
 import type { Expert } from "@/lib/experts";
@@ -25,13 +25,26 @@ export default function SelfCheckCta({
   experts: Expert[];
 }) {
   const [open, setOpen] = useState(false);
+  /* The result needs an account; undefined until /api/auth/me answers. */
+  const [signedIn, setSignedIn] = useState<boolean | undefined>(undefined);
+
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d) => alive && setSignedIn(Boolean(d.user)))
+      .catch(() => alive && setSignedIn(false));
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   return (
     <>
       <Button onClick={() => setOpen(true)} variant={variant} className={className}>
         {children}
       </Button>
-      <SelfCheck open={open} onClose={() => setOpen(false)} experts={experts} />
+      <SelfCheck open={open} onClose={() => setOpen(false)} experts={experts} signedIn={signedIn} />
     </>
   );
 }

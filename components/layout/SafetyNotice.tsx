@@ -17,6 +17,7 @@ export default function SafetyNotice() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           onClick={() => setState("full")}
+          data-safety-notice
           className="fixed bottom-20 left-4 z-50 flex items-center gap-2 rounded-full bg-forest-100 px-4 py-2 text-sm font-semibold text-forest-800 shadow-bloom border border-forest-600/20 hover:bg-sage-light transition-colors"
           aria-label="Show safety notice"
         >
@@ -47,7 +48,7 @@ export default function SafetyNotice() {
                 <p className="font-display text-base font-medium leading-tight text-forest-900">
                   Safety and crisis support
                 </p>
-                <p className="mt-1 text-xs leading-relaxed text-ink/60">
+                <p className="mt-1 text-xs leading-relaxed text-ink/70">
                   Emoraa is not an emergency service. Immediate help is available 24x7.
                 </p>
               </div>
@@ -68,7 +69,7 @@ export default function SafetyNotice() {
               <button
                 type="button"
                 onClick={() => setState("dismissed")}
-                className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink/55 ring-1 ring-inset ring-forest-600/20"
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink/70 ring-1 ring-inset ring-forest-600/20"
                 aria-label="Dismiss safety notice"
               >
                 <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -85,6 +86,7 @@ export default function SafetyNotice() {
           exit={{ opacity: 0, y: 30 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           role="alert"
+          data-safety-notice
           className="fixed bottom-6 left-6 right-6 z-50 mx-auto hidden max-w-2xl rounded-2xl border border-forest-600/15 bg-ivory/95 p-5 shadow-bloom backdrop-blur-md sm:block"
         >
           {/* Header */}
@@ -97,7 +99,7 @@ export default function SafetyNotice() {
             <div>
               <p className="font-display text-base font-medium text-forest-900">A gentle note before you begin</p>
               <p className="mt-1.5 text-sm text-ink/65 leading-relaxed">
-                Emoraa offers emotional wellness tools &amp; connects you with licensed therapists.
+                Emoraa offers emotional wellness tools &amp; connects you with qualified therapists.
                 We are <strong className="text-forest-800">not a substitute</strong> for
                 emergency psychiatric care or clinical diagnosis.
               </p>
@@ -116,7 +118,7 @@ export default function SafetyNotice() {
               <li>
                 <span className="font-semibold text-forest-800">Tele-MANAS:</span>{" "}
                 <a href="tel:14416" className="text-gold-dark underline underline-offset-2 hover:text-gold">14416</a>{" "}
-                <span className="text-ink/40">(24×7, govt. helpline)</span>
+                <span className="text-ink/70">(24×7, govt. helpline)</span>
               </li>
               <li>
                 <span className="font-semibold text-forest-800">iCALL:</span>{" "}

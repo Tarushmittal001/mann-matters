@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     if (!isSameOrigin(req)) return errors.crossOrigin();
 
     // the token is high-entropy, but a limit keeps anyone from grinding at it
-    const limited = rateLimit("verify", clientKey(req));
+    const limited = await rateLimit("verify", clientKey(req));
     if (!limited.ok) return errors.rateLimited(limited.retryAfter);
 
     const body = await readJson<{ token?: string }>(req);
@@ -26,6 +26,8 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
+
+    if (user.blockedAt) return errors.blocked();
 
     // verified — log them straight in
     await createSession(user);

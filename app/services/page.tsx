@@ -7,17 +7,44 @@ import CTABand from "@/components/sections/CTABand";
 import ServiceGrid from "@/components/services/ServiceGrid";
 import SelfCheckCta from "@/components/services/SelfCheckCta";
 import { listExperts } from "@/lib/experts-store";
-import { sessionSteps } from "@/lib/services";
+import { sessionSteps, services } from "@/lib/services";
+import { serviceAvailability } from "@/lib/service-catalogue";
+import { CountWord, formatINR } from "@/lib/utils";
 import TheRoom from "@/components/visuals/TheRoom";
 
 export const metadata: Metadata = {
   title: "Services — Therapy, counselling & wellness programs",
+  alternates: {
+    canonical: "/services",
+    languages: { "en-IN": "/services", "hi-IN": "/hi/services" },
+  },
   description:
     "Psychiatry, individual therapy from ₹999, couples and family therapy, student, career and love-life counselling, LGBTQIA+ affirmative care, and group sessions from ₹399. Online and confidential.",
 };
 
 export default async function ServicesPage() {
   const experts = await listExperts();
+
+  /**
+   * The cheapest thing somebody can actually buy today.
+   *
+   * Read from what is *bookable*, not from the catalogue. This line used to be
+   * computed from every listed price, which meant it quoted ₹399 for group
+   * sessions while nobody was running any — a true statement about a table and
+   * a false one about the world.
+   */
+  const rows = await serviceAvailability();
+  // the floor of what practitioners actually charge, not the catalogue's
+  // standard price — the two part company as soon as anyone sets their own
+  const bookablePrices = rows
+    .filter((r) => r.bookable && r.priceRange)
+    .map((r) => ({ slug: r.service.slug, price: (r.priceRange as { min: number }).min }));
+  const groupPrices = bookablePrices.filter((p) => p.slug === "group-sessions");
+  const oneToOnePrices = bookablePrices.filter((p) => p.slug !== "group-sessions");
+  const cheapestGroup = groupPrices.length ? Math.min(...groupPrices.map((p) => p.price)) : null;
+  const cheapestOneToOne = oneToOnePrices.length
+    ? Math.min(...oneToOnePrices.map((p) => p.price))
+    : null;
   return (
     <>
       {/* manifesto hero */}
@@ -61,8 +88,8 @@ export default async function ServicesPage() {
               <em className="text-forest-600">there&apos;s a way through.</em>
             </h1>
             <p className="mt-8 max-w-xl text-lg leading-relaxed text-ink/70">
-              Ten kinds of support, one standard: a licensed professional,
-              complete confidentiality, and a price you can actually sustain.
+              {CountWord(services.length)} kinds of support, one standard: a qualified
+              professional, complete confidentiality, and a price you can actually sustain.
             </p>
             <div className="pointer-events-auto mt-10 flex flex-wrap items-center gap-4">
               <Button href="/book" variant="gold">
@@ -70,9 +97,15 @@ export default async function ServicesPage() {
               </Button>
               <SelfCheckCta variant="outline" experts={experts}>Take the self-check</SelfCheckCta>
             </div>
-            <p className="mt-6 text-sm text-ink/50">
-              Fifty minutes, from &#8377;599. No diagnosis on day one, and no one
-              else needs to know.
+            <p className="mt-6 text-sm text-ink/70">
+              {/* Priced off the catalogue, not typed in. The old line said
+                  "Fifty minutes, from ₹599" — but nothing that runs fifty
+                  minutes costs ₹599, and a price claim that does not survive
+                  a reader checking it is worse than no claim. */}
+              {cheapestOneToOne !== null && <>One-to-one from {formatINR(cheapestOneToOne)}</>}
+              {cheapestOneToOne !== null && cheapestGroup !== null && <>, groups from {formatINR(cheapestGroup)}</>}
+              {cheapestOneToOne !== null && ". "}
+              No diagnosis on day one, and no one else needs to know.
             </p>
           </Reveal>
         </div>
@@ -101,7 +134,7 @@ export default async function ServicesPage() {
                   Whatever format you pick, nothing you say in a session leaves it.
                 </strong>{" "}
                 Not to your family, not to your employer, not to your college — and
-                every one of these is run by a licensed psychologist, not a coach and
+                every one of these is run by a certified psychologist, not a coach and
                 not a chatbot. The single exception is the one the law requires, an
                 immediate risk to your life or someone else&apos;s, and we would talk
                 to you about it first.
@@ -111,14 +144,14 @@ export default async function ServicesPage() {
         </div>
       </section>
 
-      {/* ── the ten kinds of support ─────────────────────────────────────── */}
+      {/* ── every format we run ──────────────────────────────────────────── */}
       <section className="section">
         <div className="wrap-wide">
           <SectionHeading
             eyebrow="what we offer"
             deva="मन"
-            title="Ten kinds of support, one standard"
-            description="They differ in who is in the room, how long it runs, and what it costs — not in who you get or how carefully you are held. Start anywhere; your therapist will say if another one fits better."
+            title={`${CountWord(services.length)} kinds of support, one standard`}
+            description="They differ in who is in the room, how long it runs, and what it costs. They do not differ in who you get, or in how carefully you are looked after. Start anywhere. Your therapist will say if another one fits you better."
           />
 
           <ServiceGrid />

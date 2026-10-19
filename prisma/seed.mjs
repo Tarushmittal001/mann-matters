@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
    1. Admin
    ────────────────────────────────────────────────────────────────────────── */
 
-const adminEmail = process.env.ADMIN_EMAIL || "admin@mannmatters.in";
+const adminEmail = process.env.ADMIN_EMAIL || "admin@emoraa.com";
 const adminPassword = process.env.ADMIN_PASSWORD;
 
 if (!adminPassword) {
@@ -23,7 +23,7 @@ await prisma.user.upsert({
     emailVerified: new Date(),
   },
   create: {
-    name: "mann Matters Admin",
+    name: "Emoraa Admin",
     email: adminEmail,
     passwordHash: await bcrypt.hash(adminPassword, 10),
     role: "ADMIN",
@@ -48,7 +48,7 @@ const practitioners = [
   {
     id: "ananya-iyer",
     name: "Ananya Iyer",
-    credentials: "M.Phil. Clinical Psychology, RCI Licensed",
+    credentials: "M.Phil. Clinical Psychology",
     years: 9,
     languages: ["English", "Hindi", "Tamil"],
     specialties: ["Anxiety", "Workplace stress", "Self-esteem"],
@@ -92,7 +92,7 @@ const practitioners = [
   {
     id: "sana-qureshi",
     name: "Sana Qureshi",
-    credentials: "M.Phil. Clinical Psychology, RCI Licensed",
+    credentials: "M.Phil. Clinical Psychology",
     years: 10,
     languages: ["English", "Hindi", "Urdu"],
     specialties: ["Depression", "Family expectations", "Women's mental health"],
@@ -128,7 +128,7 @@ if (!expertPassword) {
   const passwordHash = await bcrypt.hash(expertPassword, 10);
 
   for (const p of practitioners) {
-    const email = `${p.id}@mannmatters.in`;
+    const email = `${p.id}@emoraa.com`;
     const user = await prisma.user.upsert({
       where: { email },
       update: { passwordHash, role: "EXPERT", emailVerified: new Date() },
@@ -171,7 +171,7 @@ if (!expertPassword) {
     }
   }
 
-  console.log(`Practitioner accounts ready: ${practitioners.map((p) => p.id + "@mannmatters.in").join(", ")}`);
+  console.log(`Practitioner accounts ready: ${practitioners.map((p) => p.id + "@emoraa.com").join(", ")}`);
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -265,7 +265,7 @@ if (process.env.SEED_DEMO === "1" && expertPassword) {
       n += 1;
       await prisma.booking.create({
         data: {
-          ref: `MM-DEMO${String(n).padStart(2, "0")}`,
+          ref: `EM-DEMO${String(n).padStart(2, "0")}`,
           userId: clientRows[d.client].id,
           concern: d.concern,
           expertId: expert.id,

@@ -48,7 +48,13 @@ export function bookingCalendar(booking: CalendarBooking, now: Date = new Date()
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",
-    `UID:${escapeIcs(booking.id)}@emoraa.in`,
+    /* The domain here is only the UID's namespace, never an address anyone
+       writes to — but it was still the old one. Changing it means a calendar
+       that already holds an event from the previous .ics will treat a re-added
+       one as a separate entry rather than an update. With a handful of
+       bookings that is a duplicate to delete, not a problem; it would be worth
+       more thought at volume. */
+    `UID:${escapeIcs(booking.id)}@emoraa.com`,
     `DTSTAMP:${utcStamp(now)}`,
     `DTSTART:${utcStamp(startsAt)}`,
     `DTEND:${utcStamp(endsAt)}`,

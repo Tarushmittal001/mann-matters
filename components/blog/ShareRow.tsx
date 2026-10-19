@@ -28,7 +28,7 @@ export default function ShareRow({ title, className }: { title: string; classNam
 
   return (
     <div className={"flex flex-wrap items-center gap-2.5 " + (className ?? "")}>
-      <span className="mr-1 text-xs uppercase tracking-[0.18em] text-ink/40">Share</span>
+      <span className="mr-1 text-xs uppercase tracking-[0.18em] text-ink/70">Share</span>
 
       <button
         type="button"

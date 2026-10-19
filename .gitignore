@@ -18,6 +18,12 @@ npm-debug.log*
 # database
 prisma/*.db
 prisma/*.db-journal
+# database backups hold real client records — names, emails, what people came
+# to talk about. They are made before every schema change and must never be
+# committed. NOTE: eight of these were already tracked before this rule
+# existed; this stops new ones, it does not untrack the old ones.
+prisma/*.db.backup-*
+prisma/*.db.rebrand-backup-*
 
 # typescript
 *.tsbuildinfo
@@ -25,3 +31,7 @@ next-env.d.ts
 
 # vercel
 .vercel
+
+# uploaded client avatars — faces of real people, kept out of /public and out
+# of git. Served only through /api/profile/avatar/[file], which checks the caller.
+/private/

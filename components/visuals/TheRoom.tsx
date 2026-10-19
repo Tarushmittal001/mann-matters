@@ -7,7 +7,7 @@ import { regionFor } from "@/lib/palette";
 import { PALETTE, mix, rgba, useCanvasScene } from "./useCanvasScene";
 
 /**
- * "Ten kinds of support, one standard." — drawn as the room each one happens in.
+ * "…kinds of support, one standard." — drawn as the room each one happens in.
  *
  * Six chairs, and they never leave. They walk into a new arrangement every few
  * seconds: two chairs facing for individual therapy, two side by side across

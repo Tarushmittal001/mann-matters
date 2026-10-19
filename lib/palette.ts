@@ -41,7 +41,7 @@ export const REGIONS: Record<string, Region> = {
  * safety live; student support gets the frontal lobe, which is focus and
  * planning; love gets the limbic system.
  *
- * Ten services and eight regions, so two colours appear twice. The repeats are
+ * More services than regions, so some colours appear twice. The repeats are
  * deliberately placed far apart in the grid, and they are the two pairs where
  * sharing a colour is honest: presence (individual, affirmative care) and calm
  * (psychiatry, groups).
@@ -57,6 +57,10 @@ export const SERVICE_REGION: Record<string, string> = {
   "family-therapy": "plum", // seeing & making sense of things
   "lgbtqia-affirmative": "teal", // awareness & staying present
   "group-sessions": "mint", // breath, calm & feeling safe
+  "teen-therapy": "indigo", // focus, planning & self-control
+  "parent-coaching": "plum", // seeing & making sense of things
+  "sleep-programme": "violet", // pausing, reflecting & emotional balance
+  "grief-loss": "rose", // the core of joy, fear & love
 };
 
 /** The region a service wears. Falls back to teal for anything unmapped. */

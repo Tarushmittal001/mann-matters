@@ -62,7 +62,7 @@ export default function SessionNotes({
       <div className="p-5 sm:p-6">
         <EmptyState icon="lock" title={copy.label} body={copy.body} />
         {policyNote && (
-          <p className="mx-auto mt-4 max-w-md text-center text-[0.82rem] text-ink/55">{policyNote}</p>
+          <p className="mx-auto mt-4 max-w-md text-center text-[0.82rem] text-ink/70">{policyNote}</p>
         )}
       </div>
     );
@@ -186,7 +186,7 @@ export default function SessionNotes({
                 key={a.id}
                 className="rounded-xl border border-forest-800/10 bg-forest-800/[0.03] px-4 py-3.5"
               >
-                <p className="text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-ink/50">
+                <p className="text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-ink/70">
                   Amendment {i + 1} · {stamp(a.createdAt)}
                 </p>
                 <p className="mt-1.5 whitespace-pre-wrap text-[0.9rem] leading-relaxed text-ink/80">
@@ -268,7 +268,7 @@ export default function SessionNotes({
         >
           Submit note
         </ActionButton>
-        <p className="text-[0.82rem] text-ink/55" aria-live="polite">
+        <p className="text-[0.82rem] text-ink/70" aria-live="polite">
           {dirty
             ? "Unsaved changes"
             : savedAt
@@ -288,7 +288,7 @@ export default function SessionNotes({
               Submitting files the note against this session and locks it. From then on you can add
               dated amendments, but the text above cannot be edited or deleted.
             </p>
-            <p className="text-ink/60">
+            <p className="text-ink/70">
               This is what makes it a clinical record rather than a working draft.
             </p>
           </>
