@@ -1,3 +1,4 @@
+import { MAX_BIO } from "@/lib/expert-portal";
 import { canPrescribe, isProfession, registrationRequired, requiresPrescriber } from "@/lib/professions";
 
 /**
@@ -5,13 +6,27 @@ import { canPrescribe, isProfession, registrationRequired, requiresPrescriber } 
  *
  * Shared by the form and the API so the browser and the server agree, and so
  * the server never trusts the browser's word for it.
+ *
+ * WHO WRITES WHAT. A listing is made in two steps. An admin creates it with
+ * the facts Emoraa vouches for — name, profession, the qualification we
+ * checked, any registration, the services they are cleared for and their
+ * rates, a photo — and the login the practitioner will use. The practitioner
+ * then completes what only they can describe — their introduction, languages,
+ * focus areas and years of practice — from /expert/profile, which writes them
+ * to this same row (EXPERT_OWNED). An admin can still edit those but does not
+ * have to; a listing cannot go live until they exist, because matching and the
+ * language filter read them.
  */
+
+/** The listing fields a practitioner fills in for themselves from the portal. */
+export const EXPERT_OWNED = ["bio", "languages", "specialties", "experienceYears"] as const;
 
 export const EXPERT_LIMITS = {
   nameMax: 80,
   credentialsMax: 120,
   registrationMax: 40,
-  bioMax: 600,
+  // the portal's limit: the practitioner writes this field too
+  bioMax: MAX_BIO,
   priceMin: 0,
   priceMax: 100000,
   yearsMax: 60,
@@ -72,7 +87,8 @@ export const emptyExpertDraft: ExpertDraft = {
   rating: "5",
   photo: "",
   bio: "",
-  status: "ACTIVE",
+  // hidden until the practitioner has completed their half of the profile
+  status: "HIDDEN",
   sortOrder: "0",
 };
 
@@ -88,14 +104,20 @@ export function slugify(name: string): string {
     .slice(0, 60);
 }
 
-export function validateExpert(draft: ExpertDraft): Record<string, string> {
+export function validateExpert(
+  draft: ExpertDraft,
+  { creating = false }: { creating?: boolean } = {}
+): Record<string, string> {
   const f: Record<string, string> = {};
   const name = draft.name.trim();
   if (!name) f.name = "A name is needed.";
   else if (name.length > EXPERT_LIMITS.nameMax) f.name = `Keep this under ${EXPERT_LIMITS.nameMax} characters.`;
   else if (!slugify(name)) f.name = "That name needs at least one letter or number.";
 
-  if (draft.credentials.trim().length > EXPERT_LIMITS.credentialsMax) {
+  // the qualification we checked: the "certified" claim on the site rests on it
+  const credentials = draft.credentials.trim();
+  if (!credentials) f.credentials = "Add the qualification you have checked — it is shown on their card.";
+  else if (credentials.length > EXPERT_LIMITS.credentialsMax) {
     f.credentials = `Keep this under ${EXPERT_LIMITS.credentialsMax} characters.`;
   }
 
@@ -121,8 +143,9 @@ export function validateExpert(draft: ExpertDraft): Record<string, string> {
     f.services = "Only a psychiatrist can be cleared for Psychiatry & medication.";
   }
 
+  // the practitioner fills this in from their portal; blank here means "not yet"
   const years = Number(draft.experienceYears);
-  if (!draft.experienceYears.trim() || !Number.isInteger(years) || years < 0 || years > EXPERT_LIMITS.yearsMax) {
+  if (draft.experienceYears.trim() && (!Number.isInteger(years) || years < 0 || years > EXPERT_LIMITS.yearsMax)) {
     f.experienceYears = `Years of experience: a whole number from 0 to ${EXPERT_LIMITS.yearsMax}.`;
   }
 
@@ -145,8 +168,13 @@ export function validateExpert(draft: ExpertDraft): Record<string, string> {
     f.rating = "A rating between 0 and 5.";
   }
 
-  if (!draft.languages.length) f.languages = "Add at least one language.";
-  if (!draft.specialties.length) f.specialties = "Add at least one speciality.";
+  /* Completed by the practitioner, so optional while the listing is hidden.
+     It cannot go live without them: matching and the language filter read
+     these, and a card with neither tells a client nothing. */
+  const incomplete =
+    "Their profile is not complete — they add this from their portal. Keep the listing hidden until they do.";
+  if (draft.status === "ACTIVE" && !draft.languages.length) f.languages = incomplete;
+  if (draft.status === "ACTIVE" && !draft.specialties.length) f.specialties = incomplete;
   for (const [key, list] of [["languages", draft.languages], ["specialties", draft.specialties]] as const) {
     if (list.length > EXPERT_LIMITS.listMax) f[key] = `At most ${EXPERT_LIMITS.listMax}.`;
     else if (list.some((v) => v.trim().length === 0 || v.length > EXPERT_LIMITS.itemMax)) {
@@ -154,8 +182,12 @@ export function validateExpert(draft: ExpertDraft): Record<string, string> {
     }
   }
 
+  /* A new listing needs its login: the practitioner completes their own half
+     of the profile, and nobody can do that without a way in. */
   const login = (draft.loginEmail ?? "").trim();
-  if (login && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(login)) {
+  if (creating && !login) {
+    f.loginEmail = "Add the email they will sign in with — they complete their profile from there.";
+  } else if (login &&!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(login)) {
     f.loginEmail = "That doesn't look like an email address.";
   }
 

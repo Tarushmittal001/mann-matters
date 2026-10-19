@@ -85,16 +85,21 @@ export function Field({
   autoComplete,
   inputMode,
   maxLength,
+  min,
+  max,
   disabled,
   ...shared
 }: Shared & {
   value: string;
   onChange: (v: string) => void;
-  type?: "text" | "email" | "password" | "tel";
+  type?: "text" | "email" | "password" | "tel" | "date";
   placeholder?: string;
   autoComplete?: string;
   inputMode?: "text" | "email" | "tel" | "numeric";
   maxLength?: number;
+  /** For `type="date"`: the earliest and latest pickable day, as YYYY-MM-DD. */
+  min?: string;
+  max?: string;
   disabled?: boolean;
 }) {
   const id = useId();
@@ -117,6 +122,8 @@ export function Field({
         autoComplete={autoComplete}
         inputMode={inputMode}
         maxLength={maxLength}
+        min={min}
+        max={max}
         disabled={disabled}
         aria-required={shared.required ? true : undefined}
         aria-invalid={shared.error ? true : undefined}

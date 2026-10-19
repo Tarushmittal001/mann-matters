@@ -15,10 +15,158 @@ import {
   requestExpiry,
   PAYMENT_STATUS,
   SESSION_MINUTES,
+  proBonoReturnsOnCancel,
+  refundFor,
+  refundableAmount,
   slotKey,
 } from "@/lib/features/booking/policy";
+import { logFailure } from "@/lib/http";
+import { refund } from "@/lib/payments";
 
 export type BookingRecord = Awaited<ReturnType<typeof findUserBooking>>;
+
+type CancellableBooking = {
+  id: string;
+  status: string;
+  amount: number;
+  date: string;
+  time: string;
+  rescheduleCount: number;
+  proBono: boolean;
+  payment: { status: string; amount: number; refundAmount: number | null; reference: string | null } | null;
+};
+
+export type CancelOutcome =
+  | {
+      ok: true;
+      booking: NonNullable<BookingRecord>;
+      /** Rupees given back by this cancellation (0 when none was due). */
+      refunded: number;
+      full: boolean;
+      note: string;
+      /** The gateway refused: the booking is cancelled, the money still has to go back by hand. */
+      refundPending: boolean;
+      proBonoReturned: boolean;
+    }
+  | { ok: false; code: "ALREADY_CHANGED" };
+
+/**
+ * Cancel a booking: release its slot, and give back what is owed. The one
+ * path every cancellation takes — client, admin for a client, or practitioner.
+ *
+ *   refund: "policy"  the client's own cancellation: in full with 24 hours'
+ *                     notice, nothing inside the window (refundFor).
+ *   refund: "full"    the practitioner cancelled: whatever is still held goes
+ *                     back, whatever the clock says. The client did nothing
+ *                     wrong, and a refunded session pays the practitioner
+ *                     nothing (paysPractitioner), so cancelling can never earn.
+ *
+ * CLAIM, THEN MONEY. The booking moves only if it is still in the state it was
+ * read in, and the refund is written only if the payment still says what it
+ * said — both in one transaction. Two clicks, or a client and an admin at once,
+ * therefore cancel once and refund once; the loser gets ALREADY_CHANGED. The
+ * gateway is called after the claim commits. If it refuses, the refund record
+ * is put back and `refundPending` says so, so the books never claim money
+ * moved when it did not.
+ */
+export async function cancelBooking(args: {
+  booking: CancellableBooking;
+  by: "USER" | "ADMIN" | "EXPERT";
+  refund: "policy" | "full";
+  reason?: string | null;
+  now?: Date;
+}): Promise<CancelOutcome> {
+  const { booking, by, now = new Date() } = args;
+  const payment = booking.payment;
+
+  const due =
+    args.refund === "policy"
+      ? refundFor(booking, payment, now)
+      : (() => {
+          const { max } = refundableAmount(payment);
+          return {
+            amount: max,
+            full: max > 0,
+            note: max > 0 ? "You'll be refunded in full — it usually lands in 5–7 working days." : "",
+          };
+        })();
+  // the practitioner cancelling never costs the client their free session
+  const proBonoReturned = booking.proBono && (args.refund === "full" || proBonoReturnsOnCancel(booking, now));
+
+  const alreadyBack = payment ? Math.min(payment.refundAmount ?? 0, payment.amount) : 0;
+  const totalBack = alreadyBack + due.amount;
+
+  class Conflict extends Error {}
+  try {
+    await prisma.$transaction(async (tx) => {
+      const claimed = await tx.booking.updateMany({
+        where: { id: booking.id, status: booking.status },
+        data: {
+          status: BOOKING_STATUS.cancelled,
+          // the slot goes back on the board the moment the session is released
+          slotKey: null,
+          holdExpiresAt: null,
+          cancelledAt: now,
+          cancelledBy: by,
+          ...(by === "EXPERT" ? { closedBy: "EXPERT", closedAt: now, closeReason: args.reason || null } : {}),
+          ...(proBonoReturned ? { proBonoPhone: null } : {}),
+        },
+      });
+      if (claimed.count !== 1) throw new Conflict();
+
+      if (payment && due.amount > 0) {
+        const recorded = await tx.payment.updateMany({
+          where: { bookingId: booking.id, status: PAYMENT_STATUS.paid, refundAmount: payment.refundAmount },
+          data: {
+            refundAmount: totalBack,
+            refundedAt: now,
+            status: totalBack >= payment.amount ? PAYMENT_STATUS.refunded : PAYMENT_STATUS.paid,
+          },
+        });
+        if (recorded.count !== 1) throw new Conflict();
+      }
+    });
+  } catch (err) {
+    if (err instanceof Conflict) return { ok: false, code: "ALREADY_CHANGED" };
+    throw err;
+  }
+
+  let refundPending = false;
+  if (payment && due.amount > 0) {
+    try {
+      const result = await refund(due.amount);
+      await prisma.payment.update({ where: { bookingId: booking.id }, data: { reference: result.reference } });
+    } catch (err) {
+      logFailure("booking.cancel.refund", err);
+      refundPending = true;
+      // the money did not move, so the record must not say it did
+      await prisma.payment.update({
+        where: { bookingId: booking.id },
+        data: {
+          refundAmount: payment.refundAmount,
+          status: PAYMENT_STATUS.paid,
+          refundedAt: alreadyBack > 0 ? undefined : null,
+        },
+      });
+    }
+  }
+
+  const updated = await prisma.booking.findUniqueOrThrow({
+    where: { id: booking.id },
+    include: { payment: true },
+  });
+  return {
+    ok: true,
+    booking: updated,
+    refunded: refundPending ? 0 : due.amount,
+    full: !refundPending && due.full,
+    note: refundPending
+      ? "Your session is cancelled. Your refund didn't go through automatically — our team will send it and let you know."
+      : due.note,
+    refundPending,
+    proBonoReturned,
+  };
+}
 
 /**
  * Put back the slots nobody acted on.

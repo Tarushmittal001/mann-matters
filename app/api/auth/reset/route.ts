@@ -39,15 +39,29 @@ export async function POST(req: Request) {
        change we would be making to an account we have closed. */
     if (user.blockedAt) return errors.blocked();
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        passwordHash: await hashPassword(body.password ?? ""),
-        passwordChangedAt: new Date(),
-        // reading the email proves the address, so an unconfirmed account is confirmed here
-        emailVerified: user.emailVerified ?? new Date(),
-      },
-    });
+    /* When this reset is the FIRST proof anyone has given of the inbox, every
+       other credential on the account was set by somebody who never proved it.
+       Signup verifies the phone by SMS but not the email, so a stranger can open
+       an account in someone else's email with their own phone, wait for the real
+       owner to "recover" it here, and keep signing in by phone OTP. The new
+       password and passwordChangedAt shut out the old password and sessions;
+       dropping the unproven phone shuts out the last door. The owner re-links
+       their own number from the profile page. */
+    const firstProofOfEmail = !user.emailVerified;
+
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: user.id },
+        data: {
+          passwordHash: await hashPassword(body.password ?? ""),
+          passwordChangedAt: new Date(),
+          // reading the email proves the address, so an unconfirmed account is confirmed here
+          emailVerified: user.emailVerified ?? new Date(),
+          ...(firstProofOfEmail ? { phone: null, phoneVerified: null } : {}),
+        },
+      }),
+      ...(firstProofOfEmail ? [prisma.phoneOtp.deleteMany({ where: { userId: user.id } })] : []),
+    ]);
     await clearResetTokens(user.id);
 
     await createSession({ id: user.id, name: user.name, email: user.email, role: user.role });

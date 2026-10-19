@@ -8,6 +8,7 @@ import { parseItems } from "@/lib/prescriptions";
 import Letterhead from "@/components/documents/Letterhead";
 import { formatAgeSex, sessionDocHeader } from "@/lib/session-documents";
 import { formatDateISO } from "@/lib/utils";
+import { currentAge } from "@/lib/validation";
 
 export const metadata: Metadata = {
   title: "Prescription",
@@ -34,7 +35,7 @@ export default async function PrescriptionPage({ params }: { params: { id: strin
 
   const rx = await prisma.prescription.findUnique({
     where: { id: params.id },
-    include: { user: { select: { id: true, name: true, age: true, gender: true } } },
+    include: { user: { select: { id: true, name: true, age: true, dateOfBirth: true, gender: true } } },
   });
   if (!rx) notFound();
 
@@ -58,7 +59,7 @@ export default async function PrescriptionPage({ params }: { params: { id: strin
     time: "—",
     sessionNumber: 1,
     clientName: rx.user.name,
-    ageSex: formatAgeSex(rx.user.age, rx.user.gender),
+    ageSex: formatAgeSex(currentAge(rx.user), rx.user.gender),
     language: "",
     mode: "Online session",
   };

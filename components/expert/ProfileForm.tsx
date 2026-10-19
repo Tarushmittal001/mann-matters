@@ -27,7 +27,6 @@ import { useToast } from "@/components/expert/Toast";
 type Draft = {
   headline: string;
   bio: string;
-  credentials: string;
   experienceYears: string;
   timezone: string;
   specialties: string[];
@@ -38,7 +37,6 @@ function toDraft(profile: ExpertProfileView): Draft {
   return {
     headline: profile.headline,
     bio: profile.bio,
-    credentials: profile.credentials,
     experienceYears: String(profile.experienceYears),
     timezone: profile.timezone,
     specialties: [...profile.specialties],
@@ -47,10 +45,17 @@ function toDraft(profile: ExpertProfileView): Draft {
 }
 
 /**
- * How the practitioner is described to clients. Fee, session length and
- * verification are set by our operations team and shown read-only alongside —
- * a form that lets you edit what it will not save is a trap.
+ * How the practitioner is described to clients. Fee, session length,
+ * qualification and verification are set by our operations team and shown
+ * read-only alongside — a form that lets you edit what it will not save is a
+ * trap. What is saved here is their half of the public listing.
  */
+
+/** The standard list, plus anything already on the listing in an admin's own words. */
+const withCurrent = (options: readonly string[], current: string[]) => [
+  ...options,
+  ...current.filter((v) => !options.includes(v)),
+];
 export default function ProfileForm({ profile }: { profile: ExpertProfileView }) {
   const router = useRouter();
   const { saved, failed } = useToast();
@@ -155,25 +160,6 @@ export default function ProfileForm({ profile }: { profile: ExpertProfileView })
         </Field>
 
         <div className="grid gap-6 sm:grid-cols-2">
-          <Field
-            label="Qualification"
-            required
-            error={errors.credentials}
-            hint="Exactly as it appears on your degree or registration."
-          >
-            {({ id, describedBy, invalid }) => (
-              <TextInput
-                id={id}
-                aria-describedby={describedBy}
-                invalid={invalid}
-                maxLength={140}
-                value={draft.credentials}
-                onChange={(e) => set("credentials", e.target.value)}
-                placeholder="M.A. Clinical Psychology"
-              />
-            )}
-          </Field>
-
           <Field label="Years in practice" required error={errors.experienceYears}>
             {({ id, describedBy, invalid }) => (
               <TextInput
@@ -217,7 +203,7 @@ export default function ProfileForm({ profile }: { profile: ExpertProfileView })
         <ChipGroup
           legend="Focus areas"
           hint="What our matching tool offers you for. Choose what you genuinely work with, not everything you could."
-          options={SPECIALTY_OPTIONS}
+          options={withCurrent(SPECIALTY_OPTIONS, profile.specialties)}
           selected={draft.specialties}
           onToggle={(v) => toggle("specialties", v)}
           max={MAX_SPECIALTIES}
@@ -227,7 +213,7 @@ export default function ProfileForm({ profile }: { profile: ExpertProfileView })
         <ChipGroup
           legend="Languages you hold sessions in"
           hint="Only the ones you can hold a whole clinical conversation in."
-          options={LANGUAGE_OPTIONS}
+          options={withCurrent(LANGUAGE_OPTIONS, profile.languages)}
           selected={draft.languages}
           onToggle={(v) => toggle("languages", v)}
           max={MAX_LANGUAGES}

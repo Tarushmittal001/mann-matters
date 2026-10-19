@@ -1,5 +1,4 @@
-import { DATE_RE } from "@/lib/validation";
-import { istDateOffset, todayIST } from "@/lib/features/booking/policy";
+import { isCalendarDate, istDateOffset, todayIST } from "@/lib/features/booking/policy";
 
 /**
  * The time filter, for every admin screen that has one.
@@ -95,7 +94,7 @@ export function resolveRange(
   opts: { allowFuture?: boolean } = {}
 ): Range {
   const today = todayIST(now);
-  const valid = (d: string | undefined): d is string => !!d && DATE_RE.test(d) && !Number.isNaN(Date.parse(d));
+  const valid = (d: string | undefined): d is string => !!d && isCalendarDate(d);
 
   if (valid(params.from) || valid(params.to)) {
     /* A half-filled range is still a range: one end given means "from then

@@ -53,7 +53,7 @@ const sections: LegalSection[] = [
     body: (
       <ul>
         <li>You must be 18 or older, or have consent from a parent or lawful guardian, collected during booking.</li>
-        <li>The information you give us, including your age, must be true and kept up to date.</li>
+        <li>The information you give us, including your date of birth, must be true and kept up to date.</li>
         <li>
           You are responsible for keeping your password and sign-in codes private, and for activity on your
           account.

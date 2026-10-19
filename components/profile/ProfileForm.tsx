@@ -16,8 +16,10 @@ import {
   OTP_LENGTH,
   collect,
   hasErrors,
-  validateAge,
+  ageOn,
+  isCalendarDate,
   validateCity,
+  validateDateOfBirth,
   validateGender,
   validateName,
   validateNotes,
@@ -26,10 +28,14 @@ import {
   validateRequiredPhone,
   validateState,
 } from "@/lib/validation";
+import { todayIST } from "@/lib/features/booking/policy";
 
 export type Profile = {
   name: string;
-  age: string;
+  /** YYYY-MM-DD, or "" for an account made before we asked. */
+  dateOfBirth: string;
+  /** Fixed once they have booked — see /api/profile. */
+  dateOfBirthLocked: boolean;
   gender: string;
   city: string;
   state: string;
@@ -46,7 +52,7 @@ export type Profile = {
 export default function ProfileForm({ initial }: { initial: Profile }) {
   const router = useRouter();
   const [name, setName] = useState(initial.name);
-  const [age, setAge] = useState(initial.age);
+  const [dateOfBirth, setDateOfBirth] = useState(initial.dateOfBirth);
   const [gender, setGender] = useState(initial.gender);
   const [city, setCity] = useState(initial.city);
   const [state, setState] = useState(initial.state);
@@ -68,7 +74,7 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
 
   const dirty =
     name !== initial.name ||
-    age !== initial.age ||
+    dateOfBirth !== initial.dateOfBirth ||
     gender !== initial.gender ||
     city !== initial.city ||
     state !== initial.state ||
@@ -82,7 +88,7 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
 
     const local = collect([
       ["name", validateName(name)],
-      ["age", validateAge(age)],
+      ["dateOfBirth", validateDateOfBirth(dateOfBirth)],
       ["gender", validateGender(gender)],
       ["city", validateCity(city)],
       ["state", validateState(state)],
@@ -100,7 +106,7 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
       const res = await fetch("/api/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, age, gender, city, state, organisation, phone, language, notes }),
+        body: JSON.stringify({ name, dateOfBirth, gender, city, state, organisation, phone, language, notes }),
       });
       const data = await res.json().catch(() => ({}));
 
@@ -205,13 +211,22 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field
-          label="Age"
+          label="Date of birth"
           required
-          inputMode="numeric"
-          value={age}
-          onChange={(v) => setAge(v.replace(/\D/g, "").slice(0, 3))}
-          disabled={busy}
-          error={fields.age}
+          type="date"
+          value={dateOfBirth}
+          onChange={setDateOfBirth}
+          max={todayIST()}
+          autoComplete="bday"
+          disabled={busy || initial.dateOfBirthLocked}
+          error={fields.dateOfBirth}
+          hint={
+            initial.dateOfBirthLocked
+              ? "Fixed once you have booked. Write to us if it is wrong."
+              : initial.dateOfBirth
+                ? undefined
+                : "We need this before you book: it decides whether a parent or guardian has to agree."
+          }
         />
         <Select
           label="Gender"
@@ -225,7 +240,7 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
         />
       </div>
 
-      {age && Number(age) < AGE_GUARDIAN_BELOW && (
+      {isCalendarDate(dateOfBirth) && ageOn(dateOfBirth) < AGE_GUARDIAN_BELOW && (
         <Alert tone="info">
           You&apos;re under {AGE_GUARDIAN_BELOW}, so a parent or guardian needs to agree to therapy
           with you.

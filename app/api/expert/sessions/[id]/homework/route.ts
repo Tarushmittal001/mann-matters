@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { expertIdFromSession } from "@/lib/expert-data";
+import { isCalendarDate } from "@/lib/features/booking/policy";
 import { MAX_SHORT, MAX_TASK, MAX_WHY, validateHomework } from "@/lib/homework";
 
 export const dynamic = "force-dynamic";
@@ -57,7 +58,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   }
 
   const dueOn =
-    typeof body.dueOn === "string" && /^\d{4}-\d{2}-\d{2}$/.test(body.dueOn) ? body.dueOn : null;
+    typeof body.dueOn === "string" && isCalendarDate(body.dueOn) ? body.dueOn : null;
 
   // Two or three things is a practice; eight is a reason to give up before
   // starting. The cap is a clinical judgement, not a storage one.

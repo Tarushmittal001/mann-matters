@@ -500,6 +500,53 @@ export async function sendBookingDeclinedEmail(args: {
   );
 }
 
+/**
+ * The practitioner cancelled a confirmed session.
+ *
+ * As with a decline, their reason is for the record and is not repeated here.
+ * What the client needs is the fact, what happens to their money (all of it
+ * back — they did nothing wrong), and a way to rebook.
+ */
+export async function sendSessionCancelledEmail(args: {
+  to: string;
+  clientName: string;
+  when: string;
+  link: string;
+  /** Rupees refunded; 0 for a free session or when nothing was charged. */
+  refunded: number;
+  /** The refund could not be sent automatically and will follow by hand. */
+  refundPending: boolean;
+  /** It was their free session, and it is theirs to book again. */
+  freeSessionReturned: boolean;
+}): Promise<DeliveryResult> {
+  const { to, clientName, when, link, refunded, refundPending, freeSessionReturned } = args;
+  const money = refundPending
+    ? "We'll refund your fee in full; our team is sending it and will let you know."
+    : refunded > 0
+      ? `Your fee of ₹${refunded} is being refunded in full. It usually lands in 5–7 working days.`
+      : freeSessionReturned
+        ? "This was your free session, so it's yours to book again."
+        : "Nothing was charged for this session.";
+  const subject = "Your session has been cancelled";
+  const text = `Hi ${clientName}, we're sorry — your therapist had to cancel your session on ${when}. ${money} You can book another time here: ${link}`;
+  return deliver(
+    {
+      to,
+      subject,
+      text,
+      html: shell(`
+    <h1 style="font-size:24px;color:#0A2E28;margin:0 0 12px">Your session has been cancelled.</h1>
+    <p style="line-height:1.6;color:#3a4a44">Hi ${esc(clientName)} — we're sorry. Your therapist had to cancel your session on <strong>${esc(when)}</strong>.</p>
+    <p style="line-height:1.6;color:#3a4a44"><strong>${esc(money)}</strong></p>
+    <p style="line-height:1.6;color:#3a4a44">This was not anything you did. When you're ready, pick another time — with them or with someone else.</p>
+    <p style="margin:28px 0">
+      <a href="${link}" style="background:#C8A45D;color:#06211C;text-decoration:none;font-weight:600;padding:14px 28px;border-radius:999px;display:inline-block">Book another time</a>
+    </p>`),
+    },
+    link
+  );
+}
+
 /** The practitioner suggesting another session, in their own words. */
 export async function sendFollowUpEmail(args: {
   to: string;

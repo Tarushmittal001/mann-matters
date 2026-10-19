@@ -5,8 +5,9 @@ import {
   collect,
   hasErrors,
   normalisePhone,
-  validateAge,
+  dobString,
   validateCity,
+  validateDateOfBirth,
   validateGender,
   validateName,
   validateNotes,
@@ -18,11 +19,23 @@ import { languageOpts } from "@/lib/matching";
 
 export const dynamic = "force-dynamic";
 
+/**
+ * A date of birth is fixed once they have booked. It decided whether a guardian
+ * had to agree to that booking, so changing it afterwards would rewrite the
+ * basis of a consent already relied on — and turning 18 on paper is exactly the
+ * edit someone might make to skip that step. Before any booking it can still be
+ * corrected; an account made before we asked can always add one.
+ */
+async function dobLocked(userId: string, dateOfBirth: Date | null): Promise<boolean> {
+  if (!dateOfBirth) return false;
+  return (await prisma.booking.count({ where: { userId } })) > 0;
+}
+
 /** Columns a person may see about themselves. `passwordHash` is not among them. */
 const PROFILE_SELECT = {
   id: true,
   name: true,
-  age: true,
+  dateOfBirth: true,
   gender: true,
   city: true,
   state: true,
@@ -52,7 +65,8 @@ export async function GET() {
     return privateJson({
       profile: {
         name: user.name,
-        age: user.age ? String(user.age) : "",
+        dateOfBirth: dobString(user.dateOfBirth),
+        dateOfBirthLocked: await dobLocked(user.id, user.dateOfBirth),
         gender: user.gender ?? "",
         city: user.city ?? "",
         state: user.state ?? "",
@@ -75,7 +89,7 @@ export async function GET() {
 
 type Body = {
   name?: string;
-  age?: string;
+  dateOfBirth?: string;
   gender?: string;
   city?: string;
   state?: string;
@@ -105,7 +119,7 @@ export async function PATCH(req: Request) {
     if (!body) return errors.badBody();
 
     const name = (body.name ?? "").trim();
-    const ageRaw = (body.age ?? "").trim();
+    const dateOfBirth = (body.dateOfBirth ?? "").trim();
     const gender = (body.gender ?? "").trim();
     const city = (body.city ?? "").trim();
     const state = (body.state ?? "").trim();
@@ -116,8 +130,8 @@ export async function PATCH(req: Request) {
 
     const fields = collect([
       ["name", validateName(name)],
-      // age and gender are asked at signup, so they can be corrected but not blanked
-      ["age", validateAge(ageRaw)],
+      // date of birth and gender are asked at signup, so they can be corrected but not blanked
+      ["dateOfBirth", validateDateOfBirth(dateOfBirth)],
       ["gender", validateGender(gender)],
       // asked at signup, so these can be corrected when somebody moves but not blanked
       ["city", validateCity(city)],
@@ -134,9 +148,15 @@ export async function PATCH(req: Request) {
 
     const current = await prisma.user.findUnique({
       where: { id: session.sub },
-      select: { phone: true },
+      select: { phone: true, dateOfBirth: true },
     });
     if (!current) return errors.notFound("We couldn't find your account.");
+
+    if (dobString(current.dateOfBirth) !== dateOfBirth && (await dobLocked(session.sub, current.dateOfBirth))) {
+      return errors.validation({
+        dateOfBirth: "Your date of birth can't be changed after you've booked. Write to us if it's wrong.",
+      });
+    }
 
     // validation above guarantees it is present and well-formed
     const phone = normalisePhone(phoneRaw);
@@ -144,7 +164,7 @@ export async function PATCH(req: Request) {
       where: { id: session.sub },
       data: {
         name,
-        age: Number(ageRaw),
+        dateOfBirth: new Date(`${dateOfBirth}T00:00:00Z`),
         gender,
         city,
         state,
@@ -170,7 +190,8 @@ export async function PATCH(req: Request) {
     return privateJson({
       profile: {
         name: user.name,
-        age: user.age ? String(user.age) : "",
+        dateOfBirth: dobString(user.dateOfBirth),
+        dateOfBirthLocked: await dobLocked(user.id, user.dateOfBirth),
         gender: user.gender ?? "",
         city: user.city ?? "",
         state: user.state ?? "",

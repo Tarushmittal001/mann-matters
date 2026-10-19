@@ -10,6 +10,9 @@ export default function LogoutButton({ className }: { className?: string }) {
   const onLogout = async () => {
     setBusy(true);
     await fetch("/api/auth/logout", { method: "POST" });
+    // the phone may be shared: the service worker drops every cached page and
+    // image so nothing from this account opens offline after sign-out
+    navigator.serviceWorker?.controller?.postMessage({ type: "signed-out" });
     router.push("/");
     router.refresh();
   };

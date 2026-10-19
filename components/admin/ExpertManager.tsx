@@ -72,6 +72,8 @@ export type ExpertRow = {
    *   active      — they set a password and have been in.
    */
   access: { state: "none" | "unconfirmed" | "invited" | "active"; email: string };
+  /** Whether they may keep session notes; null while nobody can sign in as the listing. */
+  notes: { policy: string; note: string } | null;
 };
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -570,7 +572,7 @@ function ExpertForm({
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const local = validateExpert(draft);
+    const local = validateExpert(draft, { creating: !row });
     setFields(local);
     if (Object.keys(local).length) return;
 
@@ -688,13 +690,14 @@ function ExpertForm({
               <div className="sm:col-span-2">
                 <Field
                   label="Credentials"
+                  required
                   value={draft.credentials}
                   onChange={(v) => set("credentials", v)}
                   error={fields.credentials}
                   maxLength={EXPERT_LIMITS.credentialsMax}
                   placeholder="M.A. Clinical Psychology"
                   disabled={!!busy}
-                  hint="Shown on their card as written. It no longer decides who can prescribe — Profession does."
+                  hint="The qualification you have checked, shown on their card as written. Only you set this — it no longer decides who can prescribe; Profession does."
                 />
               </div>
 
@@ -752,13 +755,13 @@ function ExpertForm({
 
               <Field
                 label="Years of experience"
-                required
                 inputMode="numeric"
                 value={draft.experienceYears}
                 onChange={(v) => set("experienceYears", v.replace(/\D/g, "").slice(0, 2))}
                 error={fields.experienceYears}
                 placeholder="9"
                 disabled={!!busy}
+                hint="Optional — they fill this in from their portal."
               />
               <Field
                 label="Rating"
@@ -781,6 +784,7 @@ function ExpertForm({
                 ]}
                 error={fields.status}
                 disabled={!!busy}
+                hint="New listings start hidden. List them once they have added their languages and focus areas."
               />
 
               <div className="sm:col-span-2">
@@ -789,7 +793,7 @@ function ExpertForm({
                   values={draft.languages}
                   onChange={(v) => set("languages", v)}
                   error={fields.languages}
-                  hint="Pick from the list, or type one and press Enter. These drive language matching."
+                  hint="They choose these from their portal; you only need to if helping them. Needed before listing — these drive language matching."
                   placeholder="English, Hindi, Tamil…"
                   suggestions={vocab.languages}
                   disabled={!!busy}
@@ -801,7 +805,7 @@ function ExpertForm({
                   values={draft.specialties}
                   onChange={(v) => set("specialties", v)}
                   error={fields.specialties}
-                  hint="What this therapist works on. Matching reads these words, so prefer the list."
+                  hint="They choose these from their portal. Needed before listing — matching reads these words."
                   placeholder="Anxiety, Workplace stress…"
                   suggestions={vocab.specialties}
                   disabled={!!busy}
@@ -941,14 +945,15 @@ function ExpertForm({
               {!row && (
                 <div className="sm:col-span-2">
                   <Field
-                    label="Their login (optional)"
+                    label="Their login"
+                    required
                     type="email"
                     value={draft.loginEmail}
                     onChange={(v) => set("loginEmail", v)}
                     error={fields.loginEmail}
                     placeholder="ananya@emoraa.com"
                     disabled={!!busy}
-                    hint="We'll email them a link to choose their own password — you never see it. Leave blank to set this up later from their card."
+                    hint="We'll email them a link to choose their own password — you never see it. They then complete their introduction, languages and focus areas themselves."
                   />
                 </div>
               )}
@@ -962,7 +967,7 @@ function ExpertForm({
                   rows={3}
                   maxLength={EXPERT_LIMITS.bioMax}
                   disabled={!!busy}
-                  hint="Optional, for when a fuller profile is shown."
+                  hint="Their introduction. They write this from their portal; edit only to correct it."
                 />
               </div>
 

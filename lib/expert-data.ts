@@ -2,12 +2,13 @@ import { redirect } from "next/navigation";
 import { getSession, type Session } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { concerns, type Expert } from "@/lib/experts";
-import { getExpert } from "@/lib/experts-store";
+import { EXPERT_STATUS, toExpert } from "@/lib/experts-store";
 import { BOOKING_STATUS } from "@/lib/features/booking/policy";
 import { parseItems } from "@/lib/prescriptions";
 import { parseOptions } from "@/lib/reschedule-offers";
 import { serviceBySlug } from "@/lib/service-catalogue";
 import { addMinutes, clinicNow } from "@/lib/clinic-time";
+import { currentAge } from "@/lib/validation";
 import {
   displayName,
   initialsOf,
@@ -58,8 +59,10 @@ export type ExpertProfileView = {
 export type ExpertContext = {
   session: Session;
   profile: ExpertProfileView;
-  /** The public catalogue entry, when this practitioner is listed. */
+  /** The public catalogue entry for this practitioner, hidden or not. */
   listing: Expert | null;
+  /** Whether that entry is live in search and booking (status ACTIVE). */
+  listed: boolean;
   today: string;
   nowTime: string;
 };
@@ -158,12 +161,28 @@ export async function getExpertContext(): Promise<
   const profile = await prisma.expertProfile.findUnique({ where: { userId: session.sub } });
   if (!profile) return { state: "unlinked", session };
 
+  /* The listing row is the one record clients see, and the practitioner's own
+     half of it (EXPERT_OWNED in lib/expert-admin) is written there by
+     /api/expert/profile. Read those fields from it, so the portal shows what
+     the public site shows rather than a private copy nobody else reads. The
+     qualification comes from it too: it is the one an admin checked. */
+  const row = await prisma.expert.findUnique({ where: { slug: profile.expertId } });
+  const view = toProfileView(profile);
+  if (row) {
+    view.bio = row.bio;
+    view.credentials = row.credentials;
+    view.experienceYears = row.experienceYears;
+    view.languages = parseList(row.languages);
+    view.specialties = parseList(row.specialties);
+  }
+
   const { date, time } = clinicNow();
   return {
     state: "ok",
     session,
-    profile: toProfileView(profile),
-    listing: await getExpert(profile.expertId),
+    profile: view,
+    listing: row ? toExpert(row) : null,
+    listed: row?.status === EXPERT_STATUS.active,
     today: date,
     nowTime: time,
   };
@@ -196,6 +215,7 @@ function toClientSafe(
     createdAt: Date;
     avatar: string | null;
     age: number | null;
+    dateOfBirth: Date | null;
     gender: string | null;
     language: string | null;
   },
@@ -210,7 +230,8 @@ function toClientSafe(
     fullName: user.name,
     initials: initialsOf(user.name),
     avatar: user.avatar,
-    age: user.age,
+    // an age, never the date itself: the practitioner needs the one, not the other
+    age: currentAge(user),
     gender: user.gender,
     language: user.language,
     maskedEmail: maskEmail(user.email),
@@ -239,6 +260,7 @@ type BookingRow = {
     createdAt: Date;
     avatar: string | null;
     age: number | null;
+    dateOfBirth: Date | null;
     gender: string | null;
     language: string | null;
   };
@@ -292,6 +314,7 @@ const sessionInclude = {
       createdAt: true,
       avatar: true,
       age: true,
+      dateOfBirth: true,
       gender: true,
       language: true,
     },

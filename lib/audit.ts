@@ -38,6 +38,7 @@ export type AuditAction =
   | "expert.photo"
   | "expert.access.invite"
   | "expert.access.revoke"
+  | "expert.notes-policy"
   | "coupon.create"
   | "coupon.update"
   | "coupon.delete"

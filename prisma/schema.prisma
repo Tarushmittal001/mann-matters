@@ -16,7 +16,12 @@ model User {
   name          String
   firstName     String?
   lastName      String?
-  // asked at signup; a therapy service needs to know who it is treating
+  /// Asked at signup. It decides whether a parent or guardian must agree to
+  /// therapy, so it is a date, not a typed age, and it cannot be changed once
+  /// they have booked (see /api/profile). Read ages through currentAge().
+  dateOfBirth   DateTime?           @db.Date
+  /// Legacy: the age typed at signup before date of birth was asked. Kept for
+  /// accounts that have not added a date of birth yet; never written now.
   age           Int?
   // "female" | "male" | "non-binary" | "prefer-not-to-say"
   gender        String?
@@ -199,6 +204,10 @@ model ExpertProfile {
   user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   expertId        String  @unique
   headline        String  @default("")
+  /// Superseded, no longer read or written: the practitioner's introduction,
+  /// qualification, years, languages and focus areas live on the public
+  /// `Expert` row (see EXPERT_OWNED in lib/expert-admin.ts). Kept so nothing
+  /// is lost; safe to drop in a later migration.
   bio             String  @default("")
   credentials     String  @default("")
   experienceYears Int     @default(0)

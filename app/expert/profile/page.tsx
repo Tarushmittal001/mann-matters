@@ -12,7 +12,9 @@ export const metadata: Metadata = { title: "Profile" };
 
 export default async function ExpertProfilePage() {
   const ctx = await requireExpertContext("/expert/profile");
-  const { profile, listing } = ctx;
+  const { profile, listing, listed } = ctx;
+  // their half of the listing; until it exists the team cannot publish them
+  const incomplete = profile.languages.length === 0 || profile.specialties.length === 0 || !profile.bio;
   // sessions are priced by the service, so the only honest single number here
   // is the floor of what this practitioner is cleared to deliver
   const fromPrice = listing ? fromPriceForExpert(listing) : null;
@@ -24,7 +26,7 @@ export default async function ExpertProfilePage() {
       <Panel>
         <PanelHeader
           title="How clients see you"
-          hint="A preview of your card in search and matching, built from what is saved below."
+          hint="Your card in search and matching, built from what is saved below — the same record clients see."
         />
         <div className="p-5 sm:p-6">
           <div className="flex flex-col gap-5 rounded-xl border border-forest-800/10 bg-ivory p-5 sm:flex-row">
@@ -77,9 +79,10 @@ export default async function ExpertProfilePage() {
       <Panel>
         <PanelHeader
           title="Set by our team"
-          hint="These are fixed here on purpose. Fees and note-keeping are contractual decisions — write to your practice lead to change either. Each session runs as long as the service it was booked under; the length below only applies to older sessions that predate that."
+          hint="These are fixed here on purpose. Your qualification is the one we checked, and fees and note-keeping are contractual decisions — write to your practice lead to change any of them. Each session runs as long as the service it was booked under; the length below only applies to older sessions that predate that."
         />
         <dl className="grid gap-5 p-5 sm:grid-cols-2 sm:p-6 lg:grid-cols-4">
+          <Meta label="Qualification">{profile.credentials || "Not set yet"}</Meta>
           <Meta label="Session fee">
             {fromPrice !== null ? <>from {formatINR(fromPrice)}</> : "—"}
           </Meta>
@@ -89,7 +92,7 @@ export default async function ExpertProfilePage() {
               recorded on it, so it is labelled as the default it now is. */}
           <Meta label="Default length">{profile.sessionMinutes} minutes</Meta>
           <Meta label="Listing">
-            {listing ? "Live in search" : "Not publicly listed"}
+            {listed ? "Live in search" : "Not publicly listed yet"}
           </Meta>
           <Meta label="Note-keeping">{policy.short}</Meta>
         </dl>
@@ -103,8 +106,12 @@ export default async function ExpertProfilePage() {
       {/* ── the editable part ─────────────────────────────────────────────── */}
       <Panel>
         <PanelHeader
-          title="Edit your profile"
-          hint="Saved changes reach search and matching immediately. Clients who have already booked keep the session they booked."
+          title={incomplete ? "Complete your profile" : "Edit your profile"}
+          hint={
+            listed
+              ? "Saved changes reach search and matching immediately. Clients who have already booked keep the session they booked."
+              : "Our team set up your listing; add your introduction, focus areas and languages here. Once they are in, the team publishes your listing to search and booking."
+          }
         />
         <ProfileForm profile={profile} />
       </Panel>

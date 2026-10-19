@@ -368,6 +368,13 @@ framer-motion viewport reveals, the Lenis rAF loop, and `Navbar`'s `/api/auth/me
   stored only as an HMAC-SHA256 hash keyed by `AUTH_SECRET`.
 - Challenges are single-use and bound to both the user and exact normalized phone number.
 - A profile phone must be confirmed before `/api/auth/phone/*` will recognize it.
+- **Phone sign-in also requires a confirmed email** (`phone/verify` → 403 `UNVERIFIED`, same as
+  password login). Signup proves the phone by SMS but the email only later, so an account with an
+  unconfirmed email may have been opened in someone else's name with the opener's phone.
+  **A password reset that is the first proof of the inbox drops that phone** (`phone`,
+  `phoneVerified`, pending `PhoneOtp` rows) — otherwise the opener keeps OTP access after the real
+  owner "recovers" the account. The owner re-links their number from the profile. Asserted in
+  `tests/unit/phone-takeover.test.ts` (added 2026-10-19).
 - Twilio sends production SMS. Without Twilio, non-production responses include `devCode`;
   production returns 503 rather than exposing an OTP.
 
@@ -615,6 +622,14 @@ A booking no longer confirms on payment. The states are
   precache runs on install, when nobody is signed in, so it would have stored a sign-in wall and
   served it offline to a signed-in person. `/crisis` is still precached, so the one page that must
   survive a dead signal still does. The install prompt no longer promises offline tools.
+- **Pages are cached by allow-list, not deny-list** (`public/sw.js`, cache `emoraa-v3`, 2026-10-19).
+  v2 cached every navigation outside a private-prefix list that missed `/plan`, `/prescription`,
+  `/book`, `/verify` and `/reset-password`, so a prescription stayed on the device after sign-out.
+  Now a page is stored only if it is in `PUBLIC_PAGES`/`PUBLIC_PREFIXES`, has no query string, and
+  its response is not `private`/`no-store`; any other page offline gets `/offline`. Bumping to v3
+  deletes every device's v2 cache on activate. `LogoutButton` posts `{ type: "signed-out" }` and the
+  worker drops all pages and images, keeping only the precache and `/_next/static`. **A new public
+  page must be added to `PUBLIC_PAGES` to work offline; a new private one needs nothing.**
 
 ### Printed documents fit one sheet
 A practice plan printed on two pages, with the dark footer band cut in half and the
@@ -797,6 +812,27 @@ Three facts were typed into dozens of files and had drifted apart. Each now has 
 - **Partial refunds**: `Payment.refundAmount` is the running total given back and is read
   whatever the status says; `status` flips to `REFUNDED` only when nothing is left. A
   half-returned payment is still half held, so calling it "Refunded" everywhere would mislead.
+- **Every cancellation is `cancelBooking()`** (`lib/features/booking/server.ts`, 2026-10-19):
+  client (`refund: "policy"`) and practitioner (`refund: "full"` — everything still held goes back,
+  the free session is returned, the client is emailed via `sendSessionCancelledEmail`). It
+  **claims before money moves**: the booking `updateMany` is conditional on the status it was read
+  in, and the refund write on the payment's previous `refundAmount`, in one transaction; the loser
+  of a race gets `ALREADY_CHANGED`. The gateway runs after the commit; if it refuses, the record
+  is restored and `refundPending` is reported. `refundFor` now takes the payment and refunds only
+  what is still held, so a fee an admin partly refunded is never paid out in full again. The
+  admin refund route claims the same way (conditional on status + `refundAmount`).
+- **Payment confirms conditionally** (`/api/payments`): only `PENDING_PAYMENT` is payable; the
+  confirm is `updateMany` on `PENDING_PAYMENT` + `slotKey not null`. A lapsed hold or a second tab
+  that paid first means the charge just taken is refunded on the spot (410, or `alreadyPaid`).
+- **Codes are re-checked at payment** (`bookingCodeStillValid`, `redeemForBooking` in
+  `lib/coupons.ts`): the person's `User` row is locked first (a no-op write) so their redemptions
+  serialise, "used already / used up / not a first session" is re-asked, and a limited code is
+  counted with `usedCount < maxUses` in the `where`. A code that went bad before charging is
+  dropped and the booking repriced (409 `CODE_NO_LONGER_VALID`). Still missing: a DB unique
+  constraint on `CouponRedemption(couponId, userId)`.
+- **Dates are real calendar days** (`isCalendarDate` in the booking policy, used by
+  `validateSlot`, `isDate`, reschedule offers, homework, admin periods): `2026-11-31` used to pass
+  and get a different `slotKey` from `2026-12-01` for the same hour.
 
 ### `lib/payouts.ts` — revenue and what practitioners are owed
 - **Who gets paid for what — `paysPractitioner()` (changed 2026-10-16).** Held sessions
@@ -1010,6 +1046,24 @@ erDiagram
 **`phoneVerified DateTime?`** · **`language?`** · **`city?`** · **`state?`** · **`avatar?`** ·
 **`notes?`** (free text for the therapist — treated as health data) · `createdAt` · `updatedAt`.
 `@@index([role])`.
+
+**`dateOfBirth DATE?`** added 2026-10-19 (`20261019120000_user_date_of_birth`) and replaces the
+typed `age` (kept, never written, as a fallback for older accounts). Read ages through
+`currentAge()` in `lib/validation.ts`. It decides the guardian-consent rule, so `POST /api/bookings`
+refuses an account without one (`422 DOB_REQUIRED`; `/book` shows `DobRequired` first) and
+`PATCH /api/profile` refuses to change it once the account has any booking. Practitioners see an
+age, never the date.
+
+**Expert vs ExpertProfile** (2026-10-19, data migration `20261019120100_expert_profile_to_listing`):
+the `Expert` row is the one public listing. An admin creates it (name, profession, credentials —
+now required —, registration, services, prices, photo, a required login email) and it starts
+`HIDDEN`; the practitioner then fills `bio`, `languages`, `specialties`, `experienceYears`
+(`EXPERT_OWNED` in `lib/expert-admin.ts`) from `/expert/profile`, which writes them to the `Expert`
+row. It cannot be `ACTIVE` without languages and specialties. `ExpertProfile` keeps the login link,
+`headline`, `timezone`, notification prefs and `notesPolicy`; its own `bio`/`credentials`/
+`experienceYears`/`languages`/`specialties` columns are no longer read or written.
+`notesPolicy` is set only by an admin, from Experts → Manage (`PATCH
+/api/admin/experts/[id]/notes-policy`, audited as `expert.notes-policy`).
 
 `blockedAt` / `blockedReason` / `blockedById` added 2026-10-10
 (`20261010111043_block_users_and_payout_records`). **Blocking is enforced in `getSession()`**,

@@ -162,47 +162,120 @@ export async function resolveCode(
   };
 }
 
+type Db = Pick<typeof prisma, "booking" | "coupon" | "couponRedemption" | "user">;
+type BookingCode = {
+  id: string;
+  userId: string;
+  couponCode: string | null;
+  fullAmount: number | null;
+  amount: number;
+};
+
+export type CodeCheck = { ok: true } | { ok: false; reason: string };
+
+/**
+ * Is the code already on this booking still good for this person, now?
+ *
+ * Asked again at payment because the booking-time answer can go stale: the
+ * same person can hold several requests (each for up to a day) with one
+ * single-use code, a limited code can be used up meanwhile, and a referral
+ * only counts on a first session. Runs against the transaction it is given,
+ * so inside the payment it reads what that transaction will commit against.
+ */
+export async function bookingCodeStillValid(
+  db: Db,
+  booking: BookingCode,
+  now: Date = new Date()
+): Promise<CodeCheck> {
+  const code = booking.couponCode;
+  if (!code || (booking.fullAmount ?? booking.amount) - booking.amount <= 0) return { ok: true };
+
+  const coupon = await db.coupon.findUnique({ where: { code } });
+  if (coupon) {
+    if (coupon.status !== "ACTIVE") return { ok: false, reason: "That code isn't being accepted any more." };
+    if (coupon.expiresAt && coupon.expiresAt.getTime() < now.getTime()) {
+      return { ok: false, reason: "That code has expired." };
+    }
+    if (coupon.maxUses !== null && coupon.usedCount >= coupon.maxUses) {
+      return { ok: false, reason: "That code has been used up." };
+    }
+    const already = await db.couponRedemption.findFirst({
+      where: { couponId: coupon.id, userId: booking.userId, bookingId: { not: booking.id } },
+      select: { id: true },
+    });
+    if (already) return { ok: false, reason: "You've already used that code on another session." };
+    return { ok: true };
+  }
+
+  // a referral code: only ever good on somebody's first session
+  const earlier = await db.booking.findFirst({
+    where: {
+      userId: booking.userId,
+      id: { not: booking.id },
+      status: { in: [BOOKING_STATUS.confirmed, "COMPLETED", "NO_SHOW"] },
+    },
+    select: { id: true },
+  });
+  if (earlier) return { ok: false, reason: "A referral code only works on a first session." };
+  return { ok: true };
+}
+
 /**
  * Bank the discount, now that the money has actually moved.
  *
  * Deliberately at payment, not at booking: a hold somebody abandons should not
- * spend a use of a limited code. The trade is that a code can overshoot its
- * `maxUses` by however many people were on the payment screen at once — which
- * is the right way round, because the alternative is charging somebody a price
- * they never agreed to while their card is already in the form.
+ * spend a use of a limited code. It used to bank without asking again, so one
+ * single-use code on several open requests discounted every one of them, and
+ * `maxUses` overshot by however many paid at once. Now, inside the caller's
+ * transaction:
  *
- * Runs inside the caller's transaction so it either all happens or none of it does.
+ *   1. the person's own row is locked (a no-op write), so their redemptions
+ *      run one after another — the second sees the first, committed;
+ *   2. the code is checked again (`bookingCodeStillValid`);
+ *   3. a limited code is counted only while uses remain, by a conditional
+ *      increment, so concurrent strangers cannot push it past `maxUses`.
+ *
+ * A refusal comes back as `ok: false` and the caller must roll back — the
+ * payment route then refunds the charge and drops the code from the booking.
  */
 export async function redeemForBooking(
-  tx: Pick<typeof prisma, "coupon" | "couponRedemption" | "user">,
-  booking: { id: string; userId: string; couponCode: string | null; fullAmount: number | null; amount: number }
-): Promise<void> {
+  tx: Db,
+  booking: BookingCode,
+  now: Date = new Date()
+): Promise<CodeCheck> {
   const code = booking.couponCode;
-  if (!code) return;
+  if (!code) return { ok: true };
   const off = (booking.fullAmount ?? booking.amount) - booking.amount;
-  if (off <= 0) return;
+  if (off <= 0) return { ok: true };
 
-  const coupon = await tx.coupon.findUnique({ where: { code }, select: { id: true } });
+  await tx.user.update({ where: { id: booking.userId }, data: { updatedAt: now } });
+
+  const check = await bookingCodeStillValid(tx, booking, now);
+  if (!check.ok) return check;
+
+  const coupon = await tx.coupon.findUnique({ where: { code }, select: { id: true, maxUses: true } });
 
   if (coupon) {
-    await tx.coupon.update({
-      where: { id: coupon.id },
+    const counted = await tx.coupon.updateMany({
+      where: { id: coupon.id, ...(coupon.maxUses !== null ? { usedCount: { lt: coupon.maxUses } } : {}) },
       data: { usedCount: { increment: 1 } },
     });
+    if (counted.count !== 1) return { ok: false, reason: "That code has been used up." };
     await tx.couponRedemption.create({
       data: { couponId: coupon.id, userId: booking.userId, bookingId: booking.id, amount: off },
     });
-    return;
+    return { ok: true };
   }
 
   // not a coupon, so it was a referral code: remember who sent them. Only ever
   // written once — a second session can't re-attribute somebody.
   const referrer = await tx.user.findUnique({ where: { referralCode: code }, select: { id: true } });
-  if (!referrer) return;
+  if (!referrer) return { ok: true };
   await tx.user.updateMany({
     where: { id: booking.userId, referredById: null },
     data: { referredById: referrer.id },
   });
+  return { ok: true };
 }
 
 /** Everything an admin needs to see about one code at a glance. */

@@ -145,6 +145,7 @@ export async function getClient(id: string) {
       phone: true,
       phoneVerified: true,
       age: true,
+      dateOfBirth: true,
       gender: true,
       city: true,
       state: true,

@@ -8,6 +8,7 @@ import { BOOKING_LABEL, PAYMENT_LABEL, TONE_CLASS, describe } from "@/lib/admin-
 import { refundableAmount } from "@/lib/features/booking/policy";
 import { initialsOf } from "@/lib/expert-portal";
 import { cn, formatDateISO, formatINR } from "@/lib/utils";
+import { currentAge } from "@/lib/validation";
 
 export const metadata: Metadata = {
   title: "Client | Admin",
@@ -261,7 +262,9 @@ export default async function AdminClientPage({ params }: { params: { id: string
                 )}
               </Detail>
               <Detail label="Age and gender">
-                {c.age || c.gender ? [c.age, c.gender].filter(Boolean).join(" · ") : none}
+                {currentAge(c) !== null || c.gender
+                  ? [currentAge(c), c.gender].filter((v) => v !== null && v !== "").join(" · ")
+                  : none}
               </Detail>
               <Detail label="Language">{c.language || none}</Detail>
               <Detail label="School, college or workplace">{c.organisation || none}</Detail>

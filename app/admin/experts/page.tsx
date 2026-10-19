@@ -45,6 +45,8 @@ export default async function AdminExpertsPage() {
   const links = await prisma.expertProfile.findMany({
     select: {
       expertId: true,
+      notesPolicy: true,
+      notesPolicyNote: true,
       user: {
         select: {
           email: true,
@@ -58,6 +60,9 @@ export default async function AdminExpertsPage() {
     },
   });
   const accessByExpertId = new Map(links.map((l) => [l.expertId, l.user]));
+  const notesByExpertId = new Map(
+    links.map((l) => [l.expertId, { policy: l.notesPolicy, note: l.notesPolicyNote }])
+  );
 
   const rows: ExpertRow[] = experts.map((e) => ({
     id: e.id,
@@ -92,6 +97,7 @@ export default async function AdminExpertsPage() {
       // there is no evidence anyone can read the inbox it is named after
       return { state: "unconfirmed", email: user.email };
     })(),
+    notes: notesByExpertId.get(e.slug) ?? null,
   }));
 
   return (

@@ -1,3 +1,5 @@
+import { isCalendarDate, todayIST } from "@/lib/features/booking/policy";
+
 /**
  * One set of field rules, imported by both the form and the route handler, so a
  * message a user sees while typing is the same message the server would give.
@@ -245,12 +247,46 @@ export function validateTermsConsent(agreed: unknown): string | null {
   return agreed === true ? null : "Please agree to the Terms of use and Privacy policy to continue.";
 }
 
-export function validateAge(raw: string): string | null {
-  const age = Number(raw.trim());
-  if (!raw.trim()) return "Please tell us your age.";
-  if (!Number.isInteger(age)) return "Enter your age in whole years.";
-  if (age < AGE_MIN || age > AGE_MAX) return `Please enter an age between ${AGE_MIN} and ${AGE_MAX}.`;
+/* ------------------------------------------------------------ date of birth */
+
+/** "YYYY-MM-DD" that names a real calendar day — one rule, kept with the booking policy. */
+export { isCalendarDate };
+
+/** Whole years between a date of birth and a day, both YYYY-MM-DD, on the IST calendar. */
+export function ageOn(dob: string, day: string = todayIST()): number {
+  const [y, m, d] = dob.split("-").map(Number);
+  const [ty, tm, td] = day.split("-").map(Number);
+  return ty - y - (tm < m || (tm === m && td < d) ? 1 : 0);
+}
+
+/**
+ * A date of birth, not an age. An age typed at signup is wrong a year later
+ * and can be retyped by anyone at any time — and it decides whether a parent
+ * or guardian must agree to therapy, so it has to be a fact, not a number.
+ */
+export function validateDateOfBirth(raw: string, today: string = todayIST()): string | null {
+  const v = raw.trim();
+  if (!v) return "Please tell us your date of birth.";
+  if (!isCalendarDate(v)) return "Please enter a real date.";
+  if (v > today) return "That date is in the future.";
+  const age = ageOn(v, today);
+  if (age < AGE_MIN) return `You need to be ${AGE_MIN} or older to use Emoraa.`;
+  if (age > AGE_MAX) return "Please check the year.";
   return null;
+}
+
+/**
+ * Someone's age today: from their date of birth, or — for an account made
+ * before we asked for one — the age they typed then. Null when we have neither.
+ */
+export function currentAge(user: { dateOfBirth: Date | null; age: number | null }): number | null {
+  if (user.dateOfBirth) return ageOn(user.dateOfBirth.toISOString().slice(0, 10));
+  return user.age ?? null;
+}
+
+/** The stored date as the YYYY-MM-DD a date input shows. */
+export function dobString(dateOfBirth: Date | null): string {
+  return dateOfBirth ? dateOfBirth.toISOString().slice(0, 10) : "";
 }
 
 export function validateGender(raw: string): string | null {

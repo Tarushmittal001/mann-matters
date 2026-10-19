@@ -3,8 +3,8 @@ import { getSession } from "@/lib/auth";
 import { findUserBooking, releaseExpiredHolds, serializeBooking } from "@/lib/features/booking/server";
 import { BOOKING_STATUS, PAYMENT_STATUS } from "@/lib/features/booking/policy";
 import { validateCard, validateUpi, type PayMethod } from "@/lib/payment-fields";
-import { charge } from "@/lib/payments";
-import { redeemForBooking } from "@/lib/coupons";
+import { charge, refund } from "@/lib/payments";
+import { bookingCodeStillValid, redeemForBooking } from "@/lib/coupons";
 import { clientKey, errors, isSameOrigin, logFailure, privateJson, readJson } from "@/lib/http";
 import { rateLimit } from "@/lib/rate-limit";
 
@@ -31,7 +31,20 @@ type Body = {
  *
  * On success the booking flips to CONFIRMED and its slot hold becomes permanent.
  * On failure the hold is left alone so the user can retry without losing the time.
+ *
+ * ONLY A BOOKING AWAITING PAYMENT IS PAYABLE, and it is confirmed only if it
+ * still is — still PENDING_PAYMENT and still holding its slot — at the moment
+ * of confirming. The hold can lapse, or the client cancel, while the gateway is
+ * answering; a second tab can pay first. In each case the charge just taken is
+ * refunded on the spot rather than confirming a session that no longer has its
+ * time (and could be double-booked) or keeping a second payment for one hour.
  */
+
+class NotConfirmed extends Error {
+  constructor(readonly kind: "HOLD_LOST" | "CODE", readonly reason = "") {
+    super(kind);
+  }
+}
 export async function POST(req: Request) {
   try {
     if (!isSameOrigin(req)) return errors.crossOrigin();
@@ -96,6 +109,33 @@ export async function POST(req: Request) {
       );
     }
 
+    if (fresh.status === BOOKING_STATUS.confirmed) {
+      return privateJson({ booking: serializeBooking(fresh), alreadyPaid: true });
+    }
+    if (fresh.status !== BOOKING_STATUS.pendingPayment) {
+      return privateJson(
+        { error: "This session isn't waiting for payment, so there is nothing to pay.", code: "NOT_PAYABLE" },
+        { status: 409 }
+      );
+    }
+
+    /* A code that stopped being valid since the booking was made (used up, or
+       used on another of their sessions) is caught before any money moves. The
+       code comes off and the booking goes back to its full price, so what they
+       see on retry is what they will pay — never a price they did not agree to. */
+    const codeCheck = await bookingCodeStillValid(prisma, fresh);
+    if (!codeCheck.ok) {
+      const repriced = await dropCode(fresh);
+      return privateJson(
+        {
+          error: `${codeCheck.reason} The price is now ₹${repriced.amount}. Nothing was charged.`,
+          code: "CODE_NO_LONGER_VALID",
+          booking: serializeBooking(repriced),
+        },
+        { status: 409 }
+      );
+    }
+
     const method: PayMethod = body.method === "card" ? "card" : "upi";
 
     const card = {
@@ -140,46 +180,118 @@ export async function POST(req: Request) {
       );
     }
 
-    const paid = await prisma.$transaction(async (tx) => {
-      await tx.payment.update({
-        where: { bookingId: fresh.id },
-        data: {
-          status: PAYMENT_STATUS.paid,
-          method,
-          cardBrand: result.cardBrand ?? null,
-          last4: result.last4 ?? null,
-          vpaMasked: result.vpaMasked ?? null,
-          reference: result.reference,
-          failureCode: null,
-          failureMessage: null,
-          attempts: { increment: 1 },
-          paidAt: new Date(),
-        },
-      });
-      // The code is banked here rather than at booking, so a hold somebody
-      // walked away from never spends a use of a limited code.
-      await redeemForBooking(tx, {
-        id: fresh.id,
-        userId: fresh.userId,
-        couponCode: fresh.couponCode,
-        fullAmount: fresh.fullAmount,
-        amount: fresh.amount,
-      });
+    let paid;
+    try {
+      paid = await prisma.$transaction(async (tx) => {
+        // claim first: confirm only if it is still awaiting payment and still holds its slot
+        const claimed = await tx.booking.updateMany({
+          where: { id: fresh.id, status: BOOKING_STATUS.pendingPayment, slotKey: { not: null } },
+          data: {
+            status: BOOKING_STATUS.confirmed,
+            // the slot is ours for good now; the hold no longer expires
+            holdExpiresAt: null,
+          },
+        });
+        if (claimed.count !== 1) throw new NotConfirmed("HOLD_LOST");
 
-      return tx.booking.update({
-        where: { id: fresh.id },
-        data: {
-          status: BOOKING_STATUS.confirmed,
-          // the slot is ours for good now; the hold no longer expires
-          holdExpiresAt: null,
-        },
-        include: { payment: true },
+        // The code is banked here rather than at booking, so a hold somebody
+        // walked away from never spends a use of a limited code.
+        const redeemed = await redeemForBooking(tx, {
+          id: fresh.id,
+          userId: fresh.userId,
+          couponCode: fresh.couponCode,
+          fullAmount: fresh.fullAmount,
+          amount: fresh.amount,
+        });
+        if (!redeemed.ok) throw new NotConfirmed("CODE", redeemed.reason);
+
+        await tx.payment.update({
+          where: { bookingId: fresh.id },
+          data: {
+            status: PAYMENT_STATUS.paid,
+            method,
+            cardBrand: result.cardBrand ?? null,
+            last4: result.last4 ?? null,
+            vpaMasked: result.vpaMasked ?? null,
+            reference: result.reference,
+            failureCode: null,
+            failureMessage: null,
+            attempts: { increment: 1 },
+            paidAt: new Date(),
+          },
+        });
+        return tx.booking.findUniqueOrThrow({ where: { id: fresh.id }, include: { payment: true } });
       });
-    });
+    } catch (err) {
+      if (!(err instanceof NotConfirmed)) throw err;
+      return giveBack(fresh, result.reference, fresh.amount, err, session);
+    }
 
     return privateJson({ booking: serializeBooking(paid) });
   } catch (err) {
     logFailure("payments.charge", err);
     return errors.server();
   }
+}
+
+/** Take a code that is no longer valid off a booking, back to its full price. */
+async function dropCode(booking: { id: string; amount: number; fullAmount: number | null }) {
+  return prisma.booking.update({
+    where: { id: booking.id },
+    data: { couponCode: null, amount: booking.fullAmount ?? booking.amount },
+    include: { payment: true },
+  });
+}
+
+/**
+ * The money moved but the booking could not be confirmed: give it straight
+ * back. A failed refund is logged with the booking id for the team to send by
+ * hand, and the client is told so rather than told it went through.
+ */
+async function giveBack(
+  booking: { id: string; amount: number; fullAmount: number | null },
+  chargeReference: string,
+  amount: number,
+  why: NotConfirmed,
+  session: { sub: string; role: string }
+) {
+  let refunded = true;
+  try {
+    await refund(amount);
+  } catch (err) {
+    refunded = false;
+    logFailure(`payments.refund-unconfirmed booking=${booking.id}`, err);
+  }
+  const back = refunded
+    ? "We've refunded the payment we just took — it usually lands in 5–7 working days."
+    : "We couldn't refund the payment we just took automatically; our team will send it back and let you know.";
+
+  const now = await findUserBooking(booking.id, session);
+
+  // a second tab (or a double click) paid first: this charge was the duplicate
+  if (now?.status === BOOKING_STATUS.confirmed) {
+    return privateJson({ booking: serializeBooking(now), alreadyPaid: true, duplicateRefunded: refunded, note: back });
+  }
+
+  if (why.kind === "CODE") {
+    const repriced = await dropCode(booking);
+    return privateJson(
+      {
+        error: `${why.reason} The price is now ₹${repriced.amount}. ${back}`,
+        code: "CODE_NO_LONGER_VALID",
+        booking: serializeBooking(repriced),
+      },
+      { status: 409 }
+    );
+  }
+
+  return privateJson(
+    {
+      error: `This time was released before your payment went through. ${back} Please pick a time again.`,
+      code: "HOLD_EXPIRED",
+      chargeReference,
+      booking: now ? serializeBooking(now) : null,
+    },
+    { status: 410 }
+  );
 }

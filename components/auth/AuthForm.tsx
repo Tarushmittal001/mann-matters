@@ -16,8 +16,10 @@ import {
   PASSWORD_MIN,
   collect,
   hasErrors,
-  validateAge,
+  ageOn,
+  isCalendarDate,
   validateCity,
+  validateDateOfBirth,
   validateEmail,
   validateGender,
   validateNamePart,
@@ -31,6 +33,7 @@ import {
   CITY_MAX,
   STATE_OPTIONS,
 } from "@/lib/validation";
+import { todayIST } from "@/lib/features/booking/policy";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -53,7 +56,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   // signup asks who this is: a service that treats people needs more than an email
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [age, setAge] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
@@ -174,6 +177,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
       setSubmitting(true);
       setError("");
+      setNeedsVerify(null);
       try {
         const response = await fetch("/api/auth/phone/verify", {
           method: "POST",
@@ -183,6 +187,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) {
           if (response.status === 422 && data.fields) setFields(data.fields);
+          if (data.needsVerification) setNeedsVerify(data.email ?? null);
           setError(data.error ?? "Something went wrong. Please try again.");
           setSubmitting(false);
           return;
@@ -202,7 +207,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
       : [
           ["firstName", validateNamePart(firstName, "first")],
           ["lastName", validateNamePart(lastName, "last")],
-          ["age", validateAge(age)],
+          ["dateOfBirth", validateDateOfBirth(dateOfBirth)],
           ["gender", validateGender(gender)],
           ["city", validateCity(city)],
           ["state", validateState(state)],
@@ -235,7 +240,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
             : {
                 firstName,
                 lastName,
-                age,
+                dateOfBirth,
                 gender,
                 city,
                 state,
@@ -444,14 +449,15 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Field
-                      label="Age"
+                      label="Date of birth"
                       required
-                      inputMode="numeric"
-                      value={age}
-                      onChange={(v) => changed("age", setAge)(v.replace(/\D/g, "").slice(0, 3))}
+                      type="date"
+                      value={dateOfBirth}
+                      onChange={changed("dateOfBirth", setDateOfBirth)}
+                      max={todayIST()}
+                      autoComplete="bday"
                       disabled={submitting || !!signupPhoneToken}
-                      error={fields.age}
-                      placeholder="24"
+                      error={fields.dateOfBirth}
                     />
                     <Select
                       label="Gender"
@@ -481,7 +487,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                     hint="Optional. Feelings are easier to find in the language you think in — we'll use this when matching you."
                   />
 
-                  {age && Number(age) < AGE_GUARDIAN_BELOW && (
+                  {isCalendarDate(dateOfBirth) && ageOn(dateOfBirth) < AGE_GUARDIAN_BELOW && (
                     <Alert tone="info">
                       You&apos;re under {AGE_GUARDIAN_BELOW}, so a parent or guardian needs to agree
                       to therapy with you. We&apos;ll ask about that before your first session.

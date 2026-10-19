@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { BOOKING_STATUS } from "@/lib/features/booking/policy";
+import { currentAge } from "@/lib/validation";
 
 /**
  * The intake form: what a therapist reads before the first session.
@@ -151,7 +152,7 @@ export type IntakeState = {
 /** Everything the intake page needs, in one call. */
 export async function intakeState(userId: string, today: string): Promise<IntakeState> {
   const [user, row, next] = await Promise.all([
-    prisma.user.findUnique({ where: { id: userId }, select: { age: true } }),
+    prisma.user.findUnique({ where: { id: userId }, select: { age: true, dateOfBirth: true } }),
     prisma.intakeForm.findUnique({ where: { userId } }),
     prisma.booking.findFirst({
       where: { userId, status: BOOKING_STATUS.confirmed, date: { gte: today } },
@@ -183,7 +184,7 @@ export async function intakeState(userId: string, today: string): Promise<Intake
       : EMPTY_INTAKE,
     filled,
     updatedAt: row?.updatedAt ?? null,
-    minor: typeof user?.age === "number" && user.age < MINOR_AGE,
+    minor: ((age) => age !== null && age < MINOR_AGE)(user ? currentAge(user) : null),
     needsItBefore: filled ? null : next,
   };
 }
