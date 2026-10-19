@@ -81,7 +81,7 @@ export default function BmiCalculator() {
       : 0;
 
   const inputCls =
-    "w-full rounded-2xl border border-forest-800/15 bg-ivory px-5 py-3.5 text-[0.98rem] text-forest-900 placeholder:text-ink/35 focus:border-forest-600 focus:outline-none";
+    "w-full rounded-2xl border border-forest-800/15 bg-ivory px-5 py-3.5 text-[0.98rem] text-forest-900 placeholder:text-ink/70 focus:border-forest-600 focus:outline-none";
 
   return (
     <div className="mx-auto w-full max-w-xl rounded-3xl border border-forest-800/10 bg-ivory-light p-8 shadow-lift sm:p-10">
@@ -201,7 +201,7 @@ export default function BmiCalculator() {
                 style={{ left: `${markerPct}%` }}
               />
             </div>
-            <div className="mt-2 flex justify-between text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-ink/70">
+            <div className="mt-2 flex justify-between text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-ink/70">
               <span>{GAUGE_MIN}</span>
               <span>18.5</span>
               <span>23</span>

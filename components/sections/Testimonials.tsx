@@ -95,7 +95,8 @@ export default function Testimonials({ stories }: { stories?: Testimonial[] }) {
           {/* the story; drag sideways on a phone to move on */}
           <div
             className="relative min-h-[26rem] sm:min-h-[19rem]"
-            aria-live="polite"
+            // read out a story someone moved to themselves, not every auto-advance
+            aria-live={playing ? "off" : "polite"}
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}
           >

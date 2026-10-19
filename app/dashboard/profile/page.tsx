@@ -69,7 +69,7 @@ export default async function ProfilePage() {
             your profile
           </p>
           <h1 className="h-display text-4xl md:text-5xl">Your details</h1>
-          <p className="mt-4 max-w-xl text-ink/65">
+          <p className="mt-4 max-w-xl text-ink/70">
             Only what we need to run your sessions well — nothing more. With us since{" "}
             {memberSince}.
           </p>
@@ -137,7 +137,7 @@ export default async function ProfilePage() {
             <h2 className="font-display text-lg font-medium text-forest-900">
               What we hold about you
             </h2>
-            <ul className="mt-5 space-y-3.5 text-[0.86rem] leading-relaxed text-ink/65">
+            <ul className="mt-5 space-y-3.5 text-[0.86rem] leading-relaxed text-ink/70">
               {[
                 ["Your name, email and mobile", "to reach you about your sessions."],
                 ["Your bookings", "who you saw, when, and what you paid."],

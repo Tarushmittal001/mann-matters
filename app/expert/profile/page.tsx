@@ -41,7 +41,7 @@ export default async function ExpertProfilePage() {
             )}
             <div className="min-w-0">
               <p className="font-display text-xl font-medium text-forest-900">{ctx.session.name}</p>
-              <p className="mt-0.5 text-[0.86rem] text-ink/65">
+              <p className="mt-0.5 text-[0.86rem] text-ink/70">
                 {profile.credentials || "Qualification not set"}
                 {profile.experienceYears > 0 && <> · {profile.experienceYears} years</>}
               </p>

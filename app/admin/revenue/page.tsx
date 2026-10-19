@@ -71,7 +71,7 @@ export default async function AdminRevenuePage({
     <section className="wrap-wide pb-28">
       <p className="eyebrow">the books</p>
       <h1 className="h-display mt-3 text-4xl md:text-5xl">Revenue &amp; payouts</h1>
-      <p className="mt-4 max-w-2xl text-ink/65">
+      <p className="mt-4 max-w-2xl text-ink/70">
         Money is counted when it is collected. A payout is earned in the month the session
         happened, not the month it was paid for — so somebody who worked in March appears in
         March, whenever the card cleared.
@@ -142,7 +142,7 @@ export default async function AdminRevenuePage({
                 {["Period", "Sessions", "Collected", "Given away", "Refunded", "Net"].map((h, i) => (
                   <th
                     key={h}
-                    className={`px-5 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-ink/70 ${
+                    className={`px-5 py-3 text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-ink/70 ${
                       i > 0 ? "text-right" : ""
                     }`}
                   >
@@ -158,7 +158,7 @@ export default async function AdminRevenuePage({
                   className={cn(
                     "border-b border-forest-800/[0.06] last:border-0",
                     grain === "month" && r.key === month && "bg-sage-light/25",
-                    r.sessions === 0 && "text-ink/45"
+                    r.sessions === 0 && "text-ink/70"
                   )}
                 >
                   <th scope="row" className="whitespace-nowrap px-5 py-3 text-left font-medium">
@@ -247,7 +247,7 @@ export default async function AdminRevenuePage({
                 </p>
                 <p className="mt-1.5 font-display text-3xl font-medium text-forest-900">
                   {payouts.filter((p) => p.settled).length}
-                  <span className="text-xl text-ink/45"> of {payouts.length}</span>
+                  <span className="text-xl text-ink/70"> of {payouts.length}</span>
                 </p>
               </div>
             </div>

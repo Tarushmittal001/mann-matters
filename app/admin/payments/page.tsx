@@ -34,7 +34,7 @@ function Chip({ label, tone }: { label: string; tone: keyof typeof TONE_CLASS })
   return (
     <span
       className={cn(
-        "inline-block whitespace-nowrap rounded-full px-2.5 py-1 text-[0.72rem] font-semibold",
+        "inline-block whitespace-nowrap rounded-full px-2.5 py-1 text-[0.75rem] font-semibold",
         TONE_CLASS[tone]
       )}
     >
@@ -54,7 +54,7 @@ function PaymentTable({ rows, caption }: { rows: PaymentRow[]; caption: string }
               <th
                 key={h || "actions"}
                 className={cn(
-                  "px-4 py-3 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-ink/60",
+                  "px-4 py-3 text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-ink/70",
                   i === 5 && "text-right"
                 )}
               >
@@ -71,8 +71,8 @@ function PaymentTable({ rows, caption }: { rows: PaymentRow[]; caption: string }
               <tr key={r.id} className="border-b border-forest-800/[0.06] last:border-0">
                 <td className="whitespace-nowrap px-4 py-3">
                   <span className="text-forest-900">{formatDateISO(r.date)}</span>
-                  <span className="ml-2 text-ink/60">{r.time}</span>
-                  <span className="mt-0.5 block font-mono text-[0.72rem] text-ink/45">
+                  <span className="ml-2 text-ink/70">{r.time}</span>
+                  <span className="mt-0.5 block font-mono text-[0.75rem] text-ink/70">
                     {r.ref}
                     {r.receiptNo && <span className="ml-2">{r.receiptNo}</span>}
                   </span>
@@ -89,7 +89,7 @@ function PaymentTable({ rows, caption }: { rows: PaymentRow[]; caption: string }
                 <td className="px-4 py-3">
                   <Chip label={pay.label} tone={pay.tone} />
                   {r.method && (
-                    <span className="mt-1 block text-[0.74rem] uppercase text-ink/50">
+                    <span className="mt-1 block text-[0.75rem] uppercase text-ink/70">
                       {r.method}
                     </span>
                   )}
@@ -100,7 +100,7 @@ function PaymentTable({ rows, caption }: { rows: PaymentRow[]; caption: string }
                 <td className="whitespace-nowrap px-4 py-3 text-right tabular-nums text-forest-900">
                   {formatINR(r.amount)}
                   {r.refundAmount ? (
-                    <span className="mt-0.5 block text-[0.74rem] text-ink/60">
+                    <span className="mt-0.5 block text-[0.75rem] text-ink/70">
                       −{formatINR(r.refundAmount)} refunded
                     </span>
                   ) : null}
@@ -155,7 +155,7 @@ export default async function AdminPaymentsPage({
     <section className="wrap-wide pb-28">
       <p className="eyebrow">money in, money out</p>
       <h1 className="h-display mt-3 text-4xl md:text-5xl">Payments</h1>
-      <p className="mt-4 max-w-2xl text-ink/65">
+      <p className="mt-4 max-w-2xl text-ink/70">
         What clients have paid us, and what we have paid practitioners. A payout is only
         &ldquo;paid&rdquo; once somebody records it here — the rest of this page is arithmetic,
         that part is a fact only you know.
@@ -240,7 +240,7 @@ export default async function AdminPaymentsPage({
               >
                 {f.label}
                 {n !== undefined && (
-                  <span className={cn("ml-2", f.value === filter ? "text-ivory/70" : "text-ink/45")}>
+                  <span className={cn("ml-2", f.value === filter ? "text-ivory/70" : "text-ink/70")}>
                     {n}
                   </span>
                 )}
@@ -259,7 +259,7 @@ export default async function AdminPaymentsPage({
               <PaymentTable rows={incoming.rows} caption="Payments from clients, newest first" />
             </div>
             {incoming.truncated && (
-              <p className="mt-3 text-[0.84rem] text-ink/60">
+              <p className="mt-3 text-[0.84rem] text-ink/70">
                 Showing the 200 most recent. Narrow it with a status above.
               </p>
             )}

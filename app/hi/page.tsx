@@ -124,7 +124,7 @@ export default async function HindiHome() {
                   <h3 className="mt-3 font-display text-xl font-medium text-forest-900">
                     {step.title}
                   </h3>
-                  <p className="mt-2.5 leading-relaxed text-ink/65">{step.body}</p>
+                  <p className="mt-2.5 leading-relaxed text-ink/70">{step.body}</p>
                 </div>
               </Reveal>
             ))}
@@ -144,7 +144,7 @@ export default async function HindiHome() {
             {t.home.why.map((w, i) => (
               <Reveal key={w.title} delay={0.06 * i}>
                 <h3 className="font-display text-xl font-medium text-forest-900">{w.title}</h3>
-                <p className="mt-2 max-w-md leading-relaxed text-ink/65">{w.body}</p>
+                <p className="mt-2 max-w-md leading-relaxed text-ink/70">{w.body}</p>
               </Reveal>
             ))}
           </div>
@@ -185,7 +185,7 @@ export default async function HindiHome() {
                         />
                       </span>
                     </div>
-                    <p className="mt-2.5 leading-relaxed text-ink/65">{h.summary}</p>
+                    <p className="mt-2.5 leading-relaxed text-ink/70">{h.summary}</p>
                     <p className="mt-4 text-[0.82rem] text-ink/70">
                       {h.duration} · {t.services.perSession}
                     </p>

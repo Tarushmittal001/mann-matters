@@ -34,7 +34,7 @@ function Stat({
 }) {
   return (
     <div className="rounded-2xl border border-forest-800/10 bg-ivory-light p-5 shadow-lift">
-      <p className="text-[0.68rem] uppercase tracking-[0.16em] text-ink/45">{label}</p>
+      <p className="text-[0.75rem] uppercase tracking-[0.16em] text-ink/70">{label}</p>
       <p
         className={cn(
           "mt-2 font-display text-[1.9rem] font-medium leading-none",
@@ -43,7 +43,7 @@ function Stat({
       >
         {value}
       </p>
-      {hint && <p className="mt-2 text-[0.82rem] leading-snug text-ink/60">{hint}</p>}
+      {hint && <p className="mt-2 text-[0.82rem] leading-snug text-ink/70">{hint}</p>}
     </div>
   );
 }
@@ -67,7 +67,7 @@ export default async function ExpertEarningsPage({
     <section className="pb-24">
       <p className="eyebrow">what you have earned</p>
       <h1 className="h-display mt-3 text-4xl md:text-5xl">Earnings</h1>
-      <p className="mt-4 max-w-2xl text-ink/65">
+      <p className="mt-4 max-w-2xl text-ink/70">
         Your share — {Math.round(e.share * 100)}% of what is collected and kept for sessions you
         held. A refunded session pays nobody, so it leaves these figures when the refund lands.
       </p>
@@ -143,7 +143,7 @@ export default async function ExpertEarningsPage({
                   <th
                     key={h || "bar"}
                     className={cn(
-                      "px-5 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-ink/60",
+                      "px-5 py-3 text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-ink/70",
                       i > 0 && i < 4 && "text-right"
                     )}
                   >
@@ -158,7 +158,7 @@ export default async function ExpertEarningsPage({
                   key={b.key}
                   className={cn(
                     "border-b border-forest-800/[0.06] last:border-0",
-                    b.sessions === 0 && "text-ink/45"
+                    b.sessions === 0 && "text-ink/70"
                   )}
                 >
                   <th scope="row" className="whitespace-nowrap px-5 py-3 text-left font-medium">
@@ -167,7 +167,7 @@ export default async function ExpertEarningsPage({
                   <td className="px-5 py-3 text-right tabular-nums text-ink/75">
                     {b.sessions}
                     {b.free > 0 && (
-                      <span className="ml-1 text-[0.8rem] text-ink/50">({b.free} free)</span>
+                      <span className="ml-1 text-[0.8rem] text-ink/70">({b.free} free)</span>
                     )}
                   </td>
                   <td className="px-5 py-3 text-right tabular-nums text-ink/75">
@@ -211,7 +211,7 @@ export default async function ExpertEarningsPage({
         </div>
         <div className="lg:col-start-1 lg:row-start-2">
           {split.services.length === 0 ? (
-            <p className="text-[0.92rem] text-ink/60">No sessions in this period.</p>
+            <p className="text-[0.92rem] text-ink/70">No sessions in this period.</p>
           ) : (
             <ul className="divide-y divide-forest-800/8 rounded-2xl border border-forest-800/10 bg-ivory-light px-5">
               {split.services.map((x) => (
@@ -230,13 +230,13 @@ export default async function ExpertEarningsPage({
 
         <div className="lg:col-start-2 lg:row-start-1">
           <h2 className="font-display text-2xl font-medium text-forest-900">By client</h2>
-          <p className="mt-1.5 text-[0.84rem] text-ink/60">
+          <p className="mt-1.5 text-[0.84rem] text-ink/70">
             Your own caseload, and only on your screen.
           </p>
         </div>
         <div className="lg:col-start-2 lg:row-start-2">
           {split.clients.length === 0 ? (
-            <p className="text-[0.92rem] text-ink/60">No sessions in this period.</p>
+            <p className="text-[0.92rem] text-ink/70">No sessions in this period.</p>
           ) : (
             <ul className="divide-y divide-forest-800/8 rounded-2xl border border-forest-800/10 bg-ivory-light px-5">
               {split.clients.slice(0, 8).map((x) => (
@@ -270,7 +270,7 @@ export default async function ExpertEarningsPage({
         </p>
 
         {e.payouts.length === 0 && e.unpaidMonths.length === 0 ? (
-          <p className="mt-5 rounded-2xl border border-dashed border-forest-800/20 bg-ivory-light/60 p-10 text-center text-ink/65">
+          <p className="mt-5 rounded-2xl border border-dashed border-forest-800/20 bg-ivory-light/60 p-10 text-center text-ink/70">
             Nothing yet. Payouts appear here once you have held sessions.
           </p>
         ) : (
@@ -283,7 +283,7 @@ export default async function ExpertEarningsPage({
                   <span className="mx-2 text-ink/30">·</span>
                   sent {formatDateISO(p.paidAt.slice(0, 10))}
                   {p.reference && (
-                    <span className="ml-2 font-mono text-[0.78rem] text-ink/45">{p.reference}</span>
+                    <span className="ml-2 font-mono text-[0.78rem] text-ink/70">{p.reference}</span>
                   )}
                 </span>
               </li>
@@ -295,7 +295,7 @@ export default async function ExpertEarningsPage({
                     new Date(`${m}-01T00:00:00Z`)
                   )}
                 </span>
-                <span className="rounded-full bg-haldi/20 px-2.5 py-1 text-[0.72rem] font-semibold text-haldi-ink">
+                <span className="rounded-full bg-haldi/20 px-2.5 py-1 text-[0.75rem] font-semibold text-haldi-ink">
                   Not yet sent
                 </span>
               </li>
@@ -303,7 +303,7 @@ export default async function ExpertEarningsPage({
           </ul>
         )}
 
-        <p className="mt-5 max-w-2xl text-[0.82rem] leading-relaxed text-ink/60">
+        <p className="mt-5 max-w-2xl text-[0.82rem] leading-relaxed text-ink/70">
           Something look wrong?{" "}
           <Link href="/contact" className="font-medium text-forest-800 underline underline-offset-2">
             Tell us

@@ -112,7 +112,7 @@ function Streak({ live, region }: Live) {
         ))}
       </div>
       <motion.span
-        className="rounded-full px-2 py-0.5 text-[0.68rem] font-semibold uppercase tracking-wide text-forest-950"
+        className="rounded-full px-2 py-0.5 text-[0.75rem] font-semibold uppercase tracking-wide text-forest-950"
         style={{ backgroundColor: region.hex }}
         animate={{ scale: done ? 1 : 0.6, opacity: done ? 1 : 0 }}
         transition={{ type: "spring", stiffness: 420, damping: 18 }}

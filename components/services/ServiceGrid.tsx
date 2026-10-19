@@ -98,13 +98,13 @@ export default async function ServiceGrid() {
                   two baselines in every card. */}
               <div className="mt-auto grid grid-cols-2 items-start gap-x-5 border-t border-forest-800/10 pt-6">
                 <div>
-                  <p className="text-[0.68rem] uppercase tracking-[0.18em] text-ink/70">Duration</p>
+                  <p className="text-[0.75rem] uppercase tracking-[0.18em] text-ink/70">Duration</p>
                   <p className="mt-1.5 font-display text-lg font-medium leading-none text-forest-900">
                     {s.duration}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[0.68rem] uppercase tracking-[0.18em] text-ink/70">Pricing</p>
+                  <p className="text-[0.75rem] uppercase tracking-[0.18em] text-ink/70">Pricing</p>
                   {/* No price, and above all no "save 40%", on something nobody
                       can buy — a discount on an unavailable service is an
                       advertisement we cannot honour. */}

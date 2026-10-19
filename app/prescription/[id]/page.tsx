@@ -147,7 +147,7 @@ export default async function PrescriptionPage({ params }: { params: { id: strin
           </section>
         )}
 
-        <p className="mt-6 text-[0.78rem] leading-relaxed text-ink/65">
+        <p className="mt-6 text-[0.78rem] leading-relaxed text-ink/70">
           Take only as directed and finish the course unless your prescriber tells you otherwise. If
           you have a bad reaction, stop and contact them or a doctor near you.
         </p>

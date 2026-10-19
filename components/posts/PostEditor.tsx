@@ -120,7 +120,7 @@ export default function PostEditor({
       {/* what the reviewer said, if it came back */}
       {post.reviewNote && post.status === "DRAFT" && (
         <div className="rounded-xl border-l-2 border-gold bg-ivory-dark/60 px-5 py-4">
-          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-gold-dark">
+          <p className="text-[0.75rem] font-semibold uppercase tracking-[0.16em] text-gold-dark">
             sent back for changes
           </p>
           <p className="mt-2 leading-relaxed text-ink/80">{post.reviewNote}</p>
@@ -158,7 +158,7 @@ export default function PostEditor({
 
       {/* ── the article ───────────────────────────────────────────────── */}
       <div>
-        <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-ink/45">
+        <p className="text-[0.75rem] font-semibold uppercase tracking-[0.16em] text-ink/70">
           the article
         </p>
         <div className="mt-4 space-y-4">
@@ -181,7 +181,7 @@ export default function PostEditor({
                   <button
                     type="button"
                     onClick={() => setBody((p) => p.filter((_, n) => n !== i))}
-                    className="text-[0.82rem] text-ink/55 hover:text-forest-900"
+                    className="text-[0.82rem] text-ink/70 hover:text-forest-900"
                   >
                     Remove
                   </button>
@@ -210,10 +210,10 @@ export default function PostEditor({
 
       {/* ── takeaways ─────────────────────────────────────────────────── */}
       <div>
-        <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-ink/45">
+        <p className="text-[0.75rem] font-semibold uppercase tracking-[0.16em] text-ink/70">
           the short version
         </p>
-        <p className="mt-1 text-[0.86rem] text-ink/60">
+        <p className="mt-1 text-[0.86rem] text-ink/70">
           Two or three lines, for a reader who needs the point before the essay.
         </p>
         <div className="mt-4 space-y-2.5">
@@ -231,7 +231,7 @@ export default function PostEditor({
                 <button
                   type="button"
                   onClick={() => setTakeaways((p) => p.filter((_, n) => n !== i))}
-                  className="shrink-0 px-2 text-[0.82rem] text-ink/55 hover:text-forest-900"
+                  className="shrink-0 px-2 text-[0.82rem] text-ink/70 hover:text-forest-900"
                 >
                   Remove
                 </button>

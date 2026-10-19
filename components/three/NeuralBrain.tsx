@@ -901,7 +901,7 @@ export default function NeuralBrain() {
               <li key={reg.name}>
                 <button
                   type="button"
-                  className="pointer-events-none absolute rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2"
+                  className="pointer-events-none absolute rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-800 focus-visible:ring-offset-2"
                   style={{
                     left: view.ox + reg.x * view.s - size / 2,
                     top: view.oy + reg.y * view.s - size / 2,
@@ -1018,7 +1018,7 @@ export default function NeuralBrain() {
                 {/* Only half of them carry one. Term-plus-caption on all eight
                     is what made the set scan as a legend. */}
                 {c.also && (
-                  <span className="mt-0.5 block whitespace-nowrap text-[0.68rem] leading-tight text-ink/55">
+                  <span className="mt-0.5 block whitespace-nowrap text-[0.75rem] leading-tight text-ink/70">
                     {c.also}
                   </span>
                 )}

@@ -27,7 +27,7 @@ export default function OfflinePage() {
         no connection
       </p>
       <h1 className="h-display text-4xl md:text-5xl">You&apos;re offline.</h1>
-      <p className="mt-4 max-w-xl text-ink/65">
+      <p className="mt-4 max-w-xl text-ink/70">
         We can&apos;t reach Emoraa from here. A call still works when a web page doesn&apos;t —
         these numbers are free and answer 24x7.
       </p>
@@ -47,7 +47,7 @@ export default function OfflinePage() {
       </div>
 
       <div className="mt-12 border-t border-forest-800/10 pt-8">
-        <p className="text-[0.92rem] text-ink/65">
+        <p className="text-[0.92rem] text-ink/70">
           Some things still work without a connection, if you&apos;ve opened them before:
         </p>
         <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2.5">

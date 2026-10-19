@@ -137,7 +137,7 @@ export default function Hero() {
             is what carries "wide range", and it does it with words a reader
             does not have to work at.
           */}
-          <p className="text-lg leading-snug text-ink/60 md:text-xl">
+          <p className="text-lg leading-snug text-ink/70 md:text-xl">
             <span className="font-medium text-forest-900">
               Emoraa is an online therapy platform for India.
             </span>{" "}
@@ -195,7 +195,7 @@ export default function Hero() {
         transition={{ delay: 2, duration: 1 }}
         aria-hidden="true"
       >
-        <span className="text-[0.65rem] uppercase tracking-[0.3em] text-forest-800/50">scroll</span>
+        <span className="text-[0.75rem] uppercase tracking-[0.3em] text-forest-800/50">scroll</span>
         <motion.span
           className="block h-10 w-px bg-forest-800/30"
           animate={{ scaleY: [1, 0.4, 1] }}

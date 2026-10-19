@@ -60,7 +60,7 @@ export default function ForgotPasswordForm() {
         {sent ? (
           <>
             <h1 className="h-display text-4xl">Check your inbox.</h1>
-            <p className="mt-4 leading-relaxed text-ink/65">
+            <p className="mt-4 leading-relaxed text-ink/70">
               If <span className="font-semibold text-forest-900">{email.trim()}</span> has an Emoraa
               account, a link to set a new password is on its way. It works once and expires in an
               hour.
@@ -99,7 +99,7 @@ export default function ForgotPasswordForm() {
         ) : (
           <>
             <h1 className="h-display text-4xl">Let&apos;s get you back in.</h1>
-            <p className="mt-4 leading-relaxed text-ink/65">
+            <p className="mt-4 leading-relaxed text-ink/70">
               Tell us the email you signed up with and we&apos;ll send a link to set a new password.
             </p>
 

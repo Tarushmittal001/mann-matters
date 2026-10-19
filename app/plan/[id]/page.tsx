@@ -92,7 +92,7 @@ export default async function PlanPage({ params }: { params: { id: string } }) {
                 <p className="mt-1.5 text-[0.88rem] leading-relaxed italic text-ink/70">{it.why}</p>
               )}
               {it.dueOn && (
-                <p className="mt-1 text-[0.84rem] text-ink/60">By {formatDateISO(it.dueOn)}</p>
+                <p className="mt-1 text-[0.84rem] text-ink/70">By {formatDateISO(it.dueOn)}</p>
               )}
             </li>
           ))}
@@ -102,7 +102,7 @@ export default async function PlanPage({ params }: { params: { id: string } }) {
           Do what you can. Missing one is not failing — tell {practitioner.name.split(" ")[0]} what
           got in the way and it becomes something to work with.
         </p>
-        <p className="mt-4 rounded-lg bg-forest-800/[0.04] px-3.5 py-2.5 text-[0.78rem] leading-relaxed text-ink/65">
+        <p className="mt-4 rounded-lg bg-forest-800/[0.04] px-3.5 py-2.5 text-[0.78rem] leading-relaxed text-ink/70">
           <strong>This is a practice plan, not a prescription.</strong> It contains no medicine and
           nothing here replaces advice from a doctor. If you take medication, keep taking it as
           your prescriber directed.

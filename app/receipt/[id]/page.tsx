@@ -64,7 +64,7 @@ export default async function ReceiptPage({
     return (
       <div className="page-top wrap pb-28">
         <h1 className="h-display text-3xl">No receipt yet</h1>
-        <p className="mt-4 max-w-lg text-ink/65">
+        <p className="mt-4 max-w-lg text-ink/70">
           This session hasn&apos;t been paid for, so there&apos;s nothing to receipt. Once the
           payment goes through, the receipt appears here on its own.
         </p>

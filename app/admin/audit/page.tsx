@@ -38,7 +38,7 @@ export default async function AdminAuditPage() {
     <section className="wrap-wide pb-28">
       <p className="eyebrow">accountability</p>
       <h1 className="h-display mt-3 text-4xl md:text-5xl">Trail</h1>
-      <p className="mt-4 max-w-2xl text-ink/65">
+      <p className="mt-4 max-w-2xl text-ink/70">
         Every administrative action, with who did it and when. Clinical records are not in here and
         never will be — this page shows what was done to listings, logins and codes, not what anyone
         said in a session.

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 
 /**
  * Pause, resume, delete.
@@ -24,10 +25,20 @@ export default function CouponActions({
 }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
+  const [confirm, confirmDialog] = useConfirm();
   const [error, setError] = useState<string | null>(null);
 
   const send = async (action: "pause" | "resume" | "delete") => {
-    if (action === "delete" && !window.confirm(`Delete ${code}? It stops existing.`)) return;
+    if (
+      action === "delete" &&
+      !(await confirm({
+        title: `Delete ${code}?`,
+        body: "The code stops existing. Anyone who tries it afterwards is told it isn't recognised.",
+        confirmLabel: "Delete code",
+        danger: true,
+      }))
+    )
+      return;
     setBusy(true);
     setError(null);
     try {
@@ -48,6 +59,7 @@ export default function CouponActions({
 
   return (
     <div className="flex shrink-0 flex-col items-end gap-1.5">
+      {confirmDialog}
       <div className="flex items-center gap-4">
         <button
           type="button"

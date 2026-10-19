@@ -57,7 +57,7 @@ function Appear({
 function Chip({ label, on, delay, animate, region }: Pop & { label: string; on: boolean; delay: number }) {
   return (
     <motion.span
-      className="rounded-full border px-2.5 py-1 text-[0.72rem] font-medium"
+      className="rounded-full border px-2.5 py-1 text-[0.75rem] font-medium"
       initial={animate ? { backgroundColor: "rgba(255,255,255,0.7)", color: "#51605A", borderColor: "rgba(31,45,40,0.12)" } : false}
       whileInView={
         on
@@ -95,14 +95,14 @@ function ChoosePreview({ animate, region }: Pop) {
             transition={{ delay: animate ? 1.7 : 0, duration: 0.4 }}
           >
             <span
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[0.72rem] font-semibold"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[0.75rem] font-semibold"
               style={{ backgroundColor: tint(region, 0.16), color: ink(region) }}
             >
               {t.name.split(" ").map((w) => w[0]).join("")}
             </span>
             <span className="min-w-0 flex-1 text-left">
               <span className="block truncate text-[0.8rem] font-semibold text-forest-900">{t.name}</span>
-              <span className="block truncate text-[0.7rem] text-ink/70">{t.note}</span>
+              <span className="block truncate text-[0.75rem] text-ink/70">{t.note}</span>
             </span>
             {t.picked && (
               <motion.span
@@ -149,7 +149,7 @@ function TimePreview({ animate, region }: Pop) {
             viewport={{ once: true, margin: "-10% 0px" }}
             transition={{ delay: animate ? 0.7 : 0, duration: 0.35 }}
           >
-            <span className="text-[0.62rem] uppercase tracking-wide opacity-70">{day.d}</span>
+            <span className="text-[0.75rem] uppercase tracking-wide opacity-70">{day.d}</span>
             <span className="font-display text-base leading-tight">{day.n}</span>
           </motion.span>
         ))}
@@ -181,7 +181,7 @@ function MeetPreview({ animate, region }: Pop) {
   return (
     <div className="overflow-hidden rounded-2xl bg-forest-900 p-3 text-left">
       <div className="mb-2 flex items-center justify-between">
-        <span className="flex items-center gap-1.5 text-[0.68rem] font-medium text-sage-light/80">
+        <span className="flex items-center gap-1.5 text-[0.75rem] font-medium text-sage-light/80">
           <span className="relative flex h-2 w-2">
             {animate && (
               <span
@@ -193,7 +193,7 @@ function MeetPreview({ animate, region }: Pop) {
           </span>
           Private session
         </span>
-        <span className="font-mono text-[0.68rem] text-sage-light/70">50:00</span>
+        <span className="font-mono text-[0.75rem] text-sage-light/70">50:00</span>
       </div>
       <div className="grid grid-cols-2 gap-2">
         {[
@@ -212,7 +212,7 @@ function MeetPreview({ animate, region }: Pop) {
               <circle cx="12" cy="7" r="4.5" />
               <path d="M3 22c0-5 4-8.5 9-8.5s9 3.5 9 8.5z" />
             </svg>
-            <span className="absolute left-2 top-1.5 text-[0.6rem] font-medium text-ivory/90">{tile.label}</span>
+            <span className="absolute left-2 top-1.5 text-[0.75rem] font-medium text-ivory/90">{tile.label}</span>
           </Appear>
         ))}
       </div>
@@ -224,7 +224,7 @@ function MeetPreview({ animate, region }: Pop) {
             </svg>
           </span>
         ))}
-        <span className="flex h-7 items-center rounded-full bg-[#C56A72] px-3 text-[0.62rem] font-semibold text-ivory">End</span>
+        <span className="flex h-7 items-center rounded-full bg-[#C56A72] px-3 text-[0.75rem] font-semibold text-ivory">End</span>
       </Appear>
     </div>
   );

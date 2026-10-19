@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useStepFocus } from "@/components/ui/useStepFocus";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
@@ -55,7 +56,7 @@ function ExpertCard({ e, best, concernId }: { e: Expert; best?: boolean; concern
         <p className="mt-0.5 text-xs text-ink/70">{e.credentials}</p>
         <div className="mt-2 flex flex-wrap gap-1.5">
           {e.specialties.slice(0, 3).map((s) => (
-            <span key={s} className="rounded-full bg-sage-light/50 px-2.5 py-0.5 text-[0.7rem] text-forest-700">
+            <span key={s} className="rounded-full bg-sage-light/50 px-2.5 py-0.5 text-[0.75rem] text-forest-700">
               {s}
             </span>
           ))}
@@ -108,6 +109,8 @@ export default function TherapistMatcher({
 }) {
   const seeded = findConcern(initialConcernId);
   const [step, setStep] = useState(seeded ? 1 : 0);
+  // each new question, and the match, takes focus so it is announced
+  const stepRef = useStepFocus(step);
   const [concern, setConcern] = useState<Concern | null>(seeded);
   const [language, setLanguage] = useState<string | null>(null);
 
@@ -151,7 +154,7 @@ export default function TherapistMatcher({
         {step === 0 && (
           <motion.div key="s0" initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }} transition={{ duration: 0.4, ease: EASE }}>
             <p className="text-sm font-medium uppercase tracking-[0.16em] text-forest-600">Step 1 of 3</p>
-            <h3 className="mt-3 font-display text-2xl font-medium text-forest-900 md:text-3xl">What&apos;s weighing on you most?</h3>
+            <h3 ref={stepRef} tabIndex={-1} className="step-focus mt-3 font-display text-2xl font-medium text-forest-900 md:text-3xl">What&apos;s weighing on you most?</h3>
             <div className="mt-7 grid gap-3 sm:grid-cols-2">
               {concernMap.map((c) => (
                 <button
@@ -169,7 +172,7 @@ export default function TherapistMatcher({
         {step === 1 && (
           <motion.div key="s1" initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }} transition={{ duration: 0.4, ease: EASE }}>
             <p className="text-sm font-medium uppercase tracking-[0.16em] text-forest-600">Step 2 of 3</p>
-            <h3 className="mt-3 font-display text-2xl font-medium text-forest-900 md:text-3xl">Which language feels most like home?</h3>
+            <h3 ref={stepRef} tabIndex={-1} className="step-focus mt-3 font-display text-2xl font-medium text-forest-900 md:text-3xl">Which language feels most like home?</h3>
             {concern && (
               <p className="mt-3 text-sm text-ink/70">
                 Looking for help with{" "}
@@ -196,7 +199,7 @@ export default function TherapistMatcher({
         {step === 2 && (
           <motion.div key="s2" initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }} transition={{ duration: 0.4, ease: EASE }}>
             <p className="text-sm font-medium uppercase tracking-[0.16em] text-forest-600">Step 3 of 3</p>
-            <h3 className="mt-3 font-display text-2xl font-medium text-forest-900 md:text-3xl">What fits your budget?</h3>
+            <h3 ref={stepRef} tabIndex={-1} className="step-focus mt-3 font-display text-2xl font-medium text-forest-900 md:text-3xl">What fits your budget?</h3>
             <div className="mt-7 grid gap-3">
               {budgetOpts.map((b) => (
                 <button
@@ -214,7 +217,7 @@ export default function TherapistMatcher({
         {step === 3 && (
           <motion.div key="s3" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: EASE }}>
             <p className="text-sm font-medium uppercase tracking-[0.16em] text-forest-600">Your best match</p>
-            <h3 className="mt-3 font-display text-2xl font-medium text-forest-900">
+            <h3 ref={stepRef} tabIndex={-1} className="step-focus mt-3 font-display text-2xl font-medium text-forest-900">
               Based on your answers, start here.
             </h3>
             {/* Say it plainly when the budget couldn't be met, rather than

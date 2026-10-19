@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n/client";
+import { chromeCopy } from "@/lib/i18n/chrome";
 
 /**
  * The four states every screen in this product needs a house style for:
@@ -159,9 +161,19 @@ export function Alert({
  * dashboard with nothing on it — because the honest answer to "I need help
  * now" is never "your session is on Thursday".
  */
-export function CrisisLine({ className }: { className?: string }) {
+export function CrisisLine({
+  className,
+  lead,
+}: {
+  className?: string;
+  /** The sentence before the number — what "right now" means where it is shown. */
+  lead?: string;
+}) {
+  const locale = useLocale();
+  const c = chromeCopy(locale).crisisLine;
   return (
     <p
+      lang={locale}
       className={cn(
         "flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.85rem] leading-relaxed text-ink/70",
         className
@@ -170,16 +182,16 @@ export function CrisisLine({ className }: { className?: string }) {
       <span aria-hidden="true" className="text-gold-dark">
         ◆
       </span>
-      Need someone right now, before your session?
+      {lead ?? c.lead}
       <a
         href="tel:14416"
         className="font-semibold text-forest-800 underline underline-offset-2 hover:text-forest-600"
       >
-        Call Tele-MANAS 14416
+        {c.call}
       </a>
       <span className="text-ink/35">·</span>
-      <Link href="/crisis" className="link-draw font-medium text-forest-800">
-        More crisis support
+      <Link href={locale === "hi" ? "/hi/crisis" : "/crisis"} className="link-draw font-medium text-forest-800">
+        {c.more}
       </Link>
     </p>
   );

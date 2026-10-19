@@ -14,7 +14,10 @@ export default function HindiLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <HtmlLang lang="hi" />
-      {children}
+      {/* In the server's HTML too, not only after hydration: a screen reader or
+          a search engine reading the first byte gets Hindi for this content.
+          The navbar, footer and other shared chrome set their own lang. */}
+      <div lang="hi">{children}</div>
     </>
   );
 }

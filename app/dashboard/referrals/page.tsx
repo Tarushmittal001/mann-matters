@@ -45,7 +45,7 @@ export default async function ReferralsPage() {
           <h1 className="h-display text-4xl md:text-5xl">
             {formatINR(REFERRAL_VALUE)} for them, {formatINR(REFERRAL_VALUE)} for you.
           </h1>
-          <p className="mt-4 max-w-xl text-ink/65">
+          <p className="mt-4 max-w-xl text-ink/70">
             Most people book their first session because somebody they trust told them to. If that
             was you for someone, this makes it a little easier for both of you.
           </p>
@@ -92,7 +92,7 @@ export default async function ReferralsPage() {
                       <span className="font-mono text-[0.92rem] font-semibold text-forest-800">
                         {c.code}
                       </span>
-                      <span className="text-[0.85rem] text-ink/65">{formatINR(c.value)} off</span>
+                      <span className="text-[0.85rem] text-ink/70">{formatINR(c.value)} off</span>
                     </li>
                   ))}
                 </ul>

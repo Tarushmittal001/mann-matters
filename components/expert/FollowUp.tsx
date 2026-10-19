@@ -49,7 +49,7 @@ export default function FollowUp({
           You suggested a follow-up on {when}
           {already.message ? ` — "${already.message}"` : ""}. They have not booked yet.
         </p>
-        <p className="mt-1 text-[0.82rem] text-ink/55">
+        <p className="mt-1 text-[0.82rem] text-ink/70">
           You can suggest again after a week. Sooner than that is pressure, and this is the one
           place it would do real harm.
         </p>
@@ -97,7 +97,7 @@ export default function FollowUp({
 
   return (
     <div>
-      <label className="block text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-ink/70">
+      <label className="block text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-ink/70">
         A line from you
         <textarea
           value={message}
@@ -110,7 +110,7 @@ export default function FollowUp({
           className="mt-1.5 w-full rounded-xl border border-forest-800/15 bg-ivory px-3.5 py-2.5 text-[0.9rem] font-normal normal-case tracking-normal leading-relaxed text-forest-900 focus:border-forest-800 focus:outline-none"
         />
       </label>
-      <p className="mt-1.5 text-[0.8rem] leading-relaxed text-ink/60">
+      <p className="mt-1.5 text-[0.8rem] leading-relaxed text-ink/70">
         Optional, and they will see it word for word. {clientName} gets a booking link — nothing is
         booked and nothing is charged.
       </p>
@@ -128,7 +128,7 @@ export default function FollowUp({
             setError(null);
           }}
           disabled={busy}
-          className="text-[0.86rem] font-medium text-ink/60 transition-colors hover:text-forest-800 disabled:opacity-50"
+          className="text-[0.86rem] font-medium text-ink/70 transition-colors hover:text-forest-800 disabled:opacity-50"
         >
           Not now
         </button>

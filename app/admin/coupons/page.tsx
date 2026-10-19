@@ -59,7 +59,7 @@ export default async function AdminCouponsPage() {
     <section className="wrap-wide pb-28">
       <p className="eyebrow">money off</p>
       <h1 className="h-display mt-3 text-4xl md:text-5xl">Discount codes</h1>
-      <p className="mt-4 max-w-2xl text-ink/65">
+      <p className="mt-4 max-w-2xl text-ink/70">
         Campaign codes you make, and the referral rewards clients have earned. A code is checked
         again at booking and once more at payment, so nothing here can be spent twice or past its
         date.
@@ -112,12 +112,12 @@ export default async function AdminCouponsPage() {
                             {c.code}
                           </span>
                           <span
-                            className={`rounded-full px-2.5 py-0.5 text-[0.7rem] font-semibold uppercase tracking-[0.1em] ${tone[state.tone]}`}
+                            className={`rounded-full px-2.5 py-0.5 text-[0.75rem] font-semibold uppercase tracking-[0.1em] ${tone[state.tone]}`}
                           >
                             {state.label}
                           </span>
                         </div>
-                        <p className="mt-1 text-[0.88rem] text-ink/65">
+                        <p className="mt-1 text-[0.88rem] text-ink/70">
                           {c.kind === "PERCENT" ? `${c.value}% off` : `${formatINR(c.value)} off`}
                           {" · "}
                           used {c.usedCount}
@@ -162,12 +162,12 @@ export default async function AdminCouponsPage() {
                             {c.code}
                           </span>
                           <span
-                            className={`rounded-full px-2.5 py-0.5 text-[0.7rem] font-semibold uppercase tracking-[0.1em] ${tone[state.tone]}`}
+                            className={`rounded-full px-2.5 py-0.5 text-[0.75rem] font-semibold uppercase tracking-[0.1em] ${tone[state.tone]}`}
                           >
                             {state.label}
                           </span>
                         </div>
-                        <p className="mt-1 text-[0.88rem] text-ink/65">
+                        <p className="mt-1 text-[0.88rem] text-ink/70">
                           {formatINR(c.value)} for {c.owner?.name ?? "a client"}
                           {c.owner?.email ? ` (${c.owner.email})` : ""}
                         </p>

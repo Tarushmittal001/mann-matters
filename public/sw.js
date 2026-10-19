@@ -32,12 +32,18 @@
  * Bump CACHE when this file changes; the old one is deleted on activate.
  */
 
-const CACHE = "emoraa-v3"; // v3: pages by allow-list; drops v2, which could hold private pages
+const CACHE = "emoraa-v4"; // v4: the calming tools are open and work offline
 
-/* Worth having before the signal goes. The crisis page is first for a reason. */
+/* Worth having before the signal goes. The crisis page is first for a reason.
+   The three calming tools need no account (2026-10-19), so their pages are the
+   same for everyone and can be kept — /offline links to them, and they are
+   what someone reaches for when the signal and the day have both gone. */
 const PRECACHE = [
   "/offline",
   "/crisis",
+  "/breathe",
+  "/tools/grounding",
+  "/tools/relax",
   "/tools",
   "/app/icon-192.png",
 ];
@@ -60,9 +66,12 @@ const PRIVATE = [
   "/verify",
   "/forgot-password",
   "/reset-password",
-  // the tools now render per account: a wall or the tool itself
-  "/tools/",
-  "/breathe",
+  // these tools render per account: a wall or the tool itself
+  "/tools/journal",
+  "/tools/sounds",
+  "/tools/affirmations",
+  "/tools/bmi",
+  "/tools/burnout",
   "/check-in",
   "/match",
 ];
@@ -83,7 +92,10 @@ const PUBLIC_PAGES = new Set([
   "/cookies",
   "/refund-policy",
   "/crisis",
+  "/breathe",
   "/tools",
+  "/tools/grounding",
+  "/tools/relax",
   "/offline",
   "/hi",
   "/hi/services",

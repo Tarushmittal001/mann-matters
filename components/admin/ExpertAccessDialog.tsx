@@ -12,6 +12,7 @@ import {
   NOTES_POLICY_NOTE_MAX,
   isNotesPolicy,
 } from "@/lib/expert-portal";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 
 /**
  * Who can sign in as a listing.
@@ -47,6 +48,7 @@ export default function ExpertAccessDialog({
 }) {
   const [email, setEmail] = useState(row.access.email);
   const [busy, setBusy] = useState<"send" | "remove" | null>(null);
+  const [confirm, confirmDialog] = useConfirm();
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState<{ email: string; delivered: boolean; devLink?: string } | null>(
     null
@@ -112,9 +114,12 @@ export default function ExpertAccessDialog({
   };
 
   const remove = async () => {
-    const ok = window.confirm(
-      `Remove ${row.access.email} from ${row.name}? They are signed out straight away. The listing stays on the site and past sessions are untouched.`
-    );
+    const ok = await confirm({
+      title: `Remove ${row.name}'s login?`,
+      body: `${row.access.email} is signed out straight away. The listing stays on the site and past sessions are untouched.`,
+      confirmLabel: "Remove access",
+      danger: true,
+    });
     if (!ok) return;
     setBusy("remove");
     setError(null);
@@ -136,6 +141,7 @@ export default function ExpertAccessDialog({
 
   return (
     <Portal>
+      {confirmDialog}
       <motion.div
         className="fixed inset-0 z-[80] flex items-end justify-center p-0 sm:items-center sm:p-6"
         initial={{ opacity: 0 }}
@@ -180,7 +186,7 @@ export default function ExpertAccessDialog({
                 <p className="font-display text-lg text-forest-900">
                   {sent.delivered ? "Invite sent." : "Account created — but nothing was emailed."}
                 </p>
-                <p className="mt-2 text-[0.92rem] leading-relaxed text-ink/65">
+                <p className="mt-2 text-[0.92rem] leading-relaxed text-ink/70">
                   {sent.delivered ? (
                     <>
                       {sent.email} has a link to choose their own password. It works once and runs out
@@ -211,7 +217,7 @@ export default function ExpertAccessDialog({
               </>
             ) : (
               <>
-                <p className="text-[0.92rem] leading-relaxed text-ink/65">
+                <p className="text-[0.92rem] leading-relaxed text-ink/70">
                   {linked ? (
                     <>
                       {row.name} signs in as{" "}

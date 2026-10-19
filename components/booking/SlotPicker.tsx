@@ -134,16 +134,16 @@ export default function SlotPicker({
                       : "border-forest-800/15 bg-ivory-light text-ink/70 hover:border-forest-800/40"
                   )}
                 >
-                  <span className="text-[0.68rem] uppercase tracking-widest opacity-70">
+                  <span className="text-[0.75rem] uppercase tracking-widest opacity-70">
                     {d.weekday}
                   </span>
                   <span className="mt-1 font-display text-2xl font-medium">{d.day}</span>
-                  <span className="text-[0.68rem] uppercase tracking-widest opacity-70">
+                  <span className="text-[0.75rem] uppercase tracking-widest opacity-70">
                     {d.month}
                   </span>
                   {isCurrent && (
                     <span
-                      className="absolute -top-1.5 rounded-full bg-gold px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider text-forest-950"
+                      className="absolute -top-1.5 rounded-full bg-gold px-2 py-0.5 text-[0.75rem] font-semibold uppercase tracking-wider text-forest-950"
                       aria-label="Your current session date"
                     >
                       now

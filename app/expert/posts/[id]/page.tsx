@@ -40,7 +40,7 @@ export default async function EditPostPage({ params }: { params: { id: string } 
         ← All posts
       </Link>
       <h1 className="h-display mt-4 text-3xl md:text-4xl">{post.title}</h1>
-      <p className="mt-2 text-[0.9rem] text-ink/55">
+      <p className="mt-2 text-[0.9rem] text-ink/70">
         By {post.authorName} · {post.authorRole}
       </p>
       <div className="mt-8">

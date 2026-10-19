@@ -50,7 +50,7 @@ export default function IntakeView({
             : "rounded-xl border border-forest-800/10 bg-forest-800/[0.03] px-4 py-3.5"
         }
       >
-        <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
+        <p className="text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
           Risk screen
         </p>
         <p
@@ -73,7 +73,7 @@ export default function IntakeView({
       <dl className="space-y-4">
         {rows.map((r) => (
           <div key={r.label}>
-            <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
+            <dt className="text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
               {r.label}
             </dt>
             <dd className="mt-1 whitespace-pre-wrap text-[0.92rem] leading-relaxed text-forest-900">
@@ -87,7 +87,7 @@ export default function IntakeView({
         <div className="space-y-3 border-t border-forest-800/10 pt-5">
           {intake.emergencyName && (
             <div>
-              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
+              <p className="text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
                 Emergency contact
               </p>
               <p className="mt-1 text-[0.92rem] text-forest-900">
@@ -102,13 +102,13 @@ export default function IntakeView({
 
           {intake.guardianName && (
             <div>
-              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
+              <p className="text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
                 Parent or guardian
               </p>
               <p className="mt-1 text-[0.92rem] text-forest-900">
                 {intake.guardianName} &middot; {intake.guardianPhone}
               </p>
-              <p className="mt-1 text-[0.83rem] leading-relaxed text-ink/65">
+              <p className="mt-1 text-[0.83rem] leading-relaxed text-ink/70">
                 {intake.guardianConsent
                   ? "Consent recorded by the client. Confirm it verbally with the guardian before the first session."
                   : "Consent NOT recorded. Do not begin until you have spoken to the guardian."}

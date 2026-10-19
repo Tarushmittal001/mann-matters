@@ -26,10 +26,31 @@
     @apply bg-gold/30 text-forest-900;
   }
 
+  /* Two-tone, so it shows on every background the site uses. The forest
+     outline is 11.3:1 on ivory; the ivory halo inside it (the box-shadow fills
+     the outline's offset gap) is 11.3:1 on the forest bands, where the outline
+     itself would vanish. Gold, the old colour, was 2.1:1 on ivory — under the
+     3:1 a focus indicator needs, so keyboard users lost their place. */
   :focus-visible {
-    outline: 2px solid #c8a45d;
-    outline-offset: 3px;
+    outline: 2px solid #0e3b33;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px #fcfaf6;
     border-radius: 2px;
+  }
+
+  /* A step heading receives focus from code (useStepFocus) so it is announced;
+     it is not something to tab to, so it shows no ring of its own. */
+  .step-focus:focus {
+    outline: none;
+    box-shadow: none;
+  }
+
+  /* Form fields turn the outline off with `focus:outline-none` and change their
+     1px border instead — too faint to find a cursor by, and a gold border is
+     2.1:1. One rule for all of them, so no field can opt out by accident. */
+  :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, select):focus-visible {
+    outline: 2px solid #0e3b33 !important;
+    outline-offset: 1px !important;
   }
 
   /* film grain over everything; purely decorative */
@@ -65,7 +86,7 @@
   }
 
   .eyebrow {
-    @apply text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-forest-600;
+    @apply text-[0.75rem] font-semibold uppercase tracking-[0.22em] text-forest-600;
   }
 
   .h-display {
@@ -164,7 +185,8 @@
     font-size: 16px !important;
   }
 
-  body:has([data-safety-notice]) .support-launcher {
+  body:has([data-safety-notice]) .support-launcher,
+  body:has([data-bottom-sheet]) .support-launcher {
     display: none;
   }
 }

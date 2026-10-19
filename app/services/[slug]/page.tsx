@@ -155,7 +155,7 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
         <div className="wrap-wide">
           <Reveal><p className="eyebrow">what happens</p><h2 className="h-display mt-4 max-w-2xl text-3xl md:text-5xl">How your sessions will work.</h2></Reveal>
           <div className="mt-12 grid gap-8 md:grid-cols-3">
-            {detail.process.map((step, index) => <Reveal key={step.title} delay={index * 0.08}><div className="border-t border-forest-800/15 pt-5"><span className="font-display text-2xl text-gold-dark">0{index + 1}</span><h3 className="mt-4 font-display text-2xl font-medium text-forest-900">{step.title}</h3><p className="mt-3 leading-relaxed text-ink/65">{step.body}</p></div></Reveal>)}
+            {detail.process.map((step, index) => <Reveal key={step.title} delay={index * 0.08}><div className="border-t border-forest-800/15 pt-5"><span className="font-display text-2xl text-gold-dark">0{index + 1}</span><h3 className="mt-4 font-display text-2xl font-medium text-forest-900">{step.title}</h3><p className="mt-3 leading-relaxed text-ink/70">{step.body}</p></div></Reveal>)}
           </div>
         </div>
       </section>

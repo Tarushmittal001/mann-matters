@@ -17,7 +17,7 @@ export default async function AdminBookingsPage() {
         <div>
           <p className="eyebrow">booking operations</p>
           <h1 className="h-display mt-3 text-4xl md:text-5xl">All bookings</h1>
-          <p className="mt-4 max-w-xl text-ink/65">Review every appointment, its owner, and its current status from one place.</p>
+          <p className="mt-4 max-w-xl text-ink/70">Review every appointment, its owner, and its current status from one place.</p>
         </div>
         <div className="rounded-2xl border border-forest-800/10 bg-ivory-light px-5 py-4 shadow-lift">
           <p className="font-display text-2xl font-medium text-forest-900">{upcoming.length}</p>
@@ -29,7 +29,7 @@ export default async function AdminBookingsPage() {
           <p className="p-12 text-center text-ink/70">No bookings yet.</p>
         ) : (
           <table className="w-full min-w-[900px] text-left text-sm">
-            <thead className="bg-forest-800 text-[0.7rem] uppercase tracking-[0.14em] text-ivory">
+            <thead className="bg-forest-800 text-[0.75rem] uppercase tracking-[0.14em] text-ivory">
               <tr><th className="px-5 py-4">Reference</th><th className="px-4 py-4">Client</th><th className="px-4 py-4">Expert</th><th className="px-4 py-4">Concern</th><th className="px-4 py-4">Session</th><th className="px-4 py-4">Fee</th><th className="px-5 py-4">Status</th></tr>
             </thead>
             <tbody>

@@ -600,9 +600,14 @@ A booking no longer confirms on payment. The states are
   those, so the only thing that must fit beside the brain is one word at a time. Adding or moving
   a callout re-derives the scale, which is what stops the old failure where a stale constant
   pushed a word back onto the artwork.
-### Free tools need an account
-- Free, never paid — but every tool requires sign-in: the seven under `/tools/*`, plus `/breathe`,
-  `/check-in` and `/match`. The `/tools` menu is deliberately outside the gate so somebody can see
+### Free tools need an account (except the calming ones)
+- **Ungated since 2026-10-19:** `/breathe`, `/tools/grounding`, `/tools/relax` — moved out of the
+  `app/tools/(gated)` group (URLs unchanged) and `app/breathe/layout.tsx` removed. They are what a
+  distressed person comes for. They are precached by the service worker (`emoraa-v4`) so they work
+  offline, and `ToolWall`'s "Need something right now?" links to them. Asserted in
+  `tests/integration/access-control.test.ts` (`OPEN`).
+- Free, never paid — every other tool requires sign-in: the five left under `app/tools/(gated)`,
+  plus `/check-in` and `/match`. The `/tools` menu is deliberately outside the gate so somebody can see
   what is on offer before being asked for an account.
 - `components/tools/ToolGate.tsx` (server, checks the session) renders `ToolWall` (client, reads
   `usePathname` for the `next` param) instead of the page. A **wall, not a `redirect()`**: a

@@ -83,7 +83,7 @@ export default function SegmentGrid() {
 
                   <ul className="space-y-2.5 pt-6">
                     {s.offering.map((o) => (
-                      <li key={o} className="flex gap-3 text-[0.88rem] leading-relaxed text-ink/65">
+                      <li key={o} className="flex gap-3 text-[0.88rem] leading-relaxed text-ink/70">
                         <span
                           className="mt-2 h-1 w-1 shrink-0 rounded-full bg-[color:var(--accent)]"
                           aria-hidden="true"

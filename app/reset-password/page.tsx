@@ -35,7 +35,7 @@ export default async function ResetPasswordPage({
             new password
           </p>
           <h1 className="h-display text-4xl">This link doesn&apos;t work any more.</h1>
-          <p className="mt-4 leading-relaxed text-ink/65">
+          <p className="mt-4 leading-relaxed text-ink/70">
             {welcome
               ? "Invite links can be used once, and this one has been used or has run out. Ask your admin to send a fresh one."
               : "Reset links can be used once and expire after an hour. Ask for a fresh one and you'll be back in shortly."}

@@ -93,7 +93,7 @@ export default function HindiCrisisPage({ searchParams }: { searchParams: { sos?
         <div className="wrap-wide grid gap-12 lg:grid-cols-2">
           <Reveal>
             <h2 className="h-display text-2xl md:text-3xl">जब तक कोई फ़ोन उठाए</h2>
-            <p className="mt-3 max-w-md leading-relaxed text-ink/65">
+            <p className="mt-3 max-w-md leading-relaxed text-ink/70">
               साँस के साथ चलिए। इसे ठीक से करने की ज़रूरत नहीं — बस साथ रहिए।
             </p>
             <div className="mt-8">
@@ -103,7 +103,7 @@ export default function HindiCrisisPage({ searchParams }: { searchParams: { sos?
 
           <Reveal delay={0.1}>
             <h2 className="h-display text-2xl md:text-3xl">5-4-3-2-1</h2>
-            <p className="mt-3 max-w-md leading-relaxed text-ink/65">
+            <p className="mt-3 max-w-md leading-relaxed text-ink/70">
               जब मन कहीं और भाग रहा हो, यह उसे वापस इस कमरे में ले आता है।
             </p>
             <ol className="mt-8 space-y-4">
@@ -126,7 +126,7 @@ export default function HindiCrisisPage({ searchParams }: { searchParams: { sos?
         <div className="wrap-wide">
           <Reveal>
             <h2 className="h-display text-2xl md:text-3xl">और हेल्पलाइन</h2>
-            <p className="mt-3 max-w-xl leading-relaxed text-ink/65">
+            <p className="mt-3 max-w-xl leading-relaxed text-ink/70">
               अगर एक नंबर पर बात न हो पाए, तो दूसरे पर कोशिश कीजिए। हार मत मानिए।
             </p>
           </Reveal>
@@ -159,7 +159,7 @@ export default function HindiCrisisPage({ searchParams }: { searchParams: { sos?
             <p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink/70">
               {t.crisis.ifSomeoneElseBody}
             </p>
-            <p className="mt-4 max-w-2xl leading-relaxed text-ink/65">
+            <p className="mt-4 max-w-2xl leading-relaxed text-ink/70">
               उन्हें अकेला मत छोड़िए। दवाइयाँ और कुछ भी नुकसान पहुँचाने वाली चीज़ हटा दीजिए। और
               उनके साथ बैठकर 14416 मिलाइए — अकेले फ़ोन करने से यह कहीं आसान है।
             </p>

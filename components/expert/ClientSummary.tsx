@@ -53,7 +53,7 @@ export default function ClientSummary({
               </span>
             )}
             {client.age === null && !client.gender && !client.language && (
-              <span className="text-ink/45">No age, gender or language on their profile</span>
+              <span className="text-ink/70">No age, gender or language on their profile</span>
             )}
           </p>
         </div>
@@ -61,7 +61,7 @@ export default function ClientSummary({
 
       <dl className="mt-5 grid gap-4 sm:grid-cols-2">
         <div>
-          <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
+          <dt className="text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
             Sessions with you
           </dt>
           <dd className="mt-1 text-[0.94rem] text-forest-900">
@@ -74,13 +74,13 @@ export default function ClientSummary({
           </dd>
         </div>
         <div>
-          <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
+          <dt className="text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
             With Emoraa since
           </dt>
           <dd className="mt-1 text-[0.94rem] text-forest-900">{formatDate(client.clientSince)}</dd>
         </div>
         <div className="sm:col-span-2">
-          <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
+          <dt className="text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
             What they came for
           </dt>
           <dd className="mt-1 text-[0.94rem] text-forest-900">
@@ -109,7 +109,7 @@ export default function ClientSummary({
           </svg>
           Not shared with you
         </p>
-        <ul className="mt-2 space-y-1 text-[0.83rem] leading-relaxed text-ink/65">
+        <ul className="mt-2 space-y-1 text-[0.83rem] leading-relaxed text-ink/70">
           {WITHHELD_FROM_EXPERTS.map((item) => (
             <li key={item} className="flex gap-2">
               <span aria-hidden="true" className="mt-[0.55rem] h-1 w-1 shrink-0 rounded-full bg-ink/30" />

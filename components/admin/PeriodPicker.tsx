@@ -102,7 +102,7 @@ export default function PeriodPicker({
           }}
           className="mt-3 flex flex-wrap items-end gap-3 rounded-2xl border border-forest-800/10 bg-ivory-light p-4"
         >
-          <label className="text-[0.68rem] uppercase tracking-[0.14em] text-ink/50">
+          <label className="text-[0.75rem] uppercase tracking-[0.14em] text-ink/70">
             From
             <input
               type="date"
@@ -112,7 +112,7 @@ export default function PeriodPicker({
               className="mt-1 block rounded-xl border border-forest-800/15 bg-ivory px-3 py-2 text-[0.9rem] normal-case tracking-normal text-forest-900 focus:border-forest-800 focus:outline-none"
             />
           </label>
-          <label className="text-[0.68rem] uppercase tracking-[0.14em] text-ink/50">
+          <label className="text-[0.75rem] uppercase tracking-[0.14em] text-ink/70">
             To
             <input
               type="date"
@@ -135,13 +135,13 @@ export default function PeriodPicker({
           {custom && (
             <Link
               href={href({ period: "month" })}
-              className="press rounded-full px-3 py-2 text-[0.85rem] font-medium text-ink/60 transition-colors hover:text-forest-800"
+              className="press rounded-full px-3 py-2 text-[0.85rem] font-medium text-ink/70 transition-colors hover:text-forest-800"
             >
               Clear
             </Link>
           )}
 
-          <p className="w-full text-[0.78rem] leading-relaxed text-ink/55">
+          <p className="w-full text-[0.78rem] leading-relaxed text-ink/70">
             Both ends are included, in clinic time (IST). Leave one blank for everything before or
             after the other.
           </p>

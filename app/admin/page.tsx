@@ -111,7 +111,7 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
             admin portal
           </p>
           <h1 className="h-display text-4xl md:text-5xl">Bookings overview</h1>
-          <p className="mt-4 max-w-xl text-ink/65">
+          <p className="mt-4 max-w-xl text-ink/70">
             Every client and every session, grouped by the person who booked it.
           </p>
         </div>
@@ -156,7 +156,7 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
           defaultValue={q}
           placeholder="Search clients by name or email…"
           aria-label="Search clients by name or email"
-          className="w-full rounded-full border border-forest-800/15 bg-ivory-light px-5 py-2.5 text-[0.92rem] text-forest-900 placeholder:text-ink/35 focus:border-forest-800 focus:outline-none"
+          className="w-full rounded-full border border-forest-800/15 bg-ivory-light px-5 py-2.5 text-[0.92rem] text-forest-900 placeholder:text-ink/70 focus:border-forest-800 focus:outline-none"
         />
         <button
           type="submit"
@@ -192,7 +192,7 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
                   <p className="text-sm text-ink/70">
                     {user.email}
                     {!user.emailVerified && (
-                      <span className="ml-2 rounded-full bg-gold/20 px-2 py-0.5 text-[0.68rem] font-semibold uppercase tracking-wider text-gold-dark">
+                      <span className="ml-2 rounded-full bg-gold/20 px-2 py-0.5 text-[0.75rem] font-semibold uppercase tracking-wider text-gold-dark">
                         unverified
                       </span>
                     )}{" "}
@@ -210,7 +210,7 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[820px] text-left text-sm">
                     <thead>
-                      <tr className="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
+                      <tr className="text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
                         <th className="px-6 py-3">Ref</th>
                         <th className="px-4 py-3">Expert</th>
                         <th className="px-4 py-3">Concern</th>
@@ -236,7 +236,7 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
                             <td className="px-4 py-3.5 text-ink/70">
                               {formatDateISO(b.date)} · {b.time}
                               {b.rescheduleCount > 0 && (
-                                <span className="ml-1.5 text-[0.72rem] text-ink/70">
+                                <span className="ml-1.5 text-[0.75rem] text-ink/70">
                                   (moved {b.rescheduleCount}×)
                                 </span>
                               )}
@@ -245,7 +245,7 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
                             <td className="px-4 py-3.5">
                               <span
                                 className={cn(
-                                  "rounded-full px-2.5 py-0.5 text-[0.7rem] font-semibold uppercase tracking-[0.12em]",
+                                  "rounded-full px-2.5 py-0.5 text-[0.75rem] font-semibold uppercase tracking-[0.12em]",
                                   chip.cls
                                 )}
                               >
@@ -255,7 +255,7 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
                             <td className="px-4 py-3.5 text-ink/70">
                               {paymentLabel(b.payment)}
                               {b.payment?.method === "card" && b.payment.last4 && (
-                                <span className="ml-1.5 text-[0.72rem] text-ink/70">
+                                <span className="ml-1.5 text-[0.75rem] text-ink/70">
                                   •••• {b.payment.last4}
                                 </span>
                               )}

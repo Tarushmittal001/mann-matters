@@ -294,7 +294,7 @@ export default function ProfileForm({ initial }: { initial: Profile }) {
         <div className="flex flex-wrap items-center gap-3 rounded-xl border border-forest-800/10 bg-forest-800/[0.03] px-4 py-3">
           <span className="text-[0.95rem] text-ink/70">{initial.email}</span>
           {initial.emailVerified && (
-            <span className="rounded-full bg-sage-light/70 px-2.5 py-0.5 text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-forest-800">
+            <span className="rounded-full bg-sage-light/70 px-2.5 py-0.5 text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-forest-800">
               Verified
             </span>
           )}

@@ -15,6 +15,7 @@ import {
   type NameStyle,
 } from "@/lib/feedback";
 import { cn } from "@/lib/utils";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 
 export type SavedFeedback = {
   quote: string;
@@ -57,6 +58,7 @@ export default function FeedbackForm({
 
   const [fields, setFields] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<"idle" | "saving" | "deleting">("idle");
+  const [confirm, confirmDialog] = useConfirm();
   const [error, setError] = useState<string | null>(null);
   const [justSaved, setJustSaved] = useState(false);
 
@@ -96,7 +98,15 @@ export default function FeedbackForm({
   };
 
   const onDelete = async () => {
-    if (!window.confirm("Remove your story? It will disappear from the home page.")) return;
+    if (
+      !(await confirm({
+        title: "Remove your story?",
+        body: "It will disappear from the home page. You can always write another.",
+        confirmLabel: "Remove it",
+        danger: true,
+      }))
+    )
+      return;
     setStatus("deleting");
     setError(null);
     try {
@@ -118,6 +128,7 @@ export default function FeedbackForm({
 
   return (
     <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-16">
+      {confirmDialog}
       <form onSubmit={onSubmit} noValidate className="space-y-10">
         {note && (
           <Alert tone={justSaved && saved?.status === FEEDBACK_STATUS.pending ? "success" : note.tone}>
@@ -289,13 +300,13 @@ export default function FeedbackForm({
                 transition={{ duration: 0.6 }}
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center rounded-2xl border border-dashed border-forest-800/20 text-center text-[0.7rem] text-ink/70">
+              <div className="flex h-full w-full items-center justify-center rounded-2xl border border-dashed border-forest-800/20 text-center text-[0.75rem] text-ink/70">
                 your portrait
               </div>
             )}
           </div>
           <p className="mt-5 font-display text-xl leading-snug text-forest-900">
-            {quote.trim() || <span className="text-ink/35">Your words will appear here.</span>}
+            {quote.trim() || <span className="text-ink/70">Your words will appear here.</span>}
           </p>
           <p className="mt-4 flex flex-wrap items-baseline gap-x-2">
             <span className="font-display italic text-forest-700">— {name}</span>

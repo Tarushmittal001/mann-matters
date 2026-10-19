@@ -352,7 +352,7 @@ export default function TryManuDemo({
                   key="live"
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-1.5 rounded-full bg-green-400/15 px-2 py-0.5 text-[10px] font-sans font-semibold uppercase tracking-wider text-green-300"
+                  className="flex items-center gap-1.5 rounded-full bg-green-400/15 px-2 py-0.5 text-[0.75rem] font-sans font-semibold uppercase tracking-wider text-green-300"
                 >
                   <span className="relative flex h-1.5 w-1.5">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-300 opacity-70" />
@@ -363,7 +363,7 @@ export default function TryManuDemo({
               ) : (
                 <motion.span
                   key="ai"
-                  className="rounded-full bg-ivory/15 px-2 py-0.5 text-[10px] font-sans uppercase tracking-wider text-ivory/70"
+                  className="rounded-full bg-ivory/15 px-2 py-0.5 text-[0.75rem] font-sans uppercase tracking-wider text-ivory/70"
                 >
                   AI-powered
                 </motion.span>
@@ -387,7 +387,7 @@ export default function TryManuDemo({
 
       {/* Language switcher */}
       <div className="flex items-center justify-between gap-3 border-b border-sage/10 bg-ivory/40 px-4 py-2.5">
-        <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.14em] text-ink/70">
+        <span className="text-[0.75rem] font-sans font-semibold uppercase tracking-[0.14em] text-ink/70">
           {ui.languageLabel}
         </span>
         <div
@@ -608,7 +608,7 @@ export default function TryManuDemo({
             onChange={(e) => setInput(e.target.value)}
             placeholder={ui.placeholder}
             lang={langTag}
-            className={`flex-1 rounded-xl bg-ivory px-4 py-2.5 text-sm text-forest-900 placeholder:text-ink/60 border border-sage/20 focus:border-gold focus:ring-1 focus:ring-gold/50 outline-none transition-colors ${bodyFont}`}
+            className={`flex-1 rounded-xl bg-ivory px-4 py-2.5 text-sm text-forest-900 placeholder:text-ink/70 border border-sage/20 focus:border-gold focus:ring-1 focus:ring-gold/50 outline-none transition-colors ${bodyFont}`}
             aria-label={ui.inputLabel}
           />
           <button

@@ -48,7 +48,7 @@ export default function BackButton() {
       </button>
 
       <span
-        className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 -translate-x-1/2 translate-y-1 whitespace-nowrap rounded-full bg-forest-900 px-2.5 py-1 text-[0.68rem] font-medium tracking-wide text-ivory opacity-0 transition duration-300 ease-silk peer-hover:translate-y-0 peer-hover:opacity-100 peer-focus-visible:translate-y-0 peer-focus-visible:opacity-100"
+        className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 -translate-x-1/2 translate-y-1 whitespace-nowrap rounded-full bg-forest-900 px-2.5 py-1 text-[0.75rem] font-medium tracking-wide text-ivory opacity-0 transition duration-300 ease-silk peer-hover:translate-y-0 peer-hover:opacity-100 peer-focus-visible:translate-y-0 peer-focus-visible:opacity-100"
         aria-hidden="true"
       >
         {label}

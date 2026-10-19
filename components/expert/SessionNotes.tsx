@@ -186,7 +186,7 @@ export default function SessionNotes({
                 key={a.id}
                 className="rounded-xl border border-forest-800/10 bg-forest-800/[0.03] px-4 py-3.5"
               >
-                <p className="text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-ink/70">
+                <p className="text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-ink/70">
                   Amendment {i + 1} · {stamp(a.createdAt)}
                 </p>
                 <p className="mt-1.5 whitespace-pre-wrap text-[0.9rem] leading-relaxed text-ink/80">

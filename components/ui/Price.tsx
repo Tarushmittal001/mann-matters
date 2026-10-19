@@ -56,9 +56,9 @@ export default function Price({
   const { t } = useCopy();
 
   const text = {
-    sm: { now: "text-[1.05rem]", was: "text-[0.82rem]", badge: "text-[0.62rem] px-1.5 py-[1px]" },
-    md: { now: "text-2xl", was: "text-[0.95rem]", badge: "text-[0.68rem] px-2 py-0.5" },
-    lg: { now: "text-[2rem]", was: "text-[1.1rem]", badge: "text-[0.72rem] px-2.5 py-0.5" },
+    sm: { now: "text-[1.05rem]", was: "text-[0.82rem]", badge: "text-[0.75rem] px-1.5 py-[1px]" },
+    md: { now: "text-2xl", was: "text-[0.95rem]", badge: "text-[0.75rem] px-2 py-0.5" },
+    lg: { now: "text-[2rem]", was: "text-[1.1rem]", badge: "text-[0.75rem] px-2.5 py-0.5" },
   }[size];
 
   const colours =

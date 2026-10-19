@@ -49,12 +49,22 @@ export default function ToolWall() {
           <div className="mt-8 border-t border-forest-800/15 pt-6 text-[0.9rem] leading-relaxed text-ink/70">
             <p className="font-medium text-forest-900">Need something right now?</p>
             <p className="mt-1.5">
-              The{" "}
+              <Link href="/breathe" className="link-draw font-medium text-forest-700">
+                Breathing
+              </Link>
+              ,{" "}
+              <Link href="/tools/grounding" className="link-draw font-medium text-forest-700">
+                grounding
+              </Link>{" "}
+              and{" "}
+              <Link href="/tools/relax" className="link-draw font-medium text-forest-700">
+                muscle relaxation
+              </Link>{" "}
+              need no account, and neither does the{" "}
               <Link href="/crisis" className="link-draw font-medium text-forest-700">
                 crisis page
-              </Link>{" "}
-              has guided breathing on it and needs no account. If you are not
-              safe, call{" "}
+              </Link>
+              . If you are not safe, call{" "}
               <a href="tel:14416" className="font-semibold text-forest-800">
                 Tele-MANAS 14416
               </a>{" "}

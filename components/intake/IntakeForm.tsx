@@ -235,7 +235,7 @@ export default function IntakeForm({
         {/* ── guardian, for under-18s ─────────────────────────────────────── */}
         {minor && (
           <Section title="Parent or guardian" step={4}>
-            <p className="-mt-2 text-[0.9rem] leading-relaxed text-ink/65">
+            <p className="-mt-2 text-[0.9rem] leading-relaxed text-ink/70">
               You&apos;re under 18, so a parent or guardian needs to know about and agree to these
               sessions. Your therapist will confirm it with them before you start. What you talk
               about in the session stays between you and your therapist — the consent is about the

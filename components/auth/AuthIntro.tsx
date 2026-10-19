@@ -1,3 +1,6 @@
+import type { Locale } from "@/lib/i18n";
+import { authCopy, type AuthCopy } from "@/lib/i18n/auth";
+
 /**
  * The heading of an auth page, rendered on the server.
  *
@@ -12,18 +15,20 @@
  * byte and the swap when the form hydrates is invisible.
  */
 
-const COPY = {
-  login: { eyebrow: "welcome back", title: "Good to see you again." },
-  signup: { eyebrow: "create your account", title: "Let's get you set up." },
-  forgot: { eyebrow: "forgot password", title: "Let's get you back in." },
-  reset: { eyebrow: "new password", title: "Choose a new password." },
-} as const;
-
-export default function AuthIntro({ mode }: { mode: keyof typeof COPY }) {
-  const { eyebrow, title } = COPY[mode];
+// A server component, so it cannot read the URL the way `useLocale` does: the
+// Hindi pages say which language they are in. The words are the same ones
+// AuthForm draws, from the same file, so the swap stays invisible in Hindi too.
+export default function AuthIntro({
+  mode,
+  locale = "en",
+}: {
+  mode: keyof AuthCopy["intro"];
+  locale?: Locale;
+}) {
+  const { eyebrow, title } = authCopy(locale).intro[mode];
 
   return (
-    <div className="page-top wrap flex min-h-[70vh] items-center justify-center pb-24">
+    <div lang={locale} className="page-top wrap flex min-h-[70vh] items-center justify-center pb-24">
       <div className="w-full max-w-md">
         <p className="eyebrow mb-4 flex items-center gap-3">
           <span

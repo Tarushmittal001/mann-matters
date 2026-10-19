@@ -85,7 +85,7 @@ export default function NotSure({ experts }: { experts: Expert[] }) {
             questions a psychologist would ask, and at the end you get one
             suggested place to start.
           </p>
-          <p className="mt-4 max-w-md text-[0.88rem] leading-relaxed text-ink/55">
+          <p className="mt-4 max-w-md text-[0.88rem] leading-relaxed text-ink/70">
             This is a check, not a diagnosis. Nothing you tap is saved or sent
             anywhere.
           </p>
@@ -96,7 +96,7 @@ export default function NotSure({ experts }: { experts: Expert[] }) {
             already tapped an answer, has not done its job.
           */}
           {signedIn !== true && (
-            <p className="mt-3 max-w-md text-[0.88rem] leading-relaxed text-ink/55">
+            <p className="mt-3 max-w-md text-[0.88rem] leading-relaxed text-ink/70">
               You will need a free account to see your result at the end.
             </p>
           )}
@@ -108,7 +108,7 @@ export default function NotSure({ experts }: { experts: Expert[] }) {
             GAD-7 response set, so a tap here is a real answer.
           */}
           <div className="rounded-2xl border border-forest-800/15 bg-ivory-light p-6 shadow-lift sm:p-8">
-            <p className="text-[0.68rem] uppercase tracking-[0.14em] text-ink/45">
+            <p className="text-[0.75rem] uppercase tracking-[0.14em] text-ink/70">
               Question 1 of {TOTAL_ITEMS}
             </p>
             <p className="mt-3 text-[0.95rem] leading-relaxed text-ink/70">
@@ -124,7 +124,7 @@ export default function NotSure({ experts }: { experts: Expert[] }) {
                   key={choice.label}
                   type="button"
                   onClick={() => start(choice.value)}
-                  className="group flex items-center gap-3 rounded-xl border border-forest-800/15 bg-ivory px-4 py-3 text-left text-[0.92rem] text-forest-900 transition-colors duration-200 hover:border-forest-800/40 hover:bg-sage-light/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                  className="group flex items-center gap-3 rounded-xl border border-forest-800/15 bg-ivory px-4 py-3 text-left text-[0.92rem] text-forest-900 transition-colors duration-200 hover:border-forest-800/40 hover:bg-sage-light/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-800"
                 >
                   <span
                     className="h-2 w-2 shrink-0 rounded-full transition-transform duration-200 group-hover:scale-150"

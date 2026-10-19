@@ -28,7 +28,7 @@ export const dynamic = "force-dynamic";
 function Stat({ label, value, tone }: { label: string; value: string; tone?: "bad" }) {
   return (
     <div className="rounded-2xl border border-forest-800/10 bg-ivory-light p-4">
-      <p className="text-[0.68rem] uppercase tracking-[0.14em] text-ink/45">{label}</p>
+      <p className="text-[0.75rem] uppercase tracking-[0.14em] text-ink/70">{label}</p>
       <p
         className={cn(
           "mt-1.5 font-display text-2xl font-medium",
@@ -45,7 +45,7 @@ function Chip({ label, tone }: { label: string; tone: keyof typeof TONE_CLASS })
   return (
     <span
       className={cn(
-        "inline-block whitespace-nowrap rounded-full px-2.5 py-1 text-[0.72rem] font-semibold",
+        "inline-block whitespace-nowrap rounded-full px-2.5 py-1 text-[0.75rem] font-semibold",
         TONE_CLASS[tone]
       )}
     >
@@ -57,13 +57,13 @@ function Chip({ label, tone }: { label: string; tone: keyof typeof TONE_CLASS })
 function Detail({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <dt className="text-[0.68rem] uppercase tracking-[0.14em] text-ink/45">{label}</dt>
+      <dt className="text-[0.75rem] uppercase tracking-[0.14em] text-ink/70">{label}</dt>
       <dd className="mt-1 text-[0.92rem] text-forest-900">{children}</dd>
     </div>
   );
 }
 
-const none = <span className="text-ink/45">Not given</span>;
+const none = <span className="text-ink/70">Not given</span>;
 
 export default async function AdminClientPage({ params }: { params: { id: string } }) {
   const c = await getClient(params.id);
@@ -102,7 +102,7 @@ export default async function AdminClientPage({ params }: { params: { id: string
             {c.email}
             {!c.emailVerified && <span className="ml-2 text-gold-dark">unconfirmed</span>}
           </p>
-          <p className="mt-0.5 text-[0.88rem] text-ink/60">With us since {joined}</p>
+          <p className="mt-0.5 text-[0.88rem] text-ink/70">With us since {joined}</p>
         </div>
       </div>
 
@@ -122,10 +122,10 @@ export default async function AdminClientPage({ params }: { params: { id: string
           <section>
             <h2 className="font-display text-2xl font-medium text-forest-900">
               Every booking
-              <span className="ml-2 text-base font-normal text-ink/50">{c.bookings.length}</span>
+              <span className="ml-2 text-base font-normal text-ink/70">{c.bookings.length}</span>
             </h2>
             {c.bookings.length === 0 ? (
-              <p className="mt-5 rounded-2xl border border-dashed border-forest-800/20 bg-ivory-light/60 p-10 text-center text-ink/65">
+              <p className="mt-5 rounded-2xl border border-dashed border-forest-800/20 bg-ivory-light/60 p-10 text-center text-ink/70">
                 They have never booked a session.
               </p>
             ) : (
@@ -140,7 +140,7 @@ export default async function AdminClientPage({ params }: { params: { id: string
                         <th
                           key={h || "actions"}
                           className={cn(
-                            "px-4 py-3 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-ink/60",
+                            "px-4 py-3 text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-ink/70",
                             i === 5 && "text-right"
                           )}
                         >
@@ -159,8 +159,8 @@ export default async function AdminClientPage({ params }: { params: { id: string
                         <tr key={b.id} className="border-b border-forest-800/[0.06] last:border-0">
                           <td className="whitespace-nowrap px-4 py-3">
                             <span className="text-forest-900">{formatDateISO(b.date)}</span>
-                            <span className="ml-2 text-ink/60">{b.time}</span>
-                            <span className="mt-0.5 block font-mono text-[0.72rem] text-ink/45">
+                            <span className="ml-2 text-ink/70">{b.time}</span>
+                            <span className="mt-0.5 block font-mono text-[0.75rem] text-ink/70">
                               {b.ref}
                             </span>
                           </td>
@@ -172,14 +172,14 @@ export default async function AdminClientPage({ params }: { params: { id: string
                           <td className="px-4 py-3">
                             <Chip label={pay.label} tone={pay.tone} />
                             {b.payment?.refundAmount ? (
-                              <span className="mt-1 block text-[0.75rem] text-ink/60">
+                              <span className="mt-1 block text-[0.75rem] text-ink/70">
                                 −{formatINR(b.payment.refundAmount)}
                               </span>
                             ) : null}
                           </td>
                           <td className="whitespace-nowrap px-4 py-3 text-right tabular-nums text-forest-900">
                             {b.proBono ? (
-                              <span className="text-ink/60">Free</span>
+                              <span className="text-ink/70">Free</span>
                             ) : (
                               formatINR(b.amount)
                             )}
@@ -230,7 +230,7 @@ export default async function AdminClientPage({ params }: { params: { id: string
                     <span className="text-forest-900">
                       {formatDateISO(b.date)} · {b.time}
                     </span>
-                    <span className="shrink-0 text-ink/65">{b.expertName}</span>
+                    <span className="shrink-0 text-ink/70">{b.expertName}</span>
                   </li>
                 ))}
               </ul>
@@ -269,7 +269,7 @@ export default async function AdminClientPage({ params }: { params: { id: string
               <Detail label="Language">{c.language || none}</Detail>
               <Detail label="School, college or workplace">{c.organisation || none}</Detail>
             </dl>
-            <p className="mt-5 border-t border-forest-800/10 pt-4 text-[0.8rem] leading-relaxed text-ink/60">
+            <p className="mt-5 border-t border-forest-800/10 pt-4 text-[0.8rem] leading-relaxed text-ink/70">
               What they wrote for their therapist, and anything from an intake form, is not shown
               here and is not loaded by this page. That is between them and the person they booked.
             </p>

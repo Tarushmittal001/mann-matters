@@ -33,7 +33,7 @@ export default async function AdminFeedbackPage() {
     <section className="wrap-wide pb-28">
       <p className="eyebrow">we heard you</p>
       <h1 className="h-display mt-3 text-4xl md:text-5xl">Feedback</h1>
-      <p className="mt-4 max-w-2xl text-ink/65">
+      <p className="mt-4 max-w-2xl text-ink/70">
         Stories clients write from their dashboard. Nothing appears on the home page until you approve
         it. Check for crisis content, other people&apos;s names, or anything identifying before approving.
         {pending > 0 && (

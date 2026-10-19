@@ -194,7 +194,7 @@ export default function WhyEmoraa() {
                   </span>
                   <div>
                     <h3 className="font-display text-xl font-medium leading-tight text-forest-900">{r.title}</h3>
-                    <p className="mt-1.5 max-w-md text-[0.95rem] leading-relaxed text-ink/65">{r.line}</p>
+                    <p className="mt-1.5 max-w-md text-[0.95rem] leading-relaxed text-ink/70">{r.line}</p>
                   </div>
                 </Reveal>
               </li>

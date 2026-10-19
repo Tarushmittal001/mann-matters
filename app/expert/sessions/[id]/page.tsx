@@ -94,7 +94,7 @@ export default async function ExpertSessionPage({ params }: { params: { id: stri
             <h2 className="h-display mt-3 text-2xl md:text-3xl">
               {relativeDay(session.date, ctx.today)}, {formatClinicTime(session.time)}
             </h2>
-            <p className="mt-1.5 text-[0.9rem] text-ink/65">
+            <p className="mt-1.5 text-[0.9rem] text-ink/70">
               {formatDate(session.date)} · {formatTime(session.time)}–{formatTime(session.endTime)}{" "}
               clinic time ({CLINIC_TZ}) · {session.lengthMinutes} minutes
               {session.serviceTitle ? ` · ${session.serviceTitle}` : ""}
@@ -231,9 +231,9 @@ export default async function ExpertSessionPage({ params }: { params: { id: stri
                   <li key={h.id} className="flex flex-wrap items-baseline justify-between gap-2 py-3">
                     <span className="text-[0.9rem] text-forest-900">
                       {formatDate(h.date, { year: true })}
-                      <span className="ml-2 text-ink/60">{h.time}</span>
+                      <span className="ml-2 text-ink/70">{h.time}</span>
                     </span>
-                    <span className="flex items-center gap-2 text-[0.82rem] text-ink/65">
+                    <span className="flex items-center gap-2 text-[0.82rem] text-ink/70">
                       <StatusBadge status={h.status as never} />
                       {h.hasNote && <span className="text-forest-700">note</span>}
                     </span>

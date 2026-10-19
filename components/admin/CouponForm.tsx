@@ -127,7 +127,7 @@ export default function CouponForm() {
             className="mb-1.5 block text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink/70"
           >
             Last day
-            <span className="ml-1.5 normal-case tracking-normal text-ink/35">optional</span>
+            <span className="ml-1.5 normal-case tracking-normal text-ink/70">optional</span>
           </label>
           <input
             id="coupon-expires"

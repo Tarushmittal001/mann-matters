@@ -13,7 +13,6 @@ import {
   LANGUAGE_OPTIONS,
   ORGANISATION_MAX,
   OTP_LENGTH,
-  PASSWORD_MIN,
   collect,
   hasErrors,
   ageOn,
@@ -34,6 +33,8 @@ import {
   STATE_OPTIONS,
 } from "@/lib/validation";
 import { todayIST } from "@/lib/features/booking/policy";
+import { useCopy } from "@/lib/i18n/client";
+import { authCopy, authMessage } from "@/lib/i18n/auth";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -48,6 +49,12 @@ const ROLE_HOME: Record<string, string> = {
 export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const router = useRouter();
   const params = useSearchParams();
+  const { locale, path } = useCopy();
+  const a = authCopy(locale);
+  // validation and server messages are kept in English in state, exactly as
+  // lib/validation.ts and the API return them, and put into Hindi only here,
+  // where they are drawn
+  const say = (message?: string) => (message ? authMessage(locale, message) : message);
   const rawNext = params.get("next");
   // only ever follow an internal path — an absolute URL here would be an
   // open redirect, and a login page is exactly where that gets abused
@@ -114,7 +121,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   };
 
   const resend = async (target: string) => {
-    setResendNote("Sending…");
+    setResendNote(a.resend.sending);
     try {
       const res = await fetch("/api/auth/resend", {
         method: "POST",
@@ -126,10 +133,10 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
         setDevLink(data.devLink);
         setResendNote("");
       } else {
-        setResendNote("Sent. Check your inbox — and your spam folder.");
+        setResendNote(a.resend.sent);
       }
     } catch {
-      setResendNote("Couldn't resend just now. Please try again.");
+      setResendNote(a.resend.failed);
     }
   };
 
@@ -146,14 +153,14 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
         if (response.status === 422 && data.fields) setFields(data.fields);
-        setError(data.error ?? "Something went wrong. Please try again.");
+        setError(data.error ?? a.errors.generic);
         return;
       }
       setOtp("");
       setOtpRequested(true);
       setDevOtp(data.devCode ?? null);
     } catch {
-      setError("Couldn't reach the server. Please check your connection and try again.");
+      setError(a.errors.network);
     } finally {
       setSubmitting(false);
     }
@@ -188,7 +195,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
         if (!response.ok) {
           if (response.status === 422 && data.fields) setFields(data.fields);
           if (data.needsVerification) setNeedsVerify(data.email ?? null);
-          setError(data.error ?? "Something went wrong. Please try again.");
+          setError(data.error ?? a.errors.generic);
           setSubmitting(false);
           return;
         }
@@ -196,7 +203,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
         setOtp("");
         finishSignIn(data.user?.role);
       } catch {
-        setError("Couldn't reach the server. Please check your connection and try again.");
+        setError(a.errors.network);
         setSubmitting(false);
       }
       return;
@@ -262,7 +269,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
         setError(
           res.status === 422 && data.fields
             ? ""
-            : data.error ?? "Something went wrong. Please try again."
+            : data.error ?? a.errors.generic
         );
         setSubmitting(false);
         return;
@@ -290,13 +297,13 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
       // an explicit ?next= wins; otherwise send them to their own portal
       finishSignIn(data.user?.role);
     } catch {
-      setError("Couldn't reach the server. Please check your connection and try again.");
+      setError(a.errors.network);
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="page-top wrap flex min-h-[70vh] items-center justify-center pb-24">
+    <div lang={locale} className="page-top wrap flex min-h-[70vh] items-center justify-center pb-24">
       <motion.div
         className="w-full max-w-md"
         initial={{ opacity: 0, y: 24 }}
@@ -312,29 +319,30 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
               >
                 मन
               </span>
-              one last step
+              {a.pending.eyebrow}
             </p>
             <h1 className="h-display text-4xl">
-              {emailSent ? "Check your inbox." : "One link stands between us."}
+              {emailSent ? a.pending.titleSent : a.pending.titleNotSent}
             </h1>
-            <p className="mt-4 leading-relaxed text-ink/65">
+            <p className="mt-4 leading-relaxed text-ink/70">
               {emailSent ? (
                 <>
-                  We&apos;ve sent a confirmation link to{" "}
-                  <span className="font-semibold text-forest-900">{pendingEmail}</span>. Click it to
-                  activate your account — the link expires in 24 hours.
+                  {a.pending.sentBefore}
+                  <span className="font-semibold text-forest-900">{pendingEmail}</span>
+                  {a.pending.sentAfter}
                 </>
               ) : (
                 <>
-                  Your account for{" "}
-                  <span className="font-semibold text-forest-900">{pendingEmail}</span> is created,
-                  but no email could be sent — this server has no mail provider configured yet.
+                  {a.pending.notSentBefore}
+                  <span className="font-semibold text-forest-900">{pendingEmail}</span>
+                  {a.pending.notSentAfter}
                 </>
               )}
             </p>
 
+            {/* development only, read by a developer: stays English */}
             {devLink && (
-              <div className="mt-6 rounded-2xl border border-gold/40 bg-gold/10 p-5">
+              <div lang="en" className="mt-6 rounded-2xl border border-gold/40 bg-gold/10 p-5">
                 <p className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-gold-dark">
                   Development only
                 </p>
@@ -358,10 +366,10 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                 onClick={() => resend(pendingEmail)}
                 className="rounded-full border border-forest-800/20 px-6 py-2.5 text-sm font-semibold text-forest-800 transition-colors hover:border-forest-800 hover:bg-forest-800 hover:text-ivory"
               >
-                Resend email
+                {a.pending.resendEmail}
               </button>
-              <Link href="/login" className="link-draw text-sm font-medium text-forest-800">
-                Back to sign in
+              <Link href={path("/login")} className="link-draw text-sm font-medium text-forest-800">
+                {a.pending.backToSignIn}
               </Link>
             </div>
             {resendNote && (
@@ -370,8 +378,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
               </p>
             )}
             <p className="mt-8 text-xs leading-relaxed text-ink/70">
-              No email? Check your spam folder, or use &ldquo;Resend&rdquo;. With no mail provider
-              configured, the link is printed in the server console and shown above.
+              {a.pending.footnote}
             </p>
             <CrisisLine className="mt-10" />
           </div>
@@ -384,24 +391,22 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
               >
                 मन
               </span>
-              {isLogin ? "welcome back" : "create your account"}
+              {a.intro[mode].eyebrow}
             </p>
-            <h1 className="h-display text-4xl">
-              {isLogin ? "Good to see you again." : "Let's get you set up."}
-            </h1>
-            <p className="mt-4 text-ink/65">
+            <h1 className="h-display text-4xl">{a.intro[mode].title}</h1>
+            <p className="mt-4 text-ink/70">
               {isLogin
                 ? signInMethod === "email"
-                  ? "Use your email and password to manage your sessions."
-                  : "We'll text a one-time code to the phone linked to your account."
-                : "One account for booking sessions, tracking them, and moving them when life happens."}
+                  ? a.lede.loginEmail
+                  : a.lede.loginPhone
+                : a.lede.signup}
             </p>
 
             {isLogin && (
               <div
                 className="mt-7 grid grid-cols-2 rounded-xl bg-forest-800/[0.06] p-1"
                 role="group"
-                aria-label="Choose how to sign in"
+                aria-label={a.method.group}
               >
                 {(["email", "phone"] as const).map((method) => (
                   <button
@@ -415,7 +420,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                         : "text-ink/70 hover:text-forest-900"
                     }`}
                   >
-                    {method === "email" ? "Email" : "Phone"}
+                    {method === "email" ? a.method.email : a.method.phone}
                   </button>
                 ))}
               </div>
@@ -426,30 +431,30 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                 <>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Field
-                      label="First name"
+                      label={a.field.firstName}
                       required
                       value={firstName}
                       onChange={changed("firstName", setFirstName)}
                       autoComplete="given-name"
                       disabled={submitting || !!signupPhoneToken}
-                      error={fields.firstName}
-                      placeholder="Riya"
+                      error={say(fields.firstName)}
+                      placeholder={a.field.firstNamePlaceholder}
                     />
                     <Field
-                      label="Last name"
+                      label={a.field.lastName}
                       required
                       value={lastName}
                       onChange={changed("lastName", setLastName)}
                       autoComplete="family-name"
                       disabled={submitting || !!signupPhoneToken}
-                      error={fields.lastName}
-                      placeholder="Kapoor"
+                      error={say(fields.lastName)}
+                      placeholder={a.field.lastNamePlaceholder}
                     />
                   </div>
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Field
-                      label="Date of birth"
+                      label={a.field.dateOfBirth}
                       required
                       type="date"
                       value={dateOfBirth}
@@ -457,17 +462,17 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                       max={todayIST()}
                       autoComplete="bday"
                       disabled={submitting || !!signupPhoneToken}
-                      error={fields.dateOfBirth}
+                      error={say(fields.dateOfBirth)}
                     />
                     <Select
-                      label="Gender"
+                      label={a.field.gender}
                       required
                       value={gender}
                       onChange={changed("gender", setGender)}
-                      options={GENDER_OPTIONS}
-                      placeholder="Choose…"
+                      options={GENDER_OPTIONS.map((g) => ({ value: g.value, label: a.gender[g.value] ?? g.label }))}
+                      placeholder={a.field.choose}
                       disabled={submitting || !!signupPhoneToken}
-                      error={fields.gender}
+                      error={say(fields.gender)}
                     />
                   </div>
 
@@ -477,25 +482,24 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                       client who wants a language nobody speaks is the most
                       useful thing this field can tell us. */}
                   <Select
-                    label="Language you'd rather talk in"
+                    label={a.field.language}
                     value={language}
                     onChange={changed("language", setLanguage)}
-                    options={LANGUAGE_OPTIONS.map((l) => ({ value: l, label: l }))}
-                    placeholder="No preference"
+                    // the label is in the reader's language; the value is the
+                    // English name the server and the practitioner lists match on
+                    options={LANGUAGE_OPTIONS.map((l) => ({ value: l, label: a.languages[l] ?? l }))}
+                    placeholder={a.field.noPreference}
                     disabled={submitting || !!signupPhoneToken}
-                    error={fields.language}
-                    hint="Optional. Feelings are easier to find in the language you think in — we'll use this when matching you."
+                    error={say(fields.language)}
+                    hint={a.field.languageHint}
                   />
 
                   {isCalendarDate(dateOfBirth) && ageOn(dateOfBirth) < AGE_GUARDIAN_BELOW && (
-                    <Alert tone="info">
-                      You&apos;re under {AGE_GUARDIAN_BELOW}, so a parent or guardian needs to agree
-                      to therapy with you. We&apos;ll ask about that before your first session.
-                    </Alert>
+                    <Alert tone="info">{a.guardianNotice(AGE_GUARDIAN_BELOW)}</Alert>
                   )}
 
                   <Field
-                    label="Mobile number"
+                    label={a.field.mobile}
                     required
                     type="tel"
                     inputMode="tel"
@@ -503,9 +507,9 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                     onChange={changed("phone", setPhone)}
                     autoComplete="tel"
                     disabled={submitting || !!signupPhoneToken}
-                    error={fields.phone}
+                    error={say(fields.phone)}
                     placeholder="98765 43210"
-                    hint={signupPhoneToken ? undefined : "We'll text a code to confirm it's yours."}
+                    hint={signupPhoneToken ? undefined : a.field.mobileHintSignup}
                   />
 
                   {/* Where they are. Asked at signup rather than at booking
@@ -517,37 +521,37 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                       one. */}
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Field
-                      label="City or town"
+                      label={a.field.city}
                       required
                       value={city}
                       onChange={changed("city", setCity)}
                       autoComplete="address-level2"
                       maxLength={CITY_MAX}
                       disabled={submitting || !!signupPhoneToken}
-                      error={fields.city}
-                      placeholder="Jaipur"
+                      error={say(fields.city)}
+                      placeholder={a.field.cityPlaceholder}
                     />
                     <Select
-                      label="State"
+                      label={a.field.state}
                       required
                       value={state}
                       onChange={changed("state", setState)}
-                      options={STATE_OPTIONS.map((x) => ({ value: x, label: x }))}
-                      placeholder="Choose…"
+                      options={STATE_OPTIONS.map((x) => ({ value: x, label: a.states[x] ?? x }))}
+                      placeholder={a.field.choose}
                       disabled={submitting || !!signupPhoneToken}
-                      error={fields.state}
+                      error={say(fields.state)}
                     />
                   </div>
 
                   <Field
-                    label="School, college or workplace"
+                    label={a.field.organisation}
                     value={organisation}
                     onChange={changed("organisation", setOrganisation)}
                     maxLength={ORGANISATION_MAX}
                     disabled={submitting || !!signupPhoneToken}
-                    error={fields.organisation}
+                    error={say(fields.organisation)}
                     placeholder="Amity University, Noida"
-                    hint="Optional. It helps us match you with someone who gets your world."
+                    hint={a.field.organisationHint}
                   />
                 </>
               )}
@@ -555,7 +559,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
               {isLogin && signInMethod === "phone" ? (
                 <>
                   <Field
-                    label="Mobile number"
+                    label={a.field.mobile}
                     required
                     type="tel"
                     inputMode="tel"
@@ -563,23 +567,24 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                     onChange={setPhone}
                     autoComplete="tel"
                     disabled={submitting || otpRequested}
-                    error={fields.phone}
+                    error={say(fields.phone)}
                     placeholder="98765 43210"
-                    hint={otpRequested ? "The code expires in 5 minutes." : "Indian mobile numbers only."}
+                    hint={otpRequested ? a.field.otpExpiresHint : a.field.indianOnlyHint}
                   />
                   {otpRequested && (
                     <Field
-                      label="One-time code"
+                      label={a.field.otp}
                       required
                       inputMode="numeric"
                       value={otp}
                       onChange={(value) => setOtp(value.replace(/\D/g, "").slice(0, OTP_LENGTH))}
                       autoComplete="one-time-code"
                       disabled={submitting}
-                      error={fields.code}
-                      placeholder={`${OTP_LENGTH}-digit code`}
+                      error={say(fields.code)}
+                      placeholder={a.field.otpPlaceholder}
                     />
                   )}
+                  {/* development only: stays English */}
                   {devOtp && (
                     <Alert tone="warning">
                       Development code: <strong className="font-mono">{devOtp}</strong>. Configure
@@ -590,7 +595,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
               ) : (
                 <>
                   <Field
-                    label="Email"
+                    label={a.field.email}
                     required
                     type="email"
                     inputMode="email"
@@ -598,41 +603,38 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                     onChange={changed("email", setEmail)}
                     autoComplete="email"
                     disabled={submitting}
-                    error={fields.email}
+                    error={say(fields.email)}
                     placeholder="you@example.com"
                   />
 
                   <Field
-                    label="Password"
+                    label={a.field.password}
                     required
                     type="password"
                     value={password}
                     onChange={changed("password", setPassword)}
                     autoComplete={isLogin ? "current-password" : "new-password"}
                     disabled={submitting}
-                    error={fields.password}
-                    placeholder={isLogin ? "Your password" : `At least ${PASSWORD_MIN} characters`}
-                    hint={
-                      isLogin
-                        ? undefined
-                        : "A phrase you'll remember beats a word you won't. Length matters more than symbols."
-                    }
+                    error={say(fields.password)}
+                    placeholder={isLogin ? a.field.passwordPlaceholderLogin : a.field.passwordPlaceholderSignup}
+                    hint={isLogin ? undefined : a.field.passwordHint}
                   />
 
                   {!isLogin && signupPhoneToken && (
                     <>
                       <Field
-                        label={`Code sent to ${phone.trim()}`}
+                        label={a.field.codeSentTo(phone.trim())}
                         required
                         inputMode="numeric"
                         value={signupCode}
                         onChange={(v) => changed("phoneCode", setSignupCode)(v.replace(/\D/g, "").slice(0, OTP_LENGTH))}
                         autoComplete="one-time-code"
                         disabled={submitting}
-                        error={fields.phoneCode}
-                        placeholder={`${OTP_LENGTH}-digit code`}
-                        hint="It can take a minute. The code works for 10 minutes."
+                        error={say(fields.phoneCode)}
+                        placeholder={a.field.otpPlaceholder}
+                        hint={a.field.signupCodeHint}
                       />
+                      {/* development only: stays English */}
                       {devSignupCode && (
                         <Alert tone="warning">
                           Development code: <strong className="font-mono">{devSignupCode}</strong>.
@@ -649,7 +651,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                         }}
                         className="text-sm font-medium text-forest-800 underline underline-offset-4"
                       >
-                        Change my details
+                        {a.changeDetails}
                       </button>
                     </>
                   )}
@@ -660,7 +662,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                         href={`/forgot-password${email.trim() ? `?email=${encodeURIComponent(email.trim())}` : ""}`}
                         className="text-sm font-medium text-forest-800 underline underline-offset-4 hover:text-forest-600"
                       >
-                        Forgot password?
+                        {a.forgotPassword}
                       </Link>
                     </p>
                   )}
@@ -683,21 +685,23 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                       className="mt-1 h-4 w-4 shrink-0 accent-forest-800"
                     />
                     <span>
-                      I agree to the{" "}
-                      {/* new tab, so reading them doesn’t lose what’s typed */}
+                      {a.consent.before}
+                      {/* new tab, so reading them doesn’t lose what’s typed.
+                          The terms and privacy pages are English-only, so the
+                          links stay on the English paths. */}
                       <a href="/terms" target="_blank" rel="noopener" className="font-medium text-forest-800 underline underline-offset-2">
-                        Terms of use
-                      </a>{" "}
-                      and{" "}
-                      <a href="/privacy" target="_blank" rel="noopener" className="font-medium text-forest-800 underline underline-offset-2">
-                        Privacy policy
+                        {a.consent.terms}
                       </a>
-                      , including Emoraa processing the health information I choose to share so I can get care.
+                      {a.consent.middle}
+                      <a href="/privacy" target="_blank" rel="noopener" className="font-medium text-forest-800 underline underline-offset-2">
+                        {a.consent.privacy}
+                      </a>
+                      {a.consent.after}
                     </span>
                   </label>
                   {fields.terms && (
                     <p id="terms-error" role="alert" className="mt-1.5 pl-7 text-sm text-red-700">
-                      {fields.terms}
+                      {say(fields.terms)}
                     </p>
                   )}
                 </div>
@@ -705,14 +709,14 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
               {error && (
                 <Alert tone="error">
-                  <p>{error}</p>
+                  <p>{say(error)}</p>
                   {needsVerify && (
                     <button
                       type="button"
                       onClick={() => resend(needsVerify)}
                       className="mt-2 font-semibold underline underline-offset-4"
                     >
-                      Resend confirmation email
+                      {a.resend.confirmation}
                     </button>
                   )}
                   {resendNote && <p className="mt-2 font-medium">{resendNote}</p>}
@@ -726,21 +730,21 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                       label={
                         isLogin && signInMethod === "phone"
                           ? otpRequested
-                            ? "Checking code…"
-                            : "Sending code…"
+                            ? a.busy.checkingCode
+                            : a.busy.sendingCode
                           : isLogin
-                            ? "Signing in…"
-                            : "Creating your account…"
+                            ? a.busy.signingIn
+                            : a.busy.creating
                       }
                     />
                   ) : isLogin && signInMethod === "phone" ? (
-                    otpRequested ? "Verify and sign in" : "Send one-time code"
+                    otpRequested ? a.submit.verifyAndSignIn : a.submit.sendOtp
                   ) : isLogin ? (
-                    "Sign in"
+                    a.submit.signIn
                   ) : signupPhoneToken ? (
-                    "Verify and create account"
+                    a.submit.verifyAndCreate
                   ) : (
-                    "Create account"
+                    a.submit.create
                   )}
                 </Button>
               </div>
@@ -753,7 +757,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                     disabled={submitting}
                     className="font-medium text-forest-800 underline underline-offset-4"
                   >
-                    Change number
+                    {a.resendCode}
                   </button>
                   <button
                     type="button"
@@ -766,7 +770,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                     }}
                     className="font-medium text-forest-800 underline underline-offset-4"
                   >
-                    Resend code
+                    {a.changeNumber}
                   </button>
                 </div>
               )}
@@ -775,32 +779,29 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
             <p className="mt-7 text-sm text-ink/70">
               {isLogin ? (
                 <>
-                  New here?{" "}
+                  {a.footer.newHere}{" "}
                   <Link
-                    href={`/signup${rawNext ? `?next=${encodeURIComponent(next)}` : ""}`}
+                    href={`${path("/signup")}${rawNext ? `?next=${encodeURIComponent(next)}` : ""}`}
                     className="link-draw font-medium text-forest-800"
                   >
-                    Create an account
+                    {a.footer.createAccount}
                   </Link>
                 </>
               ) : (
                 <>
-                  Already have an account?{" "}
+                  {a.footer.haveAccount}{" "}
                   <Link
-                    href={`/login${rawNext ? `?next=${encodeURIComponent(next)}` : ""}`}
+                    href={`${path("/login")}${rawNext ? `?next=${encodeURIComponent(next)}` : ""}`}
                     className="link-draw font-medium text-forest-800"
                   >
-                    Sign in
+                    {a.footer.signIn}
                   </Link>
                 </>
               )}
             </p>
 
             {!isLogin && (
-              <p className="mt-5 text-[0.78rem] leading-relaxed text-ink/70">
-                Your account holds your sessions and nothing else. We don&apos;t sell data, and we
-                never see what happens inside a session.
-              </p>
+              <p className="mt-5 text-[0.78rem] leading-relaxed text-ink/70">{a.privacyNote}</p>
             )}
 
             <CrisisLine className="mt-10" />

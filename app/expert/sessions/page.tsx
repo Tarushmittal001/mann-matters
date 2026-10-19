@@ -96,7 +96,7 @@ export default async function ExpertSessionsPage({
             today={ctx.today}
             extra={{ when, ...(status ? { status } : {}), ...(q ? { q } : {}) }}
           />
-          <p className="mt-2.5 text-[0.8rem] text-ink/55">
+          <p className="mt-2.5 text-[0.8rem] text-ink/70">
             Filters the session date. Unlike the money screens this one reaches forward too, so
             you can look at a week that has not happened yet.
           </p>
@@ -116,7 +116,7 @@ export default async function ExpertSessionsPage({
             <div className="min-w-[9rem] flex-1 sm:flex-none">
               <label
                 htmlFor="filter-when"
-                className="block text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-ink/70"
+                className="block text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-ink/70"
               >
                 Show
               </label>
@@ -137,7 +137,7 @@ export default async function ExpertSessionsPage({
             <div className="min-w-[9rem] flex-1 sm:flex-none">
               <label
                 htmlFor="filter-status"
-                className="block text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-ink/70"
+                className="block text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-ink/70"
               >
                 Status
               </label>
@@ -159,7 +159,7 @@ export default async function ExpertSessionsPage({
             <div className="min-w-[12rem] flex-[2]">
               <label
                 htmlFor="filter-q"
-                className="block text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-ink/70"
+                className="block text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-ink/70"
               >
                 Find
               </label>
@@ -169,7 +169,7 @@ export default async function ExpertSessionsPage({
                 name="q"
                 defaultValue={q}
                 placeholder="Reference, client, or focus area"
-                className="mt-1.5 w-full rounded-xl border border-forest-800/15 bg-ivory px-3 py-2 text-[0.9rem] text-forest-900 placeholder:text-ink/35 focus:border-forest-700 focus:outline-none"
+                className="mt-1.5 w-full rounded-xl border border-forest-800/15 bg-ivory px-3 py-2 text-[0.9rem] text-forest-900 placeholder:text-ink/70 focus:border-forest-700 focus:outline-none"
               />
             </div>
 

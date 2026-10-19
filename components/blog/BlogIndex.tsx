@@ -37,7 +37,7 @@ function PostCard({ post }: { post: Post }) {
       <h3 className="mt-3 font-display text-[1.4rem] font-medium leading-snug text-forest-900 transition-colors group-hover:text-forest-600">
         {post.title}
       </h3>
-      <p className="mt-2.5 line-clamp-2 text-[0.93rem] leading-relaxed text-ink/65">
+      <p className="mt-2.5 line-clamp-2 text-[0.93rem] leading-relaxed text-ink/70">
         {post.excerpt}
       </p>
       <p className="mt-4 text-sm text-ink/70">
@@ -117,7 +117,7 @@ export default function BlogIndex({ posts }: { posts: Post[] }) {
               fill="none"
               stroke="currentColor"
               strokeWidth="1.8"
-              className="pointer-events-none absolute left-4 text-ink/35"
+              className="pointer-events-none absolute left-4 text-ink/70"
               aria-hidden="true"
             >
               <circle cx="11" cy="11" r="7" />
@@ -128,7 +128,7 @@ export default function BlogIndex({ posts }: { posts: Post[] }) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search — sleep, parents, burnout…"
-              className="w-full rounded-full border border-forest-800/15 bg-ivory-light py-2.5 pl-11 pr-4 text-sm text-forest-900 outline-none transition-colors placeholder:text-ink/35 focus:border-gold"
+              className="w-full rounded-full border border-forest-800/15 bg-ivory-light py-2.5 pl-11 pr-4 text-sm text-forest-900 outline-none transition-colors placeholder:text-ink/70 focus:border-gold"
             />
           </label>
         </div>

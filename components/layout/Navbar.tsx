@@ -8,6 +8,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import BackButton from "@/components/layout/BackButton";
 import LanguageToggle from "@/components/layout/LanguageToggle";
 import { moreNav, primaryNav, toolLinks } from "@/lib/site";
+import { hasHindi } from "@/lib/i18n";
+import { chromeCopy, linkCopy } from "@/lib/i18n/chrome";
 import { useCopy } from "@/lib/i18n/client";
 import type { Copy } from "@/lib/i18n/copy";
 import { cn } from "@/lib/utils";
@@ -24,6 +26,14 @@ function navLabel(t: Copy, href: string, fallback: string): string {
   if (href === "/blog") return t.nav.blog;
   return fallback;
 }
+
+/**
+ * Pages whose first section is dark. The bar is transparent at the top of a
+ * page and its links, logo and menu button are dark ink, so over one of these
+ * they vanished (forest on forest). Here the bar starts solid instead, as it
+ * looks once you scroll. Add a page if its hero is dark.
+ */
+const DARK_TOP = ["/breathe"];
 
 const linkBase =
   "link-draw whitespace-nowrap text-[0.9rem] font-medium tracking-wide text-forest-800/75 transition-colors hover:text-forest-900";
@@ -112,7 +122,7 @@ function NavMenu({
               tabIndex={0}
               className="rail max-h-[min(26rem,calc(100vh-8rem))] overflow-y-auto overscroll-contain rounded-2xl border border-forest-800/10 bg-ivory-light p-2 shadow-bloom"
             >
-              <p className="px-3 pb-1 pt-2 text-[0.64rem] font-semibold uppercase tracking-[0.18em] text-forest-600">
+              <p className="px-3 pb-1 pt-2 text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-forest-600">
                 {eyebrow}
               </p>
               <div className={cn(columns === 2 && "grid grid-cols-2 gap-x-1")}>
@@ -216,7 +226,16 @@ function MobileGroup({
 
 export default function Navbar() {
   // labels and links follow the language in the URL
-  const { t, path } = useCopy();
+  const { t, path, locale } = useCopy();
+  const chrome = chromeCopy(locale);
+  // menu items in the reader's language, linking to the Hindi page where one exists
+  const localise = (items: Item[]) =>
+    items.map((i) => {
+      const l = linkCopy(locale, i);
+      return { ...l, href: hasHindi(i.href) ? path(i.href) : i.href };
+    });
+  const tools = localise(toolLinks);
+  const more = localise(moreNav);
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState<"tools" | "more" | null>(null);
@@ -225,6 +244,7 @@ export default function Navbar() {
   // undefined = still loading, null = logged out
   const [user, setUser] = useState<SessionUser | undefined>(undefined);
   const pathname = usePathname();
+  const darkTop = DARK_TOP.includes(pathname);
   const menuPanel = useRef<HTMLDivElement>(null);
   const menuToggle = useRef<HTMLButtonElement>(null);
 
@@ -244,12 +264,12 @@ export default function Navbar() {
     user === undefined
       ? null
       : user === null
-        ? { href: "/login", label: "Sign in" }
+        ? { href: path("/login"), label: chrome.account.signIn }
         : user.role === "ADMIN"
-          ? { href: "/admin", label: "Admin" }
+          ? { href: "/admin", label: chrome.account.admin }
           : user.role === "EXPERT"
-            ? { href: "/expert", label: "Expert portal" }
-            : { href: "/dashboard", label: "My sessions" };
+            ? { href: "/expert", label: chrome.account.expert }
+            : { href: "/dashboard", label: chrome.account.mySessions };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -322,11 +342,12 @@ export default function Navbar() {
     <>
       <header
         data-site-header
+        lang={locale}
         className={cn(
           "fixed inset-x-0 top-0 z-[70] transition duration-500 ease-silk",
           open
             ? "bg-forest-900 py-3"
-            : scrolled
+            : scrolled || darkTop
             ? // the frosted bar re-blurs whatever scrolls beneath it, every frame;
               // phones get a solid bar instead, which looks the same in motion
               "border-b border-forest-800/10 bg-ivory/95 py-3 lg:bg-ivory/80 lg:backdrop-blur-xl"
@@ -367,7 +388,7 @@ export default function Navbar() {
             <NavMenu
               label={t.nav.tools}
               eyebrow={t.nav.toolsEyebrow}
-              items={toolLinks}
+              items={tools}
               width="w-[34rem]"
               columns={2}
               active={toolLinks.some((t) => pathname.startsWith(t.href))}
@@ -378,7 +399,7 @@ export default function Navbar() {
             <NavMenu
               label={t.nav.more}
               eyebrow={t.nav.moreEyebrow}
-              items={moreNav}
+              items={more}
               width="w-[19rem]"
               active={moreNav.some((l) => pathname.startsWith(l.href))}
               open={menu === "more"}
@@ -486,7 +507,7 @@ export default function Navbar() {
               <MobileGroup
                 label={t.nav.tools}
                 count={toolLinks.length}
-                items={toolLinks}
+                items={tools}
                 open={drawer === "tools"}
                 onToggle={() => setDrawer(drawer === "tools" ? null : "tools")}
                 delay={0.16}
@@ -494,7 +515,7 @@ export default function Navbar() {
               <MobileGroup
                 label={t.nav.more}
                 count={moreNav.length}
-                items={moreNav}
+                items={more}
                 open={drawer === "more"}
                 onToggle={() => setDrawer(drawer === "more" ? null : "more")}
                 delay={0.2}
@@ -549,7 +570,7 @@ export default function Navbar() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
             >
-              In crisis? Call Tele-MANAS 14416 — free, 24x7.
+              {chrome.mobileCrisis}
             </motion.p>
           </motion.div>
         )}

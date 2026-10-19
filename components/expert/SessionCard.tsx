@@ -80,7 +80,7 @@ export default function SessionCard({
               </Link>
             </h3>
             {session.client.isReturning && (
-              <span className="rounded-full bg-forest-800/[0.06] px-2.5 py-0.5 text-[0.72rem] font-semibold text-ink/70">
+              <span className="rounded-full bg-forest-800/[0.06] px-2.5 py-0.5 text-[0.75rem] font-semibold text-ink/70">
                 Session {session.client.sessionsWithYou} with you
               </span>
             )}

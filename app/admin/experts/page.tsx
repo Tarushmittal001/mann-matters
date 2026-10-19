@@ -104,7 +104,7 @@ export default async function AdminExpertsPage() {
     <section className="wrap-wide pb-28">
       <p className="eyebrow">provider directory</p>
       <h1 className="h-display mt-3 text-4xl md:text-5xl">Experts</h1>
-      <p className="mt-4 max-w-2xl text-ink/65">
+      <p className="mt-4 max-w-2xl text-ink/70">
         The therapists behind matching, booking and every card on the site. Changes here are live
         immediately. Hiding takes someone off the site while their sessions and notes stay intact —
         that is the safe way to retire a listing.

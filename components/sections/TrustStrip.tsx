@@ -174,7 +174,7 @@ export default function TrustStrip() {
                 <p className="font-display text-4xl font-medium leading-none text-forest-900 md:text-5xl">
                   <CountUp value={s.value} suffix={s.suffix} decimals={s.decimals ?? 0} />
                 </p>
-                <p className="mt-2 text-[0.85rem] tracking-wide text-ink/65 md:text-sm">{s.label}</p>
+                <p className="mt-2 text-[0.85rem] tracking-wide text-ink/70 md:text-sm">{s.label}</p>
               </div>
             </motion.div>
           );

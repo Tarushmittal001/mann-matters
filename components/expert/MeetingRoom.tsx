@@ -193,7 +193,7 @@ export default function MeetingRoom({
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="text-[0.9rem] font-semibold text-forest-900">The room is open</p>
-              <p className="mt-0.5 text-[0.83rem] text-ink/65">
+              <p className="mt-0.5 text-[0.83rem] text-ink/70">
                 Closes {humanGap(access.closesInMinutes)}. Your client sees the same button.
               </p>
             </div>
@@ -216,7 +216,7 @@ export default function MeetingRoom({
             <p className="text-[0.9rem] font-semibold text-forest-900">
               Join opens {humanGap(access.opensInMinutes)}
             </p>
-            <p className="mt-0.5 text-[0.83rem] leading-relaxed text-ink/65">
+            <p className="mt-0.5 text-[0.83rem] leading-relaxed text-ink/70">
               Both of you get the room {JOIN_OPENS_MINUTES_BEFORE} minutes before the session. Until
               then the client sees the date and time only — not the link.
             </p>
@@ -236,7 +236,7 @@ export default function MeetingRoom({
         {access.state === "closed" && (
           <>
             <p className="text-[0.9rem] font-semibold text-forest-900">The room has closed</p>
-            <p className="mt-0.5 text-[0.83rem] text-ink/65">
+            <p className="mt-0.5 text-[0.83rem] text-ink/70">
               Rooms close 30 minutes after a session ends. The link stays here for your records.
             </p>
           </>

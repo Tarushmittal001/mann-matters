@@ -139,7 +139,7 @@ export default function HomeworkEditor({
           <div>
             <label
               htmlFor="hw-task"
-              className="mb-1.5 block text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-ink/70"
+              className="mb-1.5 block text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-ink/70"
             >
               What to do
             </label>
@@ -149,13 +149,13 @@ export default function HomeworkEditor({
               onChange={(e) => setTask(e.target.value)}
               maxLength={MAX_TASK}
               placeholder="Write down one thought that hooks you, and both sides of the evidence."
-              className="w-full rounded-xl border border-forest-800/15 bg-ivory px-4 py-2.5 text-[0.94rem] text-forest-900 placeholder:text-ink/60 focus:border-forest-800 focus:outline-none"
+              className="w-full rounded-xl border border-forest-800/15 bg-ivory px-4 py-2.5 text-[0.94rem] text-forest-900 placeholder:text-ink/70 focus:border-forest-800 focus:outline-none"
             />
           </div>
           <div>
             <label
               htmlFor="hw-why"
-              className="mb-1.5 block text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-ink/70"
+              className="mb-1.5 block text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-ink/70"
             >
               Why it matters
             </label>
@@ -166,7 +166,7 @@ export default function HomeworkEditor({
               rows={2}
               maxLength={MAX_WHY}
               placeholder="A line in your words. This is the part that decides whether it gets done."
-              className="w-full resize-none rounded-xl border border-forest-800/15 bg-ivory px-4 py-2.5 text-[0.94rem] leading-relaxed text-forest-900 placeholder:text-ink/60 focus:border-forest-800 focus:outline-none"
+              className="w-full resize-none rounded-xl border border-forest-800/15 bg-ivory px-4 py-2.5 text-[0.94rem] leading-relaxed text-forest-900 placeholder:text-ink/70 focus:border-forest-800 focus:outline-none"
             />
           </div>
           {/* How often and for how long. Optional — "notice when you snap at
@@ -176,7 +176,7 @@ export default function HomeworkEditor({
             <div>
               <label
                 htmlFor="hw-freq"
-                className="mb-1.5 block text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-ink/70"
+                className="mb-1.5 block text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-ink/70"
               >
                 How often
               </label>
@@ -186,13 +186,13 @@ export default function HomeworkEditor({
                 onChange={(e) => setFrequency(e.target.value)}
                 maxLength={MAX_SHORT}
                 placeholder="Twice a day, morning and before bed"
-                className="w-full rounded-xl border border-forest-800/15 bg-ivory px-4 py-2.5 text-[0.94rem] text-forest-900 placeholder:text-ink/60 focus:border-forest-800 focus:outline-none"
+                className="w-full rounded-xl border border-forest-800/15 bg-ivory px-4 py-2.5 text-[0.94rem] text-forest-900 placeholder:text-ink/70 focus:border-forest-800 focus:outline-none"
               />
             </div>
             <div>
               <label
                 htmlFor="hw-dur"
-                className="mb-1.5 block text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-ink/70"
+                className="mb-1.5 block text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-ink/70"
               >
                 For how long
               </label>
@@ -202,7 +202,7 @@ export default function HomeworkEditor({
                 onChange={(e) => setDuration(e.target.value)}
                 maxLength={MAX_SHORT}
                 placeholder="Five minutes, for two weeks"
-                className="w-full rounded-xl border border-forest-800/15 bg-ivory px-4 py-2.5 text-[0.94rem] text-forest-900 placeholder:text-ink/60 focus:border-forest-800 focus:outline-none"
+                className="w-full rounded-xl border border-forest-800/15 bg-ivory px-4 py-2.5 text-[0.94rem] text-forest-900 placeholder:text-ink/70 focus:border-forest-800 focus:outline-none"
               />
             </div>
           </div>
@@ -210,7 +210,7 @@ export default function HomeworkEditor({
             <div>
               <label
                 htmlFor="hw-due"
-                className="mb-1.5 block text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-ink/70"
+                className="mb-1.5 block text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-ink/70"
               >
                 By when
               </label>

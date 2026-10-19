@@ -33,6 +33,7 @@ import {
   requiresPrescriber,
   REGISTER_OPTIONS,
 } from "@/lib/professions";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 
 /**
  * The therapist catalogue, as an admin works with it.
@@ -273,7 +274,7 @@ function ChipInput({
           }}
           disabled={disabled}
           placeholder={values.length ? "Add another…" : placeholder}
-          className="min-w-[8rem] flex-1 bg-transparent px-2 py-1 text-[0.95rem] text-forest-900 placeholder:text-ink/35 focus:outline-none"
+          className="min-w-[8rem] flex-1 bg-transparent px-2 py-1 text-[0.95rem] text-forest-900 placeholder:text-ink/70 focus:outline-none"
         />
         <button
           type="button"
@@ -494,7 +495,7 @@ function PhotoField({
           }}
           disabled={disabled || busy}
           placeholder="https://… or /experts/ananya.jpg"
-          className="mt-2 w-full rounded-xl border border-forest-800/15 bg-ivory-light px-3.5 py-2.5 text-[0.9rem] text-forest-900 placeholder:text-ink/35 focus:border-forest-800/40 focus:outline-none"
+          className="mt-2 w-full rounded-xl border border-forest-800/15 bg-ivory-light px-3.5 py-2.5 text-[0.9rem] text-forest-900 placeholder:text-ink/70 focus:border-forest-800/40 focus:outline-none"
         />
       </details>
 
@@ -562,6 +563,7 @@ function ExpertForm({
   const [fields, setFields] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<"save" | "delete" | null>(null);
+  const [confirm, confirmDialog] = useConfirm();
   /** The listing was created but its invite was refused; says why. */
   const [savedWithoutLogin, setSavedWithoutLogin] = useState<string | null>(null);
 
@@ -610,7 +612,15 @@ function ExpertForm({
 
   const onDelete = async () => {
     if (!row) return;
-    if (!window.confirm(`Delete ${row.name} from the catalogue? This can't be undone.`)) return;
+    if (
+      !(await confirm({
+        title: `Delete ${row.name}?`,
+        body: "They come off the catalogue for good. This can't be undone — hiding them keeps their sessions and notes.",
+        confirmLabel: "Delete listing",
+        danger: true,
+      }))
+    )
+      return;
     setBusy("delete");
     setError(null);
     try {
@@ -630,6 +640,7 @@ function ExpertForm({
 
   return (
     <Portal>
+      {confirmDialog}
       <motion.div
         className="fixed inset-0 z-[80] flex items-end justify-center p-0 sm:items-center sm:p-6"
         initial={{ opacity: 0 }}
@@ -892,13 +903,13 @@ function ExpertForm({
                                 set("servicePrices", next);
                               }}
                               className={cn(
-                                "w-24 rounded-lg border bg-ivory-light px-2.5 py-1 text-[0.85rem] text-forest-900 placeholder:text-ink/60 focus:outline-none",
+                                "w-24 rounded-lg border bg-ivory-light px-2.5 py-1 text-[0.85rem] text-forest-900 placeholder:text-ink/70 focus:outline-none",
                                 fields[`servicePrices.${sv.slug}`]
                                   ? "border-red-300"
                                   : "border-forest-800/15 focus:border-forest-800/40"
                               )}
                             />
-                            <span className="text-[0.74rem] text-ink/70">
+                            <span className="text-[0.75rem] text-ink/70">
                               {fields[`servicePrices.${sv.slug}`] ??
                                 (overridden
                                   ? "their rate"
@@ -1125,7 +1136,7 @@ export default function ExpertManager({ rows }: { rows: ExpertRow[] }) {
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search name, language or speciality…"
           aria-label="Search therapists"
-          className="min-w-[16rem] flex-1 rounded-full border border-forest-800/15 bg-ivory-light px-5 py-2.5 text-[0.92rem] text-forest-900 placeholder:text-ink/60 focus:border-forest-800 focus:outline-none"
+          className="min-w-[16rem] flex-1 rounded-full border border-forest-800/15 bg-ivory-light px-5 py-2.5 text-[0.92rem] text-forest-900 placeholder:text-ink/70 focus:border-forest-800 focus:outline-none"
         />
         <p className="text-[0.85rem] text-ink/70">
           {listed} listed · {rows.length - listed} hidden
@@ -1193,7 +1204,7 @@ export default function ExpertManager({ rows }: { rows: ExpertRow[] }) {
                   {row.registrationNo ? (
                     <> · Reg. {row.registrationNo}</>
                   ) : (
-                    <span className="ml-2 rounded-full bg-gold/25 px-2 py-0.5 text-[0.7rem] font-semibold text-gold-dark">
+                    <span className="ml-2 rounded-full bg-gold/25 px-2 py-0.5 text-[0.75rem] font-semibold text-gold-dark">
                       No registration number
                     </span>
                   )}

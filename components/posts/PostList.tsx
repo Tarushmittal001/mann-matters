@@ -33,7 +33,7 @@ const TONE: Record<PostStatus, { label: string; className: string }> = {
   DRAFT: { label: "Draft", className: "bg-forest-800/[0.07] text-ink/70" },
   IN_REVIEW: { label: "In review", className: "bg-gold/25 text-gold-dark" },
   PUBLISHED: { label: "Published", className: "bg-forest-100 text-forest-800" },
-  ARCHIVED: { label: "Unpublished", className: "bg-forest-800/[0.07] text-ink/55" },
+  ARCHIVED: { label: "Unpublished", className: "bg-forest-800/[0.07] text-ink/70" },
 };
 
 function when(iso: string | null) {
@@ -100,7 +100,7 @@ export default function PostList({
   return (
     <div>
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-        <p className="text-[0.92rem] text-ink/65">
+        <p className="text-[0.92rem] text-ink/70">
           {posts.length === 0
             ? "Nothing here yet."
             : `${posts.length} post${posts.length === 1 ? "" : "s"}.`}
@@ -117,7 +117,7 @@ export default function PostList({
       )}
 
       {posts.length === 0 && (
-        <p className="rounded-xl border border-forest-800/15 bg-ivory-light px-6 py-10 text-center leading-relaxed text-ink/60">
+        <p className="rounded-xl border border-forest-800/15 bg-ivory-light px-6 py-10 text-center leading-relaxed text-ink/70">
           Posts you write appear here. Start one and it saves as a draft until
           you are ready.
         </p>
@@ -127,7 +127,7 @@ export default function PostList({
         g.rows.length ? (
           <section key={g.title || "all"} className="mb-10">
             {g.title && (
-              <p className="mb-3 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-ink/45">
+              <p className="mb-3 text-[0.75rem] font-semibold uppercase tracking-[0.16em] text-ink/70">
                 {g.title}
               </p>
             )}
@@ -140,14 +140,14 @@ export default function PostList({
                   >
                     <span className="min-w-0 flex-1">
                       <span className="block font-medium text-forest-900">{p.title}</span>
-                      <span className="mt-0.5 block text-[0.84rem] text-ink/55">
+                      <span className="mt-0.5 block text-[0.84rem] text-ink/70">
                         {p.category} · {p.readMinutes} min
                         {me.role === "ADMIN" && ` · ${p.authorName}`}
                         {p.status === "PUBLISHED" && ` · ${when(p.publishedAt)}`}
                       </span>
                     </span>
                     <span
-                      className={`shrink-0 rounded-full px-3 py-1 text-[0.72rem] font-semibold ${TONE[p.status].className}`}
+                      className={`shrink-0 rounded-full px-3 py-1 text-[0.75rem] font-semibold ${TONE[p.status].className}`}
                     >
                       {TONE[p.status].label}
                     </span>
