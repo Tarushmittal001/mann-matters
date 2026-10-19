@@ -56,12 +56,12 @@ export function Field({
               *
             </span>
           )}
-          {!required && <span className="ml-2 text-[0.75rem] font-normal text-ink/45">optional</span>}
+          {!required && <span className="ml-2 text-[0.75rem] font-normal text-ink/70">optional</span>}
         </label>
-        {counter && <span className="text-[0.75rem] tabular-nums text-ink/45">{counter}</span>}
+        {counter && <span className="text-[0.75rem] tabular-nums text-ink/70">{counter}</span>}
       </div>
       {hint && (
-        <p id={hintId} className="mb-2 mt-1 text-[0.82rem] leading-snug text-ink/60">
+        <p id={hintId} className="mb-2 mt-1 text-[0.82rem] leading-snug text-ink/70">
           {hint}
         </p>
       )}
@@ -154,12 +154,12 @@ export function Toggle({
           htmlFor={id}
           className={cn(
             "text-[0.92rem] font-medium",
-            disabled ? "text-ink/45" : "cursor-pointer text-forest-900"
+            disabled ? "text-ink/70" : "cursor-pointer text-forest-900"
           )}
         >
           {label}
         </label>
-        {hint && <p className="mt-0.5 text-[0.82rem] leading-snug text-ink/60">{hint}</p>}
+        {hint && <p className="mt-0.5 text-[0.82rem] leading-snug text-ink/70">{hint}</p>}
       </div>
       <span className="relative mt-0.5 shrink-0">
         <input
@@ -215,12 +215,12 @@ export function ChipGroup({
       <div className="flex items-baseline justify-between gap-3">
         <legend className="text-[0.86rem] font-semibold text-forest-900">{legend}</legend>
         {max !== undefined && (
-          <span className="text-[0.75rem] tabular-nums text-ink/45">
+          <span className="text-[0.75rem] tabular-nums text-ink/70">
             {selected.length} / {max}
           </span>
         )}
       </div>
-      {hint && <p className="mt-1 text-[0.82rem] leading-snug text-ink/60">{hint}</p>}
+      {hint && <p className="mt-1 text-[0.82rem] leading-snug text-ink/70">{hint}</p>}
       <div className="mt-3 flex flex-wrap gap-2">
         {options.map((option) => {
           const on = selected.includes(option);
@@ -336,7 +336,7 @@ export function SaveBar({
 }) {
   return (
     <div className="sticky bottom-0 -mx-5 mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 rounded-b-2xl border-t border-forest-800/10 bg-ivory-light/95 px-5 py-4 backdrop-blur sm:-mx-6 sm:px-6">
-      <p className="text-[0.84rem] text-ink/60" aria-live="polite">
+      <p className="text-[0.84rem] text-ink/70" aria-live="polite">
         {dirty ? (
           <span className="font-medium text-haldi-ink">Unsaved changes</span>
         ) : savedAt ? (

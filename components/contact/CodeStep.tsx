@@ -41,7 +41,7 @@ export default function CodeStep({
 
       <label
         htmlFor={id}
-        className="mb-1.5 mt-6 block text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink/55"
+        className="mb-1.5 mt-6 block text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink/70"
       >
         Code
       </label>
@@ -67,7 +67,7 @@ export default function CodeStep({
           {c.fields.code}
         </p>
       ) : (
-        <p id={`${id}-hint`} className="mt-1.5 text-[0.8rem] text-ink/50">
+        <p id={`${id}-hint`} className="mt-1.5 text-[0.8rem] text-ink/70">
           It can take a minute, and sometimes lands in spam. The code works for 10 minutes.
         </p>
       )}
@@ -101,7 +101,7 @@ export default function CodeStep({
         </button>
       </div>
 
-      <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-[0.85rem] text-ink/55">
+      <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-[0.85rem] text-ink/70">
         <button
           type="button"
           onClick={c.resend}

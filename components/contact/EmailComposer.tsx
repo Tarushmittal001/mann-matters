@@ -143,7 +143,7 @@ export default function EmailComposer({ open, onClose }: { open: boolean; onClos
                       : "Write to us"}
                 </h2>
                 {(status === "idle" || status === "sending") && (
-                  <p className="mt-1.5 truncate text-[0.9rem] text-ink/60">
+                  <p className="mt-1.5 truncate text-[0.9rem] text-ink/70">
                     To:{" "}
                     <span className="font-medium text-forest-900">Emoraa &lt;{site.email}&gt;</span>
                   </p>
@@ -153,7 +153,7 @@ export default function EmailComposer({ open, onClose }: { open: boolean; onClos
                 type="button"
                 onClick={onClose}
                 aria-label="Close"
-                className="-mr-2 -mt-1 shrink-0 rounded-full p-2 text-ink/45 transition-colors hover:bg-forest-800/5 hover:text-forest-900"
+                className="-mr-2 -mt-1 shrink-0 rounded-full p-2 text-ink/70 transition-colors hover:bg-forest-800/5 hover:text-forest-900"
               >
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                   <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
@@ -179,7 +179,7 @@ export default function EmailComposer({ open, onClose }: { open: boolean; onClos
                   reply to <span className="font-semibold text-forest-900">{c.email.trim()}</span>{" "}
                   within one working day.
                 </p>
-                <p className="mt-3 text-sm text-ink/55">If it&apos;s urgent, WhatsApp is faster.</p>
+                <p className="mt-3 text-sm text-ink/70">If it&apos;s urgent, WhatsApp is faster.</p>
 
                 {c.devFallback && (
                   <div className="mt-6 rounded-2xl border border-gold/40 bg-gold/10 p-5 text-left">
@@ -261,13 +261,13 @@ export default function EmailComposer({ open, onClose }: { open: boolean; onClos
                     {sending && <Spinner className="h-4 w-4" />}
                     {sending ? "Sending…" : "Send"}
                   </button>
-                  <p className="text-[0.8rem] text-ink/50">
+                  <p className="text-[0.8rem] text-ink/70">
                     We&apos;ll email you a code first, to confirm the address is yours.
                   </p>
                 </div>
 
                 {/* for people who would rather use their own mail */}
-                <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-forest-800/10 pt-5 text-[0.85rem] text-ink/55">
+                <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-forest-800/10 pt-5 text-[0.85rem] text-ink/70">
                   <span>Or use your own:</span>
                   <a
                     href={gmail}

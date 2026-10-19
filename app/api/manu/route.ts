@@ -22,7 +22,7 @@ export async function POST(request: Request) {
   try {
     if (!isSameOrigin(request)) return errors.crossOrigin();
 
-    const limited = rateLimit("manu", clientKey(request));
+    const limited = await rateLimit("manu", clientKey(request));
     if (!limited.ok) return errors.rateLimited(limited.retryAfter);
 
     const body = await readJson<Body>(request);
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
         "x-api-key": apiKey,
       },
       body: JSON.stringify({
-        model: process.env.ANTHROPIC_MODEL?.trim() || "claude-3-5-haiku-latest",
+        model: process.env.ANTHROPIC_MODEL?.trim() || "claude-haiku-4-5",
         max_tokens: 240,
         temperature: 0.5,
         system: SYSTEM_PROMPT,

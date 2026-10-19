@@ -147,9 +147,9 @@ export default function TimeOffEditor({
                   )}
                 </p>
                 {b.reason && (
-                  <p className="mt-1 text-[0.82rem] text-ink/55">
+                  <p className="mt-1 text-[0.82rem] text-ink/70">
                     {b.reason}
-                    <span className="ml-2 text-ink/40">private to you and our team</span>
+                    <span className="ml-2 text-ink/70">private to you and our team</span>
                   </p>
                 )}
               </div>

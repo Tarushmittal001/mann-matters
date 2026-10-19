@@ -1,19 +1,32 @@
+import type { Metadata } from "next";
 import Hero from "@/components/sections/Hero";
 import TalkBar from "@/components/sections/TalkBar";
 import TrustStrip from "@/components/sections/TrustStrip";
 import ManuOnWhatsApp from "@/components/sections/ManuOnWhatsApp";
 import HowItWorks from "@/components/sections/HowItWorks";
 import WhyEmoraa from "@/components/sections/WhyEmoraa";
+import NotSure from "@/components/sections/NotSure";
 import Testimonials from "@/components/sections/Testimonials";
 import CTABand from "@/components/sections/CTABand";
 import { prisma } from "@/lib/db";
+import { listExperts } from "@/lib/experts-store";
 import { FEEDBACK_STATUS, toTestimonial } from "@/lib/feedback";
-import { testimonials as sampleStories } from "@/lib/testimonials";
 
 // regenerated at most every 10 minutes, and straight away when an admin approves or hides a story
 export const revalidate = 600;
 
-/** Approved client stories first (newest first), then the sample stories. */
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+    languages: { "en-IN": "/", "hi-IN": "/hi" },
+  },
+};
+
+/**
+ * Approved client stories only, newest first. No invented "sample" stories are
+ * mixed in: a made-up review is a fake review, however kindly written. With
+ * none approved yet the section simply does not render.
+ */
 async function loadStories() {
   try {
     const rows = await prisma.feedback.findMany({
@@ -22,15 +35,15 @@ async function loadStories() {
       orderBy: { reviewedAt: "desc" },
       take: 50,
     });
-    return [...rows.map(toTestimonial), ...sampleStories];
+    return rows.map(toTestimonial);
   } catch {
     // the home page must never fail because the database is unreachable
-    return sampleStories;
+    return [];
   }
 }
 
 export default async function HomePage() {
-  const stories = await loadStories();
+  const [stories, experts] = await Promise.all([loadStories(), listExperts()]);
   return (
     <>
       {/* the promise */}
@@ -38,6 +51,9 @@ export default async function HomePage() {
       {/* the free way in, straight after the promise */}
       <TalkBar />
       <TrustStrip />
+
+      {/* the objection that stops most people: "is this even for me?" */}
+      <NotSure experts={experts} />
 
       {/* the companion, on WhatsApp */}
       <ManuOnWhatsApp />

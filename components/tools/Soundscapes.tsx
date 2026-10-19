@@ -28,28 +28,28 @@ const sounds: SoundDef[] = [
     id: "rain",
     name: "Monsoon rain",
     body: "Steady rainfall on a quiet afternoon",
-    art: "/sounds/monsoon-rain.png",
+    art: "/sounds/monsoon-rain.webp",
     artPos: "object-[center_28%]",
   },
   {
     id: "river",
     name: "Flowing river",
     body: "Deep, low water moving past you",
-    art: "/sounds/flowing-river.png",
+    art: "/sounds/flowing-river.webp",
     artPos: "object-center",
   },
   {
     id: "tanpura",
     name: "Tanpura drone",
     body: "A warm Sa–Pa–Sa hum, like riyaaz at dawn",
-    art: "/sounds/tanpura.png",
+    art: "/sounds/tanpura.webp",
     artPos: "object-[center_88%]",
   },
   {
     id: "wind",
     name: "Hill wind",
     body: "Air moving slowly through high trees",
-    art: "/sounds/hill-wind.png",
+    art: "/sounds/hill-wind.webp",
     artPos: "object-[center_62%]",
   },
 ];
@@ -407,7 +407,7 @@ export default function Soundscapes() {
           </button>
         ))}
         {remaining !== null && (
-          <span className="ml-1 text-xs tabular-nums text-ink/55" aria-live="polite">
+          <span className="ml-1 text-xs tabular-nums text-ink/70" aria-live="polite">
             {Math.floor(remaining / 60)}:{String(remaining % 60).padStart(2, "0")} left
           </span>
         )}
@@ -431,7 +431,7 @@ export default function Soundscapes() {
         />
       </div>
 
-      <p className="mt-6 text-center text-xs leading-relaxed text-ink/45">
+      <p className="mt-6 text-center text-xs leading-relaxed text-ink/70">
         Mix sounds together — rain over a tanpura drone is lovely. Generated
         live in your browser: nothing streams, nothing downloads. The timer
         fades everything out gently, perfect for falling asleep to.

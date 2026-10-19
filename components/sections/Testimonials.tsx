@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Caveat } from "next/font/google";
 import { AnimatePresence, motion, useReducedMotion, type PanInfo } from "framer-motion";
 import Avatar from "@/components/ui/Avatar";
-import { testimonials as sampleStories, type Testimonial } from "@/lib/testimonials";
+import type { Testimonial } from "@/lib/testimonials";
 
 /*
  * One story at a time, with room to breathe — a magazine page, not a carousel.
@@ -29,8 +29,8 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 const SWIPE = 70;
 
 export default function Testimonials({ stories }: { stories?: Testimonial[] }) {
-  // approved client feedback from the home page, or the sample stories
-  const testimonials = stories && stories.length ? stories : sampleStories;
+  // approved client feedback only; with none, the section renders nothing
+  const testimonials = stories ?? [];
   const reduced = useReducedMotion();
   const count = testimonials.length;
   const [active, setActive] = useState(0);
@@ -170,7 +170,7 @@ export default function Testimonials({ stories }: { stories?: Testimonial[] }) {
                     transition={{ duration: 0.6, delay: 0.2 + t.quote.split(" ").length * 0.045 }}
                   >
                     <span className={`${hand.className} text-2xl text-forest-700`}>— {t.name}</span>
-                    <span className="text-sm text-ink/55">{t.detail}</span>
+                    <span className="text-sm text-ink/70">{t.detail}</span>
                   </motion.figcaption>
                 </div>
               </motion.figure>

@@ -23,7 +23,7 @@ import type { Expert } from "@/lib/experts";
  * the result regardless of score, and prominently when scores are high.
  *
  * This is a screener, not a diagnosis, and the result says so. Its job is to
- * narrow ten services down to one sensible starting point.
+ * narrow the catalogue down to one sensible starting point.
  *
  * Privacy: every function here is pure. Answers are held in component state,
  * are never written to storage, and never leave the device.
@@ -184,7 +184,7 @@ export const QUESTIONS: Question[] = SCALES.flatMap((scale) =>
 
 /**
  * The one question the screeners cannot answer: what is this actually about?
- * Scores say how heavy it is; this says which of the ten services fits.
+ * Scores say how heavy it is; this says which service fits.
  */
 export type Context = {
   id: string;
@@ -205,6 +205,10 @@ export const CONTEXTS: Context[] = [
   { id: "love", label: "A relationship I am working through on my own", phrase: "a relationship you are working through on your own", service: "love-life-counselling", concern: "relationships" },
   { id: "partner", label: "My partner and I, together", phrase: "you and your partner, together", service: "couples-counseling", concern: "relationships" },
   { id: "family", label: "My family — parents, siblings, in-laws", phrase: "your family", service: "family-therapy", concern: "relationships" },
+  { id: "child", label: "My child, and how to help them", phrase: "your child", service: "parent-coaching", concern: "relationships" },
+  { id: "sleep", label: "Sleep — falling asleep, staying asleep, never feeling rested", phrase: "sleep, and never feeling rested", service: "sleep-programme", concern: "sleep" },
+  { id: "grief", label: "Somebody I love died, or something ended", phrase: "a loss you are carrying", service: "grief-loss", concern: "relationships" },
+  { id: "teen", label: "I am under 18, and it is a lot", phrase: "being under 18 with a lot on", service: "teen-therapy", concern: "anxiety" },
   { id: "identity", label: "My gender or sexuality, and who knows about it", phrase: "your gender or sexuality, and who knows about it", service: "lgbtqia-affirmative", concern: "anxiety" },
   { id: "self", label: "Myself — how I have been feeling, more than any one thing", phrase: "how you have been feeling, more than any one thing", service: "individual-therapy", concern: "depression" },
 ];
@@ -253,20 +257,42 @@ export function recommend(
   if (clinical) {
     service = svc("psychiatry-medication");
     because =
-      "Your answers sit in the range where a clinician would want to assess properly — not because something is wrong with you, but because at this level medication is worth ruling in or out rather than guessing about.";
+      "Your answers sit in the range where a clinician would want to assess you properly. That is not because something is wrong with you. It is because at this level, medication is worth ruling in or out rather than guessing about.";
     alternative = svc(context?.service ?? "individual-therapy");
   } else if (context) {
     service = svc(context.service);
     because = `You said the weight is mostly about ${context.phrase}, and your scores are in a range therapy handles well.`;
-    // when everything is mild, offer the cheaper way in as well
+    // When everything is mild, offer the cheaper way in as well — except to
+    // somebody who has just told us they are under 18. Our groups are adults,
+    // and a cheaper room is not worth putting a fifteen-year-old in it.
     const mild = anxiety.score < 10 && mood.score < 10 && stress.score < 11;
-    alternative = mild && service.slug !== "group-sessions" ? svc("group-sessions") : svc("individual-therapy");
+    const groupOk = mild && service.slug !== "group-sessions" && context.id !== "teen";
+    alternative = groupOk ? svc("group-sessions") : svc("individual-therapy");
   } else {
     service = svc("individual-therapy");
     because =
       "Nothing points to one specific area, which is usually a sign that open-ended one-to-one work is the right place to start.";
     alternative = svc("daily-life-stress");
   }
+
+  /**
+   * Only recommend what somebody can actually deliver.
+   *
+   * The scores and the situation pick a service; this checks that someone on
+   * the panel is cleared for it. If nobody is — say psychiatry, with no
+   * psychiatrist listed — we fall back to the alternative, then to individual
+   * therapy, and say so honestly, rather than recommending a door that
+   * doesn't open.
+   */
+  const offers = (slug: string) => catalogue.some((e) => e.services.includes(slug));
+  if (!offers(service.slug)) {
+    const fallback = [alternative?.slug, "individual-therapy"].find((s): s is string => !!s && offers(s));
+    if (fallback) {
+      because = `${because} We don't have anyone taking ${service.title} right now, so we'd start with ${svc(fallback).title} and talk it through with you.`;
+      service = svc(fallback);
+    }
+  }
+  if (alternative && !offers(alternative.slug)) alternative = null;
 
   if (alternative && alternative.slug === service.slug) alternative = null;
 
@@ -279,7 +305,11 @@ export function recommend(
         : "stress";
   const concernId = context?.concern ?? (loudest === "mood" ? "depression" : loudest === "stress" ? "stress" : "anxiety");
   const keys = concernMap.find((c) => c.id === concernId)?.keys ?? ["anxiety"];
-  const experts = rank(catalogue, keys, "Any language", () => true).slice(0, 2);
+  // Ranked only among people cleared for the recommended service. Ranking the
+  // whole panel is how a psychiatry recommendation came back with two
+  // psychologists attached.
+  const qualified = catalogue.filter((e) => e.services.includes(service.slug));
+  const experts = rank(qualified, keys, "Any language", () => true).slice(0, 2);
 
   return { results, service, because, alternative, clinical, experts };
 }

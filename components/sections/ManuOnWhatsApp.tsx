@@ -9,15 +9,16 @@ import { useLiteMotion } from "@/lib/use-lite-motion";
 
 /*
  * The chat on the left is the real thing, so it stays. The right side used to
- * be three tabs of paragraphs; now it is six small living tiles, each showing
+ * be three tabs of paragraphs; now it is four small living tiles, each showing
  * its feature in a tiny loop instead of describing it:
  *
  *   talks your language   the greeting keeps switching language      (mint)
- *   anonymous             a name blurs away into dots                 (violet)
  *   mood, tracked gently  a week of mood bars rising and falling      (teal)
  *   streaks               seven days light up into a Bronze badge     (amber)
- *   CBT & DBT tools       a breathing circle, in and out              (moss)
- *   a real psychologist   a heartbeat line, a human on call           (rose)
+ *   calming exercises     a breathing circle, in and out              (moss)
+ *
+ * The first and last are `wide`, so the four fill whole rows instead of
+ * leaving an orphan half-cell.
  *
  * Loops only run while the section is on screen, and not at all for people
  * who ask for reduced motion; they see each tile's settled state.
@@ -54,38 +55,6 @@ function Languages({ live, region }: Live) {
           {lines[i]}
         </motion.span>
       </AnimatePresence>
-    </div>
-  );
-}
-
-function Anonymous({ live, region }: Live) {
-  return (
-    <div className="flex h-9 items-center gap-2.5">
-      <span
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
-        style={{ backgroundColor: tint(region, 0.2) }}
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={region.hex} strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-          <path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.1A9.8 9.8 0 0 1 12 5c5 0 9 4.5 10 7-.4 1-1.2 2.3-2.4 3.5M6.2 6.3C4.2 7.6 2.7 9.6 2 12c1 2.5 5 7 10 7 1.7 0 3.2-.5 4.6-1.2" />
-        </svg>
-      </span>
-      <span className="relative h-5 w-28">
-        <motion.span
-          className="absolute inset-0 text-[0.85rem] font-medium text-ivory"
-          animate={live ? { opacity: [1, 1, 0, 0, 1], filter: ["blur(0px)", "blur(0px)", "blur(6px)", "blur(6px)", "blur(0px)"] } : { opacity: 0 }}
-          transition={live ? { duration: 4.5, repeat: Infinity, times: [0, 0.3, 0.45, 0.85, 1] } : { duration: 0 }}
-        >
-          Priya S., 21
-        </motion.span>
-        <motion.span
-          className="absolute inset-0 text-[0.85rem] font-semibold tracking-[0.25em]"
-          style={{ color: region.hex }}
-          animate={live ? { opacity: [0, 0, 1, 1, 0] } : { opacity: 1 }}
-          transition={live ? { duration: 4.5, repeat: Infinity, times: [0, 0.35, 0.5, 0.85, 1] } : { duration: 0 }}
-        >
-          ••••••
-        </motion.span>
-      </span>
     </div>
   );
 }
@@ -180,26 +149,6 @@ function Breathe({ live, region }: Live) {
   );
 }
 
-function Human({ live, region }: Live) {
-  return (
-    <div className="flex h-9 items-center" aria-hidden="true">
-      <svg width="120" height="30" viewBox="0 0 120 30" fill="none">
-        <path d="M0 15h34l6-10 8 20 7-14 4 4h61" stroke="rgba(255,255,255,0.12)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        <motion.path
-          d="M0 15h34l6-10 8 20 7-14 4 4h61"
-          stroke={region.hex}
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          initial={{ pathLength: live ? 0 : 1 }}
-          animate={live ? { pathLength: [0, 1, 1], opacity: [1, 1, 0] } : { pathLength: 1 }}
-          transition={live ? { duration: 2.4, repeat: Infinity, times: [0, 0.7, 1], ease: "easeInOut" } : { duration: 0 }}
-        />
-      </svg>
-    </div>
-  );
-}
-
 /* ---------------------------------------------------------------- tiles */
 
 const tiles: {
@@ -210,11 +159,9 @@ const tiles: {
   wide?: boolean;
 }[] = [
   { title: "Talks your language", line: "Hinglish, Hindi or English, mid-sentence.", region: REGIONS.mint, Art: Languages, wide: true },
-  { title: "Anonymous, if you want", line: "No name, no number stored.", region: REGIONS.violet, Art: Anonymous },
-  { title: "Mood, tracked gently", line: "One “Mood aaj?” a day.", region: REGIONS.teal, Art: Mood },
-  { title: "Streaks that stick", line: "Seven days in a row earns Bronze.", region: REGIONS.amber, Art: Streak },
-  { title: "CBT & DBT tools", line: "Grounding and breathing, one tap.", region: REGIONS.moss, Art: Breathe },
-  { title: "A real psychologist", line: "Steps in at any sign of harm.", region: REGIONS.rose, Art: Human, wide: true },
+  { title: "Keeps track of your mood", line: "One “Mood aaj?” a day.", region: REGIONS.teal, Art: Mood },
+  { title: "Streaks", line: "Reply seven days in a row and you earn Bronze.", region: REGIONS.amber, Art: Streak },
+  { title: "Calming exercises", line: "Breathing and grounding, one tap away.", region: REGIONS.moss, Art: Breathe, wide: true },
 ];
 
 export default function ManuOnWhatsApp() {
@@ -270,7 +217,7 @@ export default function ManuOnWhatsApp() {
                 Meet Manu — your <em className="italic text-sage">4 a.m. dost</em>
               </h2>
               <p className="mt-4 max-w-md leading-relaxed text-sage-light/75">
-                No new app, no waiting room. Try it right here.
+                Free, any hour. Nothing to download. Try it right here.
               </p>
             </Reveal>
 

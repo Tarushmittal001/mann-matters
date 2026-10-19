@@ -50,6 +50,7 @@ export default function SlotPicker({
   refreshToken = 0,
   currentSlot,
   compact,
+  duration,
 }: {
   expertId: string;
   value: SlotSelection;
@@ -59,6 +60,9 @@ export default function SlotPicker({
   /** When moving an existing session, the time it currently occupies. */
   currentSlot?: { date: string; time: string };
   compact?: boolean;
+  /** The chosen service's length, e.g. "45 minutes". Services run 30–90, so
+   *  this is only stated when we actually know which one is being booked. */
+  duration?: string;
 }) {
   // built on the client so a statically-rendered page never ships a stale calendar
   const [days, setDays] = useState<Day[]>([]);
@@ -152,7 +156,7 @@ export default function SlotPicker({
 
       {/* ---- times ---- */}
       {!value.date ? (
-        <p className={cn("text-sm text-ink/50", compact ? "mt-5" : "mt-7")}>
+        <p className={cn("text-sm text-ink/70", compact ? "mt-5" : "mt-7")}>
           Pick a day to see what&apos;s open.
         </p>
       ) : (
@@ -216,7 +220,7 @@ export default function SlotPicker({
 
                 return (
                   <div key={group.group}>
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink/50">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink/70">
                       {group.group}
                     </p>
                     <div className="mt-3 flex flex-wrap gap-2.5">
@@ -259,8 +263,9 @@ export default function SlotPicker({
                   </div>
                 );
               })}
-              <p className="text-[0.8rem] text-ink/45">
-                {openCount} of {slots.length} times open · all times IST · 50-minute sessions
+              <p className="text-[0.8rem] text-ink/70">
+                {openCount} of {slots.length} times open · all times IST
+                {duration ? ` · ${duration}` : ""}
               </p>
             </div>
           )}

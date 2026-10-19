@@ -6,6 +6,7 @@ import {
   timesOverlap,
   weekdayOf,
 } from "@/lib/clinic-time";
+import { durationMinutesFor } from "@/lib/services";
 
 /* ────────────────────────────────────────────────────────────────────────────
    Session status
@@ -44,6 +45,61 @@ export const STATUS_META: Record<SessionStatus, StatusMeta> = {
   },
 };
 
+/**
+ * Every status a booking can show a practitioner, including the ones they do
+ * not set themselves.
+ *
+ * `SESSION_STATUSES` above is the list of *outcomes* a practitioner records,
+ * and `isSessionStatus` guards that action — REQUESTED is not an outcome and
+ * must never be settable through it. This map is for reading: the board, the
+ * table and the cards all need to render a request or a decline.
+ *
+ * Yellow waiting, green agreed, red not happening. The colour is never the
+ * only carrier — each one has a label, because a colour alone is unreadable
+ * to anyone who cannot distinguish these two, and meaningless in a screen
+ * reader.
+ */
+export const BOOKING_STATUS_META: Record<string, StatusMeta> = {
+  ...STATUS_META,
+  REQUESTED: {
+    label: "Pending",
+    tone: "bg-haldi/20 text-haldi-ink ring-1 ring-inset ring-haldi/45",
+    hint: "Waiting on you. The slot is held and nothing has been charged.",
+  },
+  PENDING_PAYMENT: {
+    label: "Accepted · awaiting payment",
+    tone: "bg-haldi/15 text-haldi-ink ring-1 ring-inset ring-haldi/35",
+    hint: "You said yes. It is confirmed once the client pays.",
+  },
+  DECLINED: {
+    label: "Declined",
+    tone: "bg-red-50 text-red-700 ring-1 ring-inset ring-red-200",
+    hint: "You did not take this one. The slot went back on your calendar.",
+  },
+  EXPIRED: {
+    label: "Lapsed",
+    tone: "bg-forest-800/[0.06] text-ink/70 ring-1 ring-inset ring-forest-800/10",
+    hint: "Nobody answered in time, so the slot was released.",
+  },
+};
+
+export function statusMeta(status: string): StatusMeta {
+  return (
+    BOOKING_STATUS_META[status] ?? {
+      label: status,
+      tone: "bg-forest-800/[0.06] text-ink/70 ring-1 ring-inset ring-forest-800/10",
+      hint: "",
+    }
+  );
+}
+
+/**
+ * Every status a booking can be *in*, as opposed to the outcomes a
+ * practitioner can *set*. A view has to render all of them; only
+ * `SessionStatus` may be written through the status action.
+ */
+export type ViewStatus = SessionStatus | "REQUESTED" | "DECLINED" | "PENDING_PAYMENT" | "EXPIRED";
+
 export function isSessionStatus(v: unknown): v is SessionStatus {
   return typeof v === "string" && (SESSION_STATUSES as readonly string[]).includes(v);
 }
@@ -62,7 +118,26 @@ export type TimedSession = {
   time: string;
   status: string;
   meetingUrl?: string | null;
+  /** What was booked. Absent on sessions taken before the service was stored. */
+  serviceSlug?: string | null;
 };
+
+/**
+ * How long this session runs.
+ *
+ * The service decides, because the service is what was sold: 30 minutes for a
+ * psychiatry consultation, 90 for a group. The practitioner's own
+ * `sessionMinutes` is only the fallback, for bookings made before the service
+ * was recorded on them.
+ *
+ * Everything below — when a session reads as finished, when the room shuts —
+ * used to run off that flat fallback alone. At 50 minutes for everybody, a
+ * 90-minute group was marked "past" forty minutes early and its room closed
+ * ten minutes before the group did.
+ */
+export function sessionLength(s: TimedSession, fallbackMinutes: number): number {
+  return (s.serviceSlug ? durationMinutesFor(s.serviceSlug) : null) ?? fallbackMinutes;
+}
 
 export function sessionMinutesAway(s: TimedSession, now: Date = new Date()) {
   return minutesUntil(s.date, s.time, now);
@@ -74,7 +149,7 @@ export function sessionPhase(
   now: Date = new Date()
 ): SessionPhase {
   const away = sessionMinutesAway(s, now);
-  if (away <= -sessionMinutes) return "past";
+  if (away <= -sessionLength(s, sessionMinutes)) return "past";
   if (away <= 0) return "live";
   if (away <= JOIN_OPENS_MINUTES_BEFORE) return "soon";
   return "later";
@@ -112,7 +187,7 @@ export function meetingAccess(
     return { state: "unavailable", reason: "Marked as a no-show — the room has been released." };
   }
   const away = sessionMinutesAway(s, now);
-  const closesIn = away + sessionMinutes + JOIN_CLOSES_MINUTES_AFTER;
+  const closesIn = away + sessionLength(s, sessionMinutes) + JOIN_CLOSES_MINUTES_AFTER;
   if (closesIn <= 0) return { state: "closed" };
   if (away > JOIN_OPENS_MINUTES_BEFORE) {
     return { state: "early", opensInMinutes: away - JOIN_OPENS_MINUTES_BEFORE };
@@ -130,7 +205,7 @@ const MEETING_HOSTS = [
   "whereby.com",
   "meet.jit.si",
   "daily.co",
-  "mannmatters.in",
+  "emoraa.com",
 ];
 
 export function validateMeetingUrl(
@@ -181,7 +256,17 @@ export function meetingHostLabel(url: string) {
 
 export type ClientSafeClient = {
   displayName: string;
+  /** Their actual name, shown on the session itself. */
+  fullName: string;
   initials: string;
+  age: number | null;
+  gender: string | null;
+  /** The language they said they would rather talk in, if any. */
+  language: string | null;
+  /** Their own picture, if they set one. Served by a route that checks you
+      have a booking with them — so it renders with a plain <img>, never
+      next/image, whose optimiser fetches without the session cookie. */
+  avatar: string | null;
   maskedEmail: string;
   sessionsWithYou: number;
   isReturning: boolean;
@@ -238,7 +323,7 @@ export const NOTES_POLICY_COPY: Record<NotesPolicy, { label: string; short: stri
   PENDING: {
     label: "Note-keeping pending approval",
     short: "Pending approval",
-    body: "Notes stay switched off until your data-handling agreement is countersigned. Until then please keep records in your own RCI-compliant system. Nothing typed here would be stored, so we do not offer the field at all.",
+    body: "Notes stay switched off until your data-handling agreement is countersigned. Until then please keep records in your own secure, compliant system. Nothing typed here would be stored, so we do not offer the field at all.",
   },
   BLOCKED: {
     label: "Note-keeping held elsewhere",

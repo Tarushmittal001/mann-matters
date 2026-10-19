@@ -5,6 +5,7 @@ import {
   getTimeOff,
   listExpertSessions,
   requireExpertContext,
+  listRequests,
 } from "@/lib/expert-data";
 import {
   addDays,
@@ -20,6 +21,7 @@ import {
   timeOffCoversSession,
   weeklyHours,
 } from "@/lib/expert-portal";
+import RequestBoard from "@/components/expert/RequestBoard";
 import { EmptyState, InlineAlert, Panel, PanelHeader } from "@/components/expert/Panel";
 import SessionCard from "@/components/expert/SessionCard";
 
@@ -32,11 +34,12 @@ export default async function ExpertTodayPage() {
   const now = new Date(serverNow);
   const today = ctx.today;
 
-  const [sessions, bands, timeOff] = await Promise.all([
+  const [sessions, requests, bands, timeOff] = await Promise.all([
     listExpertSessions(expertId, sessionMinutes, {
       from: addDays(today, -30),
       to: addDays(today, 21),
     }),
+    listRequests(expertId, sessionMinutes),
     getAvailability(expertId),
     getTimeOff(expertId, today),
   ]);
@@ -106,8 +109,8 @@ export default async function ExpertTodayPage() {
             <p className="font-display text-2xl font-medium leading-tight text-forest-900 sm:text-[1.75rem]">
               {s.value}
             </p>
-            <p className="mt-1 text-[0.8rem] leading-snug text-ink/60">{s.label}</p>
-            {s.hint && <p className="mt-0.5 text-[0.76rem] text-ink/45">{s.hint}</p>}
+            <p className="mt-1 text-[0.8rem] leading-snug text-ink/70">{s.label}</p>
+            {s.hint && <p className="mt-0.5 text-[0.76rem] text-ink/70">{s.hint}</p>}
           </div>
         ))}
       </div>
@@ -200,12 +203,32 @@ export default async function ExpertTodayPage() {
       )}
 
       {/* ── today ─────────────────────────────────────────────────────────── */}
+      <section aria-labelledby="requests-heading" className="mb-14">
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <h2 id="requests-heading" className="font-display text-2xl font-medium text-forest-900">
+            Waiting on you
+            {requests.length > 0 && (
+              <span className="ml-2.5 rounded-full bg-haldi/25 px-2.5 py-1 align-middle text-[0.72rem] font-semibold text-haldi-ink">
+                {requests.length}
+              </span>
+            )}
+          </h2>
+        </div>
+        <p className="mt-2 max-w-2xl text-[0.92rem] text-ink/70">
+          Nobody is charged until you accept. A request you leave unanswered releases its slot
+          automatically, so the time does not sit blocked.
+        </p>
+        <div className="mt-5">
+          <RequestBoard requests={requests} />
+        </div>
+      </section>
+
       <section aria-labelledby="today-heading">
         <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
           <h2 id="today-heading" className="font-display text-2xl font-medium text-forest-900">
             Today
           </h2>
-          <p className="text-[0.84rem] text-ink/55">
+          <p className="text-[0.84rem] text-ink/70">
             {todaysBands.length > 0 ? (
               <>
                 Your hours:{" "}

@@ -144,7 +144,7 @@ export default function ChatAssistant() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Type a message…"
-                className="w-full rounded-full border border-forest-800/15 bg-ivory-light px-4 py-2.5 text-sm text-forest-900 placeholder:text-ink/40 focus:border-gold focus:outline-none"
+                className="w-full rounded-full border border-forest-800/15 bg-ivory-light px-4 py-2.5 text-sm text-forest-900 placeholder:text-ink/60 focus:border-gold focus:outline-none"
               />
               <button type="submit" aria-label="Send" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-forest-800 text-ivory transition-colors hover:bg-forest-700">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">

@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { listStockAvatars } from "@/lib/avatars";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { initialsOf } from "@/lib/expert-portal";
+import AvatarPicker from "@/components/profile/AvatarPicker";
 import ProfileForm from "@/components/profile/ProfileForm";
 import PasswordForm from "@/components/profile/PasswordForm";
 import { CrisisLine } from "@/components/ui/Feedback";
@@ -26,6 +29,9 @@ export default async function ProfilePage() {
       name: true,
       age: true,
       gender: true,
+      city: true,
+      state: true,
+      avatar: true,
       organisation: true,
       email: true,
       phone: true,
@@ -74,6 +80,17 @@ export default async function ProfilePage() {
       <div className="mt-14 grid gap-12 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-16">
         <div className="space-y-14">
           <section>
+            <h2 className="font-display text-2xl font-medium text-forest-900">Your picture</h2>
+            <div className="mt-6 max-w-xl">
+              <AvatarPicker
+                initial={user.avatar}
+                initials={initialsOf(user.name)}
+                stock={listStockAvatars()}
+              />
+            </div>
+          </section>
+
+          <section className="border-t border-forest-800/10 pt-12">
             <h2 className="font-display text-2xl font-medium text-forest-900">About you</h2>
             <div className="mt-6 max-w-xl">
               <ProfileForm
@@ -81,6 +98,8 @@ export default async function ProfilePage() {
                   name: user.name,
                   age: user.age ? String(user.age) : "",
                   gender: user.gender ?? "",
+                  city: user.city ?? "",
+                  state: user.state ?? "",
                   organisation: user.organisation ?? "",
                   email: user.email,
                   phone: user.phone ?? "",
@@ -96,7 +115,7 @@ export default async function ProfilePage() {
 
           <section className="border-t border-forest-800/10 pt-12">
             <h2 className="font-display text-2xl font-medium text-forest-900">Password</h2>
-            <p className="mt-2 max-w-xl text-[0.92rem] text-ink/60">
+            <p className="mt-2 max-w-xl text-[0.92rem] text-ink/70">
               We&apos;ll ask for your current password first — that&apos;s what stops a borrowed
               laptop from becoming a lost account.
             </p>
@@ -130,7 +149,7 @@ export default async function ProfilePage() {
                 </li>
               ))}
             </ul>
-            <p className="mt-6 border-t border-forest-800/10 pt-5 text-[0.82rem] leading-relaxed text-ink/55">
+            <p className="mt-6 border-t border-forest-800/10 pt-5 text-[0.82rem] leading-relaxed text-ink/70">
               We never see what happens inside a session. We don&apos;t sell data. To export or
               delete everything we hold,{" "}
               <Link href="/contact" className="font-medium text-forest-800 underline underline-offset-2">

@@ -28,8 +28,8 @@ export default function CTABand() {
           </h2>
           <p className="mt-7 max-w-xl text-lg leading-relaxed text-sage-light/80">
             The first session is just a conversation. No commitment, no
-            diagnosis on day one, no one else needs to know. Fifty minutes
-            that are entirely yours.
+            diagnosis on day one, no one else needs to know. Time that is
+            entirely yours.
           </p>
           <div className="mt-10 flex flex-wrap gap-4">
             <Button href="/book" variant="gold">

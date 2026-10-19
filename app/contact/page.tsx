@@ -9,6 +9,7 @@ import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Contact — Talk to a human",
+  alternates: { canonical: "/contact" },
   description:
     "Questions about therapy, pricing, or how Emoraa works? Email, call, or WhatsApp us — a real person replies within one working day.",
 };
@@ -38,13 +39,13 @@ export default function ContactPage() {
 
             <dl className="mt-12 space-y-6">
               <div>
-                <dt className="text-xs uppercase tracking-[0.18em] text-ink/50">Email</dt>
+                <dt className="text-xs uppercase tracking-[0.18em] text-ink/70">Email</dt>
                 <dd className="mt-1">
                   <EmailLink className="link-draw font-display text-2xl font-medium text-forest-900" />
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-[0.18em] text-ink/50">Phone</dt>
+                <dt className="text-xs uppercase tracking-[0.18em] text-ink/70">Phone</dt>
                 <dd className="mt-1">
                   <a href={`tel:${site.phone.replace(/\s/g, "")}`} className="link-draw font-display text-2xl font-medium text-forest-900">
                     {site.phone}
@@ -52,7 +53,7 @@ export default function ContactPage() {
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-[0.18em] text-ink/50">WhatsApp</dt>
+                <dt className="text-xs uppercase tracking-[0.18em] text-ink/70">WhatsApp</dt>
                 <dd className="mt-1">
                   <a
                     href={site.whatsapp}
@@ -65,7 +66,7 @@ export default function ContactPage() {
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-[0.18em] text-ink/50">Where we are</dt>
+                <dt className="text-xs uppercase tracking-[0.18em] text-ink/70">Where we are</dt>
                 <dd className="mt-1 text-ink/70">{site.location}</dd>
               </div>
             </dl>

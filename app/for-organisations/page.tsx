@@ -14,8 +14,9 @@ import OpenHandbook from "@/components/visuals/OpenHandbook";
 
 export const metadata: Metadata = {
   title: "For schools, colleges & companies",
+  alternates: { canonical: "/for-organisations" },
   description:
-    "Mental-health programs for Indian institutions — play schools, schools, colleges, coaching institutes, companies and NGOs. RCI-licensed psychologists, WhatsApp-first access, gatekeeper training, and a crisis protocol in writing.",
+    "Mental-health programs for Indian institutions — play schools, schools, colleges, coaching institutes, companies and NGOs. Certified psychologists, WhatsApp-first access, gatekeeper training, and a crisis protocol in writing.",
 };
 
 export default function ForOrganisationsPage() {
@@ -64,11 +65,11 @@ export default function ForOrganisationsPage() {
               <br />
               four thousand students.
               <br />
-              <em className="text-forest-600">Let&apos;s fix the arithmetic.</em>
+              <em className="text-forest-600">Let us change that.</em>
             </h1>
             <p className="mt-8 max-w-2xl text-lg leading-relaxed text-ink/70">
               We build mental-health programs for Indian schools, campuses and
-              workplaces — the licensed clinicians, the WhatsApp access young
+              workplaces — the qualified clinicians, the WhatsApp access young
               people will actually use, the training for the adults around them,
               and the crisis protocol you hope never to need.
             </p>
@@ -78,7 +79,7 @@ export default function ForOrganisationsPage() {
                 Ask on WhatsApp
               </Button>
             </div>
-            <p className="mt-6 text-sm text-ink/50">
+            <p className="mt-6 text-sm text-ink/70">
               Thirty minutes, no deck. Often we&apos;ll tell you the problem is smaller
               than you think.
             </p>
@@ -109,7 +110,7 @@ export default function ForOrganisationsPage() {
                   You will never see what an individual says in session.
                 </strong>{" "}
                 Not a name, not a transcript, not a list of who booked. You get
-                aggregate patterns and utilisation — nothing that could identify
+                overall patterns and how much the programme is used — nothing that could identify
                 one student or one employee. A program that breaks this promise
                 is a program nobody uses, and we would rather lose the contract.
               </p>

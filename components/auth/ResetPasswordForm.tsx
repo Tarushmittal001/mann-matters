@@ -5,9 +5,19 @@ import Button from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { Alert, CrisisLine, Spinner } from "@/components/ui/Feedback";
 import { PASSWORD_MIN, validatePassword } from "@/lib/validation";
+import { firstNameOf } from "@/lib/utils";
 
 /** Set a new password from an emailed link. The link's validity is checked on the server first. */
-export default function ResetPasswordForm({ token, name }: { token: string; name: string }) {
+export default function ResetPasswordForm({
+  token,
+  name,
+  welcome = false,
+}: {
+  token: string;
+  name: string;
+  /** Arrived from a practitioner invite: this is a first password, not a replacement. */
+  welcome?: boolean;
+}) {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [fields, setFields] = useState<Record<string, string>>({});
@@ -58,27 +68,35 @@ export default function ResetPasswordForm({ token, name }: { token: string; name
           <span className="font-deva text-sm normal-case tracking-normal text-gold" aria-hidden="true">
             मन
           </span>
-          new password
+          {welcome ? "welcome to emoraa" : "new password"}
         </p>
 
         {expired ? (
           <>
             <h1 className="h-display text-4xl">That link has expired.</h1>
             <p className="mt-4 leading-relaxed text-ink/65">
-              Reset links work once and last an hour. Ask for a fresh one and you&apos;ll be back in
-              shortly.
+              {welcome
+                ? "Invite links work once. Ask whoever set up your account to send another."
+                : "Reset links work once and last an hour. Ask for a fresh one and you'll be back in shortly."}
             </p>
-            <div className="mt-8">
-              <Button href="/forgot-password" variant="forest">
-                Send me a new link
-              </Button>
-            </div>
+            {!welcome && (
+              <div className="mt-8">
+                <Button href="/forgot-password" variant="forest">
+                  Send me a new link
+                </Button>
+              </div>
+            )}
           </>
         ) : (
           <>
-            <h1 className="h-display text-4xl">Choose a new password{name ? `, ${name.split(" ")[0]}` : ""}.</h1>
+            <h1 className="h-display text-4xl">
+              {welcome ? "Choose a password" : "Choose a new password"}
+              {firstNameOf(name) ? `, ${firstNameOf(name)}` : ""}.
+            </h1>
             <p className="mt-4 leading-relaxed text-ink/65">
-              Once it&apos;s saved you&apos;ll be signed in here, and signed out everywhere else.
+              {welcome
+                ? "This is yours alone — nobody at Emoraa can see it. Once it's saved you'll be signed in and taken to your sessions."
+                : "Once it's saved you'll be signed in here, and signed out everywhere else."}
             </p>
 
             <form onSubmit={onSubmit} className="mt-8 space-y-4" noValidate>

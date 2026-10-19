@@ -29,14 +29,28 @@ import type { SerializedBooking } from "@/lib/features/booking/server";
  * absent from anything anyone else can see.
  */
 
-type Tone = "confirmed" | "pending" | "failed" | "cancelled" | "expired" | "refunded";
+type Tone =
+  | "requested"
+  | "declined"
+  | "confirmed"
+  | "completed"
+  | "noShow"
+  | "pending"
+  | "failed"
+  | "cancelled"
+  | "expired"
+  | "refunded";
 
 const chips: Record<Tone, { label: string; cls: string }> = {
   confirmed: { label: "Confirmed", cls: "bg-sage-light/70 text-forest-800" },
+  completed: { label: "Completed", cls: "bg-forest-100 text-forest-700" },
+  noShow: { label: "Missed", cls: "bg-forest-800/8 text-ink/70" },
+  requested: { label: "With the therapist", cls: "bg-gold/20 text-gold-dark" },
+  declined: { label: "Not taken up", cls: "bg-red-50 text-red-700" },
   pending: { label: "Payment due", cls: "bg-gold/20 text-gold-dark" },
   failed: { label: "Payment failed", cls: "bg-red-50 text-red-700" },
   cancelled: { label: "Cancelled", cls: "bg-red-50 text-red-700" },
-  expired: { label: "Expired", cls: "bg-forest-800/8 text-ink/55" },
+  expired: { label: "Expired", cls: "bg-forest-800/8 text-ink/70" },
   refunded: { label: "Refunded", cls: "bg-forest-100 text-forest-700" },
 };
 
@@ -46,6 +60,18 @@ function toneOf(b: SerializedBooking): Tone {
   }
   if (b.status === BOOKING_STATUS.expired) return "expired";
   if (b.status === BOOKING_STATUS.confirmed) return "confirmed";
+  /* Asked for but not yet agreed to. Without this it fell through to the
+     unpaid branch and read "Payment due" — asking somebody for money for a
+     session nobody has accepted yet, which is the thing this whole flow
+     exists to avoid. */
+  if (b.status === BOOKING_STATUS.requested) return "requested";
+  if (b.status === BOOKING_STATUS.declined) return "declined";
+  // A session somebody attended and paid for was reading "Payment due", because
+  // the two statuses the practitioner sets had no case here and fell through to
+  // the unpaid branch below. Telling a client they owe money for a session they
+  // have already had is the worst wrong label on this card.
+  if (b.status === BOOKING_STATUS.completed) return "completed";
+  if (b.status === BOOKING_STATUS.noShow) return "noShow";
   return b.payment?.status === PAYMENT_STATUS.failed ? "failed" : "pending";
 }
 
@@ -78,6 +104,7 @@ function MeetingRow({
       time: booking.time,
       status: booking.status,
       meetingUrl: server?.state === "open" ? server.url : null,
+      serviceSlug: booking.serviceSlug ?? null,
     },
     SESSION_MINUTES,
     now
@@ -180,6 +207,10 @@ export default function BookingCard({
     booking.status === BOOKING_STATUS.pendingPayment &&
     hoursUntil(booking.date, booking.time) > 0;
   const method = paidWith(booking);
+  // a refunded session still gets a receipt: the money moved, twice
+  const hasReceipt =
+    booking.payment?.status === PAYMENT_STATUS.paid ||
+    booking.payment?.status === PAYMENT_STATUS.refunded;
 
   return (
     <div
@@ -219,7 +250,7 @@ export default function BookingCard({
             {concern && <> · {concern.label}</>}
           </p>
 
-          <p className="mt-1 text-sm text-ink/55">
+          <p className="mt-1 text-sm text-ink/70">
             Ref{" "}
             <span className="font-mono font-semibold text-forest-800">{booking.ref}</span> ·{" "}
             {/* ₹0 reads like an error; the free session should say what it is */}
@@ -228,7 +259,7 @@ export default function BookingCard({
           </p>
 
           {booking.previousDate && booking.status === BOOKING_STATUS.confirmed && (
-            <p className="mt-1 text-[0.8rem] text-ink/45">
+            <p className="mt-1 text-[0.8rem] text-ink/70">
               Moved from {formatDateISO(booking.previousDate)}
               {booking.previousTime ? ` at ${booking.previousTime}` : ""}
             </p>
@@ -241,9 +272,14 @@ export default function BookingCard({
           )}
         </div>
 
-        {upcoming && !dimmed && (
+        {/* Everything you can DO with this session, in one column on the right.
+            The receipt belongs here rather than under the reference — it is an
+            action, not a detail. It is also the one that outlives the session,
+            so this column cannot be gated on `upcoming` the way the other
+            three are: a receipt is most wanted after the session, not before. */}
+        {(hasReceipt || (upcoming && !dimmed)) && (
           <div className="flex shrink-0 flex-wrap items-center gap-5">
-            {booking.status === BOOKING_STATUS.confirmed && (
+            {upcoming && !dimmed && booking.status === BOOKING_STATUS.confirmed && (
               <>
                 <a
                   href={`/api/bookings/${booking.id}/calendar`}
@@ -258,7 +294,22 @@ export default function BookingCard({
                 <RescheduleDialog booking={booking} />
               </>
             )}
-            <CancelBookingButton booking={booking} />
+
+            {hasReceipt && (
+              <Link
+                href={`/receipt/${booking.id}`}
+                className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-forest-800 hover:text-forest-600"
+              >
+                <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+                  <path d="M5 2.5h10v15l-2.5-1.5-2.5 1.5-2.5-1.5L5 17.5v-15Z" strokeLinejoin="round" />
+                  <path d="M8 7h4M8 10.5h4" strokeLinecap="round" />
+                </svg>
+                Receipt
+              </Link>
+            )}
+
+            {/* last, because it is the destructive one */}
+            {upcoming && !dimmed && <CancelBookingButton booking={booking} />}
           </div>
         )}
       </div>
@@ -266,6 +317,34 @@ export default function BookingCard({
       <MeetingRow booking={booking} serverNow={serverNow} />
 
       {/* payment still owed */}
+      {booking.status === BOOKING_STATUS.requested && (
+        <Alert tone="info" className="mt-6">
+          This is with {expert?.name ?? "your therapist"} now. We&apos;re holding the time while
+          they look, and <strong>nothing has been charged</strong>. We&apos;ll email you the
+          moment they answer — if they can&apos;t take it, you pay nothing and we&apos;ll help you
+          find someone who can.
+        </Alert>
+      )}
+
+      {booking.status === BOOKING_STATUS.declined && (
+        <Alert
+          tone="warning"
+          className="mt-6"
+          action={
+            <Link
+              href="/book"
+              className="press rounded-full bg-gold px-5 py-2.5 text-[0.88rem] font-semibold text-forest-950 transition-colors hover:bg-gold-dark"
+            >
+              Find another time
+            </Link>
+          }
+        >
+          This time wasn&apos;t available after all, and <strong>nothing was charged</strong>.
+          It happens for practical reasons and says nothing about you — other practitioners have
+          time this week.
+        </Alert>
+      )}
+
       {needsPayment && !paying && (
         <Alert
           tone={booking.payment?.status === PAYMENT_STATUS.failed ? "error" : "warning"}
@@ -315,7 +394,7 @@ export default function BookingCard({
       )}
 
       {booking.status === BOOKING_STATUS.expired && (
-        <p className="mt-4 text-[0.85rem] text-ink/55">
+        <p className="mt-4 text-[0.85rem] text-ink/70">
           This hold lapsed before it was paid for, so the time went back to the calendar. Nothing was
           charged.{" "}
           <Link href="/book" className="link-draw font-medium text-forest-800">

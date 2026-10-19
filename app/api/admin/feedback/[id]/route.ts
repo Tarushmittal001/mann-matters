@@ -1,4 +1,5 @@
 import { revalidatePath } from "next/cache";
+import { record } from "@/lib/audit";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { FEEDBACK_STATUS } from "@/lib/feedback";
@@ -31,6 +32,15 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     if (updated.count === 0) return errors.notFound("That feedback no longer exists.");
 
     revalidatePath("/");
+    /* The decision is recorded, never the words: this trail is read by people
+       who are not the client's practitioner, and the feedback body is theirs. */
+    await record(
+      session,
+      status === "APPROVED" ? "feedback.approve" : "feedback.hide",
+      { type: "feedback", id: params.id },
+      `${status === "APPROVED" ? "Published" : "Hid"} a piece of client feedback`
+    );
+
     return privateJson({ ok: true, status });
   } catch (err) {
     logFailure("admin.feedback", err);

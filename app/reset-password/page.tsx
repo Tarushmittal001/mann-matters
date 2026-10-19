@@ -14,9 +14,13 @@ export const dynamic = "force-dynamic";
 export default async function ResetPasswordPage({
   searchParams,
 }: {
-  searchParams: { token?: string };
+  searchParams: { token?: string; welcome?: string };
 }) {
   const token = searchParams.token?.trim() ?? "";
+  /* An invited practitioner arrives here having never had a password, so
+     "choose a NEW password" and "reset links expire after an hour" are both
+     wrong for them. Same screen, same token, different words. */
+  const welcome = searchParams.welcome === "1";
   // checked here so a dead link says so immediately, instead of after typing a password
   const user = token ? await resetTokenOwner(token) : null;
 
@@ -32,8 +36,9 @@ export default async function ResetPasswordPage({
           </p>
           <h1 className="h-display text-4xl">This link doesn&apos;t work any more.</h1>
           <p className="mt-4 leading-relaxed text-ink/65">
-            Reset links can be used once and expire after an hour. Ask for a fresh one and
-            you&apos;ll be back in shortly.
+            {welcome
+              ? "Invite links can be used once, and this one has been used or has run out. Ask your admin to send a fresh one."
+              : "Reset links can be used once and expire after an hour. Ask for a fresh one and you'll be back in shortly."}
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-5">
             <Button href="/forgot-password" variant="forest">
@@ -49,5 +54,5 @@ export default async function ResetPasswordPage({
     );
   }
 
-  return <ResetPasswordForm token={token} name={user.name} />;
+  return <ResetPasswordForm token={token} name={user.name} welcome={welcome} />;
 }

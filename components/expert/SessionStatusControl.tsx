@@ -8,6 +8,7 @@ import {
   sessionMinutesAway,
   sessionPhase,
   type SessionStatus,
+  statusMeta,
 } from "@/lib/expert-portal";
 import type { ExpertSessionView } from "@/lib/expert-data";
 import { ActionButton, ConfirmDialog, Field, TextArea } from "@/components/expert/controls";
@@ -83,7 +84,7 @@ export default function SessionStatusControl({
 
   if (session.status === "CANCELLED") {
     return (
-      <p className="text-[0.84rem] text-ink/60">
+      <p className="text-[0.84rem] text-ink/70">
         Cancelled sessions are final. If the client wants another slot they book it themselves —
         nothing here to change.
       </p>
@@ -112,7 +113,7 @@ export default function SessionStatusControl({
     <div className={compact ? "" : "space-y-4"}>
       {!compact && (
         <p className="text-[0.86rem] leading-relaxed text-ink/70">
-          {STATUS_META[session.status].hint}
+          {statusMeta(session.status).hint}
           {session.status === "CONFIRMED" && (
             <>
               {" "}
@@ -159,7 +160,7 @@ export default function SessionStatusControl({
         )}
 
         {session.status === "CONFIRMED" && !started && phase === "later" && (
-          <p className="text-[0.82rem] text-ink/55">
+          <p className="text-[0.82rem] text-ink/70">
             Outcome buttons appear once it starts, at {formatClinicTime(session.time)} on{" "}
             {formatDate(session.date)}.
           </p>
@@ -172,7 +173,7 @@ export default function SessionStatusControl({
         body={
           <>
             <p>{pending ? dialogCopy[pending].body : ""}</p>
-            <p className="text-ink/60">
+            <p className="text-ink/70">
               {session.ref} · {formatDate(session.date)} at {formatClinicTime(session.time)}
             </p>
             {pending === "CANCELLED" && lateCancel && (

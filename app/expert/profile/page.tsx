@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { requireExpertContext } from "@/lib/expert-data";
 import { formatINR } from "@/lib/utils";
+import { fromPriceForExpert } from "@/lib/service-catalogue";
 import { NOTES_POLICY_COPY, isNotesPolicy } from "@/lib/expert-portal";
 import { Chip, Meta, Panel, PanelHeader } from "@/components/expert/Panel";
 import ProfileForm from "@/components/expert/ProfileForm";
@@ -12,6 +13,9 @@ export const metadata: Metadata = { title: "Profile" };
 export default async function ExpertProfilePage() {
   const ctx = await requireExpertContext("/expert/profile");
   const { profile, listing } = ctx;
+  // sessions are priced by the service, so the only honest single number here
+  // is the floor of what this practitioner is cleared to deliver
+  const fromPrice = listing ? fromPriceForExpert(listing) : null;
   const policy = NOTES_POLICY_COPY[isNotesPolicy(profile.notesPolicy) ? profile.notesPolicy : "PENDING"];
 
   return (
@@ -41,7 +45,7 @@ export default async function ExpertProfilePage() {
               </p>
               <p className="mt-2.5 text-[0.94rem] leading-relaxed text-ink/80">
                 {profile.headline || (
-                  <span className="text-ink/45">
+                  <span className="text-ink/70">
                     No headline yet — clients see a blank line where this goes.
                   </span>
                 )}
@@ -50,10 +54,10 @@ export default async function ExpertProfilePage() {
                 {profile.specialties.length > 0 ? (
                   profile.specialties.map((s) => <Chip key={s}>{s}</Chip>)
                 ) : (
-                  <span className="text-[0.84rem] text-ink/45">No focus areas set</span>
+                  <span className="text-[0.84rem] text-ink/70">No focus areas set</span>
                 )}
               </div>
-              <p className="mt-3 text-[0.84rem] text-ink/60">
+              <p className="mt-3 text-[0.84rem] text-ink/70">
                 {profile.languages.length > 0
                   ? "Sessions in " + profile.languages.join(", ")
                   : "No session languages set"}
@@ -73,18 +77,24 @@ export default async function ExpertProfilePage() {
       <Panel>
         <PanelHeader
           title="Set by our team"
-          hint="These are fixed here on purpose. Fee and session length are contractual, and note-keeping is a governance decision — write to your practice lead to change any of them."
+          hint="These are fixed here on purpose. Fees and note-keeping are contractual decisions — write to your practice lead to change either. Each session runs as long as the service it was booked under; the length below only applies to older sessions that predate that."
         />
         <dl className="grid gap-5 p-5 sm:grid-cols-2 sm:p-6 lg:grid-cols-4">
-          <Meta label="Session fee">{listing ? formatINR(listing.price) : "—"}</Meta>
-          <Meta label="Session length">{profile.sessionMinutes} minutes</Meta>
+          <Meta label="Session fee">
+            {fromPrice !== null ? <>from {formatINR(fromPrice)}</> : "—"}
+          </Meta>
+          {/* Each session runs as long as the service booked it — 30 minutes
+              for a psychiatry consultation, 90 for a group. This is only what
+              a session falls back to when it was booked before the service was
+              recorded on it, so it is labelled as the default it now is. */}
+          <Meta label="Default length">{profile.sessionMinutes} minutes</Meta>
           <Meta label="Listing">
             {listing ? "Live in search" : "Not publicly listed"}
           </Meta>
           <Meta label="Note-keeping">{policy.short}</Meta>
         </dl>
         {profile.notesPolicyNote && (
-          <p className="px-5 pb-5 text-[0.84rem] text-ink/60 sm:px-6 sm:pb-6">
+          <p className="px-5 pb-5 text-[0.84rem] text-ink/70 sm:px-6 sm:pb-6">
             {profile.notesPolicyNote}
           </p>
         )}
@@ -99,7 +109,7 @@ export default async function ExpertProfilePage() {
         <ProfileForm profile={profile} />
       </Panel>
 
-      <p className="text-[0.84rem] text-ink/55">
+      <p className="text-[0.84rem] text-ink/70">
         Something wrong that you cannot change here?{" "}
         <Link href="/contact" className="link-draw font-medium text-forest-800">
           Tell the team

@@ -7,15 +7,21 @@ import PostCover from "@/components/blog/PostCover";
 import ReadingProgress from "@/components/blog/ReadingProgress";
 import ArticleContents from "@/components/blog/ArticleContents";
 import ShareRow from "@/components/blog/ShareRow";
-import { getPost, headingId, headingsOf, posts } from "@/lib/posts";
+import { headingId, headingsOf } from "@/lib/posts";
+import { getPublished, listPublished } from "@/lib/blog";
 import { site } from "@/lib/site";
 
-export function generateStaticParams() {
+/* Same ten-minute window as the index. A slug that is not published 404s,
+   and will start resolving on its own once an admin publishes it. */
+export const revalidate = 600;
+
+export async function generateStaticParams() {
+  const posts = await listPublished();
   return posts.map((p) => ({ slug: p.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  const post = getPost(params.slug);
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const post = await getPublished(params.slug);
   if (!post) return {};
   return {
     title: post.title,
@@ -42,10 +48,11 @@ function initials(name: string) {
     .join("");
 }
 
-export default function PostPage({ params }: { params: { slug: string } }) {
-  const post = getPost(params.slug);
+export default async function PostPage({ params }: { params: { slug: string } }) {
+  const post = await getPublished(params.slug);
   if (!post) notFound();
 
+  const posts = await listPublished();
   const headings = headingsOf(post);
   const related = posts.filter((p) => p.slug !== post.slug && p.category === post.category).slice(0, 2);
   const keepReading = related.length
@@ -82,7 +89,7 @@ export default function PostPage({ params }: { params: { slug: string } }) {
               <p className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.18em] text-forest-600">
                 {post.category}
                 <span className="h-px w-5 bg-gold" aria-hidden="true" />
-                <span className="normal-case tracking-normal text-ink/50">{post.readTime}</span>
+                <span className="normal-case tracking-normal text-ink/70">{post.readTime}</span>
               </p>
               <h1 className="h-display mt-5 text-4xl leading-[1.06] md:text-[3.4rem]">
                 {post.title}
@@ -98,7 +105,7 @@ export default function PostPage({ params }: { params: { slug: string } }) {
                 </span>
                 <div className="text-sm leading-snug">
                   <p className="font-semibold text-forest-800">{post.author.name}</p>
-                  <p className="text-ink/55">
+                  <p className="text-ink/70">
                     {post.author.role} · {post.displayDate}
                   </p>
                 </div>
@@ -198,7 +205,7 @@ export default function PostPage({ params }: { params: { slug: string } }) {
                   If this landed a little close to home — that&apos;s worth listening to.
                 </p>
                 <p className="mt-3 text-[0.95rem] leading-relaxed text-sage-light/80">
-                  A first session is just a conversation, from ₹599. No diagnosis on day
+                  A first session is just a conversation, and it is free. No diagnosis on day
                   one, and no one else needs to know.
                 </p>
                 <div className="mt-6">
@@ -233,7 +240,7 @@ export default function PostPage({ params }: { params: { slug: string } }) {
                   <p className="mt-4 flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.18em] text-forest-600">
                     {p.category}
                     <span className="h-px w-5 bg-gold" aria-hidden="true" />
-                    <span className="normal-case tracking-normal text-ink/50">{p.readTime}</span>
+                    <span className="normal-case tracking-normal text-ink/70">{p.readTime}</span>
                   </p>
                   <h3 className="mt-2.5 font-display text-xl font-medium leading-snug text-forest-900 transition-colors group-hover:text-forest-600">
                     {p.title}

@@ -1,7 +1,6 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { STATUS_META, type SessionStatus } from "@/lib/expert-portal";
+import { STATUS_META, statusMeta, type SessionStatus, type ViewStatus } from "@/lib/expert-portal";
 
 /* Presentational shells shared by every page in the portal. No hooks here on
    purpose — these render inside server components. */
@@ -64,10 +63,15 @@ export function StatusBadge({
   status,
   className,
 }: {
-  status: SessionStatus;
+  /* Every status a booking can be in, not only the outcomes a practitioner
+     sets: a request or a decline has to render here too. `statusMeta` covers
+     the lot and falls back to the raw string rather than mislabelling an
+     unknown one as Confirmed, which is what the old `?? STATUS_META.CONFIRMED`
+     would have done the moment a new status appeared. */
+  status: ViewStatus;
   className?: string;
 }) {
-  const meta = STATUS_META[status] ?? STATUS_META.CONFIRMED;
+  const meta = statusMeta(status);
   return (
     <span
       className={cn(
@@ -205,10 +209,3 @@ export function Meta({ label, children }: { label: string; children: ReactNode }
   );
 }
 
-export function QuietLink({ href, children }: { href: string; children: ReactNode }) {
-  return (
-    <Link href={href} className="link-draw text-sm font-medium text-forest-800">
-      {children}
-    </Link>
-  );
-}

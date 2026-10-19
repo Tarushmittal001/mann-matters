@@ -38,8 +38,8 @@ export async function POST(request: Request) {
 
     const phone = normalisePhone(rawPhone);
     const identifier = phoneKey(phone);
-    const byClient = rateLimit("otpVerify", clientKey(request));
-    const byPhone = rateLimit("otpVerify", identifier);
+    const byClient = await rateLimit("otpVerify", clientKey(request));
+    const byPhone = await rateLimit("otpVerify", identifier);
     if (!byClient.ok || !byPhone.ok) {
       const retryAfter = Math.max(
         byClient.ok ? 0 : byClient.retryAfter,
@@ -57,8 +57,11 @@ export async function POST(request: Request) {
       );
     }
 
+    // the code proved the number is theirs, so the block can be named
+    if (user.blockedAt) return errors.blocked();
+
     await createSession(user);
-    resetLimit("otpVerify", identifier);
+    await resetLimit("otpVerify", identifier);
     return privateJson({ user: { name: user.name, email: user.email, role: user.role } });
   } catch (error) {
     logFailure("auth.phone.verify", error);

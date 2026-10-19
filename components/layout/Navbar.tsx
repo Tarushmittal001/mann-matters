@@ -6,13 +6,24 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import BackButton from "@/components/layout/BackButton";
+import LanguageToggle from "@/components/layout/LanguageToggle";
 import { moreNav, primaryNav, toolLinks } from "@/lib/site";
+import { useCopy } from "@/lib/i18n/client";
+import type { Copy } from "@/lib/i18n/copy";
 import { cn } from "@/lib/utils";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 type SessionUser = { name: string; email: string; role: "USER" | "EXPERT" | "ADMIN" } | null;
 type Item = { href: string; label: string; desc?: string };
+
+/** The nav item's name in the reader's language, English as the fallback. */
+function navLabel(t: Copy, href: string, fallback: string): string {
+  if (href === "/services") return t.nav.services;
+  if (href === "/for-organisations") return t.nav.institutions;
+  if (href === "/blog") return t.nav.blog;
+  return fallback;
+}
 
 const linkBase =
   "link-draw whitespace-nowrap text-[0.9rem] font-medium tracking-wide text-forest-800/75 transition-colors hover:text-forest-900";
@@ -113,7 +124,7 @@ function NavMenu({
                     className="flex flex-col rounded-xl px-3 py-2.5 transition-colors hover:bg-sage-light/40"
                   >
                     <span className="text-sm font-semibold text-forest-900">{t.label}</span>
-                    {t.desc && <span className="text-xs text-ink/55">{t.desc}</span>}
+                    {t.desc && <span className="text-xs text-ink/70">{t.desc}</span>}
                   </Link>
                 ))}
               </div>
@@ -204,6 +215,8 @@ function MobileGroup({
 }
 
 export default function Navbar() {
+  // labels and links follow the language in the URL
+  const { t, path } = useCopy();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState<"tools" | "more" | null>(null);
@@ -308,6 +321,7 @@ export default function Navbar() {
   return (
     <>
       <header
+        data-site-header
         className={cn(
           "fixed inset-x-0 top-0 z-[70] transition duration-500 ease-silk",
           open
@@ -341,16 +355,18 @@ export default function Navbar() {
             {primaryNav.map((l) => (
               <Link
                 key={l.href}
-                href={l.href}
-                className={cn(linkBase, pathname.startsWith(l.href) && "text-forest-900")}
+                // only /services has a Hindi twin; the other two keep their
+                // English URL, and the Hindi home page says so out loud
+                href={l.href === "/services" ? path(l.href) : l.href}
+                className={cn(linkBase, pathname.endsWith(l.href) && "text-forest-900")}
               >
-                {l.label}
+                {navLabel(t, l.href, l.label)}
               </Link>
             ))}
 
             <NavMenu
-              label="Free tools"
-              eyebrow="free &amp; private"
+              label={t.nav.tools}
+              eyebrow={t.nav.toolsEyebrow}
               items={toolLinks}
               width="w-[34rem]"
               columns={2}
@@ -360,8 +376,8 @@ export default function Navbar() {
             />
 
             <NavMenu
-              label="More"
-              eyebrow="about emoraa"
+              label={t.nav.more}
+              eyebrow={t.nav.moreEyebrow}
               items={moreNav}
               width="w-[19rem]"
               active={moreNav.some((l) => pathname.startsWith(l.href))}
@@ -378,9 +394,11 @@ export default function Navbar() {
               </Link>
             )}
 
+            <LanguageToggle />
+
             <Link
-              href="/crisis?sos=true"
-              aria-label="SOS — get crisis help now"
+              href={`${path("/crisis")}?sos=true`}
+              aria-label={t.nav.sosLabel}
               className="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-red-600 px-4 py-2 text-[0.82rem] font-bold tracking-wide text-white transition-colors duration-300 hover:bg-red-700"
             >
               <span className="relative flex h-1.5 w-1.5" aria-hidden="true">
@@ -391,10 +409,10 @@ export default function Navbar() {
             </Link>
 
             <Link
-              href="/book"
+              href={path("/book")}
               className="shrink-0 whitespace-nowrap rounded-full bg-gold px-5 py-2.5 text-[0.86rem] font-semibold text-forest-950 transition duration-300 ease-silk hover:bg-gold-dark hover:shadow-lift"
             >
-              Book a session
+              {t.nav.book}
             </Link>
           </div>
 
@@ -403,7 +421,7 @@ export default function Navbar() {
             className="relative z-[70] flex h-11 w-11 shrink-0 flex-col items-center justify-center gap-[5px] lg:hidden"
             onClick={() => setOpen(!open)}
             aria-expanded={open}
-            aria-label={open ? "Close menu" : "Open menu"}
+            aria-label={open ? t.nav.close : t.nav.menu}
           >
             <span
               className={cn(
@@ -440,7 +458,13 @@ export default function Navbar() {
             </p>
             <nav className="flex flex-col" aria-label="Mobile">
               {/* the big three: what most people opened the menu for */}
-              {[{ href: "/", label: "Home" }, ...primaryNav].map((l, i) => (
+              {[
+                { href: path("/"), label: t.nav.home },
+                ...primaryNav.map((l) => ({
+                  href: l.href === "/services" ? path(l.href) : l.href,
+                  label: navLabel(t, l.href, l.label),
+                })),
+              ].map((l, i) => (
                 <div key={l.href} className="overflow-hidden">
                   <motion.div
                     initial={{ y: "110%" }}
@@ -458,9 +482,9 @@ export default function Navbar() {
                 </div>
               ))}
 
-              {/* two drawers, so eleven tools and five pages don't fill the screen */}
+              {/* two drawers, so the tools and the read-once pages don't fill the screen */}
               <MobileGroup
-                label="Free tools"
+                label={t.nav.tools}
                 count={toolLinks.length}
                 items={toolLinks}
                 open={drawer === "tools"}
@@ -468,7 +492,7 @@ export default function Navbar() {
                 delay={0.16}
               />
               <MobileGroup
-                label="More"
+                label={t.nav.more}
                 count={moreNav.length}
                 items={moreNav}
                 open={drawer === "more"}
@@ -496,16 +520,18 @@ export default function Navbar() {
                   </svg>
                 </Link>
               )}
+              <LanguageToggle className="mb-4 inline-block border-ivory/30 text-ivory hover:border-ivory hover:bg-ivory hover:text-forest-900" />
+
               <div className="flex items-center gap-3">
                 <Link
-                  href="/book"
+                  href={path("/book")}
                   className="press flex-1 rounded-full bg-gold px-6 py-3.5 text-center text-[0.95rem] font-semibold text-forest-950"
                 >
-                  Book a session
+                  {t.nav.book}
                 </Link>
                 <Link
-                  href="/crisis?sos=true"
-                  aria-label="SOS — get crisis help now"
+                  href={`${path("/crisis")}?sos=true`}
+                  aria-label={t.nav.sosLabel}
                   className="press flex items-center gap-2 rounded-full bg-red-600 px-5 py-3.5 text-[0.9rem] font-bold text-white"
                 >
                   <span className="relative flex h-1.5 w-1.5" aria-hidden="true">

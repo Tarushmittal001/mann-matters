@@ -151,7 +151,7 @@ export async function sendVerificationEmail(
   const html = `
   <div style="font-family:Georgia,serif;max-width:480px;margin:0 auto;padding:32px;color:#1F2D28">
     <p style="font-size:20px;font-weight:600;color:#0A2E28;margin:0 0 4px">Emoraa</p>
-    <p style="color:#1A5A4D;margin:0 0 24px">Better days begin.</p>
+    <p style="color:#1A5A4D;margin:0 0 24px">Your emotions matter.</p>
     <h1 style="font-size:24px;color:#0A2E28;margin:0 0 12px">One last step, ${name}.</h1>
     <p style="line-height:1.6;color:#3a4a44">Confirm your email address to finish setting up your account and start booking sessions.</p>
     <p style="margin:28px 0">
@@ -174,7 +174,7 @@ export async function sendPasswordResetEmail(
   const html = `
   <div style="font-family:Georgia,serif;max-width:480px;margin:0 auto;padding:32px;color:#1F2D28">
     <p style="font-size:20px;font-weight:600;color:#0A2E28;margin:0 0 4px">Emoraa</p>
-    <p style="color:#1A5A4D;margin:0 0 24px">Better days begin.</p>
+    <p style="color:#1A5A4D;margin:0 0 24px">Your emotions matter.</p>
     <h1 style="font-size:24px;color:#0A2E28;margin:0 0 12px">Let's get you back in, ${esc(name)}.</h1>
     <p style="line-height:1.6;color:#3a4a44">Choose a new password with the button below.</p>
     <p style="margin:28px 0">
@@ -182,6 +182,40 @@ export async function sendPasswordResetEmail(
     </p>
     <p style="font-size:13px;color:#7a857f;line-height:1.6">Or paste this into your browser:<br><span style="word-break:break-all">${link}</span></p>
     <p style="font-size:13px;color:#7a857f;line-height:1.6">This link expires in 1 hour and can be used once. If you didn't ask for it, ignore this email — your password stays as it is.</p>
+  </div>`;
+
+  return deliver({ to, subject, html, text }, link);
+}
+
+/**
+ * The email that turns a catalogue listing into somebody who can sign in.
+ *
+ * It is deliberately not the password-reset mail. A practitioner who never
+ * asked for an account and gets "Reset your Emoraa password" reasonably reads
+ * it as a phishing attempt and deletes it, and then an admin is left wondering
+ * why the invite "didn't arrive". This one says who added them, what the
+ * account is for, and what happens when they click.
+ */
+export async function sendExpertInviteEmail(
+  to: string,
+  name: string,
+  link: string,
+  hours: number
+): Promise<DeliveryResult> {
+  const subject = "Your Emoraa practitioner account";
+  const text = `Hi ${name}, an Emoraa admin has set up a practitioner account for you (${to}). Choose your password here to activate it: ${link} — the link works once and expires in ${hours} hours. Once you are in, you'll see your sessions, your availability and your clients. If you weren't expecting this, tell us at connect@emoraa.com and we'll remove the account.`;
+  const html = `
+  <div style="font-family:Georgia,serif;max-width:480px;margin:0 auto;padding:32px;color:#1F2D28">
+    <p style="font-size:20px;font-weight:600;color:#0A2E28;margin:0 0 4px">Emoraa</p>
+    <p style="color:#1A5A4D;margin:0 0 24px">Your emotions matter.</p>
+    <h1 style="font-size:24px;color:#0A2E28;margin:0 0 12px">Welcome, ${esc(name)}.</h1>
+    <p style="line-height:1.6;color:#3a4a44">An Emoraa admin has set up a practitioner account for you at <strong>${esc(to)}</strong>. Choose a password and it is yours — we never see it.</p>
+    <p style="margin:28px 0">
+      <a href="${link}" style="background:#C8A45D;color:#06211C;text-decoration:none;font-weight:600;padding:14px 28px;border-radius:999px;display:inline-block">Choose my password</a>
+    </p>
+    <p style="line-height:1.6;color:#3a4a44">Once you're in you'll find your upcoming sessions, the hours you're available, and the clients you're seeing.</p>
+    <p style="font-size:13px;color:#7a857f;line-height:1.6">Or paste this into your browser:<br><span style="word-break:break-all">${link}</span></p>
+    <p style="font-size:13px;color:#7a857f;line-height:1.6">The link works once and expires in ${hours} hours. If you weren't expecting this, reply to this email or write to connect@emoraa.com and we'll remove the account.</p>
   </div>`;
 
   return deliver({ to, subject, html, text }, link);
@@ -276,7 +310,7 @@ export async function sendPackEnquiry(
       html: `
       <div style="font-family:Georgia,serif;max-width:480px;margin:0 auto;padding:32px;color:#1F2D28">
         <p style="font-size:20px;font-weight:600;color:#0A2E28;margin:0 0 4px">Emoraa</p>
-        <p style="color:#1A5A4D;margin:0 0 24px">Better days begin.</p>
+        <p style="color:#1A5A4D;margin:0 0 24px">Your emotions matter.</p>
         <h1 style="font-size:22px;color:#0A2E28;margin:0 0 12px">Thanks, ${esc(e.contactName)}.</h1>
         <p style="line-height:1.6;color:#3a4a44">We've got your note about <strong>${esc(
           e.institution
@@ -306,7 +340,7 @@ export async function sendContactCode(
   const html = `
   <div style="font-family:Georgia,serif;max-width:480px;margin:0 auto;padding:32px;color:#1F2D28">
     <p style="font-size:20px;font-weight:600;color:#0A2E28;margin:0 0 4px">Emoraa</p>
-    <p style="color:#1A5A4D;margin:0 0 24px">Better days begin.</p>
+    <p style="color:#1A5A4D;margin:0 0 24px">Your emotions matter.</p>
     <h1 style="font-size:22px;color:#0A2E28;margin:0 0 12px">Hi ${esc(name)}, here is your code.</h1>
     <p style="line-height:1.6;color:#3a4a44">Enter it on the website to send your message.</p>
     <p style="margin:24px 0;font-family:Arial,sans-serif;font-size:34px;font-weight:700;letter-spacing:8px;color:#0A2E28">${code}</p>
@@ -382,4 +416,224 @@ export async function sendExpertTestNotification(to: string, name: string): Prom
     ].join("\n")
   );
   return false;
+}
+
+/* ------------------------------------------------------------------ *
+ * The request-first booking flow
+ * ------------------------------------------------------------------ */
+
+const shell = (body: string) => `
+  <div style="font-family:Georgia,serif;max-width:480px;margin:0 auto;padding:32px;color:#1F2D28">
+    <p style="font-size:20px;font-weight:600;color:#0A2E28;margin:0 0 4px">Emoraa</p>
+    <p style="color:#1A5A4D;margin:0 0 24px">Your emotions matter.</p>
+    ${body}
+    <p style="font-size:13px;color:#7a857f;line-height:1.6;margin-top:28px">Emoraa is not a crisis service. If you need someone right now, Tele-MANAS is on <strong>14416</strong>, free, 24×7, in 20+ Indian languages.</p>
+  </div>`;
+
+/** A practitioner has agreed to the time. Now, and only now, we ask for money. */
+export async function sendBookingAcceptedEmail(args: {
+  to: string;
+  clientName: string;
+  expertName: string;
+  when: string;
+  link: string;
+  amount: number;
+  free: boolean;
+}): Promise<DeliveryResult> {
+  const { to, clientName, expertName, when, link, amount, free } = args;
+  const subject = `${expertName} accepted your session — ${when}`;
+  const ask = free
+    ? "There is nothing to pay for your first session. Confirm it and the time is yours."
+    : `The fee is ₹${amount}. Your place is held until you pay.`;
+  const text = `Hi ${clientName}, ${expertName} has accepted your session on ${when}. ${ask} ${link}`;
+  return deliver(
+    {
+      to,
+      subject,
+      text,
+      html: shell(`
+    <h1 style="font-size:24px;color:#0A2E28;margin:0 0 12px">${esc(expertName)} said yes.</h1>
+    <p style="line-height:1.6;color:#3a4a44">Hi ${esc(clientName)} — your session on <strong>${esc(when)}</strong> has been accepted.</p>
+    <p style="line-height:1.6;color:#3a4a44">${esc(ask)}</p>
+    <p style="margin:28px 0">
+      <a href="${link}" style="background:#C8A45D;color:#06211C;text-decoration:none;font-weight:600;padding:14px 28px;border-radius:999px;display:inline-block">${free ? "Confirm my session" : "Pay and confirm"}</a>
+    </p>
+    <p style="font-size:13px;color:#7a857f;line-height:1.6">Or paste this into your browser:<br><span style="word-break:break-all">${link}</span></p>`),
+    },
+    link
+  );
+}
+
+/**
+ * A practitioner has said no.
+ *
+ * The practitioner's own words are NOT repeated here. A note written for the
+ * clinical record is not a message to the person it is about, and "not a good
+ * fit for my caseload" reads very differently to the person reading it about
+ * themselves. They get the fact, the reassurance that nothing was charged, and
+ * a way forward.
+ */
+export async function sendBookingDeclinedEmail(args: {
+  to: string;
+  clientName: string;
+  when: string;
+  link: string;
+}): Promise<DeliveryResult> {
+  const { to, clientName, when, link } = args;
+  const subject = "About your session request";
+  const text = `Hi ${clientName}, we're sorry — the therapist isn't able to take your session on ${when}. Nothing has been charged. There are other practitioners with time, and we can help you find one: ${link}`;
+  return deliver(
+    {
+      to,
+      subject,
+      text,
+      html: shell(`
+    <h1 style="font-size:24px;color:#0A2E28;margin:0 0 12px">We couldn't hold that time.</h1>
+    <p style="line-height:1.6;color:#3a4a44">Hi ${esc(clientName)} — we're sorry. The therapist isn't able to take your session on <strong>${esc(when)}</strong>.</p>
+    <p style="line-height:1.6;color:#3a4a44"><strong>Nothing has been charged.</strong> This happens for all sorts of practical reasons, and it is not a judgement about you.</p>
+    <p style="line-height:1.6;color:#3a4a44">Other practitioners have time this week, and we can help you find someone who fits.</p>
+    <p style="margin:28px 0">
+      <a href="${link}" style="background:#C8A45D;color:#06211C;text-decoration:none;font-weight:600;padding:14px 28px;border-radius:999px;display:inline-block">Find another time</a>
+    </p>`),
+    },
+    link
+  );
+}
+
+/** The practitioner suggesting another session, in their own words. */
+export async function sendFollowUpEmail(args: {
+  to: string;
+  clientName: string;
+  expertName: string;
+  message: string;
+  link: string;
+}): Promise<DeliveryResult> {
+  const { to, clientName, expertName, message, link } = args;
+  const subject = `${expertName} suggested another session`;
+  const text = `Hi ${clientName}, ${expertName} suggested booking another session.${message ? ` They said: "${message}"` : ""} Book whenever you're ready: ${link}`;
+  return deliver(
+    {
+      to,
+      subject,
+      text,
+      html: shell(`
+    <h1 style="font-size:24px;color:#0A2E28;margin:0 0 12px">${esc(expertName)} suggested another session.</h1>
+    <p style="line-height:1.6;color:#3a4a44">Hi ${esc(clientName)} — no rush, and no obligation. Book when it suits you.</p>
+    ${message ? `<blockquote style="margin:20px 0;padding:14px 18px;border-left:3px solid #C8A45D;background:#F7F4EC;line-height:1.6;color:#3a4a44">${esc(message)}</blockquote>` : ""}
+    <p style="margin:28px 0">
+      <a href="${link}" style="background:#C8A45D;color:#06211C;text-decoration:none;font-weight:600;padding:14px 28px;border-radius:999px;display:inline-block">Book a session</a>
+    </p>`),
+    },
+    link
+  );
+}
+
+/**
+ * A practitioner has issued a document on a session: a prescription or a
+ * practice plan.
+ *
+ * The email says THAT something is ready and links to it behind sign-in. It
+ * never carries the content — no medicine names, no tasks — because an inbox
+ * is read on shared laptops and lock screens, and a medicine name in a preview
+ * line tells whoever glances at it more than the client chose to share.
+ */
+export async function sendDocumentIssuedEmail(args: {
+  to: string;
+  clientName: string;
+  expertName: string;
+  kind: "prescription" | "plan";
+  link: string;
+}): Promise<DeliveryResult> {
+  const { to, clientName, expertName, kind, link } = args;
+  const what = kind === "prescription" ? "a prescription" : "a practice plan";
+  const subject = `${expertName} shared ${what} with you`;
+  const text = `Hi ${clientName}, ${expertName} has shared ${what} from your session. Sign in to view, print or save it: ${link}`;
+  return deliver(
+    {
+      to,
+      subject,
+      text,
+      html: shell(`
+    <h1 style="font-size:24px;color:#0A2E28;margin:0 0 12px">${esc(expertName)} shared ${what}.</h1>
+    <p style="line-height:1.6;color:#3a4a44">Hi ${esc(clientName)} — it's from your session and waiting in your Emoraa account. Sign in to view it, print it or save it as a PDF.</p>
+    <p style="margin:28px 0">
+      <a href="${link}" style="background:#C8A45D;color:#06211C;text-decoration:none;font-weight:600;padding:14px 28px;border-radius:999px;display:inline-block">View ${kind === "prescription" ? "prescription" : "plan"}</a>
+    </p>
+    <p style="font-size:13px;color:#7a857f;line-height:1.6">For your privacy, we never put what it says in an email.</p>`),
+    },
+    link
+  );
+}
+
+/** A new request is waiting on a practitioner. */
+export async function sendRequestAlertEmail(args: {
+  to: string;
+  expertName: string;
+  when: string;
+  hours: number;
+  link: string;
+}): Promise<DeliveryResult> {
+  const { to, expertName, when, hours, link } = args;
+  const subject = `New session request — ${when}`;
+  const text = `Hi ${expertName}, somebody has asked for a session on ${when}. The slot is held for them for ${hours} hours while you decide. Accept or decline here: ${link}`;
+  return deliver(
+    {
+      to,
+      subject,
+      text,
+      html: shell(`
+    <h1 style="font-size:24px;color:#0A2E28;margin:0 0 12px">A new request.</h1>
+    <p style="line-height:1.6;color:#3a4a44">Hi ${esc(expertName)} — somebody has asked for a session on <strong>${esc(when)}</strong>.</p>
+    <p style="line-height:1.6;color:#3a4a44">Their slot is held for the next ${hours} hours while you decide. Nothing has been charged to them yet.</p>
+    <p style="margin:28px 0">
+      <a href="${link}" style="background:#C8A45D;color:#06211C;text-decoration:none;font-weight:600;padding:14px 28px;border-radius:999px;display:inline-block">Review the request</a>
+    </p>`),
+    },
+    link
+  );
+}
+
+/** A practitioner needing to move a session, offering times that work instead. */
+export async function sendRescheduleOfferEmail(args: {
+  to: string;
+  clientName: string;
+  expertName: string;
+  was: string;
+  reason: string;
+  options: { date: string; times: string[] }[];
+  link: string;
+}): Promise<DeliveryResult> {
+  const { to, clientName, expertName, was, reason, options, link } = args;
+  const fmt = (d: string) =>
+    new Intl.DateTimeFormat("en-IN", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      timeZone: "Asia/Kolkata",
+    }).format(new Date(`${d}T00:00:00+05:30`));
+
+  const lines = options.map((o) => `${fmt(o.date)}: ${o.times.join(" or ")}`);
+  const subject = `${expertName} needs to move your session`;
+  const text = `Hi ${clientName}, ${expertName} can no longer make ${was}. They said: "${reason}". Times that would work instead — ${lines.join("; ")}. Pick one here: ${link}. If none suit, your original time still stands until you choose.`;
+
+  return deliver(
+    {
+      to,
+      subject,
+      text,
+      html: shell(`
+    <h1 style="font-size:24px;color:#0A2E28;margin:0 0 12px">A change of time.</h1>
+    <p style="line-height:1.6;color:#3a4a44">Hi ${esc(clientName)} — ${esc(expertName)} can no longer make <strong>${esc(was)}</strong>.</p>
+    <blockquote style="margin:18px 0;padding:14px 18px;border-left:3px solid #C8A45D;background:#F7F4EC;line-height:1.6;color:#3a4a44">${esc(reason)}</blockquote>
+    <p style="line-height:1.6;color:#3a4a44">These would work instead:</p>
+    <ul style="line-height:1.9;color:#3a4a44;padding-left:20px">
+      ${options.map((o) => `<li><strong>${esc(fmt(o.date))}</strong> — ${esc(o.times.join(" or "))}</li>`).join("")}
+    </ul>
+    <p style="margin:28px 0">
+      <a href="${link}" style="background:#C8A45D;color:#06211C;text-decoration:none;font-weight:600;padding:14px 28px;border-radius:999px;display:inline-block">Pick a time</a>
+    </p>
+    <p style="line-height:1.6;color:#3a4a44">Nothing has changed yet, and you have not been charged anything further. If none of these suit, leave it — your original time stands until you choose, and you can tell us and we will sort something out.</p>`),
+    },
+    link
+  );
 }

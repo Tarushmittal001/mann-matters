@@ -195,17 +195,17 @@ export default function MuscleRelaxation() {
             />
           </div>
 
-          <p className="mt-4 text-sm tabular-nums text-ink/55">
+          <p className="mt-4 text-sm tabular-nums text-ink/70">
             {tensing ? "hold the tension" : "and release…"} · {secondsLeft}s
           </p>
 
-          <button onClick={stop} className="link-draw mt-7 text-sm text-ink/55">
+          <button onClick={stop} className="link-draw mt-7 text-sm text-ink/70">
             Stop
           </button>
         </div>
       )}
 
-      <p className="mt-8 text-center text-xs leading-relaxed text-ink/45">
+      <p className="mt-8 text-center text-xs leading-relaxed text-ink/70">
         Skip any group that hurts or feels wrong — this should never be painful.
       </p>
     </div>

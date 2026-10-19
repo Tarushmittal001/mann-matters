@@ -87,12 +87,12 @@ export default function AffirmationCards() {
         >
           Another one
         </button>
-        <p className="text-sm tabular-nums text-ink/50">
+        <p className="text-sm tabular-nums text-ink/70">
           {idx + 1} / {cards.length}
         </p>
       </div>
 
-      <p className="mx-auto mt-7 max-w-sm text-xs leading-relaxed text-ink/45">
+      <p className="mx-auto mt-7 max-w-sm text-xs leading-relaxed text-ink/70">
         Read it once. Then read it again, slower — and let yourself believe it
         for just one breath.
       </p>

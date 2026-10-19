@@ -48,7 +48,7 @@ export default function RouteError({
         </Button>
       </div>
 
-      <p className="mt-6 text-sm text-ink/50">
+      <p className="mt-6 text-sm text-ink/70">
         Still stuck?{" "}
         <Link href="/contact" className="link-draw font-medium text-forest-800">
           Tell us what happened

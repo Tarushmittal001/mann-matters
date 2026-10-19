@@ -31,7 +31,7 @@ export default function ReadingProgress({ readTime }: { readTime: string }) {
         aria-hidden="true"
       />
       <motion.p
-        className="fixed bottom-6 left-6 z-[55] hidden rounded-full border border-forest-800/10 bg-ivory-light/90 px-4 py-2 text-xs font-medium text-ink/60 shadow-lift backdrop-blur lg:block"
+        className="fixed bottom-6 left-6 z-[55] hidden rounded-full border border-forest-800/10 bg-ivory-light/90 px-4 py-2 text-xs font-medium text-ink/70 shadow-lift backdrop-blur lg:block"
         animate={{ opacity: minutes === null ? 0 : 1, y: minutes === null ? 8 : 0 }}
         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
         aria-hidden={minutes === null}

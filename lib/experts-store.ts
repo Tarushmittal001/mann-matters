@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { seedExperts, type Expert } from "@/lib/experts";
+import { canPrescribe, guessProfession, isProfession, requiresPrescriber } from "@/lib/professions";
 
 /**
  * The therapist catalogue, read from the database.
@@ -20,15 +21,44 @@ type Row = {
   slug: string;
   name: string;
   credentials: string;
+  profession: string;
+  registrationNo: string;
+  registrationBody: string;
   experienceYears: number;
   languages: string;
   specialties: string;
+  services: string;
+  servicePrices: string;
   price: number;
   rating: number;
   photo: string;
   bio: string;
   status: string;
   sortOrder: number;
+};
+
+/**
+ * The per-service override map.
+ *
+ * Anything that is not a positive whole number of rupees is dropped rather
+ * than coerced: a NaN reaching the booking route would price a session at
+ * nothing, and silently charging ₹0 is worse than falling back to the
+ * service's standard price, which is what an absent key already means.
+ */
+const parsePrices = (raw: string): Record<string, number> => {
+  try {
+    const value = JSON.parse(raw);
+    if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+    const out: Record<string, number> = {};
+    for (const [slug, amount] of Object.entries(value)) {
+      if (typeof amount === "number" && Number.isInteger(amount) && amount >= 0) {
+        out[slug] = amount;
+      }
+    }
+    return out;
+  } catch {
+    return {};
+  }
 };
 
 const parseList = (raw: string): string[] => {
@@ -42,13 +72,22 @@ const parseList = (raw: string): string[] => {
 
 /** A stored row in the shape the rest of the site already expects. */
 export function toExpert(row: Row): Expert {
+  const profession = isProfession(row.profession) ? row.profession : guessProfession(row.credentials);
   return {
     id: row.slug,
     name: row.name,
     credentials: row.credentials,
+    profession,
+    registrationNo: row.registrationNo ?? "",
+    registrationBody: row.registrationBody ?? "",
     experience: row.experienceYears === 1 ? "1 year" : `${row.experienceYears} years`,
     languages: parseList(row.languages),
     specialties: parseList(row.specialties),
+    // a listing saved before the prescriber rule existed can still carry the
+    // medication service; it is dropped here so it can never be booked
+    services: parseList(row.services).filter((slug) => canPrescribe(profession) || !requiresPrescriber(slug)),
+    bio: row.bio ?? "",
+    servicePrices: parsePrices(row.servicePrices),
     price: row.price,
     rating: row.rating,
     photo: row.photo,
@@ -72,9 +111,13 @@ async function ensureSeeded() {
         slug: e.id,
         name: e.name,
         credentials: e.credentials,
+        profession: guessProfession(e.credentials),
         experienceYears: yearsFrom(e.experience),
         languages: JSON.stringify(e.languages),
         specialties: JSON.stringify(e.specialties),
+        services: JSON.stringify(e.services),
+        bio: e.bio ?? "",
+        servicePrices: JSON.stringify(e.servicePrices ?? {}),
         price: e.price,
         rating: e.rating,
         photo: e.photo,

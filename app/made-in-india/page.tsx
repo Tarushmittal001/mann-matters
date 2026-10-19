@@ -7,11 +7,13 @@ import CTABand from "@/components/sections/CTABand";
 import { cn } from "@/lib/utils";
 import type { Faq } from "@/lib/faqs";
 import IndiaOutline from "@/components/visuals/IndiaOutline";
+import { languageList, languageSentence } from "@/lib/languages";
 
 export const metadata: Metadata = {
   title: "Made in India — Built for Indian minds",
+  alternates: { canonical: "/made-in-india" },
   description:
-    "Emoraa is built in India, for India: your data stays on Indian servers under the DPDP Act 2023, therapy in your language, and Tele-MANAS 14416 crisis support built in.",
+    "Emoraa is built in India, for India. Your data stays on Indian servers under the DPDP Act 2023. Therapy is in your language. Tele-MANAS 14416 crisis support is built in.",
 };
 
 const pillars = [
@@ -23,7 +25,7 @@ const pillars = [
       </svg>
     ),
     title: "Your data stays in India",
-    body: "Everything you share is stored on Indian servers, governed by India's Digital Personal Data Protection Act 2023 — never handed to a foreign jurisdiction, never subject to overseas surveillance law.",
+    body: "Everything you share is stored on Indian servers, under India's Digital Personal Data Protection Act 2023. It is never sent to another country, and never falls under foreign surveillance law.",
   },
   {
     icon: (
@@ -43,7 +45,7 @@ const pillars = [
       </svg>
     ),
     title: "Care in your language",
-    body: "Therapy in Hindi and English today, with Marathi, Tamil, Telugu, Kannada and Bengali on the way through 2026. Switch mid-sentence — feelings don't always arrive in one language.",
+    body: `Therapy in ${languageSentence()}. Switch mid-sentence — feelings don't always arrive in one language.`,
   },
   {
     icon: (
@@ -53,7 +55,7 @@ const pillars = [
       </svg>
     ),
     title: "Crisis help, built in",
-    body: "One tap connects you to Tele-MANAS 14416 — India's government mental-health helpline, free and 24x7, which has answered over 1.8 million calls since 2022. Real help, the moment risk appears.",
+    body: "One tap connects you to Tele-MANAS 14416. It is the government's mental-health helpline: free, and open 24x7. It has answered over 1.8 million calls since 2022. Real help, the moment you need it.",
   },
 ];
 
@@ -71,30 +73,30 @@ const compareRows: { label: string; mm: boolean | string; intl: boolean | string
   { label: "Hindi & Indian-language therapy", mm: true, intl: "Limited" },
   { label: "Understands Indian family & social context", mm: true, intl: false },
   { label: "Tele-MANAS 14416 crisis line built in", mm: true, intl: false },
-  { label: "Priced for Indian incomes", mm: "from ₹599", intl: "$$$" },
-  { label: "Licensed Indian (RCI) psychologists", mm: true, intl: false },
+  { label: "Priced for Indian incomes", mm: "₹599–999", intl: "$$$" },
+  { label: "Qualified, certified Indian psychologists", mm: true, intl: false },
 ];
 
 const faqs: Faq[] = [
   {
     q: "Is Emoraa affiliated with the government?",
-    a: "No — we're an independent Indian mental-health service. We're not run by, or formally tied to, any government body. Where we do connect is crisis support: when there's serious risk, we point you straight to Tele-MANAS 14416, the Government of India's free national helpline, because in an emergency that's the fastest, most reliable line of help.",
+    a: "No. We are an independent Indian mental-health service. No government body runs us, and none is formally tied to us. Crisis support is where we do connect. If there is serious risk, we point you straight to Tele-MANAS 14416, the Government of India's free national helpline. In an emergency, that is the fastest and most reliable help there is.",
   },
   {
     q: "Where exactly is my data stored, and who can see it?",
-    a: "Your data lives on servers in India and is governed by the Digital Personal Data Protection Act 2023. It is encrypted, and what you say in session is never shared with family, employers, or anyone else — the only exceptions being situations of serious, immediate risk that the law and ethics require us to act on. It is never moved to a foreign jurisdiction.",
+    a: "Your data sits on servers in India, under the Digital Personal Data Protection Act 2023. It is encrypted. What you say in a session is never shared with your family, your employer, or anyone else. The one exception is a serious and immediate risk to someone's safety, which the law and our ethics require us to act on. Your data is never moved to another country.",
   },
   {
     q: "Which languages can I have therapy in?",
-    a: "Right now, Hindi and English — and you're welcome to switch between them freely within a session. We're expanding to Marathi, Tamil, Telugu, Kannada and Bengali through 2026, so more people can do this work in the language they actually feel in.",
+    a: `Right now: ${languageList()}. You can switch between them freely inside a session, so you can do this work in the language you actually feel in.`,
   },
   {
     q: "Are international therapy apps unsafe?",
-    a: "Not unsafe — many are good products. But your data sits on foreign servers under foreign law, the cultural context often doesn't fit Indian life, pricing assumes a Western salary, and their crisis resources rarely point to Indian helplines. “Made in India” simply means none of that friction sits between you and the help.",
+    a: "They are not unsafe, and many are good products. But your data sits on foreign servers under foreign law. The cultural context often does not fit Indian life. The pricing assumes a Western salary. And their crisis resources rarely point to Indian helplines. Made in India simply means none of that sits between you and the help.",
   },
   {
     q: "Can I delete everything if I want to?",
-    a: "Yes. Under the DPDP Act 2023 you have the right to access, correct, and erase your data, to raise a grievance, and to nominate someone to act on your behalf. Email us and we'll action it — no dark patterns, no “are you sure” mazes.",
+    a: "Yes. Under the DPDP Act 2023 you can see your data, correct it, or have it deleted. You can raise a complaint, and you can nominate someone to act for you. Email us and we will do it. We will not hide the option, and we will not send you through screens designed to change your mind.",
   },
 ];
 
@@ -198,7 +200,7 @@ export default function MadeInIndiaPage() {
               why it matters
             </p>
             <h2 className="h-display text-3xl md:text-4xl">
-              Self-reliance isn&apos;t a slogan here. It&apos;s your privacy.
+              Built in India means your words stay in India.
             </h2>
           </Reveal>
           <Reveal delay={0.1}>
@@ -301,11 +303,11 @@ export default function MadeInIndiaPage() {
                 </caption>
                 <thead>
                   <tr>
-                    <th scope="col" className="px-7 py-6 font-medium text-ink/50">What you get</th>
+                    <th scope="col" className="px-7 py-6 font-medium text-ink/70">What you get</th>
                     <th scope="col" className="px-5 py-6 text-center font-display text-lg font-medium text-forest-900">
                       Emoraa
                     </th>
-                    <th scope="col" className="px-5 py-6 text-center font-display text-lg font-medium text-ink/60">
+                    <th scope="col" className="px-5 py-6 text-center font-display text-lg font-medium text-ink/70">
                       International apps
                     </th>
                   </tr>

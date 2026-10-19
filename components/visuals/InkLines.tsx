@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 
-import { posts } from "@/lib/posts";
+import type { Post } from "@/lib/posts";
 import { PALETTE, mix, rgba, useCanvasScene } from "./useCanvasScene";
 
 /**
@@ -13,7 +13,8 @@ import { PALETTE, mix, rgba, useCanvasScene } from "./useCanvasScene";
  * appears rather than a line being drawn. When a line finishes it rests and the
  * next one begins, until the whole page is written.
  *
- * Both properties come from `lib/posts.ts`, so the drawing is the archive:
+ * Both properties come from the posts handed in, so the drawing is the live
+ * archive rather than a fixed picture of it:
  *
  *   • **line length = read time.** An 8-minute essay writes further than a
  *     5-minute one.
@@ -71,7 +72,15 @@ type Line = {
 /** How long the nib takes to cross a full-width line. */
 const WRITE_SECONDS = 1.5;
 
-export default function InkLines({ className = "" }: { className?: string }) {
+export default function InkLines({
+  posts,
+  className = "",
+}: {
+  /* Passed in rather than imported: posts live in the database now, and this
+     is a client component. One line is drawn per published post. */
+  posts: Post[];
+  className?: string;
+}) {
   const S = useRef({
     lines: (() => {
       const longest = Math.max(...posts.map((p) => minutesOf(p.readTime)));

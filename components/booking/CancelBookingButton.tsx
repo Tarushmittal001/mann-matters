@@ -57,7 +57,7 @@ export default function CancelBookingButton({ booking }: { booking: SerializedBo
       <button
         type="button"
         onClick={() => setConfirming(true)}
-        className="link-draw text-sm font-medium text-ink/55 transition-colors hover:text-red-700"
+        className="link-draw text-sm font-medium text-ink/70 transition-colors hover:text-red-700"
       >
         Cancel session
       </button>
@@ -76,7 +76,7 @@ export default function CancelBookingButton({ booking }: { booking: SerializedBo
       ) : (
         <>
           <p className="font-medium text-forest-900">Cancel this session?</p>
-          <p className="mt-1.5 leading-relaxed text-ink/60">{note}</p>
+          <p className="mt-1.5 leading-relaxed text-ink/70">{note}</p>
           {due.amount > 0 && (
             <p className="mt-1.5 font-semibold text-forest-800">
               Refund: {formatINR(due.amount)}
@@ -104,7 +104,7 @@ export default function CancelBookingButton({ booking }: { booking: SerializedBo
             setError(null);
           }}
           disabled={busy}
-          className="text-[0.85rem] font-medium text-ink/55 hover:text-forest-900"
+          className="text-[0.85rem] font-medium text-ink/70 hover:text-forest-900"
         >
           Keep it
         </button>

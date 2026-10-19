@@ -15,7 +15,7 @@ Therapy and counselling, online, in your language, from ₹599.
 - **Framer Motion** — page transitions, scroll reveals, count-ups, micro-interactions
 - **React Three Fiber + drei** — the hero's 3D glass orb (code-split, `ssr: false`, with a static gradient fallback)
 - **Lenis** — smooth scrolling (auto-disabled under `prefers-reduced-motion`)
-- **CSS font fallbacks** — Georgia (display serif), Trebuchet MS (body), Nirmala UI/Mangal (मन accents). These avoid a build-time network dependency.
+- **next/font (Google)** — Fraunces (display serif), Plus Jakarta Sans (body), Tiro Devanagari Hindi (देवनागरी accents), self-hosted at build time.
 
 ## Getting started
 
@@ -166,12 +166,12 @@ Every mutation confirms twice: a toast in a polite live region, and an inline
 EXPERT_PASSWORD="…"   # shared password for the six seeded accounts
 SEED_DEMO="1"         # also build a demo calendar for the first practitioner
 
-npx prisma db push
-npx prisma db seed
+npm run db:deploy
+npm run db:seed
 ```
 
-Accounts are `<expert-id>@mannmatters.in` — e.g. `ananya-iyer@mannmatters.in`,
-who is seeded with notes approved, and `arjun-mehta@mannmatters.in`, who is
+Accounts are `<expert-id>@emoraa.com` — e.g. `ananya-iyer@emoraa.com`,
+who is seeded with notes approved, and `arjun-mehta@emoraa.com`, who is
 seeded pending approval so the policy gate can be seen working.
 
 ## Brand tokens
@@ -195,7 +195,7 @@ Display type: **Fraunces**. Body: **Plus Jakarta Sans**. Devanagari accent (म�
 
 ## API and integrations
 
-Booking is backed by Prisma and SQLite. `components/booking/BookingFlow.tsx` posts `{ concern, expertId, date, time }` to `POST /api/bookings`, and availability is read from the same API. The database enforces one active booking per expert, date, and time.
+Booking is backed by Prisma and PostgreSQL (Neon). `components/booking/BookingFlow.tsx` posts `{ concern, expertId, date, time }` to `POST /api/bookings`, and availability is read from the same API. The database enforces one active booking per expert, date, and time.
 
 1. **Contact form** — `components/sections/ContactForm.tsx`, the `onSubmit` handler. Point it at `POST /api/contact` (or a form service); fields are named `name`, `email`, `message`.
 2. **Newsletter** — `components/layout/Footer.tsx`, the `onSubscribe` handler. Wire to your email provider.
