@@ -135,8 +135,8 @@ export async function prove(opts: {
   if (await isVerifiedHere(channel, value)) return { state: "verified" };
 
   if (token) {
-    const perToken = rateLimit("contactVerify", `${channel}:${token}`);
-    const perIp = rateLimit("contactVerifyIp", ip);
+    const perToken = await rateLimit("contactVerify", `${channel}:${token}`);
+    const perIp = await rateLimit("contactVerifyIp", ip);
     if (!perToken.ok || !perIp.ok) {
       return {
         state: "blocked",
@@ -163,8 +163,8 @@ export async function prove(opts: {
   }
 
   // a code goes to an address nobody has proven yet: limited per address and per network
-  const perValue = rateLimit(channel === "email" ? "contactCodeEmail" : "phoneCode", hashed(value));
-  const perIp = rateLimit(channel === "email" ? "contactCodeIp" : "phoneCodeIp", ip);
+  const perValue = await rateLimit(channel === "email" ? "contactCodeEmail" : "phoneCode", hashed(value));
+  const perIp = await rateLimit(channel === "email" ? "contactCodeIp" : "phoneCodeIp", ip);
   if (!perValue.ok) return { state: "blocked", response: errors.rateLimited(perValue.retryAfter) };
   if (!perIp.ok) return { state: "blocked", response: errors.rateLimited(perIp.retryAfter) };
 

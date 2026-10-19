@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      # a throwaway Postgres inside the runner; never a real database
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: emoraa
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/emoraa
+      DIRECT_URL: postgresql://postgres:postgres@localhost:5432/emoraa
+      APP_ENV: ci
+      # test-only secret, unrelated to any deployed environment
+      AUTH_SECRET: ci-only-secret-not-used-anywhere-else-0123456789
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Apply migrations
+        run: |
+          npx prisma generate
+          npm run db:deploy
+
+      - name: Migrations match the schema
+        # fails if someone changed schema.prisma without creating a migration
+        run: |
+          echo "CREATE DATABASE shadow;" | npx prisma db execute --stdin --url "$DIRECT_URL"
+          npx prisma migrate diff --from-migrations prisma/migrations --to-schema-datamodel prisma/schema.prisma --shadow-database-url "postgresql://postgres:postgres@localhost:5432/shadow" --exit-code
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Start server
+        run: |
+          npm start -- -p 3000 > server.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -s -o /dev/null http://localhost:3000/api/auth/me && exit 0
+            sleep 2
+          done
+          echo "Server did not start"; cat server.log; exit 1
+
+      - name: Integration tests (access control, rate limits)
+        run: npm run test:integration
+
+      - name: Server log on failure
+        if: failure()
+        run: cat server.log || true

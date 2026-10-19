@@ -5,7 +5,6 @@ import {
   createBookingWithRef,
   createProBonoBooking,
   expertById,
-  holdExpiry,
   isUniqueViolation,
   offersSlot,
   proBonoStatus,
@@ -13,13 +12,33 @@ import {
   serializeBooking,
   takenSlots,
 } from "@/lib/features/booking/server";
-import { HOLD_MINUTES, validateSlot } from "@/lib/features/booking/policy";
+import { HOLD_MINUTES, requestExpiry, validateSlot } from "@/lib/features/booking/policy";
+import { resolveCode } from "@/lib/coupons";
+import { MINOR_AGE } from "@/lib/intake";
+import {
+  concernForService,
+  expertOffersService,
+  priceForBooking,
+  serviceBySlug,
+} from "@/lib/service-catalogue";
 import { clientKey, errors, isSameOrigin, logFailure, privateJson, readJson } from "@/lib/http";
 import { rateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
-type Body = { concern?: string; expertId?: string; date?: string; time?: string; proBono?: boolean };
+type Body = {
+  /** Which service is being bought. The price comes from this, not the body. */
+  service?: string;
+  concern?: string;
+  expertId?: string;
+  date?: string;
+  time?: string;
+  proBono?: boolean;
+  /** A discount or referral code, exactly as typed. Priced on the server. */
+  code?: string;
+  /** Required for a client under 18, and demanded here rather than trusted. */
+  guardian?: { name?: string; phone?: string; consent?: boolean };
+};
 
 /** Said the same way wherever the free session turns out to be spent. */
 const PRO_BONO_USED =
@@ -43,26 +62,92 @@ export async function POST(req: Request) {
     const session = await getSession();
     if (!session) return errors.unauthenticated();
 
-    const limited = rateLimit("booking", clientKey(req));
+    const limited = await rateLimit("booking", clientKey(req));
     if (!limited.ok) return errors.rateLimited(limited.retryAfter);
 
     const body = await readJson<Body>(req);
     if (!body) return errors.badBody();
 
-    const concern = concerns.find((c) => c.id === body.concern);
+    const service = serviceBySlug(typeof body.service === "string" ? body.service : "");
     const expert = await expertById(body.expertId ?? "");
     const date = typeof body.date === "string" ? body.date : "";
     const time = typeof body.time === "string" ? body.time : "";
     const wantsFree = body.proBono === true;
 
+    /**
+     * The concern is derived from the service rather than asked for. It still
+     * earns its place — it ranks therapists and tells the practitioner what
+     * the session is about — but six concerns could never describe fourteen
+     * services, and asking for it again after somebody has already chosen a
+     * service was the redundant step.
+     */
+    const concernId = service ? concernForService(service.slug) : body.concern;
+    const concern = concerns.find((c) => c.id === concernId) ?? concerns[concerns.length - 1];
+
     const fields: Record<string, string> = {};
-    if (!concern) fields.concern = "Please choose what you'd like to talk about.";
+    if (!service) fields.service = "Please choose what kind of session you want.";
     if (!expert) fields.expertId = "Please choose a therapist.";
     if (Object.keys(fields).length) return errors.validation(fields);
+
+    // Qualification is a hard gate, not a filter the browser applies. Selling a
+    // psychiatry consultation by a psychologist is the failure this prevents.
+    if (!(await expertOffersService(expert!.id, service!.slug))) {
+      return privateJson(
+        {
+          error: `${expert!.name} doesn't take ${service!.title} sessions. Pick someone who does, or choose a different kind of session.`,
+          code: "SERVICE_NOT_OFFERED",
+        },
+        { status: 409 }
+      );
+    }
+
+    // The one number anybody is charged: this practitioner's rate for this
+    // service, read from the catalogue rather than taken from the request, so
+    // a browser can neither propose a price nor pick a cheaper therapist's.
+    const listPrice = await priceForBooking(expert!.id, service!.slug);
+    if (listPrice === null) {
+      return privateJson(
+        { error: "That session is priced on request — please talk to us first.", code: "NO_PRICE" },
+        { status: 409 }
+      );
+    }
 
     const slotCheck = validateSlot(date, time);
     if (!slotCheck.ok) {
       return errors.validation({ time: slotCheck.reason }, slotCheck.reason);
+    }
+
+    /**
+     * An under-18 client cannot be booked without a named guardian who has
+     * agreed. The age comes from their own account and the check happens here,
+     * before a slot is touched — the screen asks the same question, but a
+     * request that skips the screen must not skip the consent.
+     */
+    const account = await prisma.user.findUnique({
+      where: { id: session.sub },
+      select: { age: true, intake: { select: { guardianName: true, guardianPhone: true, guardianConsent: true } } },
+    });
+    const minor = typeof account?.age === "number" && account.age < MINOR_AGE;
+    const onFile =
+      !!account?.intake?.guardianConsent &&
+      !!account.intake.guardianName.trim() &&
+      !!account.intake.guardianPhone.trim();
+
+    let guardianToSave: { name: string; phone: string } | null = null;
+    if (minor && !onFile) {
+      const name = String(body.guardian?.name ?? "").trim().slice(0, 120);
+      const phone = String(body.guardian?.phone ?? "").trim().slice(0, 20);
+      const consent = body.guardian?.consent === true;
+
+      const guardianFields: Record<string, string> = {};
+      if (!name) guardianFields.guardianName = "We need a parent or guardian's name.";
+      if (!/^[+]?[0-9 ()-]{8,18}$/.test(phone)) {
+        guardianFields.guardianPhone = "We need a number we can reach them on.";
+      }
+      if (!consent) guardianFields.guardianConsent = "We can't book without this.";
+      if (Object.keys(guardianFields).length) return errors.validation(guardianFields);
+
+      guardianToSave = { name, phone };
     }
 
     // decided before touching the calendar, so a refusal costs nobody a slot
@@ -113,15 +198,56 @@ export async function POST(req: Request) {
         expertName: expert!.name,
         date,
         time,
+        serviceSlug: service!.slug,
       };
+
+      // A code never changes what the free session costs — it is already ₹0 —
+      // and the price it produces is worked out here, never sent by the browser.
+      const typed = typeof body.code === "string" ? body.code : "";
+      const applied =
+        !freePhone && typed
+          ? await resolveCode(typed, session.sub, listPrice)
+          : null;
+
+      if (applied && !applied.ok) {
+        return errors.validation({ code: applied.reason }, applied.reason);
+      }
+
+      const discount = applied?.ok ? applied.discount : null;
 
       const booking = freePhone
         ? await createProBonoBooking({ ...common, phone: freePhone })
-        : await createBookingWithRef({ ...common, amount: expert!.price, holdExpiresAt: holdExpiry() });
+        : await createBookingWithRef({
+            ...common,
+            amount: discount ? discount.payable : listPrice,
+            fullAmount: discount ? listPrice : null,
+            couponCode: discount ? discount.code : null,
+            // held while the practitioner decides, not while a card is typed
+            holdExpiresAt: requestExpiry(date, time),
+          });
+
+      // kept on the intake form, where the practitioner reads it
+      if (guardianToSave) {
+        await prisma.intakeForm.upsert({
+          where: { userId: session.sub },
+          create: {
+            userId: session.sub,
+            guardianName: guardianToSave.name,
+            guardianPhone: guardianToSave.phone,
+            guardianConsent: true,
+          },
+          update: {
+            guardianName: guardianToSave.name,
+            guardianPhone: guardianToSave.phone,
+            guardianConsent: true,
+          },
+        });
+      }
 
       return privateJson({
         booking: serializeBooking(booking),
         holdMinutes: freePhone ? null : HOLD_MINUTES,
+        discount,
       });
     } catch (err) {
       // two requests raced for the same free claim; the UNIQUE index decided

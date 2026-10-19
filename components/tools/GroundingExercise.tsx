@@ -96,7 +96,7 @@ export default function GroundingExercise() {
             <h3 className="mt-3 font-display text-2xl font-medium text-forest-900 md:text-3xl">
               {current.prompt}
             </h3>
-            <p className="mt-3 text-[0.95rem] leading-relaxed text-ink/60">{current.hint}</p>
+            <p className="mt-3 text-[0.95rem] leading-relaxed text-ink/70">{current.hint}</p>
 
             {/* one dot per thing to notice */}
             <div className="mt-9 flex items-center justify-center gap-3" aria-hidden="true">
@@ -117,7 +117,7 @@ export default function GroundingExercise() {
             >
               Noticed one
             </button>
-            <p className="mt-4 text-xs text-ink/45">
+            <p className="mt-4 text-xs text-ink/70">
               Take your time — there&apos;s no clock on this.
             </p>
           </motion.div>
@@ -133,7 +133,7 @@ export default function GroundingExercise() {
               Back in the room
             </p>
             <h3 className="mt-3 font-display text-3xl font-medium text-forest-900">
-              You&apos;re here. That&apos;s the whole trick.
+              You are here. That is all it takes.
             </h3>
             <p className="mx-auto mt-4 max-w-md leading-relaxed text-ink/75">
               Anxiety lives in the past and the future — your senses only live in
@@ -146,7 +146,7 @@ export default function GroundingExercise() {
               >
                 Slow your breath next
               </Link>
-              <button onClick={restart} className="link-draw text-sm text-ink/55">
+              <button onClick={restart} className="link-draw text-sm text-ink/70">
                 Go through it again
               </button>
             </div>

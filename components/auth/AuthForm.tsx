@@ -10,19 +10,26 @@ import { Field, Select } from "@/components/ui/Field";
 import {
   AGE_GUARDIAN_BELOW,
   GENDER_OPTIONS,
+  LANGUAGE_OPTIONS,
   ORGANISATION_MAX,
   OTP_LENGTH,
   PASSWORD_MIN,
   collect,
   hasErrors,
   validateAge,
+  validateCity,
   validateEmail,
   validateGender,
   validateNamePart,
+  validateLanguage,
   validateOrganisation,
   validateOtp,
   validatePassword,
   validateRequiredPhone,
+  validateState,
+  validateTermsConsent,
+  CITY_MAX,
+  STATE_OPTIONS,
 } from "@/lib/validation";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -48,7 +55,11 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [lastName, setLastName] = useState("");
   const [age, setAge] = useState("");
   const [gender, setGender] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
   const [organisation, setOrganisation] = useState("");
+  const [language, setLanguage] = useState("");
+  const [agreed, setAgreed] = useState(false);
   // the SMS code that proves the mobile number, before the account exists
   const [signupCode, setSignupCode] = useState("");
   const [signupPhoneToken, setSignupPhoneToken] = useState("");
@@ -193,11 +204,15 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
           ["lastName", validateNamePart(lastName, "last")],
           ["age", validateAge(age)],
           ["gender", validateGender(gender)],
+          ["city", validateCity(city)],
+          ["state", validateState(state)],
           ["organisation", validateOrganisation(organisation)],
+          ["language", validateLanguage(language)],
           ["phone", validateRequiredPhone(phone)],
           // on login, any password is worth *sending* — telling someone their
           // stored password is too short helps nobody
           ["password", validatePassword(password)],
+          ["terms", validateTermsConsent(agreed)],
           ...(signupPhoneToken
             ? ([["phoneCode", validateOtp(signupCode)]] as [string, string | null][])
             : []),
@@ -222,10 +237,14 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                 lastName,
                 age,
                 gender,
+                city,
+                state,
                 organisation,
+                language,
                 email,
                 phone,
                 password,
+                acceptTerms: agreed,
                 ...(signupPhoneToken ? { phoneToken: signupPhoneToken, phoneCode: signupCode } : {}),
               }
         ),
@@ -345,7 +364,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                 {resendNote}
               </p>
             )}
-            <p className="mt-8 text-xs leading-relaxed text-ink/45">
+            <p className="mt-8 text-xs leading-relaxed text-ink/70">
               No email? Check your spam folder, or use &ldquo;Resend&rdquo;. With no mail provider
               configured, the link is printed in the server console and shown above.
             </p>
@@ -388,7 +407,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                     className={`min-h-11 rounded-lg px-4 text-sm font-semibold transition-colors ${
                       signInMethod === method
                         ? "bg-ivory-light text-forest-900 shadow-lift"
-                        : "text-ink/55 hover:text-forest-900"
+                        : "text-ink/70 hover:text-forest-900"
                     }`}
                   >
                     {method === "email" ? "Email" : "Phone"}
@@ -446,6 +465,22 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                     />
                   </div>
 
+                  {/* Optional, and asked here rather than later because it
+                      changes who we would match someone with. The list goes
+                      beyond what the team currently covers on purpose: a
+                      client who wants a language nobody speaks is the most
+                      useful thing this field can tell us. */}
+                  <Select
+                    label="Language you'd rather talk in"
+                    value={language}
+                    onChange={changed("language", setLanguage)}
+                    options={LANGUAGE_OPTIONS.map((l) => ({ value: l, label: l }))}
+                    placeholder="No preference"
+                    disabled={submitting || !!signupPhoneToken}
+                    error={fields.language}
+                    hint="Optional. Feelings are easier to find in the language you think in — we'll use this when matching you."
+                  />
+
                   {age && Number(age) < AGE_GUARDIAN_BELOW && (
                     <Alert tone="info">
                       You&apos;re under {AGE_GUARDIAN_BELOW}, so a parent or guardian needs to agree
@@ -466,6 +501,37 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                     placeholder="98765 43210"
                     hint={signupPhoneToken ? undefined : "We'll text a code to confirm it's yours."}
                   />
+
+                  {/* Where they are. Asked at signup rather than at booking
+                      because it decides which practitioners can actually help
+                      — language, timezone and, if it ever comes to it, which
+                      local crisis service to point to. State is a list so the
+                      admin breakdown groups; city is free text because no list
+                      of Indian towns is complete enough to turn away a real
+                      one. */}
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Field
+                      label="City or town"
+                      required
+                      value={city}
+                      onChange={changed("city", setCity)}
+                      autoComplete="address-level2"
+                      maxLength={CITY_MAX}
+                      disabled={submitting || !!signupPhoneToken}
+                      error={fields.city}
+                      placeholder="Jaipur"
+                    />
+                    <Select
+                      label="State"
+                      required
+                      value={state}
+                      onChange={changed("state", setState)}
+                      options={STATE_OPTIONS.map((x) => ({ value: x, label: x }))}
+                      placeholder="Choose…"
+                      disabled={submitting || !!signupPhoneToken}
+                      error={fields.state}
+                    />
+                  </div>
 
                   <Field
                     label="School, college or workplace"
@@ -595,6 +661,42 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                 </>
               )}
 
+              {!isLogin && (
+                <div>
+                  <label className="flex cursor-pointer items-start gap-3 text-[0.9rem] leading-relaxed text-ink/80">
+                    <input
+                      type="checkbox"
+                      checked={agreed}
+                      onChange={(e) => {
+                        setAgreed(e.target.checked);
+                        clearField("terms");
+                      }}
+                      disabled={submitting || !!signupPhoneToken}
+                      aria-invalid={!!fields.terms}
+                      aria-describedby={fields.terms ? "terms-error" : undefined}
+                      className="mt-1 h-4 w-4 shrink-0 accent-forest-800"
+                    />
+                    <span>
+                      I agree to the{" "}
+                      {/* new tab, so reading them doesn’t lose what’s typed */}
+                      <a href="/terms" target="_blank" rel="noopener" className="font-medium text-forest-800 underline underline-offset-2">
+                        Terms of use
+                      </a>{" "}
+                      and{" "}
+                      <a href="/privacy" target="_blank" rel="noopener" className="font-medium text-forest-800 underline underline-offset-2">
+                        Privacy policy
+                      </a>
+                      , including Emoraa processing the health information I choose to share so I can get care.
+                    </span>
+                  </label>
+                  {fields.terms && (
+                    <p id="terms-error" role="alert" className="mt-1.5 pl-7 text-sm text-red-700">
+                      {fields.terms}
+                    </p>
+                  )}
+                </div>
+              )}
+
               {error && (
                 <Alert tone="error">
                   <p>{error}</p>
@@ -664,7 +766,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
               )}
             </form>
 
-            <p className="mt-7 text-sm text-ink/60">
+            <p className="mt-7 text-sm text-ink/70">
               {isLogin ? (
                 <>
                   New here?{" "}
@@ -689,7 +791,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
             </p>
 
             {!isLogin && (
-              <p className="mt-5 text-[0.78rem] leading-relaxed text-ink/45">
+              <p className="mt-5 text-[0.78rem] leading-relaxed text-ink/70">
                 Your account holds your sessions and nothing else. We don&apos;t sell data, and we
                 never see what happens inside a session.
               </p>

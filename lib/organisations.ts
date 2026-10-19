@@ -37,7 +37,7 @@ export const segments: Segment[] = [
     name: "Schools",
     who: "Classes 1–12, day and boarding",
     pressure:
-      "Board pressure, bullying that now follows students home through a phone, and adolescents who will talk to almost anyone except the counsellor whose office is next to the principal's.",
+      "Board exam pressure. Bullying that now follows students home through their phones. And teenagers who will talk to almost anyone except the counsellor sitting next to the principal's office.",
     offering: [
       "An on-call counsellor students reach on WhatsApp, not by appointment slip",
       "Gatekeeper training so teachers know what to notice and what to say",
@@ -54,7 +54,7 @@ export const segments: Segment[] = [
     name: "Colleges & universities",
     who: "UG, PG and residential campuses",
     pressure:
-      "First time away from home, hostel loneliness, placement season, breakups, substance use — landing on a counselling cell with one counsellor for four thousand students.",
+      "First time away from home. Hostel loneliness. Placement season. Breakups. Drink and drugs. All of it lands on a counselling cell with one counsellor for four thousand students.",
     offering: [
       "Capacity behind your existing cell, not a replacement for it",
       "Peer-supporter training for student volunteers",
@@ -88,7 +88,7 @@ export const segments: Segment[] = [
     name: "Companies & startups",
     who: "From 20-person teams to enterprise",
     pressure:
-      "Burnout that reads as attrition, managers improvising through conversations they were never trained for, and an EAP nobody uses because the number sits on an intranet page.",
+      "Burnout that shows up as people leaving. Managers handling conversations they were never trained for. And an employee assistance programme nobody uses, because the number is buried on an intranet page.",
     offering: [
       "Sessions your team books themselves, in the language they think in",
       "Manager training for the conversation before the resignation",
@@ -109,7 +109,7 @@ export const segments: Segment[] = [
     offering: [
       "Debriefing and trauma support built into the work cycle",
       "Supervision groups for field staff and case workers",
-      "Grant-friendly scoping and reporting",
+      "Scoping and reporting that suits a grant application",
     ],
     image:
       "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=900&q=80",
@@ -140,7 +140,7 @@ export const pillars: Pillar[] = [
   {
     id: "counselling",
     title: "Counselling that's actually reachable",
-    body: "RCI-licensed psychologists, online, in 2+ languages, booked by the person who needs them — no gatekeeper, no form countersigned by a supervisor.",
+    body: "Certified psychologists, online, in your language, booked by the person who needs them — no gatekeeper, no form countersigned by a supervisor.",
   },
   {
     id: "manu",
@@ -188,26 +188,26 @@ export const steps = [
   {
     n: "04",
     title: "Quarterly review",
-    body: "Aggregate patterns, utilisation, and an honest read on what the numbers are and aren't telling you.",
+    body: "Overall patterns, how much the programme is used, and an honest read on what the numbers do and do not tell you.",
   },
 ];
 
 export const orgFaqs: Faq[] = [
   {
     q: "Will we see what our students or employees talk about?",
-    a: "No, and this is not negotiable. Session content is confidential between the individual and their psychologist, exactly as it would be if they had found us themselves. What you receive is aggregate: how many people used the program, broad themes, and utilisation trends — never names, never transcripts, never a list of who booked. The only exception is the one every clinician works under: a situation of serious, immediate risk to someone's safety, handled through the crisis protocol we agree with you in advance.",
+    a: "No, and this is not negotiable. What someone says in a session stays between them and their psychologist, exactly as it would if they had come to us on their own. You get totals only: how many people used the programme, the broad themes, and how usage changes over time. Never names. Never transcripts. Never a list of who booked. There is one exception, and every clinician works under it: a serious and immediate risk to someone's safety. We agree that crisis protocol with you before we start.",
   },
   {
     q: "What does it cost?",
-    a: "Programs are priced per seat per year, and the per-seat price falls sharply with size — a 60-student play school and a 4,000-student university are not on the same rate card. Workshops and training can also be bought standalone if you want to start smaller. We will quote against a scope, not a headcount guess, so the first conversation is about what you actually need.",
+    a: "We price per seat, per year. The price per seat drops sharply as the numbers go up: a 60-student play school and a 4,000-student university are not on the same rate card. You can also buy workshops and training on their own if you want to start smaller. We quote against a scope, not a guess at your headcount, so the first conversation is about what you actually need.",
   },
   {
     q: "We already have a counsellor on campus. Where do you fit?",
-    a: "Behind them, usually. One in-house counsellor for a few thousand students is the norm in India and it is not a staffing problem you can solve with one more hire. We take the volume — after-hours contact, routine sessions, language coverage they don't have — so your counsellor can do the work only someone on campus can do. We are not a replacement, and we will say so if someone tries to use us as one.",
+    a: "Behind them, usually. One in-house counsellor for a few thousand students is normal in India, and hiring one more person does not fix it. We take the volume: contact after hours, routine sessions, and languages your counsellor does not speak. That frees them for the work only someone on campus can do. We are not a replacement, and we will say so if anyone tries to use us as one.",
   },
   {
     q: "How fast can a program start?",
-    a: "A pilot can be running in two to three weeks: scoping call, protocol agreed and signed, therapists assigned to your languages, launch comms out. Crisis escalation is live from day one — that part never waits for a rollout plan.",
+    a: "A pilot can be running in two to three weeks. A scoping call, the protocol agreed and signed, therapists assigned to your languages, and launch messages out. Crisis escalation is live from day one. That part never waits for a pilot.",
   },
   {
     q: "Is this available outside metros?",
@@ -215,6 +215,6 @@ export const orgFaqs: Faq[] = [
   },
   {
     q: "Do you work with minors?",
-    a: "Yes, with consent handled properly. For students under 18, we work to a consent framework agreed with the institution and parents before launch, and our clinicians working with adolescents are experienced with this age group specifically. We'll walk through exactly how it works in the scoping call — it's usually the first question, and it should be.",
+    a: "Yes, with consent handled properly. For students under 18, we agree a consent process with the institution and the parents before we start. The clinicians who work with teenagers are experienced with this age group. We will walk you through exactly how it works in the scoping call. It is usually the first question people ask, and it should be.",
   },
 ];

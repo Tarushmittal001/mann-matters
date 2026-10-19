@@ -12,6 +12,7 @@ import {
   ALL_SLOTS,
   BOOKING_STATUS,
   HOLD_MINUTES,
+  requestExpiry,
   PAYMENT_STATUS,
   SESSION_MINUTES,
   slotKey,
@@ -19,10 +20,17 @@ import {
 
 export type BookingRecord = Awaited<ReturnType<typeof findUserBooking>>;
 
+/**
+ * Put back the slots nobody acted on.
+ *
+ * Two kinds lapse the same way: a request the practitioner never answered, and
+ * an approved booking the client never paid for. Both were holding a time
+ * somebody else could have had, and neither is going to happen now.
+ */
 export async function releaseExpiredHolds(now: Date = new Date()): Promise<number> {
   const { count } = await prisma.booking.updateMany({
     where: {
-      status: BOOKING_STATUS.pendingPayment,
+      status: { in: [BOOKING_STATUS.requested, BOOKING_STATUS.pendingPayment] },
       holdExpiresAt: { lt: now },
     },
     data: { status: BOOKING_STATUS.expired, slotKey: null },
@@ -146,7 +154,13 @@ export async function createBookingWithRef(data: {
   expertName: string;
   date: string;
   time: string;
+  /** Which service was bought — the thing the price came from. */
+  serviceSlug?: string | null;
+  /** What they will actually pay, after any code. */
   amount: number;
+  /** The fee before the code, so the receipt can show both. Null when undiscounted. */
+  fullAmount?: number | null;
+  couponCode?: string | null;
   holdExpiresAt: Date;
 }) {
   for (let attempt = 0; attempt < 5; attempt++) {
@@ -155,7 +169,12 @@ export async function createBookingWithRef(data: {
         data: {
           ...data,
           ref: makeRef(),
-          status: BOOKING_STATUS.pendingPayment,
+          /* Requested, not pending payment: the practitioner has to agree
+             before anybody's card is touched. The payment row is created now
+             and stays PENDING so every screen that reads `payment` has
+             something honest to show, but nothing is charged until the
+             request is accepted and the client comes back to pay. */
+          status: BOOKING_STATUS.requested,
           slotKey: slotKey(data.expertId, data.date, data.time),
           payment: {
             create: { amount: data.amount, status: PAYMENT_STATUS.pending },
@@ -202,9 +221,11 @@ export async function proBonoStatus(userId: string): Promise<ProBonoStatus> {
 }
 
 /**
- * The free session: confirmed on creation, at no charge, with a WAIVED payment
- * row so every screen that reads `payment` has something honest to show. No
- * hold and no expiry — there is nothing to wait for.
+ * The free session: requested like any other, at no charge, with a WAIVED
+ * payment row so every screen that reads `payment` has something honest to
+ * show. Free does not mean automatic — a practitioner agrees to their own
+ * time whatever it costs, and a first session is the one most worth them
+ * seeing before it happens.
  */
 export async function createProBonoBooking(data: {
   userId: string;
@@ -213,6 +234,7 @@ export async function createProBonoBooking(data: {
   expertName: string;
   date: string;
   time: string;
+  serviceSlug?: string | null;
   phone: string;
 }) {
   const { phone, ...fields } = data;
@@ -223,8 +245,8 @@ export async function createProBonoBooking(data: {
           ...fields,
           ref: makeRef(),
           amount: 0,
-          status: BOOKING_STATUS.confirmed,
-          holdExpiresAt: null,
+          status: BOOKING_STATUS.requested,
+          holdExpiresAt: requestExpiry(data.date, data.time),
           slotKey: slotKey(data.expertId, data.date, data.time),
           proBono: true,
           proBonoPhone: phone,
@@ -271,6 +293,9 @@ type BookingWithPayment = {
   date: string;
   time: string;
   amount: number;
+  fullAmount?: number | null;
+  couponCode?: string | null;
+  serviceSlug?: string | null;
   status: string;
   /** Optional so hand-built objects elsewhere still satisfy the type. */
   proBono?: boolean;
@@ -306,6 +331,10 @@ export function serializeBooking(booking: BookingWithPayment, now: Date = new Da
     date: booking.date,
     time: booking.time,
     amount: booking.amount,
+    serviceSlug: booking.serviceSlug ?? null,
+    // only present when a code was used, so the card can show what came off
+    fullAmount: booking.fullAmount ?? null,
+    couponCode: booking.couponCode ?? null,
     status: booking.status,
     proBono: !!booking.proBono,
     // The room is gated on the clock, not on the page. The URL only enters the
@@ -318,6 +347,9 @@ export function serializeBooking(booking: BookingWithPayment, now: Date = new Da
             time: booking.time,
             status: booking.status,
             meetingUrl: booking.meetingUrl,
+            // the service decides how long the room stays open; SESSION_MINUTES
+            // is only the fallback for bookings made before it was recorded
+            serviceSlug: booking.serviceSlug ?? null,
           },
           SESSION_MINUTES,
           now

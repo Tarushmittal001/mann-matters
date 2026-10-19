@@ -7,7 +7,7 @@ import Link from "next/link";
    its width, faded at the edges, paused on hover — but on the dark ground, so
    it reads as the page's one standing invitation rather than another reminder.
 
-   **What it offers.** Every person's first session with a licensed
+   **What it offers.** Every person's first session with a qualified
    psychologist is free — one per verified phone number. The button goes to the
    booking flow with that intent (`/book?free=1`), where eligibility is checked
    on the server and the session is confirmed at ₹0 with no payment step. The
@@ -24,7 +24,7 @@ const lines: { text: string; accent?: boolean }[] = [
   { text: "Your first session is free" },
   { text: "Kuch pareshaan kar raha hai?" },
   { text: "Baat karni hai?", accent: true },
-  { text: "A licensed psychologist, 50 minutes, on us" },
+  { text: "A full session with a certified psychologist, free" },
 ];
 
 export default function TalkBar() {

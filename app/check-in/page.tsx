@@ -5,6 +5,7 @@ import FloatingOrbs from "@/components/ui/FloatingOrbs";
 
 export const metadata: Metadata = {
   title: "Mood check-in",
+  alternates: { canonical: "/check-in" },
   description:
     "A gentle two-minute check-in. Four questions, a kind reflection, and a next step that fits — never a diagnosis.",
 };

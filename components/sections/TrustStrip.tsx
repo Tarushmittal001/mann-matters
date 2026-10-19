@@ -141,18 +141,21 @@ export default function TrustStrip() {
   const lite = useLiteMotion();
   const animate = !reduced && !lite;
 
-  const pictures: { region: Region; picture: (value: number) => ReactNode }[] = [
-    { region: REGIONS.teal, picture: () => <SessionDots region={REGIONS.teal} animate={animate} /> },
-    { region: REGIONS.rose, picture: () => <Faces region={REGIONS.rose} animate={animate} /> },
-    { region: REGIONS.indigo, picture: () => <Bubbles region={REGIONS.indigo} animate={animate} /> },
-    { region: REGIONS.amber, picture: (v) => <Stars region={REGIONS.amber} animate={animate} value={v} /> },
-  ];
+  const pictures: Record<(typeof stats)[number]["kind"], { region: Region; picture: (value: number) => ReactNode }> = {
+    sessions: { region: REGIONS.teal, picture: () => <SessionDots region={REGIONS.teal} animate={animate} /> },
+    psychologists: { region: REGIONS.rose, picture: () => <Faces region={REGIONS.rose} animate={animate} /> },
+    languages: { region: REGIONS.indigo, picture: () => <Bubbles region={REGIONS.indigo} animate={animate} /> },
+    rating: { region: REGIONS.amber, picture: (v) => <Stars region={REGIONS.amber} animate={animate} value={v} /> },
+  };
+
+  if (stats.length === 0) return null;
 
   return (
     <section className="bg-ivory py-10 md:py-14">
-      <div className="wrap-wide grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      {/* flex rather than a fixed grid, so one card or three still sit centred */}
+      <div className="wrap-wide flex flex-wrap justify-center gap-3 sm:gap-4">
         {stats.map((s, i) => {
-          const { region, picture } = pictures[i % pictures.length];
+          const { region, picture } = pictures[s.kind];
           return (
             <motion.div
               key={s.label}
@@ -161,7 +164,7 @@ export default function TrustStrip() {
               initial={animate ? "hidden" : false}
               whileInView="shown"
               viewport={{ once: true, margin: "-8% 0px" }}
-              className="group flex flex-col items-center justify-between gap-4 rounded-3xl border px-4 py-6 text-center transition-shadow duration-500 ease-silk hover:shadow-lift sm:px-6 md:py-7"
+              className="group flex basis-[calc(50%-0.375rem)] flex-col items-center sm:basis-[calc(50%-0.5rem)] lg:basis-[calc(25%-0.75rem)] justify-between gap-4 rounded-3xl border px-4 py-6 text-center transition-shadow duration-500 ease-silk hover:shadow-lift sm:px-6 md:py-7"
               style={{ backgroundColor: tint(region, 0.07), borderColor: tint(region, 0.18) }}
             >
               <div className="flex h-16 items-center justify-center transition-transform duration-500 ease-silk group-hover:scale-105">

@@ -12,7 +12,7 @@ import { StatusBadge } from "@/components/expert/Panel";
  */
 
 function RoomCell({ session }: { session: ExpertSessionView }) {
-  if (session.status === "CANCELLED") return <span className="text-ink/40">—</span>;
+  if (session.status === "CANCELLED") return <span className="text-ink/70">—</span>;
   if (session.meetingUrl) {
     return (
       <span className="inline-flex items-center gap-1.5 text-ink/70">
@@ -30,12 +30,12 @@ function RoomCell({ session }: { session: ExpertSessionView }) {
 }
 
 function NoteCell({ session }: { session: ExpertSessionView }) {
-  if (!session.note) return <span className="text-ink/40">—</span>;
+  if (!session.note) return <span className="text-ink/70">—</span>;
   return (
     <span className="text-ink/70">
       {session.note.status === "SUBMITTED" ? "Submitted" : "Draft"}
       {session.note.amendments > 0 && (
-        <span className="text-ink/50">
+        <span className="text-ink/70">
           {" "}
           +{session.note.amendments} amendment{session.note.amendments === 1 ? "" : "s"}
         </span>
@@ -62,7 +62,7 @@ export default function SessionsTable({
             Your sessions, earliest first. All times are clinic time (IST).
           </caption>
           <thead>
-            <tr className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-ink/50">
+            <tr className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
               <th scope="col" className="px-4 py-3 pl-5">
                 When (IST)
               </th>
@@ -101,13 +101,13 @@ export default function SessionsTable({
                   <span className="block font-medium tabular-nums text-forest-900">
                     {formatTime(s.time)} – {formatTime(s.endTime)}
                   </span>
-                  <span className="block text-[0.8rem] text-ink/55">
+                  <span className="block text-[0.8rem] text-ink/70">
                     {relativeDay(s.date, today)}
                   </span>
                 </td>
                 <td className="px-4 py-3.5">
                   <span className="block text-forest-900">{s.client.displayName}</span>
-                  <span className="block font-mono text-[0.76rem] text-ink/50">{s.ref}</span>
+                  <span className="block font-mono text-[0.76rem] text-ink/70">{s.ref}</span>
                 </td>
                 <td className="px-4 py-3.5 text-ink/70">{s.concernLabel}</td>
                 <td className="px-4 py-3.5">
@@ -161,29 +161,29 @@ export default function SessionsTable({
               </div>
               <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-[0.82rem]">
                 <div>
-                  <dt className="text-ink/45">Focus</dt>
+                  <dt className="text-ink/70">Focus</dt>
                   <dd className="text-forest-900">{s.concernLabel}</dd>
                 </div>
                 <div>
-                  <dt className="text-ink/45">Fee</dt>
+                  <dt className="text-ink/70">Fee</dt>
                   <dd className="tabular-nums text-forest-900">{formatINR(s.amount)}</dd>
                 </div>
                 <div>
-                  <dt className="text-ink/45">Room</dt>
+                  <dt className="text-ink/70">Room</dt>
                   <dd>
                     <RoomCell session={s} />
                   </dd>
                 </div>
                 {showNotes && (
                   <div>
-                    <dt className="text-ink/45">Note</dt>
+                    <dt className="text-ink/70">Note</dt>
                     <dd>
                       <NoteCell session={s} />
                     </dd>
                   </div>
                 )}
                 <div className="col-span-2">
-                  <dt className="text-ink/45">Reference</dt>
+                  <dt className="text-ink/70">Reference</dt>
                   <dd className="font-mono text-forest-800">{s.ref}</dd>
                 </div>
               </dl>

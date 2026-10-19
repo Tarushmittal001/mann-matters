@@ -6,6 +6,10 @@ import { helplines, site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Crisis support — You're not alone",
+  alternates: {
+    canonical: "/crisis",
+    languages: { "en-IN": "/crisis", "hi-IN": "/hi/crisis" },
+  },
   description:
     "Immediate mental-health crisis support for India. Tele-MANAS 14416, emergency 112, and verified 24x7 helplines. If you're in danger or thinking of harming yourself, help is available right now.",
 };
@@ -168,7 +172,7 @@ export default function CrisisPage({
             <h2 className="h-display text-3xl md:text-4xl">When the immediate danger has passed</h2>
             <p className="mx-auto mt-5 max-w-xl leading-relaxed text-ink/70">
               Crisis lines are for this moment. For the days after, talking regularly
-              to a licensed psychologist helps the ground feel steadier. When
+              to a certified psychologist helps the ground feel steadier. When
               you&apos;re ready — no rush — we&apos;re here.
             </p>
             <div className="mt-9 flex flex-wrap justify-center gap-4">
@@ -187,7 +191,7 @@ export default function CrisisPage({
                 Talk to us on WhatsApp
               </a>
             </div>
-            <p className="mx-auto mt-10 max-w-lg text-sm leading-relaxed text-ink/55">
+            <p className="mx-auto mt-10 max-w-lg text-sm leading-relaxed text-ink/70">
               Emoraa is not an emergency service. If life is in immediate
               danger, please call <a href="tel:112" className="font-semibold text-red-600 underline underline-offset-4">112</a> or go to your
               nearest hospital emergency room.

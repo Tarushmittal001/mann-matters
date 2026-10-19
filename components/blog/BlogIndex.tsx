@@ -14,7 +14,7 @@ function Meta({ post, className }: { post: Post; className?: string }) {
     <p className={"flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.18em] text-forest-600 " + (className ?? "")}>
       {post.category}
       <span className="h-px w-5 bg-gold" aria-hidden="true" />
-      <span className="normal-case tracking-normal text-ink/50">{post.readTime}</span>
+      <span className="normal-case tracking-normal text-ink/70">{post.readTime}</span>
     </p>
   );
 }
@@ -40,7 +40,7 @@ function PostCard({ post }: { post: Post }) {
       <p className="mt-2.5 line-clamp-2 text-[0.93rem] leading-relaxed text-ink/65">
         {post.excerpt}
       </p>
-      <p className="mt-4 text-sm text-ink/50">
+      <p className="mt-4 text-sm text-ink/70">
         {post.author.name} · {post.displayDate}
       </p>
     </Link>
@@ -92,7 +92,7 @@ export default function BlogIndex({ posts }: { posts: Post[] }) {
                   aria-pressed={on}
                   className={
                     "relative rounded-full px-4 py-2 text-sm transition-colors duration-300 " +
-                    (on ? "text-ivory" : "text-ink/60 hover:text-forest-800")
+                    (on ? "text-ivory" : "text-ink/70 hover:text-forest-800")
                   }
                 >
                   {on && (
@@ -134,7 +134,7 @@ export default function BlogIndex({ posts }: { posts: Post[] }) {
         </div>
       </Reveal>
 
-      <p className="mt-6 text-sm text-ink/45" aria-live="polite">
+      <p className="mt-6 text-sm text-ink/70" aria-live="polite">
         {count}
       </p>
 
@@ -165,13 +165,13 @@ export default function BlogIndex({ posts }: { posts: Post[] }) {
                 <p className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.18em] text-forest-600">
                   featured · {featured.category}
                   <span className="h-px w-5 bg-gold" aria-hidden="true" />
-                  <span className="normal-case tracking-normal text-ink/50">{featured.readTime}</span>
+                  <span className="normal-case tracking-normal text-ink/70">{featured.readTime}</span>
                 </p>
                 <h2 className="h-display mt-4 text-3xl leading-tight transition-colors group-hover:text-forest-600 md:text-[2.6rem]">
                   {featured.title}
                 </h2>
                 <p className="mt-5 leading-relaxed text-ink/70">{featured.excerpt}</p>
-                <p className="mt-6 text-sm text-ink/55">
+                <p className="mt-6 text-sm text-ink/70">
                   {featured.author.name} · {featured.displayDate}
                 </p>
               </div>
@@ -201,7 +201,7 @@ export default function BlogIndex({ posts }: { posts: Post[] }) {
       {filtered.length === 0 && (
         <div className="mt-6 rounded-3xl border border-forest-800/10 bg-ivory-light px-8 py-14 text-center">
           <p className="font-display text-2xl text-forest-900">Nothing matches that yet.</p>
-          <p className="mx-auto mt-3 max-w-md leading-relaxed text-ink/60">
+          <p className="mx-auto mt-3 max-w-md leading-relaxed text-ink/70">
             We&apos;re writing more every month. In the meantime, the whole journal is
             two clicks away.
           </p>

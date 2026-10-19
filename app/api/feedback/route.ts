@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     const session = await getSession();
     if (!session) return errors.unauthenticated();
 
-    const limited = rateLimit("feedback", `${session.sub}:${clientKey(req)}`);
+    const limited = await rateLimit("feedback", `${session.sub}:${clientKey(req)}`);
     if (!limited.ok) return errors.rateLimited(limited.retryAfter);
 
     const body = await readJson<Body>(req);

@@ -6,11 +6,13 @@ import {
   hasErrors,
   normalisePhone,
   validateAge,
+  validateCity,
   validateGender,
   validateName,
   validateNotes,
   validateOrganisation,
-  validatePhone,
+  validateRequiredPhone,
+  validateState,
 } from "@/lib/validation";
 import { languageOpts } from "@/lib/matching";
 
@@ -22,6 +24,9 @@ const PROFILE_SELECT = {
   name: true,
   age: true,
   gender: true,
+  city: true,
+  state: true,
+  avatar: true,
   organisation: true,
   email: true,
   phone: true,
@@ -49,6 +54,9 @@ export async function GET() {
         name: user.name,
         age: user.age ? String(user.age) : "",
         gender: user.gender ?? "",
+        city: user.city ?? "",
+        state: user.state ?? "",
+        avatar: user.avatar,
         organisation: user.organisation ?? "",
         email: user.email,
         phone: user.phone ?? "",
@@ -69,6 +77,8 @@ type Body = {
   name?: string;
   age?: string;
   gender?: string;
+  city?: string;
+  state?: string;
   organisation?: string;
   phone?: string;
   language?: string;
@@ -97,6 +107,8 @@ export async function PATCH(req: Request) {
     const name = (body.name ?? "").trim();
     const ageRaw = (body.age ?? "").trim();
     const gender = (body.gender ?? "").trim();
+    const city = (body.city ?? "").trim();
+    const state = (body.state ?? "").trim();
     const organisation = (body.organisation ?? "").trim();
     const phoneRaw = (body.phone ?? "").trim();
     const language = (body.language ?? "").trim();
@@ -107,8 +119,12 @@ export async function PATCH(req: Request) {
       // age and gender are asked at signup, so they can be corrected but not blanked
       ["age", validateAge(ageRaw)],
       ["gender", validateGender(gender)],
+      // asked at signup, so these can be corrected when somebody moves but not blanked
+      ["city", validateCity(city)],
+      ["state", validateState(state)],
       ["organisation", validateOrganisation(organisation)],
-      ["phone", validatePhone(phoneRaw)],
+      // required, as at signup — a session change has to reach somebody
+      ["phone", validateRequiredPhone(phoneRaw)],
       ["notes", validateNotes(notes)],
     ]);
     if (language && !languageOpts.includes(language)) {
@@ -122,13 +138,16 @@ export async function PATCH(req: Request) {
     });
     if (!current) return errors.notFound("We couldn't find your account.");
 
-    const phone = phoneRaw ? normalisePhone(phoneRaw) : null;
+    // validation above guarantees it is present and well-formed
+    const phone = normalisePhone(phoneRaw);
     const user = await prisma.user.update({
       where: { id: session.sub },
       data: {
         name,
         age: Number(ageRaw),
         gender,
+        city,
+        state,
         organisation: organisation || null,
         phone,
         phoneVerified: current.phone === phone ? undefined : null,
@@ -153,6 +172,9 @@ export async function PATCH(req: Request) {
         name: user.name,
         age: user.age ? String(user.age) : "",
         gender: user.gender ?? "",
+        city: user.city ?? "",
+        state: user.state ?? "",
+        avatar: user.avatar,
         organisation: user.organisation ?? "",
         email: user.email,
         phone: user.phone ?? "",

@@ -20,7 +20,7 @@ const statusChip: Record<string, { label: string; cls: string }> = {
   [BOOKING_STATUS.confirmed]: { label: "Confirmed", cls: "bg-sage-light/70 text-forest-800" },
   [BOOKING_STATUS.pendingPayment]: { label: "Unpaid", cls: "bg-gold/20 text-gold-dark" },
   [BOOKING_STATUS.cancelled]: { label: "Cancelled", cls: "bg-red-50 text-red-700" },
-  [BOOKING_STATUS.expired]: { label: "Expired", cls: "bg-forest-800/8 text-ink/55" },
+  [BOOKING_STATUS.expired]: { label: "Expired", cls: "bg-forest-800/8 text-ink/70" },
 };
 
 function paymentLabel(p: { status: string; refundAmount: number | null } | null) {
@@ -60,19 +60,20 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
       prisma.booking.count({
         where: { status: BOOKING_STATUS.confirmed, date: { gt: today } },
       }),
-      // money actually taken, not merely booked
+      // money actually taken, not merely booked. A refunded payment counts
+      // here too — it did arrive — and the refund tile beside it nets off.
       prisma.payment.aggregate({
         _sum: { amount: true },
-        where: { status: PAYMENT_STATUS.paid },
+        where: { status: { in: [PAYMENT_STATUS.paid, PAYMENT_STATUS.refunded] } },
       }),
       prisma.payment.aggregate({
         _sum: { refundAmount: true },
-        where: { status: PAYMENT_STATUS.refunded },
+        where: { refundAmount: { not: null } },
       }),
     ]);
 
-  // SQLite's `contains` is case-sensitive, so the filter happens here instead —
-  // fine at this scale, and it stops "Priya" from missing "priya@…"
+  // filtered here, case-insensitively — fine at this scale, and it stops "Priya"
+  // from missing "priya@…". (Postgres could do this with `mode: "insensitive"`.)
   const needle = q.toLowerCase();
   const clients = needle
     ? allClients.filter(
@@ -142,7 +143,7 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
             className="rounded-2xl border border-forest-800/10 bg-ivory-light p-5 shadow-lift sm:p-6"
           >
             <p className="font-display text-2xl font-medium text-forest-900">{s.value}</p>
-            <p className="mt-1 text-sm text-ink/60">{s.label}</p>
+            <p className="mt-1 text-sm text-ink/70">{s.label}</p>
           </div>
         ))}
       </div>
@@ -166,7 +167,7 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
         {q && (
           <Link
             href="/admin"
-            className="self-center whitespace-nowrap text-sm font-medium text-ink/55 hover:text-forest-900"
+            className="self-center whitespace-nowrap text-sm font-medium text-ink/70 hover:text-forest-900"
           >
             Clear
           </Link>
@@ -175,7 +176,7 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
 
       {/* clients */}
       {clients.length === 0 ? (
-        <div className="mt-10 rounded-2xl border border-dashed border-forest-800/20 bg-ivory-light/60 p-12 text-center text-ink/60">
+        <div className="mt-10 rounded-2xl border border-dashed border-forest-800/20 bg-ivory-light/60 p-12 text-center text-ink/70">
           {q ? <>No clients match &ldquo;{q}&rdquo;.</> : <>No clients have signed up yet.</>}
         </div>
       ) : (
@@ -188,7 +189,7 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
               <header className="flex flex-wrap items-center justify-between gap-3 border-b border-forest-800/10 px-6 py-5">
                 <div>
                   <h2 className="font-display text-xl font-medium text-forest-900">{user.name}</h2>
-                  <p className="text-sm text-ink/60">
+                  <p className="text-sm text-ink/70">
                     {user.email}
                     {!user.emailVerified && (
                       <span className="ml-2 rounded-full bg-gold/20 px-2 py-0.5 text-[0.68rem] font-semibold uppercase tracking-wider text-gold-dark">
@@ -204,12 +205,12 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
               </header>
 
               {user.bookings.length === 0 ? (
-                <p className="px-6 py-5 text-sm text-ink/55">No bookings yet.</p>
+                <p className="px-6 py-5 text-sm text-ink/70">No bookings yet.</p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[820px] text-left text-sm">
                     <thead>
-                      <tr className="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-ink/50">
+                      <tr className="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
                         <th className="px-6 py-3">Ref</th>
                         <th className="px-4 py-3">Expert</th>
                         <th className="px-4 py-3">Concern</th>
@@ -235,7 +236,7 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
                             <td className="px-4 py-3.5 text-ink/70">
                               {formatDateISO(b.date)} · {b.time}
                               {b.rescheduleCount > 0 && (
-                                <span className="ml-1.5 text-[0.72rem] text-ink/45">
+                                <span className="ml-1.5 text-[0.72rem] text-ink/70">
                                   (moved {b.rescheduleCount}×)
                                 </span>
                               )}
@@ -254,12 +255,12 @@ export default async function AdminPage({ searchParams }: { searchParams: { q?: 
                             <td className="px-4 py-3.5 text-ink/70">
                               {paymentLabel(b.payment)}
                               {b.payment?.method === "card" && b.payment.last4 && (
-                                <span className="ml-1.5 text-[0.72rem] text-ink/45">
+                                <span className="ml-1.5 text-[0.72rem] text-ink/70">
                                   •••• {b.payment.last4}
                                 </span>
                               )}
                             </td>
-                            <td className="px-6 py-3.5 text-ink/55">
+                            <td className="px-6 py-3.5 text-ink/70">
                               {formatDateISO(b.createdAt.toISOString().slice(0, 10))}
                             </td>
                           </tr>

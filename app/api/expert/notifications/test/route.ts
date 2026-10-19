@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { sendExpertTestNotification } from "@/lib/email";
+import { firstNameOf } from "@/lib/utils";
 
 /**
  * POST /api/expert/notifications/test
@@ -16,7 +17,7 @@ export async function POST() {
   }
 
   try {
-    const delivered = await sendExpertTestNotification(session.email, session.name.split(" ")[0]);
+    const delivered = await sendExpertTestNotification(session.email, firstNameOf(session.name));
     return NextResponse.json({
       delivered,
       message: delivered

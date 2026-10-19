@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { formatTime } from "@/lib/clinic-time";
 import { NOTIFY_CHANNELS, REMINDER_LEADS, reminderLeadLabel } from "@/lib/expert-portal";
 import type { ExpertProfileView } from "@/lib/expert-data";
 import { ActionButton, Field, SaveBar, Select, Toggle } from "@/components/expert/controls";
@@ -17,12 +16,6 @@ const CHANNEL_LABELS: Record<(typeof NOTIFY_CHANNELS)[number], string> = {
   WHATSAPP: "WhatsApp only",
   BOTH: "Email and WhatsApp",
 };
-
-const HOURS = (() => {
-  const out: string[] = [];
-  for (let h = 0; h < 24; h += 1) out.push(String(h).padStart(2, "0") + ":00");
-  return out;
-})();
 
 /**
  * Notification preferences.
@@ -81,9 +74,6 @@ export default function NotificationForm({
       reminder: draft.reminder,
       reminderLeadMinutes: draft.reminderLeadMinutes,
       channel: draft.channel,
-      quietHoursEnabled: draft.quietHoursEnabled,
-      quietHoursStart: draft.quietHoursStart,
-      quietHoursEnd: draft.quietHoursEnd,
     });
     setBusy(false);
 
@@ -109,7 +99,7 @@ export default function NotificationForm({
       )}
 
       <section aria-labelledby="always-on">
-        <h3 id="always-on" className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-ink/50">
+        <h3 id="always-on" className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
           Always on
         </h3>
         <ul className="mt-2 divide-y divide-forest-800/[0.08]">
@@ -126,7 +116,7 @@ export default function NotificationForm({
             <li key={item.label} className="flex items-start justify-between gap-5 py-3.5">
               <div className="min-w-0">
                 <p className="text-[0.92rem] font-medium text-forest-900">{item.label}</p>
-                <p className="mt-0.5 text-[0.82rem] leading-snug text-ink/60">{item.hint}</p>
+                <p className="mt-0.5 text-[0.82rem] leading-snug text-ink/70">{item.hint}</p>
               </div>
               <span className="mt-0.5 shrink-0 rounded-full bg-sage-light/70 px-2.5 py-0.5 text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-forest-800">
                 Required
@@ -137,7 +127,7 @@ export default function NotificationForm({
       </section>
 
       <section aria-labelledby="your-choice" className="mt-8">
-        <h3 id="your-choice" className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-ink/50">
+        <h3 id="your-choice" className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
           Up to you
         </h3>
         <div className="mt-2 divide-y divide-forest-800/[0.08]">
@@ -171,7 +161,7 @@ export default function NotificationForm({
       </section>
 
       <section aria-labelledby="channel" className="mt-8">
-        <h3 id="channel" className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-ink/50">
+        <h3 id="channel" className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
           Where they go
         </h3>
         <div className="mt-3 max-w-sm">
@@ -194,54 +184,6 @@ export default function NotificationForm({
         </div>
       </section>
 
-      <section aria-labelledby="quiet" className="mt-8">
-        <h3 id="quiet" className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-ink/50">
-          Quiet hours
-        </h3>
-        <div className="mt-2 divide-y divide-forest-800/[0.08]">
-          <Toggle
-            checked={draft.quietHoursEnabled}
-            onChange={(v) => set("quietHoursEnabled", v)}
-            label="Hold non-urgent notifications overnight"
-            hint={"Read in your own timezone (" + timezone + "). Booking and cancellation alerts still come through — they are time-critical."}
-          />
-        </div>
-
-        {draft.quietHoursEnabled && (
-          <div className="mt-5 grid max-w-md gap-5 sm:grid-cols-2">
-            <Field label="From" required>
-              {({ id }) => (
-                <Select
-                  id={id}
-                  value={draft.quietHoursStart}
-                  onChange={(e) => set("quietHoursStart", e.target.value)}
-                >
-                  {HOURS.map((t) => (
-                    <option key={t} value={t}>
-                      {formatTime(t)}
-                    </option>
-                  ))}
-                </Select>
-              )}
-            </Field>
-            <Field label="Until" required>
-              {({ id }) => (
-                <Select
-                  id={id}
-                  value={draft.quietHoursEnd}
-                  onChange={(e) => set("quietHoursEnd", e.target.value)}
-                >
-                  {HOURS.map((t) => (
-                    <option key={t} value={t}>
-                      {formatTime(t)}
-                    </option>
-                  ))}
-                </Select>
-              )}
-            </Field>
-          </div>
-        )}
-      </section>
 
       <div className="mt-8 rounded-xl border border-forest-800/10 bg-forest-800/[0.03] px-4 py-4">
         <p className="text-[0.86rem] font-semibold text-forest-900">A test is worth more than a guess</p>

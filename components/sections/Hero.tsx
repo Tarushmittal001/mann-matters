@@ -58,9 +58,18 @@ export default function Hero() {
         }}
       />
 
-      {/* the 3D form — off-axis right on desktop, ambient behind text on mobile */}
+      {/*
+        The 3D form — off-axis right on desktop, ambient behind text on mobile.
+
+        The width here and the headline's clamp are one setting, not two. The
+        brain grows as this percentage grows, but its left-hand labels travel
+        left with it, so they run into the headline; a longer headline eats the
+        same gap from the other side. 61% with a 3.75rem cap was measured as the
+        largest brain that still leaves every word at least 42px clear of the
+        hero text, across 1280–2560. Change one and re-measure both.
+      */}
       <motion.div
-        className="absolute inset-y-0 right-0 w-full opacity-40 md:w-[55%] md:opacity-100"
+        className="absolute inset-y-0 right-0 w-full opacity-40 md:w-[61%] md:opacity-100"
         initial={{ opacity: 0, scale: 0.94 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1.6, delay: 0.55, ease: EASE }}
@@ -71,7 +80,7 @@ export default function Hero() {
 
       {/* ivory scrim keeps the headline legible where it meets the orb */}
       <div
-        className="pointer-events-none absolute inset-y-0 left-0 z-[5] hidden w-[62%] md:block"
+        className="pointer-events-none absolute inset-y-0 left-0 z-[5] hidden w-[48%] md:block"
         aria-hidden="true"
         style={{
           background:
@@ -92,38 +101,89 @@ export default function Hero() {
           therapy & counselling, made for India
         </motion.p>
 
-        <h1 className="h-display max-w-4xl text-[clamp(3rem,8vw,7rem)]">
-          <MaskedWords text="better days" baseDelay={0.2} />
-          {/* begin. always on its own line, so it never runs into the brain */}
+        <h1 className="h-display max-w-4xl text-[clamp(2.25rem,6vw,3.75rem)]">
+          {/* "your" stays upright; "emotions" and "matter." carry the accent
+              together. Two instances rather than one, because MaskedWords
+              styles a whole string — the delays continue the 0.09s per-word
+              stagger across the split so the break is invisible. */}
+          <MaskedWords text="your" baseDelay={0.2} />{" "}
+          <MaskedWords
+            text="emotions"
+            baseDelay={0.29}
+            className="italic text-forest-600"
+          />
+          {/* the second line always breaks, so it never runs into the brain */}
           <br />
           <MaskedWords
-            text="begin."
+            text="matter."
             baseDelay={0.4}
             className="italic text-forest-600"
           />
         </h1>
 
-        <motion.p
-          className="mt-8 max-w-xl text-lg leading-relaxed text-ink/70 md:text-xl"
+        <motion.div
+          className="mt-8 max-w-md"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1.0, ease: EASE }}
         >
-          Book a 50-minute video session with a licensed psychologist — in
-          Hindi, English or Hinglish, from ₹599. Between sessions, Manu listens
-          free on WhatsApp, and every tool here works without an account.
-        </motion.p>
+          {/*
+            What Emoraa is, in the first six words.
+
+            This line used to describe the service ("private video sessions
+            with certified psychologists") without ever naming it, so a first
+            visit could end without knowing what the site was. It says the
+            thing now, then lists what people actually arrive with — the list
+            is what carries "wide range", and it does it with words a reader
+            does not have to work at.
+          */}
+          <p className="text-lg leading-snug text-ink/60 md:text-xl">
+            <span className="font-medium text-forest-900">
+              Emoraa is an online therapy platform for India.
+            </span>{" "}
+            Certified psychologists, one to one over video — for anxiety, low
+            mood, family, relationships, work and sleep.
+          </p>
+
+          {/*
+            The terms, in one line.
+
+            This was three large coloured numerals in a row, which is the stat
+            block every landing page has — and it stopped making sense once two
+            of the three values stopped being numbers. They are not parallel
+            facts either: an offer, a price and a promise about language. One
+            quiet line states them without pretending they are a dataset, and
+            lets the left column be the calm half of a hero that already has a
+            700px brain in it.
+          */}
+          <p className="mt-7 border-b border-forest-800/15 pb-5 text-[0.95rem] leading-relaxed text-ink/70">
+            <span className="font-medium text-forest-900">First session free</span>
+            <span className="mx-2 text-ink/30">·</span>
+            then from <span className="font-medium text-forest-900">₹599</span>
+            <span className="mx-2 text-ink/30">·</span>
+            in <span className="font-medium text-forest-900">your language</span>
+          </p>
+        </motion.div>
 
         <motion.div
-          className="pointer-events-auto mt-10 flex flex-wrap items-center gap-4"
+          /* `w-fit`: without it this row is a full-width invisible strip
+             with pointer events on, and it swallowed clicks anywhere across
+             the hero at its height — including on the brain beside it.
+
+             A grid rather than a flex row so the two calls to action are one
+             matched pair: equal-fraction tracks under `w-fit` both settle at
+             the wider button's width, and the default stretch gives them the
+             taller one's height. Sizing them by hand would need re-measuring
+             every time either label changes. */
+          className="pointer-events-auto mt-10 grid w-fit auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1.25, ease: EASE }}
         >
-          <Button href="/book" variant="gold">
+          <Button href="/book" variant="gold" size="sm" className="h-full w-full">
             Book a session
           </Button>
-          <TalkToManuButton />
+          <TalkToManuButton className="h-full w-full" />
         </motion.div>
       </div>
 

@@ -59,11 +59,25 @@ export async function getSession(): Promise<Session | null> {
     if (!payload.sub) return null;
     const user = await prisma.user.findUnique({
       where: { id: payload.sub },
-      select: { id: true, name: true, email: true, role: true, passwordChangedAt: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        passwordChangedAt: true,
+        blockedAt: true,
+      },
     });
     if (!user || (user.role !== "USER" && user.role !== "EXPERT" && user.role !== "ADMIN")) {
       return null;
     }
+    /* A blocked account has no session, anywhere. This lookup already happens
+       on every request, so the check costs nothing and — more to the point —
+       it closes every page and every API route at once. The alternative, each
+       route remembering to ask, is the kind of rule that holds until somebody
+       adds the route that forgets. A cookie minted before the block stops
+       working on the blocker's next click, not at its expiry. */
+    if (user.blockedAt) return null;
     // a password reset ends every session minted before it, so a stolen laptop
     // or a shared browser can't keep the old cookie alive
     if (user.passwordChangedAt && typeof payload.iat === "number") {

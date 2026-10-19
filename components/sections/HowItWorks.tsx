@@ -78,7 +78,9 @@ function ChoosePreview({ animate, region }: Pop) {
       <div className="flex flex-wrap gap-1.5">
         <Chip label="Anxiety" on delay={0.5} animate={animate} region={region} />
         <Chip label="Hindi" on delay={0.8} animate={animate} region={region} />
-        <Chip label="Under ₹1,000" on={false} delay={0} animate={animate} region={region} />
+        {/* the wording of a real budget filter, not an invented one — this is a
+            picture of /match, and "Under ₹1,000" was a band it never offered */}
+        <Chip label="Under ₹900" on={false} delay={0} animate={animate} region={region} />
       </div>
       {[
         { name: "Ananya Iyer", note: "Anxiety · Hindi, English", picked: true, delay: 1.1 },
@@ -100,7 +102,7 @@ function ChoosePreview({ animate, region }: Pop) {
             </span>
             <span className="min-w-0 flex-1 text-left">
               <span className="block truncate text-[0.8rem] font-semibold text-forest-900">{t.name}</span>
-              <span className="block truncate text-[0.7rem] text-ink/55">{t.note}</span>
+              <span className="block truncate text-[0.7rem] text-ink/70">{t.note}</span>
             </span>
             {t.picked && (
               <motion.span
@@ -318,7 +320,7 @@ export default function HowItWorks() {
                     <h3 className="font-display text-xl font-medium leading-tight text-forest-900 md:text-2xl">
                       {step.title}
                     </h3>
-                    <p className="mt-1 text-[0.92rem] text-ink/60">{step.line}</p>
+                    <p className="mt-1 text-[0.92rem] text-ink/70">{step.line}</p>
                   </div>
                 </div>
               </div>

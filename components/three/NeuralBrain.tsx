@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { sceneQuality } from "@/components/visuals/useCanvasScene";
 
 /**
@@ -41,7 +41,7 @@ type RGB = [number, number, number];
 
 type Node = { x: number; y: number; ph: number; sp: number; ax: number; ay: number; reg: number };
 type Edge = { a: number; b: number };
-type Pulse = { e: number; t: number; v: number; dir: number; start: number; rgb: RGB };
+type Pulse = { e: number; t: number; v: number; dir: number; start: number; rgb: RGB; cal?: number };
 type Ring = { node: number; born: number; rgb: RGB };
 
 /**
@@ -62,6 +62,161 @@ type Region = {
   /** For the tooltip swatch and the keyboard affordance. */
   hex: string;
 };
+
+/**
+ * Seven things people arrive with, written around the brain and joined to it
+ * by long looping leaders.
+ *
+ * ── WHY THEY ARE SCATTERED, NOT STACKED ────────────────────────────────────
+ * A tidy right-hand column reads like a product diagram. Words thrown to the
+ * corners with a line sweeping back into the brain reads like somebody
+ * thinking — which is the thing being drawn. The words sit in the gaps the
+ * hero reliably leaves at every width: the strip under the nav, and the flank
+ * right of the headline. The lower-centre looks empty but is not — the safety
+ * notice is a 672×305 panel parked there on every first visit, and a word
+ * under it cannot be clicked. Each region colour is used once, which is what
+ * stops seven words reading as a pile.
+ *
+ * ── THE CURVES ─────────────────────────────────────────────────────────────
+ * Each leader is a cubic with its control points deliberately *not*
+ * symmetrical, so no two bend the same way. `bow` leans the curve out from the
+ * straight line between node and word; varying it per callout is what stops
+ * four arcs looking like four copies of one arc.
+ */
+const CALLOUTS: {
+  label: string;
+  /**
+   * The word's own box width, in px — its longest line plus padding.
+   *
+   * One shared width wasted the difference between the widest label and every
+   * other one, and that waste came straight off the brain: the scale below is
+   * bound by how far the outermost word reaches. Both lines are `nowrap`, so if
+   * a font ever renders wider than the number here the text spills out of its
+   * box AWAY from the brain — never onto it.
+   */
+  w: number;
+  /** Title size in rem. Mixed widely on purpose: one uniform size reads as a key. */
+  fs: number;
+  /**
+   * How present the word is, 0–1. Nearer thoughts are clear, further ones
+   * faint. Uniform opacity is the other half of what made these read as a
+   * legend rather than as things somebody is half-thinking.
+   */
+  dim: number;
+  also: string;
+  /** The node being named, in the brain's own 600×560 space. */
+  x: number;
+  y: number;
+  /** Which column the word sits in. */
+  side: "l" | "r";
+  /**
+   * Where the leader meets the word — also in the brain's 600×560 space,
+   * picked to sit just clear of the silhouette at that height.
+   */
+  ax: number;
+  ay: number;
+  href: string;
+  /** Index into REGIONS: the colour, and the region the node actually sits in. */
+  reg: number;
+}[] = [
+  { label: "Anxiety",         w: 130, fs: 1.10, dim: 1.00, also: "worry that won't stop", x: 190, y: 175, side: "l", ax: 112, ay: 142, href: "/services/individual-therapy",    reg: 0 },
+  { label: "Low mood",        w: 100, fs: 0.86, dim: 0.72, also: "",                       x: 120, y: 245, side: "l", ax:  54, ay: 236, href: "/services/individual-therapy",    reg: 1 },
+  { label: "Exam stress",     w: 106, fs: 0.95, dim: 0.85, also: "the week before",        x: 135, y: 330, side: "l", ax:  61, ay: 322, href: "/services/student-support",       reg: 0 },
+  { label: "Career worry",    w:  96, fs: 0.80, dim: 0.62, also: "",                       x: 280, y: 430, side: "l", ax: 164, ay: 442, href: "/services/career-counselling",    reg: 4 },
+  { label: "Family pressure", w: 132, fs: 0.95, dim: 0.85, also: "",                       x: 390, y: 185, side: "r", ax: 542, ay: 178, href: "/services/family-therapy",        reg: 2 },
+  { label: "Love life",       w: 101, fs: 1.10, dim: 1.00, also: "it keeps hurting",       x: 495, y: 262, side: "r", ax: 560, ay: 268, href: "/services/love-life-counselling", reg: 5 },
+  { label: "Burnout",         w:  82, fs: 0.85, dim: 0.70, also: "",                       x: 495, y: 375, side: "r", ax: 562, ay: 366, href: "/services/daily-life-stress",     reg: 6 },
+  { label: "Can't sleep",     w:  97, fs: 0.80, dim: 0.62, also: "awake at 2am",           x: 420, y: 470, side: "r", ax: 525, ay: 452, href: "/services/sleep-programme",       reg: 7 },
+];
+
+/** Two lines plus padding. Fixed, because text does not scale with the brain. */
+const LABEL_H = 40;
+/**
+ * The vertical middle of the drawn silhouette in design space, from sampling
+ * the three paths: the ink runs y 120..560, so its midpoint is 340, not 280.
+ */
+const INK_MID_Y = 340;
+
+/** Dots per leader. Enough to read as a path, few enough to stay airy. */
+const TRAIL_DOTS = 13;
+/**
+ * Each word's own orbit: amplitude in px, period in seconds, and a negative
+ * delay so it starts part-way round. Derived from the index rather than typed
+ * out, so the set stays in step with CALLOUTS — but the three cycles (3, 4, 5)
+ * are coprime-ish, so no two words share both a period and a phase.
+ *
+ * `dx` stays small on purpose. Horizontal travel is the axis that eats the
+ * measured clearance to the silhouette and to the hero headline; vertical
+ * travel costs almost nothing, so the ellipse leans tall.
+ */
+function orbit(i: number) {
+  return {
+    dx: 3 + (i % 3) * 0.8,
+    dy: 6 + (i % 4) * 0.9,
+    dur: 9.5 + (i % 5) * 1.4,
+    delay: -(i * 1.9),
+  };
+}
+/** The largest excursion any word can make, for the clearance checks. */
+export const ORBIT_MAX = { dx: 4.6, dy: 8.7 };
+
+/** Base gap between aimed signals, plus up to 700ms of jitter. */
+const CAL_EVERY = 1500;
+/** How long a word stays lit once the signal lands. */
+const CAL_DWELL = 1600;
+
+/** The fixed nav overlays the top of this container; words start below it. */
+const TOP_SAFE = 94;
+const EDGE = 8;
+
+/**
+ * How far, in design units, the outermost word reaches from the brain's centre.
+ *
+ * Derived from the callouts rather than typed in, so adding or moving one
+ * cannot leave the scale below stale — which is the failure that used to put a
+ * word back on top of the silhouette.
+ */
+const REACH = CALLOUTS.map((c) => ({
+  reach: c.side === "l" ? 300 - c.ax : c.ax - 300,
+  w: c.w,
+}));
+
+/**
+ * How big the brain is drawn.
+ *
+ * The words have to sit OUTSIDE the silhouette, so the brain is sized to leave
+ * room for them. The first version reserved a full label column on each side of
+ * the brain's whole 600-wide box, which cost far more than it needed to: the
+ * silhouette is only ~480 wide, it narrows sharply towards the top and bottom,
+ * and the words were then pinned to the container's edges rather than to the
+ * shape — a small brain trailing long leader lines across empty ivory.
+ *
+ * Now each word has an anchor just outside the silhouette at its own height, so
+ * the only thing that must fit is the single widest reach plus one label. The
+ * brain gets everything else, and the leaders are short because the words are
+ * already next to what they point at.
+ */
+function brainScale(w: number, h: number) {
+  const fits = REACH.map((r) => (w / 2 - r.w - EDGE) / r.reach);
+  return Math.max(0.2, Math.min(...fits, (h / 560) * 0.9));
+}
+
+/**
+ * Where a word actually lands, in container pixels.
+ *
+ * The anchor rides the brain's own transform, so a word stays welded to its
+ * node at every width. The clamps are a backstop for viewports where the
+ * container is shorter or narrower than the scale above assumed; without them a
+ * top word slid under the fixed nav.
+ */
+function labelPos(c: (typeof CALLOUTS)[number], view: View) {
+  const ax = view.ox + c.ax * view.s;
+  const ay = view.oy + c.ay * view.s;
+  return {
+    left: Math.max(EDGE, Math.min(c.side === "l" ? ax - c.w : ax, view.w - c.w - EDGE)),
+    top: Math.max(TOP_SAFE, Math.min(ay - LABEL_H / 2, view.h - LABEL_H - EDGE)),
+  };
+}
 
 const REGIONS: Region[] = [
   { name: "Frontal lobe", emotion: "Focus, planning & self-control", x: 142, y: 238, r: 112, rgb: [76, 111, 165], hex: "#4C6FA5" },
@@ -98,12 +253,15 @@ function regionAt(x: number, y: number): number {
   return best;
 }
 
-type View = { s: number; ox: number; oy: number };
+type View = { s: number; ox: number; oy: number; w: number; h: number };
 
 export default function NeuralBrain() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tipRef = useRef<HTMLDivElement>(null);
+  /* One per callout. The canvas loop writes `--f` straight onto these when a
+     signal lands, bypassing React: at 60fps, state would re-render the overlay. */
+  const labelRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const [hover, setHover] = useState<Region | null>(null);
   // published so the keyboard affordances can sit exactly over their regions
   const [view, setView] = useState<View | null>(null);
@@ -193,6 +351,34 @@ export default function NeuralBrain() {
     // how "hot" each edge is, so a synapse that just carried a thought keeps a
     // brief afterglow in colour rather than snapping back to grey
     const edgeHeat = new Float32Array(edges.length);
+
+    /*
+     * Each callout's nearest real node, and an edge that arrives at it.
+     * The words are placed in design space by hand; the nodes are generated,
+     * so the two have to be reconciled once here rather than guessed.
+     * `dir` is chosen so the pulse's head FINISHES on the callout's node —
+     * the light has to arrive, not leave.
+     */
+    const calNode = CALLOUTS.map((c) => {
+      let best = 0;
+      let bd = Infinity;
+      for (let i = 0; i < nodes.length; i++) {
+        const d = (nodes[i].x - c.x) ** 2 + (nodes[i].y - c.y) ** 2;
+        if (d < bd) { bd = d; best = i; }
+      }
+      return best;
+    });
+    const calEdge = calNode.map((n) => {
+      for (let e = 0; e < edges.length; e++) {
+        if (edges[e].b === n) return { e, dir: 1 };
+        if (edges[e].a === n) return { e, dir: -1 };
+      }
+      return null;
+    });
+    const calLit = CALLOUTS.map(() => false); // what we last wrote to the DOM
+    const calUntil = CALLOUTS.map(() => 0);   // when each should go dark again
+    let calNext = 0;      // whose turn it is
+    let calAt = 0;        // when to send the next one
     let screen: { x: number; y: number }[] = []; // latest on-screen node positions
     const pointer = { x: -9999, y: -9999, active: false };
 
@@ -265,10 +451,16 @@ export default function NeuralBrain() {
       canvas.height = Math.max(1, Math.floor(cssH * dpr));
       canvas.style.width = `${cssW}px`;
       canvas.style.height = `${cssH}px`;
-      s = Math.min(cssW / 600, cssH / 560) * 0.96;
+      s = brainScale(cssW, cssH);
       ox = (cssW - 600 * s) / 2;
-      oy = (cssH - 560 * s) / 2;
-      setView({ s, ox, oy });
+      /* Centre the INK, not the box. The silhouette occupies y 120..560 of a
+         560-tall design space — 120 units of blank above it and none below —
+         so centring the box parked the drawing low and left a band of dead
+         ivory under the nav. Horizontal is left alone: the ink is only 8
+         units off-centre there, and shifting it would eat the measured
+         clearance between the left-hand words and the hero text. */
+      oy = cssH / 2 - INK_MID_Y * s;
+      setView({ s, ox, oy, w: cssW, h: cssH });
     };
     resize();
     const ro = new ResizeObserver(resize);
@@ -390,6 +582,19 @@ export default function NeuralBrain() {
       }
       for (let i = 0; i < edgeHeat.length; i++) {
         if (edgeHeat[i] > 0) edgeHeat[i] = Math.max(0, edgeHeat[i] - dt * 1.1);
+      }
+      /*
+       * Hand the flare to CSS. We write `--f` only on the frame it changes —
+       * two writes per word per cycle, not sixty a second — and let the
+       * transition on the bar do the easing. Writing every frame would both
+       * thrash style recalc and fight that transition.
+       */
+      for (let i = 0; i < calLit.length; i++) {
+        const lit = now < calUntil[i];
+        if (lit !== calLit[i]) {
+          calLit[i] = lit;
+          labelRefs.current[i]?.style.setProperty("--f", lit ? "1" : "0");
+        }
       }
 
       // breathing drift + soft cursor parallax
@@ -552,11 +757,40 @@ export default function NeuralBrain() {
             rgb: REGIONS[nodes[dir > 0 ? edges[e].b : edges[e].a].reg].rgb,
           });
         }
+        /*
+         * Every so often, aim one pulse at the next word in rotation. This is
+         * the whole idea: the words are not on a timer of their own, they are
+         * lit by the brain's own traffic arriving at them. Rotation rather
+         * than random so no word is left dark for long, with jitter so it
+         * never feels metronomic.
+         */
+        if (now >= calAt) {
+          const hit = calEdge[calNext];
+          if (hit) {
+            pulses.push({
+              e: hit.e,
+              t: 0,
+              v: 0.55,
+              dir: hit.dir,
+              start: now,
+              rgb: REGIONS[CALLOUTS[calNext].reg].rgb,
+              cal: calNext,
+            });
+          }
+          calNext = (calNext + 1) % CALLOUTS.length;
+          calAt = now + CAL_EVERY + Math.random() * 700;
+        }
+
         for (let i = pulses.length - 1; i >= 0; i--) {
           const pu = pulses[i];
           if (now < pu.start) continue; // cascade pulse still waiting for its turn
           pu.t += pu.v * 0.012;
           if (pu.t >= 1) {
+            if (pu.cal !== undefined) {
+              calUntil[pu.cal] = now + CAL_DWELL;
+              const n = calNode[pu.cal];
+              flash[n] = 1; // the node pops as the word lights
+            }
             pulses.splice(i, 1);
             continue;
           }
@@ -686,6 +920,112 @@ export default function NeuralBrain() {
             );
           })}
         </ul>
+      )}
+
+      {/*
+        The named concerns. Only from `md` up: below that the brain is ambient
+        decoration at 40% opacity *behind* the headline, and labels over it
+        would collide with the words rather than annotate anything.
+
+        Positioned with the same `view` transform as the region buttons above,
+        so a label stays welded to its node at every width.
+      */}
+      {view && (
+        <div className="pointer-events-none absolute inset-0 z-20 hidden xl:block" aria-hidden="true">
+          {/*
+            Nothing points at the brain any more.
+
+            There used to be a leader from each word to a coloured dot on
+            the silhouette. Softening it from a line to a trail of dots did
+            not help, because the leader IS the diagram: a word joined to a
+            spot on a specimen is an anatomical figure however it is drawn.
+            With the pointers and the dots gone, the words simply sit around
+            the brain the way thoughts sit around a mind.
+          */}
+
+          {CALLOUTS.map((c, ci) => {
+            const reg = REGIONS[c.reg];
+            return (
+              <a
+                key={c.label}
+                ref={(el) => {
+                  labelRefs.current[ci] = el;
+                }}
+                href={c.href}
+                /* The brain's pointer handlers live on this element's own
+                   ancestor (`wrap`), so a press on a word bubbled into them,
+                   changed the hovered region, and re-rendered between
+                   pointerdown and click — which the browser then never
+                   delivered. It failed on roughly one word in seven, and only
+                   when the pointer crossed into a different region on the way,
+                   which is why it looked like flake. Stopping these here keeps
+                   the canvas's own hover and click behaviour untouched. */
+                onPointerDown={(e) => e.stopPropagation()}
+                onPointerMove={(e) => e.stopPropagation()}
+                /* A word on the LEFT is right-aligned and one on the RIGHT is
+                   left-aligned — so the text always runs toward the point the
+                   line arrives at. Aligned the other way, a short word like
+                   "Anxiety" left the leader ending in empty space 90px away,
+                   and the line read as floating rather than pointing. */
+                className={`brain-drift group pointer-events-auto absolute flex flex-col justify-center rounded-lg px-2 ${
+                  c.side === "l" ? "text-right" : "text-left"
+                }`}
+                style={
+                  {
+                    ...labelPos(c, view),
+                    width: c.w,
+                    height: LABEL_H,
+                    // how present this thought is; see `dim` on CALLOUTS
+                    opacity: c.dim,
+                    "--dx": `${orbit(ci).dx}px`,
+                    "--dy": `${orbit(ci).dy}px`,
+                    animationDuration: `${orbit(ci).dur}s`,
+                    animationDelay: `${orbit(ci).delay}s`,
+                  } as CSSProperties
+                }
+              >
+                {/* Shrink-wrapped to the word, so the swash behind it is
+                    exactly as wide as the word, not as wide as the box. */}
+                <span className={`relative ${c.side === "l" ? "self-end" : "self-start"}`}>
+                  {/*
+                    The flare, as a highlighter stroke. `--f` is written
+                    straight onto the anchor by the canvas loop when a signal
+                    reaches this word's node, and CSS does the easing. It
+                    sweeps from the side the trail arrives on, so the light
+                    reads as travelling up the dots and into the word.
+                    Alpha stays low: the swash must never pull the text's
+                    contrast down, which is why the text itself never dims.
+                  */}
+                  <span
+                    aria-hidden="true"
+                    className="absolute -inset-x-[0.3em] -inset-y-[0.12em] rounded-[0.2em]"
+                    style={{
+                      background: `rgba(${reg.rgb[0]},${reg.rgb[1]},${reg.rgb[2]},0.2)`,
+                      transformOrigin: c.side === "l" ? "right" : "left",
+                      transform: "scaleX(var(--f, 0))",
+                      opacity: "var(--f, 0)",
+                      transition:
+                        "transform 480ms cubic-bezier(0.22,1,0.36,1), opacity 600ms ease-out",
+                    }}
+                  />
+                  <span
+                    className="block whitespace-nowrap font-semibold leading-tight text-forest-900 group-hover:underline group-hover:underline-offset-4"
+                    style={{ fontSize: `${c.fs}rem`, textDecorationColor: reg.hex }}
+                  >
+                    <span className="relative">{c.label}</span>
+                  </span>
+                </span>
+                {/* Only half of them carry one. Term-plus-caption on all eight
+                    is what made the set scan as a legend. */}
+                {c.also && (
+                  <span className="mt-0.5 block whitespace-nowrap text-[0.68rem] leading-tight text-ink/55">
+                    {c.also}
+                  </span>
+                )}
+              </a>
+            );
+          })}
+        </div>
       )}
 
       {/* tooltip naming the brain part + the feeling it shapes */}

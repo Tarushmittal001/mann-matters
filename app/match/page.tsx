@@ -6,8 +6,9 @@ import FloatingOrbs from "@/components/ui/FloatingOrbs";
 
 export const metadata: Metadata = {
   title: "Find your therapist",
+  alternates: { canonical: "/match" },
   description:
-    "Answer three quick questions about your concern, language, and budget, and we'll match you with a licensed psychologist who fits.",
+    "Answer three quick questions about your concern, language, and budget, and we'll match you with a certified psychologist who fits.",
 };
 
 export default async function MatchPage({
@@ -30,7 +31,7 @@ export default async function MatchPage({
           <h1 className="h-display text-4xl md:text-5xl">Find the right therapist for you</h1>
           <p className="mx-auto mt-5 max-w-lg leading-relaxed text-ink/70">
             Choosing can feel like the hardest part. Tell us three things, and
-            we&apos;ll point you to a licensed psychologist who fits your concern,
+            we&apos;ll point you to a certified psychologist who fits your concern,
             language, and budget.
           </p>
         </Reveal>

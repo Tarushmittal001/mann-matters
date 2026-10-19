@@ -3,16 +3,22 @@ import { getSession, type Session } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { concerns, type Expert } from "@/lib/experts";
 import { getExpert } from "@/lib/experts-store";
+import { BOOKING_STATUS } from "@/lib/features/booking/policy";
+import { parseItems } from "@/lib/prescriptions";
+import { parseOptions } from "@/lib/reschedule-offers";
+import { serviceBySlug } from "@/lib/service-catalogue";
 import { addMinutes, clinicNow } from "@/lib/clinic-time";
 import {
   displayName,
   initialsOf,
   maskEmail,
   parseList,
+  sessionLength,
   type AvailabilityBand,
   type ClientSafeClient,
   type SessionStatus,
   type TimeOffBlock,
+  type ViewStatus,
 } from "@/lib/expert-portal";
 
 /* ────────────────────────────────────────────────────────────────────────────
@@ -46,9 +52,6 @@ export type ExpertProfileView = {
     weeklyDigest: boolean;
     productUpdates: boolean;
     channel: string;
-    quietHoursEnabled: boolean;
-    quietHoursStart: string;
-    quietHoursEnd: string;
   };
 };
 
@@ -62,13 +65,20 @@ export type ExpertContext = {
 };
 
 export type ExpertSessionView = {
+  /** The client's account id — for their history with you, and follow-ups. */
+  userId: string;
   id: string;
   ref: string;
   date: string;
   time: string;
   endTime: string;
-  status: SessionStatus;
+  /** How long this one runs, from the service that was booked. */
+  lengthMinutes: number;
+  status: ViewStatus;
   concern: string;
+  /** The service sold, or null on bookings taken before it was recorded. */
+  serviceSlug: string | null;
+  serviceTitle: string | null;
   concernLabel: string;
   concernHint: string;
   amount: number;
@@ -107,9 +117,6 @@ function toProfileView(p: {
   notifyWeeklyDigest: boolean;
   notifyProductUpdates: boolean;
   notifyChannel: string;
-  quietHoursEnabled: boolean;
-  quietHoursStart: string;
-  quietHoursEnd: string;
 }): ExpertProfileView {
   return {
     expertId: p.expertId,
@@ -131,9 +138,6 @@ function toProfileView(p: {
       weeklyDigest: p.notifyWeeklyDigest,
       productUpdates: p.notifyProductUpdates,
       channel: p.notifyChannel,
-      quietHoursEnabled: p.quietHoursEnabled,
-      quietHoursStart: p.quietHoursStart,
-      quietHoursEnd: p.quietHoursEnd,
     },
   };
 }
@@ -186,12 +190,29 @@ export async function expertIdFromSession() {
 }
 
 function toClientSafe(
-  user: { name: string; email: string; createdAt: Date },
+  user: {
+    name: string;
+    email: string;
+    createdAt: Date;
+    avatar: string | null;
+    age: number | null;
+    gender: string | null;
+    language: string | null;
+  },
   sessionsWithYou: number
 ): ClientSafeClient {
   return {
     displayName: displayName(user.name),
+    /* The full name, for the practitioner who is about to sit with them.
+       `displayName` stays for the list view, where a screen is easily
+       overlooked — but a therapist knows who their client is, and making
+       them guess at "Riya K." on the session itself is theatre, not privacy. */
+    fullName: user.name,
     initials: initialsOf(user.name),
+    avatar: user.avatar,
+    age: user.age,
+    gender: user.gender,
+    language: user.language,
     maskedEmail: maskEmail(user.email),
     sessionsWithYou,
     isReturning: sessionsWithYou > 1,
@@ -201,16 +222,26 @@ function toClientSafe(
 
 type BookingRow = {
   id: string;
+  userId: string;
   ref: string;
   date: string;
   time: string;
   status: string;
   concern: string;
+  serviceSlug: string | null;
   amount: number;
   meetingUrl: string | null;
   closedBy: string | null;
   createdAt: Date;
-  user: { name: string; email: string; createdAt: Date };
+  user: {
+    name: string;
+    email: string;
+    createdAt: Date;
+    avatar: string | null;
+    age: number | null;
+    gender: string | null;
+    language: string | null;
+  };
   note?: { status: string; updatedAt: Date; _count?: { amendments: number } } | null;
 };
 
@@ -220,14 +251,22 @@ function toSessionView(
   sessionsWithYou: number
 ): ExpertSessionView {
   const concern = concerns.find((c) => c.id === b.concern);
+  // the booked service decides the length; the practitioner's own setting is
+  // only a fallback for sessions taken before the service was recorded
+  const length = sessionLength({ date: b.date, time: b.time, status: b.status, serviceSlug: b.serviceSlug }, sessionMinutes);
+  const service = b.serviceSlug ? serviceBySlug(b.serviceSlug) : null;
   return {
     id: b.id,
+    userId: b.userId,
     ref: b.ref,
     date: b.date,
     time: b.time,
-    endTime: addMinutes(b.time, sessionMinutes),
-    status: (b.status as SessionStatus) ?? "CONFIRMED",
+    endTime: addMinutes(b.time, length),
+    lengthMinutes: length,
+    status: (b.status as ViewStatus) ?? "CONFIRMED",
     concern: b.concern,
+    serviceSlug: b.serviceSlug,
+    serviceTitle: service?.title ?? null,
     concernLabel: concern?.label ?? "General",
     concernHint: concern?.hint ?? "",
     amount: b.amount,
@@ -246,7 +285,17 @@ function toSessionView(
 }
 
 const sessionInclude = {
-  user: { select: { name: true, email: true, createdAt: true } },
+  user: {
+    select: {
+      name: true,
+      email: true,
+      createdAt: true,
+      avatar: true,
+      age: true,
+      gender: true,
+      language: true,
+    },
+  },
   note: { select: { status: true, updatedAt: true, _count: { select: { amendments: true } } } },
 } as const;
 
@@ -290,6 +339,41 @@ export async function getExpertSession(expertId: string, bookingId: string, sess
   if (!row) return null;
   const counts = await clientSessionCounts(expertId);
   return toSessionView(row, sessionMinutes, counts.get(row.userId) ?? 1);
+}
+
+/**
+ * The client's intake form, for a practitioner who actually has this booking.
+ *
+ * The expert id is checked against the booking rather than trusted, so a
+ * booking id belonging to somebody else's caseload returns nothing. This is
+ * clinical data and the check is the whole point of the function.
+ */
+export async function getSessionIntake(bookingId: string, expertId: string) {
+  const booking = await prisma.booking.findFirst({
+    where: { id: bookingId, expertId },
+    select: { user: { select: { intake: true } } },
+  });
+  const row = booking?.user.intake;
+  if (!row || !row.reason.trim()) return null;
+  return {
+    form: {
+      reason: row.reason,
+      duration: row.duration,
+      pastCare: row.pastCare,
+      medication: row.medication,
+      medical: row.medical,
+      riskSelfHarm: row.riskSelfHarm,
+      riskNote: row.riskNote,
+      emergencyName: row.emergencyName,
+      emergencyPhone: row.emergencyPhone,
+      emergencyRelation: row.emergencyRelation,
+      guardianName: row.guardianName,
+      guardianPhone: row.guardianPhone,
+      guardianConsent: row.guardianConsent,
+      notes: row.notes,
+    },
+    updatedAt: row.updatedAt.toISOString(),
+  };
 }
 
 export async function getSessionNote(bookingId: string, expertId: string): Promise<ExpertNoteView | null> {
@@ -347,4 +431,92 @@ export async function upcomingConfirmed(expertId: string, today: string) {
     orderBy: [{ date: "asc" }, { time: "asc" }],
   });
   return rows;
+}
+
+/**
+ * Requests waiting on this practitioner, soonest session first.
+ *
+ * Deliberately not bounded by the date window the dashboard uses for
+ * sessions: a request for a slot six weeks out is still a request somebody is
+ * waiting on, and a board that silently omitted it would be worse than no
+ * board at all.
+ */
+export async function listRequests(expertId: string, sessionMinutes: number) {
+  const rows = await prisma.booking.findMany({
+    where: { expertId, status: BOOKING_STATUS.requested },
+    include: sessionInclude,
+    orderBy: [{ date: "asc" }, { time: "asc" }],
+  });
+  const counts = await clientSessionCounts(expertId);
+  return rows.map((r) => toSessionView(r, sessionMinutes, counts.get(r.userId) ?? 1));
+}
+
+/**
+ * The sessions this client has already had with THIS practitioner.
+ *
+ * Scoped to the practitioner on purpose: somebody's history with another
+ * therapist is not this one's to read. Only sessions that happened — a
+ * cancellation is not a session anybody can remember.
+ */
+export async function clientHistory(expertId: string, userId: string, excludeBookingId?: string) {
+  const rows = await prisma.booking.findMany({
+    where: {
+      expertId,
+      userId,
+      status: { in: ["COMPLETED", "NO_SHOW", BOOKING_STATUS.confirmed] },
+      ...(excludeBookingId ? { id: { not: excludeBookingId } } : {}),
+    },
+    select: {
+      id: true,
+      ref: true,
+      date: true,
+      time: true,
+      status: true,
+      concern: true,
+      serviceSlug: true,
+      note: { select: { status: true, updatedAt: true } },
+    },
+    orderBy: [{ date: "desc" }, { time: "desc" }],
+  });
+  return rows.map((r) => ({
+    ...r,
+    concernLabel: concerns.find((c) => c.id === r.concern)?.label ?? r.concern,
+    hasNote: !!r.note,
+  }));
+}
+
+/** An unanswered follow-up suggestion from this practitioner to this client. */
+export async function pendingFollowUp(expertId: string, userId: string) {
+  const row = await prisma.followUp.findUnique({
+    where: { expertId_userId: { expertId, userId } },
+    select: { createdAt: true, message: true, actedAt: true },
+  });
+  if (!row || row.actedAt) return null;
+  return { sentAt: row.createdAt.toISOString(), message: row.message };
+}
+
+/** A reschedule offer still waiting on the client for this booking. */
+export async function openOffer(bookingId: string) {
+  const row = await prisma.rescheduleOffer.findUnique({ where: { bookingId } });
+  if (!row || row.actedAt || row.expiresAt < new Date()) return null;
+  return {
+    sentAt: row.createdAt.toISOString(),
+    reason: row.reason,
+    options: parseOptions(row.options),
+  };
+}
+
+/** Prescriptions this practitioner has issued on this session, newest first. */
+export async function prescriptionsFor(bookingId: string, expertId: string) {
+  const rows = await prisma.prescription.findMany({
+    where: { bookingId, expertId },
+    orderBy: { issuedAt: "desc" },
+  });
+  return rows.map((r) => ({
+    id: r.id,
+    number: r.number,
+    issuedAt: r.issuedAt.toISOString(),
+    items: parseItems(r.items),
+    cancelledAt: r.cancelledAt?.toISOString() ?? null,
+  }));
 }

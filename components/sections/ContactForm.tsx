@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 const fieldBase =
   "peer w-full rounded-2xl border bg-ivory-light px-5 pb-3 pt-6 text-[0.97rem] text-ink placeholder-transparent transition-colors focus:border-gold focus:outline-none disabled:opacity-60";
 const labelBase =
-  "pointer-events-none absolute left-5 top-2 text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-ink/50 transition duration-300 ease-silk peer-placeholder-shown:top-[1.05rem] peer-placeholder-shown:text-[0.95rem] peer-placeholder-shown:font-normal peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-placeholder-shown:text-ink/45 peer-focus:top-2 peer-focus:text-[0.7rem] peer-focus:font-semibold peer-focus:uppercase peer-focus:tracking-[0.14em] peer-focus:text-gold-dark";
+  "pointer-events-none absolute left-5 top-2 text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-ink/70 transition duration-300 ease-silk peer-placeholder-shown:top-[1.05rem] peer-placeholder-shown:text-[0.95rem] peer-placeholder-shown:font-normal peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-placeholder-shown:text-ink/70 peer-focus:top-2 peer-focus:text-[0.7rem] peer-focus:font-semibold peer-focus:uppercase peer-focus:tracking-[0.14em] peer-focus:text-gold-dark";
 
 const border = (invalid?: string) => (invalid ? "border-red-300" : "border-forest-800/15");
 
@@ -54,7 +54,7 @@ export default function ContactForm() {
           If it&apos;s urgent, WhatsApp is faster.
         </p>
         {c.devFallback && (
-          <p className="mt-4 max-w-sm text-xs text-ink/50">
+          <p className="mt-4 max-w-sm text-xs text-ink/70">
             Development only: no mail provider is configured, so this was logged, not sent.
           </p>
         )}
@@ -150,7 +150,7 @@ export default function ContactForm() {
       <Button type="submit" variant="forest" className="w-full" disabled={sending}>
         {sending ? "Sending…" : "Send message"}
       </Button>
-      <p className="text-center text-xs leading-relaxed text-ink/45">
+      <p className="text-center text-xs leading-relaxed text-ink/70">
         We&apos;ll email you a code first to confirm the address is yours. Whatever you write
         stays between us, same as a session.
       </p>

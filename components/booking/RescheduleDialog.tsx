@@ -85,7 +85,7 @@ export default function RescheduleDialog({ booking }: { booking: SerializedBooki
     // the reason is worth showing — a missing button just looks broken
     return (
       <span
-        className="text-[0.8rem] text-ink/40"
+        className="text-[0.8rem] text-ink/70"
         title={allowed.reason}
         aria-label={allowed.reason}
       >
@@ -136,7 +136,7 @@ export default function RescheduleDialog({ booking }: { booking: SerializedBooki
                   ref={closeRef}
                   type="button"
                   onClick={() => !busy && setOpen(false)}
-                  className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink/50 transition-colors hover:bg-forest-800/5 hover:text-forest-900"
+                  className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink/70 transition-colors hover:bg-forest-800/5 hover:text-forest-900"
                   aria-label="Close"
                 >
                   <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
@@ -145,7 +145,7 @@ export default function RescheduleDialog({ booking }: { booking: SerializedBooki
                 </button>
               </div>
 
-              <p className="mt-3 text-sm leading-relaxed text-ink/60">
+              <p className="mt-3 text-sm leading-relaxed text-ink/70">
                 {changePolicyNote} You have {remaining} {remaining === 1 ? "move" : "moves"} left on
                 this session — your payment stays as it is.
               </p>
@@ -171,7 +171,7 @@ export default function RescheduleDialog({ booking }: { booking: SerializedBooki
                 <button
                   type="button"
                   onClick={() => !busy && setOpen(false)}
-                  className="min-h-11 px-4 text-sm font-medium text-ink/55 hover:text-forest-900"
+                  className="min-h-11 px-4 text-sm font-medium text-ink/70 hover:text-forest-900"
                 >
                   Never mind
                 </button>

@@ -159,7 +159,7 @@ export default function ProfileForm({ profile }: { profile: ExpertProfileView })
             label="Qualification"
             required
             error={errors.credentials}
-            hint="Exactly as it appears on your RCI or council registration."
+            hint="Exactly as it appears on your degree or registration."
           >
             {({ id, describedBy, invalid }) => (
               <TextInput
@@ -169,7 +169,7 @@ export default function ProfileForm({ profile }: { profile: ExpertProfileView })
                 maxLength={140}
                 value={draft.credentials}
                 onChange={(e) => set("credentials", e.target.value)}
-                placeholder="M.Phil. Clinical Psychology, RCI Licensed"
+                placeholder="M.A. Clinical Psychology"
               />
             )}
           </Field>

@@ -128,7 +128,7 @@ export default function FeedbackForm({
         {/* 1. portrait */}
         <fieldset>
           <legend className="font-display text-xl font-medium text-forest-900">1. Pick a portrait</legend>
-          <p className="mt-1 text-[0.9rem] text-ink/60">
+          <p className="mt-1 text-[0.9rem] text-ink/70">
             These stand in for you. No photos, no faces, so your story stays yours.
           </p>
           <div
@@ -185,7 +185,7 @@ export default function FeedbackForm({
         {/* 2. words */}
         <fieldset>
           <legend className="font-display text-xl font-medium text-forest-900">2. Your words</legend>
-          <p className="mt-1 text-[0.9rem] text-ink/60">
+          <p className="mt-1 text-[0.9rem] text-ink/70">
             What changed for you? A sentence or two is plenty. Please leave out other people&apos;s names
             and anything you wouldn&apos;t want a stranger to read.
           </p>
@@ -289,7 +289,7 @@ export default function FeedbackForm({
                 transition={{ duration: 0.6 }}
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center rounded-2xl border border-dashed border-forest-800/20 text-center text-[0.7rem] text-ink/45">
+              <div className="flex h-full w-full items-center justify-center rounded-2xl border border-dashed border-forest-800/20 text-center text-[0.7rem] text-ink/70">
                 your portrait
               </div>
             )}
@@ -299,10 +299,10 @@ export default function FeedbackForm({
           </p>
           <p className="mt-4 flex flex-wrap items-baseline gap-x-2">
             <span className="font-display italic text-forest-700">— {name}</span>
-            <span className="text-[0.8rem] text-ink/55">{detail.trim() || "Emoraa client"}</span>
+            <span className="text-[0.8rem] text-ink/70">{detail.trim() || "Emoraa client"}</span>
           </p>
         </div>
-        <p className="mt-4 text-[0.8rem] leading-relaxed text-ink/50">
+        <p className="mt-4 text-[0.8rem] leading-relaxed text-ink/70">
           We read every story before it goes up, and we never add your surname, email or session details.
         </p>
       </aside>

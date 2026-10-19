@@ -21,48 +21,71 @@ export default function ClientSummary({
   return (
     <div className="p-5 sm:p-6">
       <div className="flex items-start gap-4">
+        {/* A plain <img>: the avatar route checks your session, and
+            next/image's optimiser fetches without it. */}
         <span
           aria-hidden="true"
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-sage-light/70 font-display text-lg font-semibold text-forest-800"
+          className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sage-light/70 font-display text-lg font-semibold text-forest-800"
         >
-          {client.initials}
+          {client.avatar ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={client.avatar} alt="" className="h-full w-full object-cover" />
+          ) : (
+            client.initials
+          )}
         </span>
         <div className="min-w-0">
-          <p className="font-display text-xl font-medium text-forest-900">{client.displayName}</p>
-          <p className="mt-0.5 text-[0.86rem] text-ink/60">
+          {/* Their actual name. The lists elsewhere show a first name and
+              last initial, which is right for a screen somebody might glance
+              at over your shoulder — but you are about to sit with this
+              person, and making you guess at "Riya K." would be theatre. */}
+          <p className="font-display text-xl font-medium text-forest-900">{client.fullName}</p>
+          <p className="mt-0.5 text-[0.86rem] text-ink/70">
             {client.maskedEmail}
-            <span className="ml-2 text-ink/45">masked</span>
+            <span className="ml-2 text-ink/70">masked</span>
+          </p>
+          <p className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[0.86rem] text-ink/75">
+            {client.age !== null && <span>{client.age} years</span>}
+            {client.gender && <span className="capitalize">{client.gender.replace(/-/g, " ")}</span>}
+            {client.language && (
+              <span>
+                Prefers <span className="font-medium text-forest-800">{client.language}</span>
+              </span>
+            )}
+            {client.age === null && !client.gender && !client.language && (
+              <span className="text-ink/45">No age, gender or language on their profile</span>
+            )}
           </p>
         </div>
       </div>
 
       <dl className="mt-5 grid gap-4 sm:grid-cols-2">
         <div>
-          <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-ink/45">
+          <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
             Sessions with you
           </dt>
           <dd className="mt-1 text-[0.94rem] text-forest-900">
             {client.sessionsWithYou}
             {client.isReturning ? (
-              <span className="ml-2 text-[0.82rem] text-ink/55">returning client</span>
+              <span className="ml-2 text-[0.82rem] text-ink/70">returning client</span>
             ) : (
-              <span className="ml-2 text-[0.82rem] text-ink/55">first time with you</span>
+              <span className="ml-2 text-[0.82rem] text-ink/70">first time with you</span>
             )}
           </dd>
         </div>
         <div>
-          <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-ink/45">
+          <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
             With Emoraa since
           </dt>
           <dd className="mt-1 text-[0.94rem] text-forest-900">{formatDate(client.clientSince)}</dd>
         </div>
         <div className="sm:col-span-2">
-          <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-ink/45">
+          <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
             What they came for
           </dt>
           <dd className="mt-1 text-[0.94rem] text-forest-900">
             {concernLabel}
-            {concernHint && <span className="text-ink/60"> — {concernHint}</span>}
+            {concernHint && <span className="text-ink/70"> — {concernHint}</span>}
           </dd>
         </div>
       </dl>
@@ -94,7 +117,7 @@ export default function ClientSummary({
             </li>
           ))}
         </ul>
-        <p className="mt-3 text-[0.8rem] leading-relaxed text-ink/55">
+        <p className="mt-3 text-[0.8rem] leading-relaxed text-ink/70">
           If you need to reach this client outside a session, our care team does it for you — that
           way consent is recorded. Ask through the session page or write to the clinical inbox.
         </p>

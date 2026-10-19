@@ -165,7 +165,7 @@ export default function BmiCalculator() {
           aria-label="Weight in kilograms"
           className={inputCls}
         />
-        <span className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-sm text-ink/40">
+        <span className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-sm text-ink/70">
           kg
         </span>
       </div>
@@ -201,7 +201,7 @@ export default function BmiCalculator() {
                 style={{ left: `${markerPct}%` }}
               />
             </div>
-            <div className="mt-2 flex justify-between text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-ink/40">
+            <div className="mt-2 flex justify-between text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-ink/70">
               <span>{GAUGE_MIN}</span>
               <span>18.5</span>
               <span>23</span>
@@ -213,13 +213,13 @@ export default function BmiCalculator() {
           <p className="mt-5 text-[0.95rem] leading-relaxed text-ink/70">{band.note}</p>
         </motion.div>
       ) : (
-        <p className="mt-8 text-center text-sm text-ink/45">
+        <p className="mt-8 text-center text-sm text-ink/70">
           Fill in both and your number appears here — it never leaves this page.
         </p>
       )}
 
       <div className="mt-8 rounded-2xl bg-sage-light/40 p-5">
-        <p className="text-xs leading-relaxed text-ink/60">
+        <p className="text-xs leading-relaxed text-ink/70">
           <strong className="font-semibold text-forest-800">A number, not a verdict.</strong>{" "}
           BMI can&apos;t see muscle, bone, frame, or your story — it&apos;s a
           rough screening tool using WHO Asia-Pacific cutoffs, not medical

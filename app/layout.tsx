@@ -4,10 +4,12 @@ import "./globals.css";
 import Providers from "@/components/layout/Providers";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import InstallApp from "@/components/pwa/InstallApp";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
 import ChatAssistant from "@/components/tools/ChatAssistant";
 import SafetyNotice from "@/components/layout/SafetyNotice";
 import PublicChrome from "@/components/layout/PublicChrome";
+import CookieConsent from "@/components/layout/CookieConsent";
 import { site } from "@/lib/site";
 
 const fraunces = Fraunces({
@@ -37,21 +39,50 @@ export const metadata: Metadata = {
     template: "%s · Emoraa",
   },
   description:
-    "Book confidential 1-on-1 sessions with licensed psychologists — online, in 2+ languages, from ₹599. For students, young professionals, and everyone in between.",
+    "Book confidential 1-on-1 sessions with certified psychologists — online, in your language, from ₹999 — or ₹599 for students. For students, professionals, and everyone in between.",
+  // canonical/hreflang live on each page: set here, every page that forgot
+  // its own would inherit "/" and tell search engines it is the homepage
   openGraph: {
     type: "website",
     siteName: "Emoraa",
-    title: "Emoraa — Better days begin",
+    title: "Emoraa — Your emotions matter",
     description:
-      "Confidential online therapy with licensed Indian psychologists, in your language, from ₹599.",
+      "Confidential online therapy with certified Indian psychologists, in your language, from ₹999 — or ₹599 for students.",
     url: site.url,
     locale: "en_IN",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Emoraa — Better days begin",
+    title: "Emoraa — Your emotions matter",
     description:
-      "Confidential online therapy with licensed Indian psychologists, in your language, from ₹599.",
+      "Confidential online therapy with certified Indian psychologists, in your language, from ₹999 — or ₹599 for students.",
+  },
+  // installed on a home screen, it is called "Emoraa" and nothing else — the
+  // icon on a shared phone should not announce what the app is for
+  applicationName: "Emoraa",
+  appleWebApp: {
+    capable: true,
+    title: "Emoraa",
+    statusBarStyle: "default",
+  },
+  /*
+   * Every icon is named here rather than left to Next's file convention.
+   *
+   * This block used to carry only `apple`, and declaring it at all was enough
+   * to stop app/icon.svg being linked — the tab fell back to favicon.ico alone
+   * and the SVG, which is the only one that stays sharp on a high-density
+   * screen, was served but never referenced. Listing them all removes the
+   * guesswork: the SVG leads, the .ico is there for anything that won't take
+   * one, and both are the same forest tile.
+   */
+  icons: {
+    // favicon.ico is not listed: Next emits it from app/favicon.ico on its
+    // own, and naming it here as well puts the same file in the head twice.
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/app/icon-192.png", type: "image/png", sizes: "192x192" },
+    ],
+    apple: "/app/apple-touch-icon.png",
   },
 };
 
@@ -74,7 +105,9 @@ export default function RootLayout({
           >
             Skip to content
           </a>
-          <Navbar />
+          <PublicChrome>
+            <Navbar />
+          </PublicChrome>
           <main id="main" tabIndex={-1} className="focus:outline-none">
             {children}
           </main>
@@ -83,6 +116,8 @@ export default function RootLayout({
             <WhatsAppButton />
             <ChatAssistant />
             <SafetyNotice />
+            <InstallApp />
+            <CookieConsent />
           </PublicChrome>
         </Providers>
       </body>

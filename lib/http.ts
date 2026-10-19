@@ -54,6 +54,19 @@ export const errors = {
       }
     ),
   crossOrigin: () => fail(403, "Request blocked for your safety.", { code: "CROSS_ORIGIN" }),
+  /* An account an admin has blocked. Returned only once the caller has proved
+     the account is theirs (right password, right OTP, right token) — before
+     that it would be an account-existence oracle, so the generic credential
+     error stands. It never repeats the admin's recorded reason, which is an
+     internal note, and it always carries a way to reach a human and the crisis
+     line, because somebody losing access to a mental-health service is exactly
+     who should not hit a dead end. */
+  blocked: () =>
+    fail(
+      403,
+      "This account isn't available right now. Please email connect@emoraa.com and we'll help. If you need someone urgently, Tele-MANAS is on 14416, any time.",
+      { code: "ACCOUNT_BLOCKED" }
+    ),
   server: () =>
     fail(500, "Something went wrong on our side. Please try again in a moment.", {
       code: "SERVER_ERROR",
@@ -77,7 +90,7 @@ export function isSameOrigin(req: Request): boolean {
   }
 }
 
-/** Best-effort client key for rate limiting. Never stored, never logged. */
+/** Best-effort client key for rate limiting. Never logged; stored only as an HMAC (lib/rate-limit.ts). */
 export function clientKey(req: Request): string {
   const fwd = req.headers.get("x-forwarded-for");
   const ip = fwd?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "local";

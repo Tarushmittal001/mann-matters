@@ -4,6 +4,7 @@ import BreathingExercise from "@/components/tools/BreathingExercise";
 
 export const metadata: Metadata = {
   title: "Take a breath",
+  alternates: { canonical: "/breathe" },
   description:
     "A free one-minute guided breathing exercise — box breathing to slow a racing mind. In for four, hold, out for four.",
 };

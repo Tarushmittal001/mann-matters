@@ -94,6 +94,157 @@ export const GENDER_OPTIONS = [
 
 export const ORGANISATION_MAX = 80;
 
+/**
+ * The language a client would rather be in session in.
+ *
+ * Optional, and deliberately NOT limited to what the team currently covers.
+ * The point of asking is to learn who to hire next, and a list that only
+ * offers languages somebody already speaks can never surface that — it would
+ * answer the question with its own assumptions. A client who wants Odia and
+ * finds nobody is the single most useful row on the admin's language panel.
+ *
+ * The values are the display strings rather than codes, because they are
+ * compared against the practitioner `languages` arrays, which are display
+ * strings too. Keep the spelling identical to lib/expert-vocab.ts or the two
+ * sides stop matching and the panel quietly shows demand with no supply.
+ */
+export const LANGUAGE_OPTIONS = [
+  "English",
+  "Hindi",
+  "Hinglish",
+  "Marathi",
+  "Bengali",
+  "Tamil",
+  "Telugu",
+  "Kannada",
+  "Malayalam",
+  "Gujarati",
+  "Punjabi",
+  "Urdu",
+  "Odia",
+  "Assamese",
+  "Konkani",
+  "Kashmiri",
+  "Maithili",
+  "Bhojpuri",
+  "Rajasthani",
+  "Nepali",
+  "Manipuri",
+  "Indian Sign Language",
+] as const;
+
+/** Optional: blank is a real answer, anything off the list is not. */
+export function validateLanguage(raw: string): string | null {
+  const value = raw.trim();
+  if (!value) return null;
+  return (LANGUAGE_OPTIONS as readonly string[]).includes(value)
+    ? null
+    : "Please choose one of the languages listed.";
+}
+
+/**
+ * Where a client is, in two parts.
+ *
+ * Asked so the practice can see which parts of India it actually reaches, and
+ * decide where it is short of practitioners who speak the local language.
+ *
+ * ── WHY STATE IS A LIST AND CITY IS NOT ────────────────────────────────────
+ * The state is picked from this fixed list because the whole value of the
+ * answer is being able to group it. Free text produces "Delhi", "delhi", "New
+ * Delhi" and "NCR" as four separate regions within a week, and no amount of
+ * later cleaning puts them back together. The city is free text because no
+ * list of Indian towns is complete enough to turn away somebody who lives in a
+ * real one — a dropdown that cannot find your town reads as "we do not serve
+ * people like you", which is not a thing a mental-health service should say at
+ * the moment somebody is signing up.
+ *
+ * All 28 states and 8 union territories, alphabetically, with the UTs after
+ * the states so a person scanning for their state is not reading past Delhi to
+ * reach Goa.
+ */
+export const STATE_OPTIONS = [
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+  // union territories
+  "Andaman and Nicobar Islands",
+  "Chandigarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi",
+  "Jammu and Kashmir",
+  "Ladakh",
+  "Lakshadweep",
+  "Puducherry",
+] as const;
+
+export const CITY_MAX = 60;
+
+/** Required, and must be one of the listed states or union territories. */
+export function validateState(raw: string): string | null {
+  const value = raw.trim();
+  if (!value) return "Please choose your state.";
+  return (STATE_OPTIONS as readonly string[]).includes(value)
+    ? null
+    : "Please choose one of the states listed.";
+}
+
+/**
+ * Required, free text, and deliberately permissive. It rejects by exception
+ * rather than by allow-list: anything that is not a digit or obvious markup
+ * passes, so "Thiruvananthapuram", "St. Thomas Mount", "Kozhikode (Calicut)"
+ * and a name typed in Devanagari all go through. An allow-list of letters
+ * would have to name every script used in India, and the one it forgot would
+ * be somebody's home.
+ *
+ * Digits are refused because they mean an address has been pasted into the
+ * wrong box, and we have no reason to hold a client's street address.
+ */
+export function validateCity(raw: string): string | null {
+  const value = raw.trim();
+  if (!value) return "Please tell us which city or town you are in.";
+  if (value.length < 2) return "Please enter the full name of your city or town.";
+  if (value.length > CITY_MAX) return `Please keep this under ${CITY_MAX} characters.`;
+  if (/\d/.test(value))
+    return "Please enter just the city or town name, without a house or street number.";
+  if (/[<>@#$%^&*_=+[\]{}\|\/~`"!?;:]/.test(value))
+    return "Please enter just the city or town name.";
+  return null;
+}
+
+/**
+ * Signup consent to the Terms and Privacy Policy. Under the DPDP Act consent
+ * must be a clear affirmative act, so this is an unticked box the person ticks,
+ * checked again on the server — never assumed from pressing "Sign up".
+ */
+export function validateTermsConsent(agreed: unknown): string | null {
+  return agreed === true ? null : "Please agree to the Terms of use and Privacy policy to continue.";
+}
+
 export function validateAge(raw: string): string | null {
   const age = Number(raw.trim());
   if (!raw.trim()) return "Please tell us your age.";
@@ -131,13 +282,6 @@ export function normalisePhone(raw: string): string {
   return local ? `+91${local}` : "";
 }
 
-/** Show a stored number back without exposing the whole thing in shared views. */
-export function maskPhone(phone: string | null | undefined): string {
-  if (!phone) return "";
-  const digits = phone.replace(/[^\d]/g, "");
-  if (digits.length < 4) return "••••";
-  return `•••••• ${digits.slice(-4)}`;
-}
 
 /** `priya@example.com` → `p•••a@example.com`. Used anywhere but the owner's own page. */
 export function maskEmail(email: string): string {
