@@ -128,7 +128,7 @@ export default function AvatarPicker({
                 type="button"
                 onClick={() => choose(null)}
                 disabled={busy}
-                className="press rounded-full px-3 py-2 text-[0.85rem] font-medium text-ink/60 underline underline-offset-2 transition-colors hover:text-forest-800 disabled:opacity-50"
+                className="press rounded-full px-3 py-2 text-[0.85rem] font-medium text-ink/70 underline underline-offset-2 transition-colors hover:text-forest-800 disabled:opacity-50"
               >
                 Remove
               </button>
@@ -146,7 +146,7 @@ export default function AvatarPicker({
               if (file) void upload(file);
             }}
           />
-          <p className="text-[0.78rem] text-ink/55">JPEG, PNG or WebP, up to 5 MB.</p>
+          <p className="text-[0.78rem] text-ink/70">JPEG, PNG or WebP, up to 5 MB.</p>
         </div>
       </div>
 
@@ -164,7 +164,7 @@ export default function AvatarPicker({
       {open && (
         <div className="mt-6 rounded-2xl border border-forest-800/10 bg-ivory-light p-4">
           {stock.length === 0 ? (
-            <p className="py-4 text-center text-[0.88rem] text-ink/55">
+            <p className="py-4 text-center text-[0.88rem] text-ink/70">
               No portraits are available right now.
             </p>
           ) : (

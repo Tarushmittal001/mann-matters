@@ -26,7 +26,7 @@ const reasons = [
   { title: "Confidential, always", line: "Your sessions and your records stay private — encrypted, and kept in India." },
   { title: "In your language", line: "Hindi, English, Hinglish, or all three. Switch mid-sentence; your therapist follows." },
   { title: "Prices you can afford", line: "From ₹999 a session, or ₹599 for students. You see the price before you book. No monthly fee." },
-  { title: "Your context, understood", line: "Board exams, rishta calls, joint families, 11 p.m. work calls. No context needed." },
+  { title: "Built for India", line: "Board exams, rishta calls, joint families, 11 p.m. work calls. No context needed." },
 ];
 
 /** A pen stroke that draws itself once, when it scrolls into view. */
@@ -119,8 +119,8 @@ function Collage() {
         className="left-0 top-4 w-[57%]"
       />
       <Print
-        src="https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=800&q=80"
-        alt="Someone sitting cross-legged on a bed with a laptop open in front of them"
+        src="https://images.unsplash.com/photo-1604881989793-466aca8dd319?auto=format&fit=crop&w=800&q=80"
+        alt="Two people talking across a table with cups of coffee, hands resting between them"
         caption="tuesday, 7 p.m."
         rotate={4}
         delay={0.2}
@@ -170,7 +170,7 @@ function Collage() {
 
 export default function WhyEmoraa() {
   return (
-    <section className="section relative overflow-hidden text-[4.9px] p-[27.2px]">
+    <section className="section relative overflow-hidden">
       <div className="wrap-wide grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
         <Collage />
 
@@ -180,7 +180,7 @@ export default function WhyEmoraa() {
               <span className="font-deva text-sm normal-case tracking-normal text-gold" aria-hidden="true">मन</span>
               why Emoraa
             </p>
-            <h2 className="h-display text-4xl md:text-5xl lg:text-[3.4rem]">
+            <h2 className="h-display text-4xl md:text-5xl">
               Therapy without the <em className="text-forest-600">&ldquo;log kya kahenge&rdquo;</em>
             </h2>
           </Reveal>
@@ -194,7 +194,7 @@ export default function WhyEmoraa() {
                   </span>
                   <div>
                     <h3 className="font-display text-xl font-medium leading-tight text-forest-900">{r.title}</h3>
-                    <p className="mt-1.5 max-w-md text-[0.95rem] leading-relaxed text-ink/65">{r.line}</p>
+                    <p className="mt-1.5 max-w-md text-[0.95rem] leading-relaxed text-ink/70">{r.line}</p>
                   </div>
                 </Reveal>
               </li>

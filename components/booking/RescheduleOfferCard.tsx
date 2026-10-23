@@ -98,7 +98,7 @@ export default function RescheduleOfferCard({
         {reason}
       </blockquote>
 
-      <p className="mt-5 text-[0.82rem] font-semibold uppercase tracking-[0.12em] text-ink/55">
+      <p className="mt-5 text-[0.82rem] font-semibold uppercase tracking-[0.12em] text-ink/70">
         Times that would work instead
       </p>
       <div className="mt-3 space-y-3">
@@ -141,7 +141,7 @@ export default function RescheduleOfferCard({
         >
           Keep my original time
         </button>
-        <p className="text-[0.82rem] leading-relaxed text-ink/60">
+        <p className="text-[0.82rem] leading-relaxed text-ink/70">
           None of these suit? Keeping it is a real answer — your time is still yours. Otherwise
           this offer lapses on {until} and nothing changes.
         </p>

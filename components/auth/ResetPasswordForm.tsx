@@ -74,7 +74,7 @@ export default function ResetPasswordForm({
         {expired ? (
           <>
             <h1 className="h-display text-4xl">That link has expired.</h1>
-            <p className="mt-4 leading-relaxed text-ink/65">
+            <p className="mt-4 leading-relaxed text-ink/70">
               {welcome
                 ? "Invite links work once. Ask whoever set up your account to send another."
                 : "Reset links work once and last an hour. Ask for a fresh one and you'll be back in shortly."}
@@ -93,7 +93,7 @@ export default function ResetPasswordForm({
               {welcome ? "Choose a password" : "Choose a new password"}
               {firstNameOf(name) ? `, ${firstNameOf(name)}` : ""}.
             </h1>
-            <p className="mt-4 leading-relaxed text-ink/65">
+            <p className="mt-4 leading-relaxed text-ink/70">
               {welcome
                 ? "This is yours alone — nobody at Emoraa can see it. Once it's saved you'll be signed in and taken to your sessions."
                 : "Once it's saved you'll be signed in here, and signed out everywhere else."}

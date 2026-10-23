@@ -158,16 +158,16 @@ const Card = forwardRef<HTMLElement, { p: PractitionerCard; index: number }>(fun
             </span>
             {/* inline, so the one card that carries it is no taller than the ten that do not */}
             {p.prescribes && (
-              <span className="rounded-full bg-gold/25 px-2 py-0.5 text-[0.62rem] font-semibold uppercase tracking-[0.1em] text-gold-dark">
+              <span className="rounded-full bg-gold/25 px-2 py-0.5 text-[0.75rem] font-semibold uppercase tracking-[0.1em] text-gold-dark">
                 Can prescribe
               </span>
             )}
           </p>
 
-          <p className="mt-1.5 line-clamp-2 min-h-[2.1rem] text-[0.8rem] leading-snug text-ink/60">
+          <p className="mt-1.5 line-clamp-2 min-h-[2.1rem] text-[0.8rem] leading-snug text-ink/70">
             {p.credentials}
           </p>
-          <p className="mt-1 truncate text-[0.8rem] text-ink/60">
+          <p className="mt-1 truncate text-[0.8rem] text-ink/70">
             {p.years} {p.years === 1 ? "year" : "years"} · {p.languages.join(", ")}
           </p>
         </div>
@@ -215,7 +215,7 @@ const Card = forwardRef<HTMLElement, { p: PractitionerCard; index: number }>(fun
         <div className="mx-5 mt-5 border-t border-forest-800/10 sm:mx-6" />
         <div className="flex flex-wrap items-end justify-between gap-3 bg-[color:var(--tint-soft)] px-5 py-4 sm:px-6 sm:py-5">
           <div>
-            <p className="text-[0.66rem] uppercase tracking-[0.16em] text-ink/45">Sessions</p>
+            <p className="text-[0.75rem] uppercase tracking-[0.16em] text-ink/70">Sessions</p>
             <p className="mt-1 font-display text-[1.35rem] font-medium leading-none text-forest-900">
               {p.priceRange
                 ? p.priceRange.min === p.priceRange.max
@@ -223,7 +223,7 @@ const Card = forwardRef<HTMLElement, { p: PractitionerCard; index: number }>(fun
                   : `${formatINR(p.priceRange.min)}–${formatINR(p.priceRange.max)}`
                 : "On request"}
             </p>
-            <p className="mt-1.5 text-[0.76rem] text-ink/55">
+            <p className="mt-1.5 text-[0.76rem] text-ink/70">
               {p.offers.length} {p.offers.length === 1 ? "format" : "formats"}
               {!p.bookable && " · not taking bookings"}
             </p>
@@ -272,7 +272,7 @@ export default function Directory({
     <>
       <div className="mt-10 space-y-5 rounded-[1.4rem] border border-forest-800/10 bg-ivory-light/60 p-5 sm:p-6">
         <div>
-          <p className="mb-2.5 text-[0.7rem] uppercase tracking-[0.16em] text-ink/45">
+          <p className="mb-2.5 text-[0.75rem] uppercase tracking-[0.16em] text-ink/70">
             In the language you think in
           </p>
           <div className="flex flex-wrap gap-2">
@@ -285,7 +285,7 @@ export default function Directory({
         </div>
 
         <div>
-          <p className="mb-2.5 text-[0.7rem] uppercase tracking-[0.16em] text-ink/45">
+          <p className="mb-2.5 text-[0.75rem] uppercase tracking-[0.16em] text-ink/70">
             What you&apos;re carrying
           </p>
           <div className="flex flex-wrap gap-2">
@@ -306,7 +306,7 @@ export default function Directory({
       </div>
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
-        <p className="text-[0.9rem] text-ink/65">
+        <p className="text-[0.9rem] text-ink/70">
           {shown.length === people.length
             ? `${people.length} practitioners`
             : `${shown.length} of ${people.length}`}
@@ -329,7 +329,7 @@ export default function Directory({
       {shown.length === 0 ? (
         <div className="mt-8 rounded-[1.4rem] border border-dashed border-forest-800/20 p-12 text-center">
           <p className="font-display text-xl text-forest-900">Nobody matches all of that.</p>
-          <p className="mx-auto mt-3 max-w-md text-[0.95rem] leading-relaxed text-ink/65">
+          <p className="mx-auto mt-3 max-w-md text-[0.95rem] leading-relaxed text-ink/70">
             Loosen one of the filters, or let us look for you — the matcher weighs language and
             concern together rather than demanding both.
           </p>

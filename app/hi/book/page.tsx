@@ -5,12 +5,14 @@ import { listExperts } from "@/lib/experts-store";
 import { proBonoStatus } from "@/lib/features/booking/server";
 import { serviceBySlug } from "@/lib/service-catalogue";
 import { MINOR_AGE } from "@/lib/intake";
+import { ageOn, dobString } from "@/lib/validation";
+import DobRequired from "@/components/booking/DobRequired";
 import BookingFlow from "@/components/booking/BookingFlow";
 
 export const metadata: Metadata = {
   title: "सेशन बुक करें",
   description:
-    "योग्य मनोवैज्ञानिक या मनोचिकित्सक के साथ निजी ऑनलाइन सेशन, पाँच मिनट में बुक कीजिए। ₹599 से।",
+    "योग्य भारतीय मनोवैज्ञानिक के साथ निजी ऑनलाइन सेशन, पाँच मिनट में बुक कीजिए। ₹599 से।",
   alternates: {
     canonical: "/hi/book",
     languages: { "en-IN": "/book", "hi-IN": "/hi/book" },
@@ -45,12 +47,14 @@ export default async function HindiBookPage({
     ? await prisma.user.findUnique({
         where: { id: session.sub },
         select: {
-          age: true,
+          dateOfBirth: true,
           intake: { select: { guardianName: true, guardianPhone: true, guardianConsent: true } },
         },
       })
     : null;
-  const minor = typeof account?.age === "number" && account.age < MINOR_AGE;
+  // the booking API refuses without a date of birth, so say so before they pick a time
+  if (account && !account.dateOfBirth) return <DobRequired lang="hi" />;
+  const minor = !!account?.dateOfBirth && ageOn(dobString(account.dateOfBirth)) < MINOR_AGE;
   const guardianOnFile =
     !!account?.intake?.guardianConsent &&
     !!account.intake.guardianName.trim() &&

@@ -25,7 +25,7 @@ export default function CancelBookingButton({ booking }: { booking: SerializedBo
   const allowed = canCancel(booking);
   if (!allowed.ok) return null;
 
-  const due = refundFor(booking, booking.payment?.status ?? null);
+  const due = refundFor(booking, booking.payment ?? null);
   // a free session has nothing to refund; what is at stake is the free session
   const note = !booking.proBono
     ? due.note

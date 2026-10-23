@@ -514,26 +514,31 @@ describe("follow-up suggestions stay with their own client", () => {
 });
 
 /*
- * The free tools are free but no longer anonymous: every one of them needs an
- * account. The two things that must stay true alongside that are the reason
- * the gate is acceptable at all, so they are asserted here rather than left to
- * a reviewer's memory:
- *   1. the wall always offers a route to crisis help, and
- *   2. /crisis itself is never gated — it has breathing built into the page.
+ * Most free tools need an account. The calming ones do not: breathing,
+ * grounding and muscle relaxation are what someone in distress comes for, and
+ * they open with no account (changed 2026-10-19). What must stay true is
+ * asserted here rather than left to a reviewer's memory:
+ *   1. the wall always offers a route to crisis help,
+ *   2. /crisis itself is never gated — it has breathing built into the page, and
+ *   3. the calming tools never show the wall.
  */
-describe("free tools need an account", () => {
+describe("free tools: calming ones open to all, the rest need an account", () => {
   const GATED = [
     "/tools/journal",
-    "/tools/grounding",
-    "/tools/relax",
     "/tools/sounds",
     "/tools/affirmations",
     "/tools/bmi",
     "/tools/burnout",
-    "/breathe",
     "/check-in",
     "/match",
   ];
+  const OPEN = ["/breathe", "/tools/grounding", "/tools/relax"];
+
+  it.each(OPEN)("%s opens with no account", async (path) => {
+    const r = await call("GET", path, null);
+    expect(r.status).toBe(200);
+    expect(r.text).not.toContain("Sign in to use this tool");
+  });
 
   it.each(GATED)("%s shows the wall when signed out", async (path) => {
     const r = await call("GET", path, null);

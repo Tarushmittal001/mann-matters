@@ -31,6 +31,7 @@ import { cn, formatINR } from "@/lib/utils";
 import Price from "@/components/ui/Price";
 import { standardPrice } from "@/lib/pricing";
 import type { SerializedBooking } from "@/lib/features/booking/server";
+import { useStepFocus } from "@/components/ui/useStepFocus";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -169,6 +170,9 @@ export default function BookingFlow({
   const [holding, setHolding] = useState(false);
   const [holdError, setHoldError] = useState<string | null>(null);
   const [done, setDone] = useState<SerializedBooking | null>(null);
+  // each step's heading (and the confirmation) takes focus so it is announced;
+  // go() already scrolls to the top, so focus does not scroll again
+  const stepRef = useStepFocus(done ? "done" : step, { preventScroll: true });
 
   const go = useCallback((next: number) => {
     setDir((d) => (next > step ? 1 : -1));
@@ -451,7 +455,7 @@ export default function BookingFlow({
           </svg>
         </motion.div>
 
-        <h1 className="h-display mt-8 text-4xl md:text-5xl">You&apos;re booked.</h1>
+        <h1 ref={stepRef} tabIndex={-1} className="step-focus h-display mt-8 text-4xl md:text-5xl">You&apos;re booked.</h1>
         <p className="mt-5 leading-relaxed text-ink/70">
           <span className="font-semibold text-forest-800">{done.expertName}</span> will see you on{" "}
           <span className="font-semibold text-forest-800">
@@ -577,7 +581,7 @@ export default function BookingFlow({
                   />
                   <span
                     className={cn(
-                      "mt-2 block text-[0.7rem] font-semibold uppercase tracking-[0.14em] md:text-xs",
+                      "mt-2 block text-[0.75rem] font-semibold uppercase tracking-[0.14em] md:text-xs",
                       i === step ? "text-forest-900" : "text-ink/70",
                       i < step && !booking && "group-hover:text-forest-700"
                     )}
@@ -609,16 +613,16 @@ export default function BookingFlow({
                 exit="exit"
                 transition={{ duration: 0.45, ease: EASE }}
               >
-                <h2 className="font-display text-2xl font-medium text-forest-900">
+                <h2 ref={stepRef} tabIndex={-1} className="step-focus font-display text-2xl font-medium text-forest-900">
                   {t.booking.concernTitle}
                 </h2>
-                <p className="mt-2 max-w-xl text-ink/65">{t.booking.concernLede}</p>
+                <p className="mt-2 max-w-xl text-ink/70">{t.booking.concernLede}</p>
 
                 {/* Only what somebody is actually qualified to deliver. A
                     service with no practitioner is not shown here at all —
                     the catalogue page says so in words instead. */}
                 {narrowTo && (
-                  <p className="mt-5 text-[0.9rem] text-ink/65">
+                  <p className="mt-5 text-[0.9rem] text-ink/70">
                     {t.booking.showingFor.replace("{name}", narrowTo.name)}{" "}
                     <button
                       type="button"
@@ -694,10 +698,10 @@ export default function BookingFlow({
                 exit="exit"
                 transition={{ duration: 0.45, ease: EASE }}
               >
-                <h2 className="font-display text-2xl font-medium text-forest-900">
+                <h2 ref={stepRef} tabIndex={-1} className="step-focus font-display text-2xl font-medium text-forest-900">
                   {t.booking.expertTitle}
                 </h2>
-                <p className="mt-2 text-ink/65">
+                <p className="mt-2 text-ink/70">
                   {t.booking.expertLede.replace(
                     "{service}",
                     service ? local(service, locale).title : ""
@@ -751,7 +755,7 @@ export default function BookingFlow({
                           {e.specialties.map((s) => (
                             <span
                               key={s}
-                              className="rounded-full bg-sage-light/70 px-2.5 py-0.5 text-[0.72rem] font-medium text-forest-800"
+                              className="rounded-full bg-sage-light/70 px-2.5 py-0.5 text-[0.75rem] font-medium text-forest-800"
                             >
                               {s}
                             </span>
@@ -781,10 +785,10 @@ export default function BookingFlow({
                 exit="exit"
                 transition={{ duration: 0.45, ease: EASE }}
               >
-                <h2 className="font-display text-2xl font-medium text-forest-900">
+                <h2 ref={stepRef} tabIndex={-1} className="step-focus font-display text-2xl font-medium text-forest-900">
                   {t.booking.timeTitle2}
                 </h2>
-                <p className="mt-2 text-ink/65">
+                <p className="mt-2 text-ink/70">
                   Live availability for {expert.name}. All times are IST. {changePolicyNote}
                 </p>
                 <div className="mt-8">
@@ -810,10 +814,10 @@ export default function BookingFlow({
                 exit="exit"
                 transition={{ duration: 0.45, ease: EASE }}
               >
-                <h2 className="font-display text-2xl font-medium text-forest-900">
+                <h2 ref={stepRef} tabIndex={-1} className="step-focus font-display text-2xl font-medium text-forest-900">
                   {t.booking.reviewTitle}
                 </h2>
-                <p className="mt-2 text-ink/65">
+                <p className="mt-2 text-ink/70">
                   {free ? (
                     <>Check the details — your first session is on us, so there&apos;s nothing to pay.</>
                   ) : (
@@ -869,7 +873,7 @@ export default function BookingFlow({
                         {free ? (
                           <>
                             {price !== null && (
-                              <s className="mr-2 text-base font-normal text-ink/35">
+                              <s className="mr-2 text-base font-normal text-ink/70">
                                 {formatINR(price)}
                               </s>
                             )}
@@ -959,10 +963,10 @@ export default function BookingFlow({
                 exit="exit"
                 transition={{ duration: 0.45, ease: EASE }}
               >
-                <h2 className="font-display text-2xl font-medium text-forest-900">
+                <h2 ref={stepRef} tabIndex={-1} className="step-focus font-display text-2xl font-medium text-forest-900">
                   {t.booking.payTitle}
                 </h2>
-                <p className="mt-2 text-ink/65">
+                <p className="mt-2 text-ink/70">
                   {booking.expertName} · {booking.time} IST ·{" "}
                   <span className="font-semibold text-forest-800">{formatINR(booking.amount)}</span>
                 </p>

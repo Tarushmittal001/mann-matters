@@ -6,6 +6,8 @@
  * helpers are the only place that conversion happens.
  */
 
+import { isCalendarDate } from "@/lib/features/booking/policy";
+
 export const CLINIC_TZ = "Asia/Kolkata";
 export const CLINIC_TZ_LABEL = "IST";
 /** India has no DST, so a fixed offset is exact rather than a shortcut. */
@@ -24,8 +26,9 @@ export const WEEKDAYS = [
 export const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 export const TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
+/** A real calendar day: `Date.parse` alone accepts "2026-11-31" as 1 December. */
 export function isDate(v: unknown): v is string {
-  return typeof v === "string" && DATE_RE.test(v) && !Number.isNaN(Date.parse(v));
+  return typeof v === "string" && isCalendarDate(v);
 }
 
 export function isTime(v: unknown): v is string {

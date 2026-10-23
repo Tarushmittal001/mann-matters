@@ -87,7 +87,7 @@ export default async function DashboardPage() {
             my sessions
           </p>
           <h1 className="h-display text-4xl md:text-5xl">Hi, {firstNameOf(session.name)}.</h1>
-          <p className="mt-4 max-w-xl text-ink/65">
+          <p className="mt-4 max-w-xl text-ink/70">
             Everything you&apos;ve booked, in one quiet place. {changePolicyNote}
           </p>
         </div>
@@ -192,9 +192,9 @@ export default async function DashboardPage() {
                   >
                     {rx.drugs.join(", ") || rx.number}
                   </Link>
-                  <span className="ml-2 text-[0.84rem] text-ink/60">{rx.prescriberName}</span>
+                  <span className="ml-2 text-[0.84rem] text-ink/70">{rx.prescriberName}</span>
                 </span>
-                <span className="shrink-0 text-[0.84rem] text-ink/60">
+                <span className="shrink-0 text-[0.84rem] text-ink/70">
                   {rx.cancelledAt ? (
                     <span className="font-semibold text-red-700">Withdrawn — do not use</span>
                   ) : (

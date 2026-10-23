@@ -60,6 +60,25 @@ export async function POST(request: Request) {
     // the code proved the number is theirs, so the block can be named
     if (user.blockedAt) return errors.blocked();
 
+    /* The same rule as password sign-in, and here it is the boundary. Signup
+       proves the phone by SMS but the email only later, by its link — so an
+       account with an unconfirmed email may be one somebody opened in another
+       person's name, with their own phone attached. Until whoever reads that
+       inbox has confirmed it, the phone signs nobody in. (A password reset that
+       confirms the email also detaches that phone: see /api/auth/reset.) */
+    if (!user.emailVerified) {
+      return privateJson(
+        {
+          error:
+            "Please confirm your email first. Check your inbox for the link — we can resend it.",
+          code: "UNVERIFIED",
+          needsVerification: true,
+          email: user.email,
+        },
+        { status: 403 }
+      );
+    }
+
     await createSession(user);
     await resetLimit("otpVerify", identifier);
     return privateJson({ user: { name: user.name, email: user.email, role: user.role } });

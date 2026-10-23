@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     const draft = await readJson<ExpertDraft>(req);
     if (!draft) return errors.badBody();
 
-    const fields = validateExpert(draft);
+    const fields = validateExpert(draft, { creating: true });
     if (Object.keys(fields).length) return errors.validation(fields);
 
     // the slug is the id bookings will carry forever, so it is made once and

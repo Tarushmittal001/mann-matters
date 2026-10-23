@@ -17,13 +17,13 @@ export default function DocumentDetails({ header }: { header: SessionDocHeader }
   ];
   return (
     <div className="rounded-xl border border-sage-light bg-ivory/60 px-3.5 py-3">
-      <p className="text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-gold-dark">
+      <p className="text-[0.75rem] font-semibold uppercase tracking-[0.16em] text-gold-dark">
         Filled in on the letterhead
       </p>
       <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-[0.82rem]">
         {items.map(([label, value]) => (
           <div key={label} className="contents">
-            <dt className="text-ink/55">{label}</dt>
+            <dt className="text-ink/70">{label}</dt>
             <dd className="min-w-0 truncate text-forest-900">{value}</dd>
           </div>
         ))}

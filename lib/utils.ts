@@ -26,6 +26,30 @@ export function todayISO() {
 }
 
 /**
+ * A small number as a word: 14 -> "fourteen".
+ *
+ * For prose that counts something the code already knows the size of. Writing
+ * "Ten kinds of support" by hand is how a page ends up claiming ten while the
+ * grid underneath it shows fourteen — which is exactly what happened.
+ * Anything above twenty comes back as digits, which reads fine at that size.
+ */
+const NUMBER_WORDS = [
+  "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+  "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
+  "seventeen", "eighteen", "nineteen", "twenty",
+];
+
+export function countWord(n: number): string {
+  return NUMBER_WORDS[n] ?? String(n);
+}
+
+/** The same, for the start of a sentence: "Fourteen kinds of support". */
+export function CountWord(n: number): string {
+  const word = countWord(n);
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
+/**
  * The name to greet somebody by.
  *
  * `name.split(" ")[0]` is the obvious version and it greets half the

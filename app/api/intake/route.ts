@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { currentAge } from "@/lib/validation";
 import { MINOR_AGE, cleanIntake, validateIntake, type IntakeInput } from "@/lib/intake";
 import { errors, isSameOrigin, logFailure, privateJson, readJson } from "@/lib/http";
 
@@ -25,9 +26,10 @@ export async function POST(req: Request) {
 
     const user = await prisma.user.findUnique({
       where: { id: session.sub },
-      select: { age: true },
+      select: { age: true, dateOfBirth: true },
     });
-    const minor = typeof user?.age === "number" && user.age < MINOR_AGE;
+    const age = user ? currentAge(user) : null;
+    const minor = age !== null && age < MINOR_AGE;
 
     const form = cleanIntake(body);
     const fields = validateIntake(form, { minor });

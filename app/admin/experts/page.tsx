@@ -45,6 +45,8 @@ export default async function AdminExpertsPage() {
   const links = await prisma.expertProfile.findMany({
     select: {
       expertId: true,
+      notesPolicy: true,
+      notesPolicyNote: true,
       user: {
         select: {
           email: true,
@@ -58,6 +60,9 @@ export default async function AdminExpertsPage() {
     },
   });
   const accessByExpertId = new Map(links.map((l) => [l.expertId, l.user]));
+  const notesByExpertId = new Map(
+    links.map((l) => [l.expertId, { policy: l.notesPolicy, note: l.notesPolicyNote }])
+  );
 
   const rows: ExpertRow[] = experts.map((e) => ({
     id: e.id,
@@ -92,13 +97,14 @@ export default async function AdminExpertsPage() {
       // there is no evidence anyone can read the inbox it is named after
       return { state: "unconfirmed", email: user.email };
     })(),
+    notes: notesByExpertId.get(e.slug) ?? null,
   }));
 
   return (
     <section className="wrap-wide pb-28">
       <p className="eyebrow">provider directory</p>
       <h1 className="h-display mt-3 text-4xl md:text-5xl">Experts</h1>
-      <p className="mt-4 max-w-2xl text-ink/65">
+      <p className="mt-4 max-w-2xl text-ink/70">
         The therapists behind matching, booking and every card on the site. Changes here are live
         immediately. Hiding takes someone off the site while their sessions and notes stay intact —
         that is the safe way to retire a listing.

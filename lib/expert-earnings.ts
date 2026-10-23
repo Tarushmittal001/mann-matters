@@ -1,6 +1,6 @@
 import { dateWhere, type Range } from "@/lib/admin-period";
 import { prisma } from "@/lib/db";
-import { BOOKING_STATUS, PAYMENT_STATUS } from "@/lib/features/booking/policy";
+import { PAYMENT_STATUS } from "@/lib/features/booking/policy";
 import { serviceBySlug } from "@/lib/service-catalogue";
 import {
   HELD,
@@ -284,9 +284,6 @@ export async function monthlyStatement(expertId: string, month: string) {
       service: r.serviceSlug ? (serviceBySlug(r.serviceSlug)?.title ?? r.serviceSlug) : "Session",
       status: r.status,
       free: r.proBono,
-      /* Paid because the client cancelled inside the 24-hour window and the fee
-         was kept. Said on the line, so nobody reads it as a session that ran. */
-      lateCancel: r.status === BOOKING_STATUS.cancelled,
       collected: net,
       earned,
       platform: net - earned,
@@ -305,7 +302,6 @@ export async function monthlyStatement(expertId: string, month: string) {
     totals: {
       sessions: lines.length,
       free: lines.filter((l) => l.free).length,
-      lateCancelled: lines.filter((l) => l.lateCancel).length,
       collected: lines.reduce((n, l) => n + l.collected, 0),
       earned: lines.reduce((n, l) => n + l.earned, 0),
       platform: lines.reduce((n, l) => n + l.platform, 0),

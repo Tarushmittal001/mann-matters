@@ -62,7 +62,7 @@ export default function SessionsTable({
             Your sessions, earliest first. All times are clinic time (IST).
           </caption>
           <thead>
-            <tr className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
+            <tr className="text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
               <th scope="col" className="px-4 py-3 pl-5">
                 When (IST)
               </th>
@@ -153,7 +153,7 @@ export default function SessionsTable({
                   <p className="font-display text-lg font-medium text-forest-900">
                     {s.client.displayName}
                   </p>
-                  <p className="mt-0.5 text-[0.85rem] text-ink/65">
+                  <p className="mt-0.5 text-[0.85rem] text-ink/70">
                     {relativeDay(s.date, today)} · {formatTime(s.time)}–{formatTime(s.endTime)} IST
                   </p>
                 </div>

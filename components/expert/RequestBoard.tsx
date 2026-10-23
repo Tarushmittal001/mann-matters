@@ -56,7 +56,7 @@ export default function RequestBoard({ requests }: { requests: ExpertSessionView
 
   if (requests.length === 0) {
     return (
-      <p className="rounded-2xl border border-dashed border-forest-800/20 bg-ivory-light/60 p-8 text-center text-ink/65">
+      <p className="rounded-2xl border border-dashed border-forest-800/20 bg-ivory-light/60 p-8 text-center text-ink/70">
         No one is waiting on you. New requests land here.
       </p>
     );
@@ -82,11 +82,11 @@ export default function RequestBoard({ requests }: { requests: ExpertSessionView
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2.5">
-                  <span className={cn("rounded-full px-2.5 py-1 text-[0.72rem] font-semibold", meta.tone)}>
+                  <span className={cn("rounded-full px-2.5 py-1 text-[0.75rem] font-semibold", meta.tone)}>
                     {meta.label}
                   </span>
                   {r.client.sessionsWithYou > 1 && (
-                    <span className="rounded-full bg-forest-800/[0.06] px-2.5 py-1 text-[0.72rem] font-semibold text-ink/70">
+                    <span className="rounded-full bg-forest-800/[0.06] px-2.5 py-1 text-[0.75rem] font-semibold text-ink/70">
                       Session {r.client.sessionsWithYou} with you
                     </span>
                   )}
@@ -98,7 +98,7 @@ export default function RequestBoard({ requests }: { requests: ExpertSessionView
                   {r.client.displayName} · {r.concernLabel}
                   {r.serviceTitle ? ` · ${r.serviceTitle}` : ""}
                 </p>
-                <p className="mt-0.5 text-[0.86rem] text-ink/60">
+                <p className="mt-0.5 text-[0.86rem] text-ink/70">
                   {r.amount === 0 ? "Free first session" : formatINR(r.amount)} · asked for{" "}
                   {new Intl.DateTimeFormat("en-IN", {
                     day: "numeric",
@@ -145,7 +145,7 @@ export default function RequestBoard({ requests }: { requests: ExpertSessionView
 
             {isDeclining && (
               <div className="mt-4 border-t border-haldi/35 pt-4">
-                <label className="block text-[0.68rem] uppercase tracking-[0.14em] text-ink/55">
+                <label className="block text-[0.75rem] uppercase tracking-[0.14em] text-ink/70">
                   Why
                   <input
                     value={reason}
@@ -157,7 +157,7 @@ export default function RequestBoard({ requests }: { requests: ExpertSessionView
                     className="mt-1.5 w-full rounded-xl border border-forest-800/15 bg-ivory px-3.5 py-2.5 text-[0.9rem] normal-case tracking-normal text-forest-900 focus:border-forest-800 focus:outline-none"
                   />
                 </label>
-                <p className="mt-1.5 text-[0.78rem] text-ink/55">
+                <p className="mt-1.5 text-[0.78rem] text-ink/70">
                   For the record only. The client is told the time isn&apos;t available and that
                   nothing was charged — never your reason.
                 </p>
@@ -177,7 +177,7 @@ export default function RequestBoard({ requests }: { requests: ExpertSessionView
                       setReason("");
                     }}
                     disabled={busy === r.id}
-                    className="press px-3 py-2.5 text-[0.88rem] font-medium text-ink/60 transition-colors hover:text-forest-800 disabled:opacity-50"
+                    className="press px-3 py-2.5 text-[0.88rem] font-medium text-ink/70 transition-colors hover:text-forest-800 disabled:opacity-50"
                   >
                     Keep it
                   </button>

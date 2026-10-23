@@ -116,7 +116,7 @@ export default async function TherapistsPage() {
                 <span className="inline-block h-2 w-2 rounded-full bg-[#2E8C8C]" aria-hidden="true" />
                 {talking} psychologists
               </p>
-              <p className="mt-1.5 text-[0.88rem] leading-relaxed text-ink/65">
+              <p className="mt-1.5 text-[0.88rem] leading-relaxed text-ink/70">
                 They work through talking, and are registered to do it.
               </p>
             </div>
@@ -125,7 +125,7 @@ export default async function TherapistsPage() {
                 <span className="inline-block h-2 w-2 rounded-full bg-[#5FA98A]" aria-hidden="true" />
                 {prescribing} {prescribing === 1 ? "psychiatrist" : "psychiatrists"}
               </p>
-              <p className="mt-1.5 text-[0.88rem] leading-relaxed text-ink/65">
+              <p className="mt-1.5 text-[0.88rem] leading-relaxed text-ink/70">
                 A medical doctor, so they can also prescribe and review medication.
               </p>
             </div>
@@ -134,7 +134,7 @@ export default async function TherapistsPage() {
                 <span className="inline-block h-2 w-2 rounded-full bg-gold" aria-hidden="true" />
                 {langCount} languages
               </p>
-              <p className="mt-1.5 text-[0.88rem] leading-relaxed text-ink/65">
+              <p className="mt-1.5 text-[0.88rem] leading-relaxed text-ink/70">
                 Between them, across the whole team.
               </p>
             </div>
@@ -147,7 +147,7 @@ export default async function TherapistsPage() {
         {people.length === 0 ? (
           <div className="mt-12 rounded-2xl border border-dashed border-forest-800/20 p-12 text-center">
             <p className="font-display text-xl text-forest-900">Nobody is listed right now.</p>
-            <p className="mx-auto mt-3 max-w-md text-[0.95rem] text-ink/65">
+            <p className="mx-auto mt-3 max-w-md text-[0.95rem] text-ink/70">
               Our practitioner list is being updated. Please check back shortly, or write to us at{" "}
               {site.email}.
             </p>

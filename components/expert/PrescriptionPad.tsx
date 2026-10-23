@@ -105,7 +105,7 @@ export default function PrescriptionPad({
     wide = false
   ) => (
     <label className={wide ? "sm:col-span-2" : ""}>
-      <span className="block text-[0.64rem] uppercase tracking-[0.12em] text-ink/50">{label}</span>
+      <span className="block text-[0.75rem] uppercase tracking-[0.12em] text-ink/70">{label}</span>
       <input
         value={items[i][k]}
         onChange={(e) => set(i, k, e.target.value)}
@@ -138,11 +138,11 @@ export default function PrescriptionPad({
                 >
                   {rx.number}
                 </Link>
-                <span className="ml-2 text-[0.84rem] text-ink/65">
+                <span className="ml-2 text-[0.84rem] text-ink/70">
                   {rx.items.map((i) => i.drug).join(", ")}
                 </span>
               </span>
-              <span className="shrink-0 text-[0.8rem] text-ink/55">
+              <span className="shrink-0 text-[0.8rem] text-ink/70">
                 {rx.cancelledAt ? (
                   <span className="font-semibold text-red-700">Withdrawn</span>
                 ) : (
@@ -194,7 +194,7 @@ export default function PrescriptionPad({
                     type="button"
                     onClick={() => setItems((xs) => xs.filter((_, n) => n !== i))}
                     disabled={busy}
-                    className="mt-2 text-[0.8rem] text-ink/55 underline underline-offset-2 hover:text-red-700"
+                    className="mt-2 text-[0.8rem] text-ink/70 underline underline-offset-2 hover:text-red-700"
                   >
                     remove
                   </button>
@@ -215,7 +215,7 @@ export default function PrescriptionPad({
           )}
 
           <label className="mt-4 block">
-            <span className="block text-[0.64rem] uppercase tracking-[0.12em] text-ink/50">
+            <span className="block text-[0.75rem] uppercase tracking-[0.12em] text-ink/70">
               Advice (optional)
             </span>
             <textarea
@@ -229,7 +229,7 @@ export default function PrescriptionPad({
             />
           </label>
 
-          <label className="mt-3 block text-[0.64rem] uppercase tracking-[0.12em] text-ink/50">
+          <label className="mt-3 block text-[0.75rem] uppercase tracking-[0.12em] text-ink/70">
             Review in (days, 0 for none)
             <input
               value={followUpDays}
@@ -241,7 +241,7 @@ export default function PrescriptionPad({
             />
           </label>
 
-          <p className="mt-4 rounded-lg bg-forest-800/[0.04] px-3 py-2.5 text-[0.78rem] leading-relaxed text-ink/65">
+          <p className="mt-4 rounded-lg bg-forest-800/[0.04] px-3 py-2.5 text-[0.78rem] leading-relaxed text-ink/70">
             Issued in your name, with your registration number, and it cannot be edited afterwards
             — a mistake is withdrawn and replaced. Nothing here is checked against a drug database:{" "}
             <strong>a medicine with no warning has not been cleared by anything.</strong>
@@ -265,7 +265,7 @@ export default function PrescriptionPad({
                 setError(null);
               }}
               disabled={busy}
-              className="text-[0.86rem] font-medium text-ink/60 transition-colors hover:text-forest-800 disabled:opacity-50"
+              className="text-[0.86rem] font-medium text-ink/70 transition-colors hover:text-forest-800 disabled:opacity-50"
             >
               Cancel
             </button>

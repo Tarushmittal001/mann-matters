@@ -192,7 +192,7 @@ export default function AboutPage() {
                       <CountUp value={s.value} suffix={s.suffix} decimals={s.decimals ?? 0} />
                     )}
                   </p>
-                  <p className="mt-3 text-sm leading-relaxed text-ink/65">{s.label}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-ink/70">{s.label}</p>
                 </div>
               </Reveal>
             ))}
@@ -226,7 +226,7 @@ export default function AboutPage() {
                   </div>
                   <h3 className="mt-5 font-display text-xl font-medium text-forest-900">{m.name}</h3>
                   <p className="mt-0.5 text-sm font-medium text-gold-dark">{m.role}</p>
-                  <p className="mt-2.5 text-[0.93rem] leading-relaxed text-ink/65">{m.note}</p>
+                  <p className="mt-2.5 text-[0.93rem] leading-relaxed text-ink/70">{m.note}</p>
                 </div>
               </Reveal>
             ))}

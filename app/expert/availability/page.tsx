@@ -58,7 +58,7 @@ export default async function ExpertAvailabilityPage() {
                   <p className="text-[0.8rem] font-semibold text-forest-900">
                     {WEEKDAYS[weekdayOf(date)].long}
                   </p>
-                  <p className="text-[0.72rem] text-ink/70">
+                  <p className="text-[0.75rem] text-ink/70">
                     {i < 2 ? relativeDay(date, ctx.today) + " · " : ""}
                     {formatDayMonth(date)}
                   </p>

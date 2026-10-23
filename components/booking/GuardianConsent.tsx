@@ -39,7 +39,7 @@ export default function GuardianConsent({
 
   return (
     <section className="mt-7 rounded-2xl border border-forest-800/12 bg-sage-light/25 p-5 sm:p-6">
-      <p className="text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-forest-700">
+      <p className="text-[0.75rem] font-semibold uppercase tracking-[0.16em] text-forest-700">
         Parent or guardian
       </p>
       <p className="mt-2 text-[0.9rem] leading-relaxed text-ink/70">

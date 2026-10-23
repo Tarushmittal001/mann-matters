@@ -34,7 +34,7 @@ export default function TimezoneNote({ profileTimezone, initialTime }: { profile
   const profileMismatch = profileTimezone !== CLINIC_TZ;
 
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[0.82rem] text-ink/65">
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[0.82rem] text-ink/70">
       <span className="inline-flex items-center gap-2">
         <svg
           width="14"

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { CrisisLine } from "@/components/ui/Feedback";
+import { useStepFocus } from "@/components/ui/useStepFocus";
 
 /**
  * A burnout reflection, in three parts: exhaustion, distance from the work, and
@@ -58,6 +60,8 @@ export default function BurnoutCheck() {
   const reduced = useReducedMotion();
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [done, setDone] = useState(false);
+  // the result replaces the questions; its heading takes focus so it is announced
+  const resultRef = useStepFocus(done);
 
   const answered = Object.keys(answers).length;
   const complete = answered === ITEMS.length;
@@ -104,8 +108,14 @@ export default function BurnoutCheck() {
       >
         <div className="rounded-3xl border border-forest-800/10 bg-ivory-light p-7 shadow-lift sm:p-9">
           <p className="eyebrow mb-4">what you told us</p>
-          <h2 className="font-display text-[1.7rem] font-medium leading-snug text-forest-900">{band.head}</h2>
+          <h2 ref={resultRef} tabIndex={-1} className="step-focus font-display text-[1.7rem] font-medium leading-snug text-forest-900">{band.head}</h2>
           <p className="mt-3 leading-relaxed text-ink/70">{band.body}</p>
+          {/* burnout is not a crisis, but someone scoring this high may be close to one */}
+          {s.overall >= 65 && (
+            <div className="mt-6 rounded-2xl border border-forest-800/15 bg-sage-light/50 p-4">
+              <CrisisLine lead="If it has started to feel like more than work, you can talk to someone today — free, any time." />
+            </div>
+          )}
 
           <div className="mt-8 space-y-5 border-t border-forest-800/10 pt-7">
             {(Object.keys(LABELS) as Dimension[]).map((dim) => (
@@ -193,7 +203,7 @@ export default function BurnoutCheck() {
                     "press rounded-full border px-3.5 py-1.5 text-[0.82rem] font-medium transition-colors",
                     answers[i] === value
                       ? "border-forest-800 bg-forest-800 text-ivory"
-                      : "border-forest-800/15 text-ink/65 hover:border-forest-800/40"
+                      : "border-forest-800/15 text-ink/70 hover:border-forest-800/40"
                   )}
                 >
                   {choice}

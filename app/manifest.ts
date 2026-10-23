@@ -18,7 +18,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: `${site.name} — ${site.tagline}`,
     short_name: site.name,
     description:
-      "Confidential online therapy, counselling and psychiatry, plus free tools with a free account.",
+      "Confidential online therapy with certified Indian psychologists, plus free tools with a free account.",
     start_url: "/?source=app",
     scope: "/",
     display: "standalone",

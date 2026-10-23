@@ -102,7 +102,7 @@ export default function RescheduleOffer({
           You offered other times on {when} and they have not answered yet. The session is still
           at its original time.
         </p>
-        <ul className="mt-2 space-y-1 text-[0.86rem] text-ink/65">
+        <ul className="mt-2 space-y-1 text-[0.86rem] text-ink/70">
           {live.options.map((o) => (
             <li key={o.date}>
               {new Intl.DateTimeFormat("en-IN", {
@@ -152,7 +152,7 @@ export default function RescheduleOffer({
           {rows.map((row, i) => (
             <li key={i} className="rounded-xl border border-forest-800/10 bg-ivory p-3.5">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <label className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-ink/60">
+                <label className="text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-ink/70">
                   Date {i + 1}
                   <input
                     type="date"
@@ -168,7 +168,7 @@ export default function RescheduleOffer({
                     type="button"
                     onClick={() => setRows((rs) => rs.filter((_, n) => n !== i))}
                     disabled={busy}
-                    className="text-[0.8rem] text-ink/55 underline underline-offset-2 hover:text-red-700"
+                    className="text-[0.8rem] text-ink/70 underline underline-offset-2 hover:text-red-700"
                   >
                     remove
                   </button>
@@ -179,7 +179,7 @@ export default function RescheduleOffer({
                 <div className="mt-3 space-y-2">
                   {SLOTS.map((g) => (
                     <div key={g.group} className="flex flex-wrap items-center gap-1.5">
-                      <span className="w-20 shrink-0 text-[0.72rem] uppercase tracking-[0.1em] text-ink/45">
+                      <span className="w-20 shrink-0 text-[0.75rem] uppercase tracking-[0.1em] text-ink/70">
                         {g.group}
                       </span>
                       {g.times.map((t) => {
@@ -204,7 +204,7 @@ export default function RescheduleOffer({
                       })}
                     </div>
                   ))}
-                  <p className="text-[0.76rem] text-ink/50">
+                  <p className="text-[0.76rem] text-ink/70">
                     {row.times.length}/{TIMES_PER_DATE} chosen
                   </p>
                 </div>
@@ -224,7 +224,7 @@ export default function RescheduleOffer({
           </button>
         )}
 
-        <label className="mt-4 block text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-ink/60">
+        <label className="mt-4 block text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-ink/70">
           Why
           <input
             value={reason}
@@ -235,7 +235,7 @@ export default function RescheduleOffer({
             className="mt-1.5 w-full rounded-xl border border-forest-800/15 bg-ivory px-3.5 py-2.5 text-[0.9rem] font-normal normal-case tracking-normal text-forest-900 focus:border-forest-800 focus:outline-none"
           />
         </label>
-        <p className="mt-1.5 text-[0.78rem] leading-relaxed text-ink/60">
+        <p className="mt-1.5 text-[0.78rem] leading-relaxed text-ink/70">
           Unlike a decline, the client <strong>is</strong> shown this — their time is being moved
           and they are owed the reason.
         </p>
@@ -253,7 +253,7 @@ export default function RescheduleOffer({
               setError(null);
             }}
             disabled={busy}
-            className="text-[0.86rem] font-medium text-ink/60 transition-colors hover:text-forest-800 disabled:opacity-50"
+            className="text-[0.86rem] font-medium text-ink/70 transition-colors hover:text-forest-800 disabled:opacity-50"
           >
             Cancel
           </button>

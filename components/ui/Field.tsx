@@ -2,6 +2,8 @@
 
 import { useId, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n/client";
+import { controlCopy } from "@/lib/i18n/controls";
 
 /**
  * Form controls that carry their own label, hint, and error wiring.
@@ -13,7 +15,7 @@ import { cn } from "@/lib/utils";
  */
 
 const base =
-  "w-full rounded-xl border bg-ivory-light px-4 py-3 text-[0.95rem] text-forest-900 placeholder:text-ink/35 transition-colors duration-300 focus:outline-none disabled:opacity-60";
+  "w-full rounded-xl border bg-ivory-light px-4 py-3 text-[0.95rem] text-forest-900 placeholder:text-ink/70 transition-colors duration-300 focus:outline-none disabled:opacity-60";
 
 const tone = (invalid?: boolean) =>
   invalid
@@ -38,6 +40,7 @@ function Shell({
   errorId,
   children,
 }: Shared & { id: string; hintId: string; errorId: string; children: ReactNode }) {
+  const words = controlCopy(useLocale());
   return (
     <div className={cn("w-full")}>
       <label
@@ -53,10 +56,10 @@ function Shell({
         {required ? (
           <>
             <span aria-hidden="true" className="ml-1 text-red-600">*</span>
-            <span className="sr-only"> (required)</span>
+            <span className="sr-only"> {words.required}</span>
           </>
         ) : (
-          <span className="ml-1.5 normal-case tracking-normal text-ink/35">optional</span>
+          <span className="ml-1.5 normal-case tracking-normal text-ink/70">{words.optional}</span>
         )}
       </label>
       {children}
@@ -85,19 +88,25 @@ export function Field({
   autoComplete,
   inputMode,
   maxLength,
+  min,
+  max,
   disabled,
   ...shared
 }: Shared & {
   value: string;
   onChange: (v: string) => void;
-  type?: "text" | "email" | "password" | "tel";
+  type?: "text" | "email" | "password" | "tel" | "date";
   placeholder?: string;
   autoComplete?: string;
   inputMode?: "text" | "email" | "tel" | "numeric";
   maxLength?: number;
+  /** For `type="date"`: the earliest and latest pickable day, as YYYY-MM-DD. */
+  min?: string;
+  max?: string;
   disabled?: boolean;
 }) {
   const id = useId();
+  const words = controlCopy(useLocale());
   const hintId = `${id}-hint`;
   const errorId = `${id}-error`;
   // a password box gets an eye: mistyping a password you can't see is the
@@ -117,6 +126,8 @@ export function Field({
         autoComplete={autoComplete}
         inputMode={inputMode}
         maxLength={maxLength}
+        min={min}
+        max={max}
         disabled={disabled}
         aria-required={shared.required ? true : undefined}
         aria-invalid={shared.error ? true : undefined}
@@ -128,7 +139,7 @@ export function Field({
           type="button"
           onClick={() => setShown((v) => !v)}
           disabled={disabled}
-          aria-label={shown ? "Hide password" : "Show password"}
+          aria-label={shown ? words.hidePassword : words.showPassword}
           aria-pressed={shown}
           className="absolute right-1 top-1/2 flex h-9 w-10 -translate-y-1/2 items-center justify-center rounded-lg text-ink/70 transition-colors hover:text-forest-800 disabled:opacity-50"
         >
@@ -199,6 +210,7 @@ export function Select({
   disabled?: boolean;
 }) {
   const id = useId();
+  const words = controlCopy(useLocale());
   const hintId = `${id}-hint`;
   const errorId = `${id}-error`;
 
@@ -214,7 +226,7 @@ export function Select({
         aria-describedby={shared.error ? errorId : shared.hint ? hintId : undefined}
         className={cn(base, tone(!!shared.error), "appearance-none", shared.className)}
       >
-        <option value="">{placeholder ?? "Choose…"}</option>
+        <option value="">{placeholder ?? words.choose}</option>
         {options.map((o) => {
           const opt = typeof o === "string" ? { value: o, label: o } : o;
           return (

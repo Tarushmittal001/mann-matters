@@ -45,7 +45,7 @@ const sections: LegalSection[] = [
         <p>We collect only what we need to run your sessions and keep the service safe:</p>
         <ul>
           <li>
-            <strong>Account details</strong>: name, email address, phone number, age, gender (optional),
+            <strong>Account details</strong>: name, email address, phone number, date of birth, gender (optional),
             preferred language, organisation (if you joined through one), and a hashed password. We never
             store your password in readable form.
           </li>

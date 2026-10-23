@@ -5,6 +5,7 @@ import { listStockAvatars } from "@/lib/avatars";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { initialsOf } from "@/lib/expert-portal";
+import { dobString } from "@/lib/validation";
 import AvatarPicker from "@/components/profile/AvatarPicker";
 import ProfileForm from "@/components/profile/ProfileForm";
 import PasswordForm from "@/components/profile/PasswordForm";
@@ -27,7 +28,7 @@ export default async function ProfilePage() {
     // an allow-list, so `passwordHash` can never arrive here by accident
     select: {
       name: true,
-      age: true,
+      dateOfBirth: true,
       gender: true,
       city: true,
       state: true,
@@ -43,6 +44,10 @@ export default async function ProfilePage() {
     },
   });
   if (!user) redirect("/login");
+
+  // a date of birth is fixed once they have booked, as /api/profile enforces
+  const dateOfBirthLocked =
+    !!user.dateOfBirth && (await prisma.booking.count({ where: { userId: session.sub } })) > 0;
 
   const memberSince = new Intl.DateTimeFormat("en-IN", {
     month: "long",
@@ -64,7 +69,7 @@ export default async function ProfilePage() {
             your profile
           </p>
           <h1 className="h-display text-4xl md:text-5xl">Your details</h1>
-          <p className="mt-4 max-w-xl text-ink/65">
+          <p className="mt-4 max-w-xl text-ink/70">
             Only what we need to run your sessions well — nothing more. With us since{" "}
             {memberSince}.
           </p>
@@ -96,7 +101,8 @@ export default async function ProfilePage() {
               <ProfileForm
                 initial={{
                   name: user.name,
-                  age: user.age ? String(user.age) : "",
+                  dateOfBirth: dobString(user.dateOfBirth),
+                  dateOfBirthLocked,
                   gender: user.gender ?? "",
                   city: user.city ?? "",
                   state: user.state ?? "",
@@ -131,7 +137,7 @@ export default async function ProfilePage() {
             <h2 className="font-display text-lg font-medium text-forest-900">
               What we hold about you
             </h2>
-            <ul className="mt-5 space-y-3.5 text-[0.86rem] leading-relaxed text-ink/65">
+            <ul className="mt-5 space-y-3.5 text-[0.86rem] leading-relaxed text-ink/70">
               {[
                 ["Your name, email and mobile", "to reach you about your sessions."],
                 ["Your bookings", "who you saw, when, and what you paid."],

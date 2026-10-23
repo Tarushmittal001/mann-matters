@@ -136,12 +136,12 @@ export default function TimeOffEditor({
             >
               <div className="min-w-0">
                 <p className="text-[0.92rem] font-semibold text-forest-900">{describe(b)}</p>
-                <p className="mt-0.5 text-[0.84rem] text-ink/65">
+                <p className="mt-0.5 text-[0.84rem] text-ink/70">
                   {b.allDay
                     ? "All day"
                     : formatTimeRange(b.startTime ?? "00:00", b.endTime ?? "23:59")}
                   {b.startDate <= today && today <= b.endDate && (
-                    <span className="ml-2 rounded-full bg-neel/[0.08] px-2 py-0.5 text-[0.74rem] font-semibold text-neel-ink">
+                    <span className="ml-2 rounded-full bg-neel/[0.08] px-2 py-0.5 text-[0.75rem] font-semibold text-neel-ink">
                       Active now
                     </span>
                   )}
@@ -165,7 +165,7 @@ export default function TimeOffEditor({
       {/* ── add a block ─────────────────────────────────────────────────── */}
       <div className="mt-7 border-t border-forest-800/10 pt-6">
         <h3 className="font-display text-lg font-medium text-forest-900">Add time off</h3>
-        <p className="mt-1 text-[0.85rem] text-ink/65">
+        <p className="mt-1 text-[0.85rem] text-ink/70">
           Dates are clinic time (IST). New bookings close immediately; sessions already booked are
           never cancelled for you.
         </p>

@@ -66,16 +66,16 @@ export default function MarkPayout({
        and silently showing only one of the two numbers hides it. */
     return (
       <div className="text-right">
-        <span className="inline-block rounded-full bg-sage-light/70 px-2.5 py-1 text-[0.72rem] font-semibold text-forest-800">
+        <span className="inline-block rounded-full bg-sage-light/70 px-2.5 py-1 text-[0.75rem] font-semibold text-forest-800">
           Paid {when}
         </span>
         {settled.amount !== due && (
-          <span className="mt-1 block text-[0.72rem] text-gold-dark">
+          <span className="mt-1 block text-[0.75rem] text-gold-dark">
             sent {formatINR(settled.amount)}, now owed {formatINR(due)}
           </span>
         )}
         {settled.reference && (
-          <span className="mt-0.5 block truncate font-mono text-[0.7rem] text-ink/50">
+          <span className="mt-0.5 block truncate font-mono text-[0.75rem] text-ink/70">
             {settled.reference}
           </span>
         )}
@@ -83,11 +83,11 @@ export default function MarkPayout({
           type="button"
           onClick={() => send(true)}
           disabled={busy}
-          className="mt-1 text-[0.72rem] text-ink/50 underline underline-offset-2 transition-colors hover:text-red-700 disabled:opacity-50"
+          className="mt-1 text-[0.75rem] text-ink/70 underline underline-offset-2 transition-colors hover:text-red-700 disabled:opacity-50"
         >
           undo
         </button>
-        {error && <span className="mt-1 block text-[0.72rem] text-red-700">{error}</span>}
+        {error && <span className="mt-1 block text-[0.75rem] text-red-700">{error}</span>}
       </div>
     );
   }
@@ -95,7 +95,7 @@ export default function MarkPayout({
   if (!open) {
     return (
       <div className="text-right">
-        <span className="inline-block rounded-full bg-gold/25 px-2.5 py-1 text-[0.72rem] font-semibold text-gold-dark">
+        <span className="inline-block rounded-full bg-gold/25 px-2.5 py-1 text-[0.75rem] font-semibold text-gold-dark">
           Awaited
         </span>
         <button
@@ -112,7 +112,7 @@ export default function MarkPayout({
 
   return (
     <div className="min-w-[11rem] text-right">
-      <label className="block text-[0.68rem] uppercase tracking-[0.12em] text-ink/50">
+      <label className="block text-[0.75rem] uppercase tracking-[0.12em] text-ink/70">
         Reference
         <input
           value={reference}
@@ -124,16 +124,16 @@ export default function MarkPayout({
           className="mt-1 w-full rounded-lg border border-forest-800/15 bg-ivory px-2.5 py-1.5 text-right text-[0.8rem] normal-case tracking-normal text-forest-900 focus:border-forest-800 focus:outline-none"
         />
       </label>
-      <p className="mt-1.5 text-[0.72rem] text-ink/60">
+      <p className="mt-1.5 text-[0.75rem] text-ink/70">
         Records {formatINR(due)} to {expertName.split(" ")[0]}.
       </p>
-      {error && <p className="mt-1 text-[0.72rem] text-red-700">{error}</p>}
+      {error && <p className="mt-1 text-[0.75rem] text-red-700">{error}</p>}
       <div className="mt-2 flex justify-end gap-2">
         <button
           type="button"
           onClick={() => setOpen(false)}
           disabled={busy}
-          className="text-[0.76rem] text-ink/60 transition-colors hover:text-forest-800 disabled:opacity-50"
+          className="text-[0.76rem] text-ink/70 transition-colors hover:text-forest-800 disabled:opacity-50"
         >
           Cancel
         </button>

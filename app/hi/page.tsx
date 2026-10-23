@@ -12,16 +12,16 @@ import Price from "@/components/ui/Price";
 import { standardPrice } from "@/lib/pricing";
 
 export const metadata: Metadata = {
-  title: "Emoraa — ऑनलाइन थेरेपी, काउंसलिंग और साइकियाट्री",
+  title: "Emoraa — भारत के लिए ऑनलाइन थेरेपी",
   description:
-    "योग्य मनोवैज्ञानिकों और मनोचिकित्सकों से निजी ऑनलाइन बातचीत — हिन्दी में। ₹599 से शुरू।",
+    "योग्य भारतीय मनोवैज्ञानिकों से निजी ऑनलाइन बातचीत — हिन्दी में। ₹599 से शुरू।",
   alternates: {
     canonical: "/hi",
     languages: { "en-IN": "/", "hi-IN": "/hi" },
   },
   openGraph: {
     title: "Emoraa — आपकी भावनाएँ मायने रखती हैं",
-    description: "योग्य मनोवैज्ञानिकों और मनोचिकित्सकों से निजी ऑनलाइन बातचीत, हिन्दी में।",
+    description: "योग्य भारतीय मनोवैज्ञानिकों से निजी ऑनलाइन बातचीत, हिन्दी में।",
     locale: "hi_IN",
     // setting openGraph here replaces the root one, image included
     images: ["/opengraph-image.png"],
@@ -124,7 +124,7 @@ export default async function HindiHome() {
                   <h3 className="mt-3 font-display text-xl font-medium text-forest-900">
                     {step.title}
                   </h3>
-                  <p className="mt-2.5 leading-relaxed text-ink/65">{step.body}</p>
+                  <p className="mt-2.5 leading-relaxed text-ink/70">{step.body}</p>
                 </div>
               </Reveal>
             ))}
@@ -144,7 +144,7 @@ export default async function HindiHome() {
             {t.home.why.map((w, i) => (
               <Reveal key={w.title} delay={0.06 * i}>
                 <h3 className="font-display text-xl font-medium text-forest-900">{w.title}</h3>
-                <p className="mt-2 max-w-md leading-relaxed text-ink/65">{w.body}</p>
+                <p className="mt-2 max-w-md leading-relaxed text-ink/70">{w.body}</p>
               </Reveal>
             ))}
           </div>
@@ -185,7 +185,7 @@ export default async function HindiHome() {
                         />
                       </span>
                     </div>
-                    <p className="mt-2.5 leading-relaxed text-ink/65">{h.summary}</p>
+                    <p className="mt-2.5 leading-relaxed text-ink/70">{h.summary}</p>
                     <p className="mt-4 text-[0.82rem] text-ink/70">
                       {h.duration} · {t.services.perSession}
                     </p>

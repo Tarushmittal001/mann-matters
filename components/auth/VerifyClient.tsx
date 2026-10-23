@@ -59,14 +59,14 @@ export default function VerifyClient() {
       {state === "working" && (
         <>
           <h1 className="h-display text-3xl">Confirming your email…</h1>
-          <p className="mt-4 text-ink/65">One moment while we set everything up.</p>
+          <p className="mt-4 text-ink/70">One moment while we set everything up.</p>
         </>
       )}
 
       {state === "done" && (
         <>
           <h1 className="h-display text-3xl">You&apos;re all set. 🌿</h1>
-          <p className="mt-4 text-ink/65">
+          <p className="mt-4 text-ink/70">
             Your email is confirmed. Taking you to your dashboard…
           </p>
         </>
@@ -75,7 +75,7 @@ export default function VerifyClient() {
       {state === "error" && (
         <>
           <h1 className="h-display text-3xl">This link didn&apos;t work.</h1>
-          <p className="mt-4 text-ink/65">
+          <p className="mt-4 text-ink/70">
             It may have expired or already been used. Sign in to request a fresh confirmation email.
           </p>
           <Link

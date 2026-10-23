@@ -108,11 +108,11 @@ export default function CrisisPage({
                 >
                   <div className="flex items-center justify-between">
                     <h3 className="font-display text-xl font-medium text-forest-900">{h.name}</h3>
-                    <span className="rounded-full bg-sage-light/60 px-2.5 py-0.5 text-[0.68rem] font-medium uppercase tracking-wide text-forest-700">
+                    <span className="rounded-full bg-sage-light/60 px-2.5 py-0.5 text-[0.75rem] font-medium uppercase tracking-wide text-forest-700">
                       {h.hours}
                     </span>
                   </div>
-                  <p className="mt-2 flex-1 text-[0.9rem] leading-relaxed text-ink/65">{h.note}</p>
+                  <p className="mt-2 flex-1 text-[0.9rem] leading-relaxed text-ink/70">{h.note}</p>
                   <span className="mt-4 inline-flex items-center gap-2 font-display text-2xl font-semibold text-red-600">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
                       <path d="M6.6 10.8a13 13 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.5.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.4c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.5.1.4 0 .8-.3 1l-2.1 2.3Z" strokeLinejoin="round" />

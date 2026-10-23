@@ -160,7 +160,7 @@ export default function CodeBox({
           disabled={busy || disabled}
           aria-invalid={!!error}
           aria-describedby={error ? "discount-code-error" : undefined}
-          className="min-w-0 flex-1 rounded-xl border border-forest-800/15 bg-ivory px-4 py-2.5 font-mono text-[0.95rem] uppercase tracking-wide text-forest-900 placeholder:font-sans placeholder:normal-case placeholder:tracking-normal placeholder:text-ink/60 focus:border-gold focus:outline-none"
+          className="min-w-0 flex-1 rounded-xl border border-forest-800/15 bg-ivory px-4 py-2.5 font-mono text-[0.95rem] uppercase tracking-wide text-forest-900 placeholder:font-sans placeholder:normal-case placeholder:tracking-normal placeholder:text-ink/70 focus:border-gold focus:outline-none"
         />
         <button
           type="button"

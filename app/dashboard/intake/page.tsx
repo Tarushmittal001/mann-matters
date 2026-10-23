@@ -37,7 +37,7 @@ export default async function IntakePage() {
           <h1 className="h-display text-4xl md:text-5xl">
             {state.filled ? "Your intake form" : "Twelve minutes now, twenty saved later."}
           </h1>
-          <p className="mt-4 max-w-xl text-ink/65">
+          <p className="mt-4 max-w-xl text-ink/70">
             {state.filled
               ? "Your therapist has this. Change anything you like — they'll see the latest version."
               : "Your therapist reads this before you meet, so the session can start where you actually are rather than with the basics. Nothing here is compulsory except the safety questions."}

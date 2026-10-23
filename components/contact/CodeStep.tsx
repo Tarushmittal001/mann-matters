@@ -58,7 +58,7 @@ export default function CodeStep({
         aria-invalid={c.fields.code ? true : undefined}
         aria-describedby={c.fields.code ? `${id}-error` : `${id}-hint`}
         className={cn(
-          "w-full max-w-[14rem] rounded-xl border bg-ivory-light px-4 py-3 text-center font-display text-2xl tracking-[0.4em] text-forest-900 placeholder:text-ink/20 transition-colors focus:outline-none disabled:opacity-60",
+          "w-full max-w-[14rem] rounded-xl border bg-ivory-light px-4 py-3 text-center font-display text-2xl tracking-[0.4em] text-forest-900 placeholder:text-ink/70 transition-colors focus:outline-none disabled:opacity-60",
           c.fields.code ? "border-red-300 focus:border-red-500" : "border-forest-800/15 focus:border-forest-800"
         )}
       />

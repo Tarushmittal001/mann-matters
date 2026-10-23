@@ -408,7 +408,7 @@ export default function PackBuilder({
               </div>
             ) : status === "code" || status === "verifying" ? (
               <form onSubmit={onVerify} className="overflow-y-auto overscroll-contain px-6 py-6 sm:px-8" noValidate>
-                <p className="text-[0.95rem] leading-relaxed text-ink/65">
+                <p className="text-[0.95rem] leading-relaxed text-ink/70">
                   So nobody can send a brief with someone else&apos;s details, we&apos;ve sent a
                   6-digit code to {emailToken && phoneToken ? "each of these" : "this"}. Enter{" "}
                   {emailToken && phoneToken ? "both" : "it"} to send your brief for{" "}
@@ -484,7 +484,7 @@ export default function PackBuilder({
               </form>
             ) : (
               <form onSubmit={onSubmit} className="overflow-y-auto overscroll-contain px-6 py-6 sm:px-8" noValidate>
-                <p className="text-[0.95rem] leading-relaxed text-ink/65">
+                <p className="text-[0.95rem] leading-relaxed text-ink/70">
                   Four questions, then pick what you&apos;d want in the program. Nothing here is
                   binding — it just means our first reply is useful instead of generic.
                 </p>
@@ -740,7 +740,7 @@ function CodeField({
         aria-invalid={error ? true : undefined}
         aria-describedby={`${id}-note`}
         className={cn(
-          "w-full max-w-[14rem] rounded-xl border bg-ivory-light px-4 py-3 text-center font-display text-2xl tracking-[0.4em] text-forest-900 placeholder:text-ink/20 transition-colors focus:outline-none disabled:opacity-60",
+          "w-full max-w-[14rem] rounded-xl border bg-ivory-light px-4 py-3 text-center font-display text-2xl tracking-[0.4em] text-forest-900 placeholder:text-ink/70 transition-colors focus:outline-none disabled:opacity-60",
           error ? "border-red-300 focus:border-red-500" : "border-forest-800/15 focus:border-forest-800"
         )}
       />

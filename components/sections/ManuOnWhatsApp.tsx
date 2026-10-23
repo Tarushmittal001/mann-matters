@@ -112,7 +112,7 @@ function Streak({ live, region }: Live) {
         ))}
       </div>
       <motion.span
-        className="rounded-full px-2 py-0.5 text-[0.68rem] font-semibold uppercase tracking-wide text-forest-950"
+        className="rounded-full px-2 py-0.5 text-[0.75rem] font-semibold uppercase tracking-wide text-forest-950"
         style={{ backgroundColor: region.hex }}
         animate={{ scale: done ? 1 : 0.6, opacity: done ? 1 : 0 }}
         transition={{ type: "spring", stiffness: 420, damping: 18 }}
@@ -173,7 +173,7 @@ export default function ManuOnWhatsApp() {
   const live = inView && !reduced && !lite;
 
   return (
-    <section id="manu" className="section relative scroll-mt-20 overflow-hidden bg-forest-950 text-[7px] p-[39.3px]">
+    <section id="manu" className="section relative scroll-mt-20 overflow-hidden bg-forest-950 text-ivory">
       {/* two slow drifting glows, so the dark ground itself feels alive */}
       {!reduced && (
         <>
@@ -225,7 +225,7 @@ export default function ManuOnWhatsApp() {
               {tiles.map((t, i) => (
                 <motion.div
                   key={t.title}
-                  className={`card-mm-dark group p-4 ${t.wide ? "sm:col-span-2" : ""}`}
+                  className={`group rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition-colors duration-500 hover:bg-white/[0.07] ${t.wide ? "sm:col-span-2" : ""}`}
                   initial={reduced ? false : { opacity: 0, y: 18 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-10% 0px" }}

@@ -35,11 +35,11 @@ export default async function AdminClientsPage({
     <section className="wrap-wide pb-28">
       <p className="eyebrow">client directory</p>
       <h1 className="h-display mt-3 text-4xl md:text-5xl">Clients</h1>
-      <p className="mt-4 max-w-xl text-ink/65">
+      <p className="mt-4 max-w-xl text-ink/70">
         Everyone using Emoraa, and what they have booked. Open a name for their full history.
       </p>
 
-      <div className="mt-5 flex flex-wrap gap-x-6 gap-y-1 text-[0.86rem] text-ink/60">
+      <div className="mt-5 flex flex-wrap gap-x-6 gap-y-1 text-[0.86rem] text-ink/70">
         <span>
           <span className="font-semibold text-forest-800">{clients.length}</span> in total
         </span>
@@ -90,7 +90,7 @@ export default async function AdminClientsPage({
                     <th
                       key={h}
                       className={cn(
-                        "px-4 py-3 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-ink/60",
+                        "px-4 py-3 text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-ink/70",
                         i >= 3 && "text-right"
                       )}
                     >
@@ -121,7 +121,7 @@ export default async function AdminClientsPage({
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={c.avatar} alt="" className="h-full w-full object-cover" />
                         ) : (
-                          <span className="flex h-full w-full items-center justify-center text-[0.72rem] font-semibold text-forest-800/70">
+                          <span className="flex h-full w-full items-center justify-center text-[0.75rem] font-semibold text-forest-800/70">
                             {initialsOf(c.name)}
                           </span>
                         )}
@@ -132,17 +132,17 @@ export default async function AdminClientsPage({
                             {c.name}
                           </span>
                           {c.blockedAt && (
-                            <span className="shrink-0 rounded-full bg-red-100 px-2 py-0.5 text-[0.68rem] font-semibold text-red-800">
+                            <span className="shrink-0 rounded-full bg-red-100 px-2 py-0.5 text-[0.75rem] font-semibold text-red-800">
                               Blocked
                             </span>
                           )}
                           {!c.emailVerified && !c.blockedAt && (
-                            <span className="shrink-0 rounded-full bg-gold/25 px-2 py-0.5 text-[0.68rem] font-semibold text-gold-dark">
+                            <span className="shrink-0 rounded-full bg-gold/25 px-2 py-0.5 text-[0.75rem] font-semibold text-gold-dark">
                               Pending
                             </span>
                           )}
                         </span>
-                        <span className="block truncate text-[0.8rem] text-ink/60">{c.email}</span>
+                        <span className="block truncate text-[0.8rem] text-ink/70">{c.email}</span>
                       </span>
                     </Link>
                   </th>
@@ -150,7 +150,7 @@ export default async function AdminClientsPage({
                     {c.city || c.state ? (
                       [c.city, c.state].filter(Boolean).join(", ")
                     ) : (
-                      <span className="text-ink/45">Not given</span>
+                      <span className="text-ink/70">Not given</span>
                     )}
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-ink/70">
@@ -159,22 +159,22 @@ export default async function AdminClientsPage({
                   <td className="px-4 py-3 text-right tabular-nums">
                     <span className="font-semibold text-forest-800">{c.attended}</span>
                     {c.bookings !== c.attended && (
-                      <span className="ml-1.5 text-[0.8rem] text-ink/50">of {c.bookings}</span>
+                      <span className="ml-1.5 text-[0.8rem] text-ink/70">of {c.bookings}</span>
                     )}
                   </td>
                   <td
                     className={cn(
                       "px-4 py-3 text-right tabular-nums",
-                      c.noShows > 0 ? "font-semibold text-red-700" : "text-ink/45"
+                      c.noShows > 0 ? "font-semibold text-red-700" : "text-ink/70"
                     )}
                   >
                     {c.noShows || "—"}
                   </td>
                   <td className="px-4 py-3 text-right tabular-nums text-ink/70">
-                    {c.cancelled || <span className="text-ink/45">—</span>}
+                    {c.cancelled || <span className="text-ink/70">—</span>}
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-right tabular-nums text-forest-900">
-                    {c.spent ? formatINR(c.spent) : <span className="text-ink/45">—</span>}
+                    {c.spent ? formatINR(c.spent) : <span className="text-ink/70">—</span>}
                   </td>
                 </tr>
               ))}

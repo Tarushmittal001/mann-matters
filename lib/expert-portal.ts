@@ -332,6 +332,9 @@ export const NOTES_POLICY_COPY: Record<NotesPolicy, { label: string; short: stri
   },
 };
 
+/** The admin's line to the practitioner about their policy: a reason, not an essay. */
+export const NOTES_POLICY_NOTE_MAX = 300;
+
 export function canWriteNotes(policy: string): policy is "APPROVED" {
   return policy === "APPROVED";
 }

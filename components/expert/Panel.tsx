@@ -52,7 +52,7 @@ export function PanelHeader({
         >
           {title}
         </Heading>
-        {hint && <p className="mt-1 max-w-prose text-[0.86rem] leading-snug text-ink/65">{hint}</p>}
+        {hint && <p className="mt-1 max-w-prose text-[0.86rem] leading-snug text-ink/70">{hint}</p>}
       </div>
       {actions && <div className="flex shrink-0 items-center gap-3">{actions}</div>}
     </header>
@@ -75,7 +75,7 @@ export function StatusBadge({
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[0.7rem] font-semibold uppercase tracking-[0.12em]",
+        "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[0.75rem] font-semibold uppercase tracking-[0.12em]",
         meta.tone,
         className
       )}
@@ -88,7 +88,7 @@ export function StatusBadge({
 /** A live/starting-soon marker, separate from status so both can show at once. */
 export function LiveChip({ label }: { label: string }) {
   return (
-    <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-kesar/12 px-2.5 py-0.5 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-kesar-ink ring-1 ring-inset ring-kesar/30">
+    <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-kesar/12 px-2.5 py-0.5 text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-kesar-ink ring-1 ring-inset ring-kesar/30">
       <span className="relative flex h-1.5 w-1.5" aria-hidden="true">
         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-kesar/70" />
         <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-kesar" />
@@ -133,7 +133,7 @@ export function EmptyState({
         <EmptyIcon name={icon} />
       </span>
       <p className="font-display text-lg font-medium text-forest-900">{title}</p>
-      <p className="mx-auto mt-1.5 max-w-md text-[0.9rem] leading-relaxed text-ink/65">{body}</p>
+      <p className="mx-auto mt-1.5 max-w-md text-[0.9rem] leading-relaxed text-ink/70">{body}</p>
       {action && <div className="mt-6 flex justify-center">{action}</div>}
     </div>
   );
@@ -203,7 +203,7 @@ export function InlineAlert({
 export function Meta({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="min-w-0">
-      <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-ink/45">{label}</dt>
+      <dt className="text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-ink/70">{label}</dt>
       <dd className="mt-1 text-[0.94rem] text-forest-900">{children}</dd>
     </div>
   );

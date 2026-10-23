@@ -88,7 +88,7 @@ export default async function HindiServicesPage() {
                       <h2 className="font-display text-xl font-medium text-forest-900">
                         {h?.title ?? s.title}
                       </h2>
-                      <p className="mt-2.5 flex-1 leading-relaxed text-ink/65">
+                      <p className="mt-2.5 flex-1 leading-relaxed text-ink/70">
                         {h?.summary ?? s.summary}
                       </p>
 

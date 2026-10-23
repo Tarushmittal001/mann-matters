@@ -107,7 +107,7 @@ export default function ExpertNav({ items, role }: { items: NavItem[]; role: Rol
                 {item.badge ? (
                   <span
                     className={cn(
-                      "rounded-full px-1.5 py-0.5 text-[0.7rem] font-bold tabular-nums",
+                      "rounded-full px-1.5 py-0.5 text-[0.75rem] font-bold tabular-nums",
                       active ? "bg-ivory/20 text-ivory" : "bg-sage-light/70 text-forest-800"
                     )}
                   >
@@ -145,7 +145,7 @@ export default function ExpertNav({ items, role }: { items: NavItem[]; role: Rol
                     {item.badge ? (
                       <span
                         className={cn(
-                          "rounded-full px-1.5 py-0.5 text-[0.7rem] font-bold tabular-nums",
+                          "rounded-full px-1.5 py-0.5 text-[0.75rem] font-bold tabular-nums",
                           active ? "bg-ivory/20 text-ivory" : "bg-sage-light/70 text-forest-800"
                         )}
                       >
@@ -169,7 +169,7 @@ export default function ExpertNav({ items, role }: { items: NavItem[]; role: Rol
       </ul>
 
       <div className="mt-5 hidden border-t border-forest-800/10 pt-5 lg:block">
-        <p className="px-3.5 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
+        <p className="px-3.5 text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
           {role === "ADMIN" ? "Also yours" : "Elsewhere"}
         </p>
         <ul className="mt-2 space-y-0.5">

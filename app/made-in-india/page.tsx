@@ -10,10 +10,10 @@ import IndiaOutline from "@/components/visuals/IndiaOutline";
 import { languageList, languageSentence } from "@/lib/languages";
 
 export const metadata: Metadata = {
-  title: "Made in India — Built here, with care",
+  title: "Made in India — Built for Indian minds",
   alternates: { canonical: "/made-in-india" },
   description:
-    "Emoraa is built in India, and open to anyone, anywhere. Your data stays on Indian servers under the DPDP Act 2023. Therapy is in your language. Tele-MANAS 14416 crisis support is built in.",
+    "Emoraa is built in India, for India. Your data stays on Indian servers under the DPDP Act 2023. Therapy is in your language. Tele-MANAS 14416 crisis support is built in.",
 };
 
 const pillars = [

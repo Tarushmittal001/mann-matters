@@ -3,9 +3,16 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Portal from "@/components/ui/Portal";
-import { Field } from "@/components/ui/Field";
+import { Field, Select, TextArea } from "@/components/ui/Field";
 import { Alert, Spinner } from "@/components/ui/Feedback";
 import type { ExpertRow } from "@/components/admin/ExpertManager";
+import {
+  NOTES_POLICIES,
+  NOTES_POLICY_COPY,
+  NOTES_POLICY_NOTE_MAX,
+  isNotesPolicy,
+} from "@/lib/expert-portal";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 
 /**
  * Who can sign in as a listing.
@@ -41,11 +48,47 @@ export default function ExpertAccessDialog({
 }) {
   const [email, setEmail] = useState(row.access.email);
   const [busy, setBusy] = useState<"send" | "remove" | null>(null);
+  const [confirm, confirmDialog] = useConfirm();
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState<{ email: string; delivered: boolean; devLink?: string } | null>(
     null
   );
   const linked = row.access.state !== "none";
+
+  /* Note-keeping is a governance decision, so it sits with the login rather
+     than in the listing form: it belongs to the person who signs in, not to
+     the card the public sees. */
+  const [policy, setPolicy] = useState(
+    row.notes && isNotesPolicy(row.notes.policy) ? row.notes.policy : "PENDING"
+  );
+  const [policyNote, setPolicyNote] = useState(row.notes?.note ?? "");
+  const [savingPolicy, setSavingPolicy] = useState(false);
+  const [policyError, setPolicyError] = useState<string | null>(null);
+  const [policySaved, setPolicySaved] = useState(false);
+
+  const savePolicy = async () => {
+    setSavingPolicy(true);
+    setPolicyError(null);
+    setPolicySaved(false);
+    try {
+      const res = await fetch(`/api/admin/experts/${row.id}/notes-policy`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ policy, note: policyNote.trim() }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setPolicyError(data.fields?.note ?? data.fields?.policy ?? data.error ?? "Couldn't save that.");
+        return;
+      }
+      setPolicySaved(true);
+      onDone();
+    } catch {
+      setPolicyError("Couldn't reach the server. Please try again.");
+    } finally {
+      setSavingPolicy(false);
+    }
+  };
 
   const send = async () => {
     setBusy("send");
@@ -71,9 +114,12 @@ export default function ExpertAccessDialog({
   };
 
   const remove = async () => {
-    const ok = window.confirm(
-      `Remove ${row.access.email} from ${row.name}? They are signed out straight away. The listing stays on the site and past sessions are untouched.`
-    );
+    const ok = await confirm({
+      title: `Remove ${row.name}'s login?`,
+      body: `${row.access.email} is signed out straight away. The listing stays on the site and past sessions are untouched.`,
+      confirmLabel: "Remove access",
+      danger: true,
+    });
     if (!ok) return;
     setBusy("remove");
     setError(null);
@@ -95,6 +141,7 @@ export default function ExpertAccessDialog({
 
   return (
     <Portal>
+      {confirmDialog}
       <motion.div
         className="fixed inset-0 z-[80] flex items-end justify-center p-0 sm:items-center sm:p-6"
         initial={{ opacity: 0 }}
@@ -139,7 +186,7 @@ export default function ExpertAccessDialog({
                 <p className="font-display text-lg text-forest-900">
                   {sent.delivered ? "Invite sent." : "Account created — but nothing was emailed."}
                 </p>
-                <p className="mt-2 text-[0.92rem] leading-relaxed text-ink/65">
+                <p className="mt-2 text-[0.92rem] leading-relaxed text-ink/70">
                   {sent.delivered ? (
                     <>
                       {sent.email} has a link to choose their own password. It works once and runs out
@@ -170,7 +217,7 @@ export default function ExpertAccessDialog({
               </>
             ) : (
               <>
-                <p className="text-[0.92rem] leading-relaxed text-ink/65">
+                <p className="text-[0.92rem] leading-relaxed text-ink/70">
                   {linked ? (
                     <>
                       {row.name} signs in as{" "}
@@ -242,6 +289,66 @@ export default function ExpertAccessDialog({
                     </button>
                   )}
                 </div>
+
+                {linked && row.notes && (
+                  <section className="mt-8 border-t border-forest-800/10 pt-6">
+                    <h3 className="font-display text-lg font-medium text-forest-900">Session notes</h3>
+                    <p className="mt-1.5 text-[0.88rem] leading-relaxed text-ink/70">
+                      Whether {row.name} may keep clinical notes in the portal. Enable it only once
+                      their data-handling agreement is countersigned. Every change is recorded in the
+                      audit trail.
+                    </p>
+                    <div className="mt-4 space-y-4">
+                      <Select
+                        label="Note-keeping"
+                        value={policy}
+                        onChange={(v) => {
+                          if (isNotesPolicy(v)) setPolicy(v);
+                          setPolicySaved(false);
+                        }}
+                        options={NOTES_POLICIES.map((p) => ({
+                          value: p,
+                          label: NOTES_POLICY_COPY[p].short,
+                        }))}
+                        disabled={savingPolicy}
+                        hint={NOTES_POLICY_COPY[policy].body}
+                      />
+                      <TextArea
+                        label="Note to the practitioner"
+                        value={policyNote}
+                        onChange={(v) => {
+                          setPolicyNote(v);
+                          setPolicySaved(false);
+                        }}
+                        rows={2}
+                        maxLength={NOTES_POLICY_NOTE_MAX}
+                        disabled={savingPolicy}
+                        hint="Optional. Shown to them on their profile page, under their note-keeping status."
+                      />
+                    </div>
+                    {policyError && (
+                      <Alert tone="error" className="mt-4">
+                        {policyError}
+                      </Alert>
+                    )}
+                    <div className="mt-5 flex items-center gap-4">
+                      <button
+                        type="button"
+                        onClick={savePolicy}
+                        disabled={savingPolicy}
+                        className="press inline-flex items-center gap-2.5 rounded-full bg-forest-800 px-6 py-2.5 text-sm font-semibold text-ivory disabled:opacity-60"
+                      >
+                        {savingPolicy && <Spinner className="h-4 w-4" />}
+                        {savingPolicy ? "Saving…" : "Save note-keeping"}
+                      </button>
+                      {policySaved && (
+                        <span role="status" className="text-sm font-medium text-forest-800">
+                          Saved.
+                        </span>
+                      )}
+                    </div>
+                  </section>
+                )}
               </>
             )}
           </div>

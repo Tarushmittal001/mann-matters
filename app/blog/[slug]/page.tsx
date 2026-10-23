@@ -194,7 +194,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
                       →
                     </span>
                   </span>
-                  <span className="mt-1.5 block text-[0.93rem] leading-relaxed text-ink/65">
+                  <span className="mt-1.5 block text-[0.93rem] leading-relaxed text-ink/70">
                     {post.tool.note}
                   </span>
                 </span>

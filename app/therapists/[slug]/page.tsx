@@ -88,7 +88,7 @@ export default async function TherapistPage({ params }: { params: { slug: string
               <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                 <h1 className="h-display text-4xl md:text-5xl">{p.name}</h1>
                 {p.prescribes && (
-                  <span className="rounded-full bg-gold/25 px-3 py-1 text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-gold-dark">
+                  <span className="rounded-full bg-gold/25 px-3 py-1 text-[0.75rem] font-semibold uppercase tracking-[0.1em] text-gold-dark">
                     Can prescribe
                   </span>
                 )}
@@ -101,7 +101,7 @@ export default async function TherapistPage({ params }: { params: { slug: string
                 />
                 {p.discipline}
               </p>
-              <p className="mt-1.5 text-[0.95rem] text-ink/65">{p.credentials}</p>
+              <p className="mt-1.5 text-[0.95rem] text-ink/70">{p.credentials}</p>
               {/*
                 The register, on the profile of the person who is on one.
 
@@ -111,7 +111,7 @@ export default async function TherapistPage({ params }: { params: { slug: string
                 by name, with their number when they have given it.
               */}
               {(p.registrationBody || p.registrationNo) && (
-                <p className="mt-1 text-[0.85rem] text-ink/60">
+                <p className="mt-1 text-[0.85rem] text-ink/70">
                   {p.registrationBody
                     ? registerLabel(p.registrationBody)
                     : `${p.prescribes ? "Medical council" : "Registration"} no.`}
@@ -128,19 +128,19 @@ export default async function TherapistPage({ params }: { params: { slug: string
 
               <dl className="mt-7 flex flex-wrap gap-x-10 gap-y-5 rounded-2xl bg-[color:var(--accent-soft)] px-5 py-4">
                 <div>
-                  <dt className="text-[0.68rem] uppercase tracking-[0.16em] text-ink/45">Practising</dt>
+                  <dt className="text-[0.75rem] uppercase tracking-[0.16em] text-ink/70">Practising</dt>
                   <dd className="mt-1 font-display text-xl font-medium text-forest-900">
                     {p.years} {p.years === 1 ? "year" : "years"}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-[0.68rem] uppercase tracking-[0.16em] text-ink/45">Languages</dt>
+                  <dt className="text-[0.75rem] uppercase tracking-[0.16em] text-ink/70">Languages</dt>
                   <dd className="mt-1 font-display text-xl font-medium text-forest-900">
                     {p.languages.join(" · ")}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-[0.68rem] uppercase tracking-[0.16em] text-ink/45">Sessions from</dt>
+                  <dt className="text-[0.75rem] uppercase tracking-[0.16em] text-ink/70">Sessions from</dt>
                   <dd className="mt-1 font-display text-xl font-medium text-forest-900">
                     {p.priceRange ? formatINR(p.priceRange.min) : "On request"}
                   </dd>
@@ -160,7 +160,7 @@ export default async function TherapistPage({ params }: { params: { slug: string
                     Book with {p.name.split(" ")[0]}
                   </Link>
                 ) : (
-                  <span className="rounded-full border border-forest-800/20 px-5 py-2.5 text-[0.9rem] text-ink/60">
+                  <span className="rounded-full border border-forest-800/20 px-5 py-2.5 text-[0.9rem] text-ink/70">
                     Not taking bookings right now
                   </span>
                 )}
@@ -195,7 +195,7 @@ export default async function TherapistPage({ params }: { params: { slug: string
                 Sessions you can book
               </h2>
               {p.offers.length === 0 ? (
-                <p className="mt-4 text-[0.95rem] text-ink/65">
+                <p className="mt-4 text-[0.95rem] text-ink/70">
                   No session types are set up for this listing yet.
                 </p>
               ) : (
@@ -208,7 +208,7 @@ export default async function TherapistPage({ params }: { params: { slug: string
                       >
                         {o.title}
                       </Link>
-                      <span className="shrink-0 text-right text-[0.9rem] text-ink/65">
+                      <span className="shrink-0 text-right text-[0.9rem] text-ink/70">
                         {o.duration}
                         {typeof o.price === "number" && (
                           <>
@@ -246,7 +246,7 @@ export default async function TherapistPage({ params }: { params: { slug: string
                     <p className="truncate font-display text-base font-medium text-forest-900">
                       {o.name}
                     </p>
-                    <p className="truncate text-[0.82rem] text-ink/60">{o.discipline}</p>
+                    <p className="truncate text-[0.82rem] text-ink/70">{o.discipline}</p>
                   </div>
                 </Link>
               ))}

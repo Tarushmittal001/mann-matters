@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "For schools, colleges & companies",
   alternates: { canonical: "/for-organisations" },
   description:
-    "Mental-health programs for institutions — play schools, schools, colleges, coaching institutes, companies and NGOs. Certified psychologists, WhatsApp-first access, gatekeeper training, and a crisis protocol in writing.",
+    "Mental-health programs for Indian institutions — play schools, schools, colleges, coaching institutes, companies and NGOs. Certified psychologists, WhatsApp-first access, gatekeeper training, and a crisis protocol in writing.",
 };
 
 export default function ForOrganisationsPage() {
@@ -68,9 +68,9 @@ export default function ForOrganisationsPage() {
               <em className="text-forest-600">Let us change that.</em>
             </h1>
             <p className="mt-8 max-w-2xl text-lg leading-relaxed text-ink/70">
-              We build mental-health programs for schools, campuses and
-              workplaces — the qualified clinicians, the WhatsApp access students
-              and staff will actually use, the training for the adults around them,
+              We build mental-health programs for Indian schools, campuses and
+              workplaces — the qualified clinicians, the WhatsApp access young
+              people will actually use, the training for the adults around them,
               and the crisis protocol you hope never to need.
             </p>
             <div className="pointer-events-auto mt-10 flex flex-wrap items-center gap-4">

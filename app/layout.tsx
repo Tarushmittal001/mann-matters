@@ -36,11 +36,11 @@ const tiro = Tiro_Devanagari_Hindi({
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: "Emoraa — Online therapy, counselling & psychiatry",
+    default: "Emoraa — Therapy & counselling for India, online",
     template: "%s · Emoraa",
   },
   description:
-    "Book confidential 1-on-1 sessions with certified psychologists and psychiatrists — online, in your language, from ₹999 — or ₹599 for students. For students, professionals, and everyone in between.",
+    "Book confidential 1-on-1 sessions with certified psychologists — online, in your language, from ₹999 — or ₹599 for students. For students, professionals, and everyone in between.",
   // canonical/hreflang live on each page: set here, every page that forgot
   // its own would inherit "/" and tell search engines it is the homepage
   openGraph: {
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     siteName: "Emoraa",
     title: "Emoraa — Your emotions matter",
     description:
-      "Confidential online therapy, counselling and psychiatry, in your language, from ₹999 — or ₹599 for students.",
+      "Confidential online therapy with certified Indian psychologists, in your language, from ₹999 — or ₹599 for students.",
     url: site.url,
     locale: "en_IN",
   },
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Emoraa — Your emotions matter",
     description:
-      "Confidential online therapy, counselling and psychiatry, in your language, from ₹999 — or ₹599 for students.",
+      "Confidential online therapy with certified Indian psychologists, in your language, from ₹999 — or ₹599 for students.",
   },
   // installed on a home screen, it is called "Emoraa" and nothing else — the
   // icon on a shared phone should not announce what the app is for

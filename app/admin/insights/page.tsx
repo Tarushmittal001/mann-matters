@@ -25,11 +25,11 @@ export const dynamic = "force-dynamic";
 function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
     <div className="rounded-2xl border border-forest-800/10 bg-ivory-light p-5 shadow-lift">
-      <p className="text-[0.68rem] uppercase tracking-[0.16em] text-ink/45">{label}</p>
+      <p className="text-[0.75rem] uppercase tracking-[0.16em] text-ink/70">{label}</p>
       <p className="mt-2 font-display text-[1.9rem] font-medium leading-none text-forest-900">
         {value}
       </p>
-      {hint && <p className="mt-2 text-[0.82rem] leading-snug text-ink/60">{hint}</p>}
+      {hint && <p className="mt-2 text-[0.82rem] leading-snug text-ink/70">{hint}</p>}
     </div>
   );
 }
@@ -44,7 +44,7 @@ function Bar({ label, count, of, tone = "sage" }: { label: string; count: number
         <span className="min-w-0 truncate text-[0.92rem] text-forest-900">{label}</span>
         <span className="shrink-0 text-[0.86rem] tabular-nums text-ink/70">
           {count}
-          <span className="ml-2 text-ink/45">{pct}%</span>
+          <span className="ml-2 text-ink/70">{pct}%</span>
         </span>
       </div>
       <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-forest-800/8">
@@ -73,14 +73,14 @@ function Panel({
       )}
     >
       <h2 className="font-display text-xl font-medium text-forest-900">{title}</h2>
-      {note && <p className="mt-1.5 text-[0.85rem] leading-relaxed text-ink/60">{note}</p>}
+      {note && <p className="mt-1.5 text-[0.85rem] leading-relaxed text-ink/70">{note}</p>}
       <div className="mt-4">{children}</div>
     </section>
   );
 }
 
 function Empty({ children }: { children: React.ReactNode }) {
-  return <p className="py-6 text-center text-[0.9rem] text-ink/55">{children}</p>;
+  return <p className="py-6 text-center text-[0.9rem] text-ink/70">{children}</p>;
 }
 
 const pct = (n: number, of: number) => (of > 0 ? Math.round((n / of) * 100) : 0);
@@ -101,7 +101,7 @@ export default async function AdminInsightsPage({
     <section className="wrap-wide pb-28">
       <p className="eyebrow">how the practice is going</p>
       <h1 className="h-display mt-3 text-4xl md:text-5xl">Insights</h1>
-      <p className="mt-4 max-w-2xl text-ink/65">
+      <p className="mt-4 max-w-2xl text-ink/70">
         Counted from the live database each time you load this page. Clinical records are not read
         here — this counts bookings, clients and outcomes, never what anyone said in a session.
       </p>
@@ -219,7 +219,7 @@ export default async function AdminInsightsPage({
                 ))}
               </ul>
               {d.unknownLanguage > 0 && (
-                <p className="mt-4 border-t border-forest-800/10 pt-3 text-[0.84rem] leading-relaxed text-ink/60">
+                <p className="mt-4 border-t border-forest-800/10 pt-3 text-[0.84rem] leading-relaxed text-ink/70">
                   {d.unknownLanguage} {d.unknownLanguage === 1 ? "client has" : "clients have"} not
                   set a language, so this is not yet a picture of demand. The signup form asks, but
                   the answer is optional and accounts made before it was added have none.
@@ -246,7 +246,7 @@ export default async function AdminInsightsPage({
           ) : (
             <div className="grid gap-x-10 gap-y-6 sm:grid-cols-2">
               <div>
-                <p className="text-[0.68rem] uppercase tracking-[0.16em] text-ink/45">By state</p>
+                <p className="text-[0.75rem] uppercase tracking-[0.16em] text-ink/70">By state</p>
                 <ul className="mt-1 divide-y divide-forest-800/8">
                   {d.where.states.slice(0, 8).map((s) => (
                     <Bar key={s.state} label={s.state} count={s.clients} of={d.where.placed} />
@@ -254,7 +254,7 @@ export default async function AdminInsightsPage({
                 </ul>
               </div>
               <div>
-                <p className="text-[0.68rem] uppercase tracking-[0.16em] text-ink/45">By city</p>
+                <p className="text-[0.75rem] uppercase tracking-[0.16em] text-ink/70">By city</p>
                 <ul className="mt-1 divide-y divide-forest-800/8">
                   {d.where.cities.slice(0, 8).map((c) => (
                     <li
@@ -263,7 +263,7 @@ export default async function AdminInsightsPage({
                     >
                       <span className="min-w-0 truncate text-[0.92rem] text-forest-900">
                         {c.city}
-                        <span className="ml-1.5 text-[0.8rem] text-ink/45">{c.state}</span>
+                        <span className="ml-1.5 text-[0.8rem] text-ink/70">{c.state}</span>
                       </span>
                       <span className="shrink-0 text-[0.86rem] tabular-nums text-ink/70">
                         {c.clients}
@@ -275,7 +275,7 @@ export default async function AdminInsightsPage({
             </div>
           )}
           {d.where.unknown > 0 && (
-            <p className="mt-4 border-t border-forest-800/10 pt-3 text-[0.84rem] leading-relaxed text-ink/60">
+            <p className="mt-4 border-t border-forest-800/10 pt-3 text-[0.84rem] leading-relaxed text-ink/70">
               {d.where.unknown} {d.where.unknown === 1 ? "client has" : "clients have"} no city on
               their account — they signed up before the form asked. They are left out of the
               figures above rather than guessed at, and will fill in the next time they edit their

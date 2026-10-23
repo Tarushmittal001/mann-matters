@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { MINOR_AGE } from "@/lib/intake";
+import { ageOn, dobString } from "@/lib/validation";
+import DobRequired from "@/components/booking/DobRequired";
 import { listExperts } from "@/lib/experts-store";
 import { proBonoStatus } from "@/lib/features/booking/server";
 import { serviceBySlug } from "@/lib/service-catalogue";
@@ -50,12 +52,14 @@ export default async function BookPage({
     ? await prisma.user.findUnique({
         where: { id: session.sub },
         select: {
-          age: true,
+          dateOfBirth: true,
           intake: { select: { guardianName: true, guardianPhone: true, guardianConsent: true } },
         },
       })
     : null;
-  const minor = typeof account?.age === "number" && account.age < MINOR_AGE;
+  // the booking API refuses without a date of birth, so say so before they pick a time
+  if (account && !account.dateOfBirth) return <DobRequired lang="en" />;
+  const minor = !!account?.dateOfBirth && ageOn(dobString(account.dateOfBirth)) < MINOR_AGE;
   const guardianOnFile =
     !!account?.intake?.guardianConsent &&
     !!account.intake.guardianName.trim() &&

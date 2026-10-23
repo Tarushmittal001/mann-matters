@@ -208,7 +208,7 @@ export default async function ExpertTodayPage() {
           <h2 id="requests-heading" className="font-display text-2xl font-medium text-forest-900">
             Waiting on you
             {requests.length > 0 && (
-              <span className="ml-2.5 rounded-full bg-haldi/25 px-2.5 py-1 align-middle text-[0.72rem] font-semibold text-haldi-ink">
+              <span className="ml-2.5 rounded-full bg-haldi/25 px-2.5 py-1 align-middle text-[0.75rem] font-semibold text-haldi-ink">
                 {requests.length}
               </span>
             )}

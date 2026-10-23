@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 const fieldBase =
   "peer w-full rounded-2xl border bg-ivory-light px-5 pb-3 pt-6 text-[0.97rem] text-ink placeholder-transparent transition-colors focus:border-gold focus:outline-none disabled:opacity-60";
 const labelBase =
-  "pointer-events-none absolute left-5 top-2 text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-ink/70 transition duration-300 ease-silk peer-placeholder-shown:top-[1.05rem] peer-placeholder-shown:text-[0.95rem] peer-placeholder-shown:font-normal peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-placeholder-shown:text-ink/70 peer-focus:top-2 peer-focus:text-[0.7rem] peer-focus:font-semibold peer-focus:uppercase peer-focus:tracking-[0.14em] peer-focus:text-gold-dark";
+  "pointer-events-none absolute left-5 top-2 text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-ink/70 transition duration-300 ease-silk peer-placeholder-shown:top-[1.05rem] peer-placeholder-shown:text-[0.95rem] peer-placeholder-shown:font-normal peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-placeholder-shown:text-ink/70 peer-focus:top-2 peer-focus:text-[0.75rem] peer-focus:font-semibold peer-focus:uppercase peer-focus:tracking-[0.14em] peer-focus:text-gold-dark";
 
 const border = (invalid?: string) => (invalid ? "border-red-300" : "border-forest-800/15");
 
@@ -49,7 +49,7 @@ export default function ContactForm() {
           </svg>
         </span>
         <h3 className="mt-6 font-display text-2xl font-medium text-forest-900">Message received.</h3>
-        <p className="mt-3 max-w-sm leading-relaxed text-ink/65">
+        <p className="mt-3 max-w-sm leading-relaxed text-ink/70">
           A real person — not a bot — will write back to {c.email.trim()} within one working day.
           If it&apos;s urgent, WhatsApp is faster.
         </p>

@@ -16,7 +16,6 @@ type Statement = {
     earned: number;
     platform: number;
     free: boolean;
-    lateCancel: boolean;
   }[];
   totals: { sessions: number; collected: number; earned: number; platform: number };
 };
@@ -34,7 +33,7 @@ export default function StatementCsv({ statement, who }: { statement: Statement;
     const rows = [
       ["Reference", "Date", "Time", "Client", "Session", "Collected", "Emoraa", "You"].map(cell).join(","),
       ...statement.lines.map((l) =>
-        [l.ref, l.date, l.time, l.client, l.service + (l.free ? " (free)" : "") + (l.lateCancel ? " (cancelled late)" : ""), l.collected, l.platform, l.earned]
+        [l.ref, l.date, l.time, l.client, l.service + (l.free ? " (free)" : ""), l.collected, l.platform, l.earned]
           .map(cell)
           .join(",")
       ),

@@ -80,6 +80,10 @@ export default function PaymentPanel({
   const [phase, setPhase] = useState<Phase>("idle");
   const [fields, setFields] = useState<Record<string, string>>({});
   const [failure, setFailure] = useState<{ message: string; retryable: boolean } | null>(null);
+  // the server's account of a lapsed hold — it may have taken and refunded a payment
+  const [expiredNote, setExpiredNote] = useState<string | null>(null);
+  // a code that stopped being valid comes off server-side; show the new price before any retry
+  const [amount, setAmount] = useState(booking.amount);
 
   const hold = useHoldCountdown(booking.holdExpiresAt);
   const attempts = booking.payment?.attempts ?? 0;
@@ -129,9 +133,14 @@ export default function PaymentPanel({
       }
 
       if (res.status === 410) {
+        setExpiredNote(data.error ?? null);
         setPhase("expired");
         onExpired();
         return;
+      }
+
+      if (data.code === "CODE_NO_LONGER_VALID" && typeof data.booking?.amount === "number") {
+        setAmount(data.booking.amount);
       }
 
       if (res.status === 422 && data.fields) {
@@ -158,8 +167,12 @@ export default function PaymentPanel({
   if (phase === "expired") {
     return (
       <Alert tone="warning" title="Your hold has lapsed.">
-        We could only keep that time for {HOLD_MINUTES} minutes. Nothing was charged. Pick a time
-        again and it&apos;ll only take a moment.
+        {expiredNote ?? (
+          <>
+            We could only keep that time for {HOLD_MINUTES} minutes. Nothing was charged. Pick a time
+            again and it&apos;ll only take a moment.
+          </>
+        )}
       </Alert>
     );
   }
@@ -311,7 +324,7 @@ export default function PaymentPanel({
             <Spinner label="Contacting your bank…" />
           </>
         ) : (
-          `Pay ${formatINR(booking.amount)}`
+          `Pay ${formatINR(amount)}`
         )}
       </Button>
 

@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function HindiLoginPage() {
   return (
-    <Suspense fallback={<AuthIntro mode="login" />}>
+    <Suspense fallback={<AuthIntro mode="login" locale="hi" />}>
       <AuthForm mode="login" />
     </Suspense>
   );

@@ -168,3 +168,16 @@ export const toolLinks = [
  * still stands: every number must be one we can prove today, because an
  * invented count or rating is a misleading claim under consumer law.
  */
+/**
+ * Homepage trust strip. Every number here must be one we can prove today —
+ * an invented count or rating is a misleading claim under consumer law. The
+ * strip also has drawings for "sessions", "psychologists" and "rating"; add
+ * those back (with real figures) once there are records to back them.
+ */
+export const stats: {
+  kind: "sessions" | "psychologists" | "languages" | "rating";
+  value: number;
+  suffix: string;
+  label: string;
+  decimals?: number;
+}[] = [{ kind: "languages", value: 2, suffix: "+", label: "languages" }];

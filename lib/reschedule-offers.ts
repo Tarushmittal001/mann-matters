@@ -1,4 +1,4 @@
-import { isKnownSlot, todayIST } from "@/lib/features/booking/policy";
+import { isCalendarDate, isKnownSlot, todayIST } from "@/lib/features/booking/policy";
 
 /**
  * A practitioner's offer of other times, and the rules it has to satisfy.
@@ -45,7 +45,7 @@ export function checkOffer(raw: unknown, currentDate: string, currentTime: strin
       ? entry.times.filter((t: unknown): t is string => typeof t === "string" && t.trim() !== "")
       : [];
 
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { ok: false, error: "Each option needs a date." };
+    if (!isCalendarDate(date)) return { ok: false, error: "Each option needs a date." };
     if (date <= today) {
       return { ok: false, error: "Offer dates in the future — today is already in progress." };
     }

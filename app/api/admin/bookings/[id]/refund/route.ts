@@ -90,21 +90,41 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       });
     }
 
-    // the gateway first: if the money does not move, nothing should be written
-    const result = await refund(wanted);
-
     const totalBack = alreadyBack + wanted;
     const full = totalBack >= booking.payment!.amount;
+    const before = booking.payment!;
 
-    await prisma.payment.update({
-      where: { id: booking.payment!.id },
+    /* Claim, then money. The refund is written only if the payment still says
+       what it said when it was read, so two admins (or one double click) can
+       never both send money against the same balance — the second gets a 409.
+       The gateway runs after the claim; if it refuses, the claim is put back
+       and nothing is recorded as refunded. */
+    const claimed = await prisma.payment.updateMany({
+      where: { id: before.id, status: before.status, refundAmount: before.refundAmount },
       data: {
         refundAmount: totalBack,
         refundedAt: new Date(),
         status: full ? PAYMENT_STATUS.refunded : PAYMENT_STATUS.paid,
-        reference: result.reference,
       },
     });
+    if (claimed.count !== 1) {
+      return privateJson(
+        { error: "This payment changed a moment ago. Refresh to see what is left to refund.", code: "CHANGED" },
+        { status: 409 }
+      );
+    }
+
+    let result: Awaited<ReturnType<typeof refund>>;
+    try {
+      result = await refund(wanted);
+    } catch (err) {
+      await prisma.payment.update({
+        where: { id: before.id },
+        data: { refundAmount: before.refundAmount, status: before.status },
+      });
+      throw err;
+    }
+    await prisma.payment.update({ where: { id: before.id }, data: { reference: result.reference } });
 
     /* A payout already marked sent for the month this session was held in has
        now been overpaid: the practitioner's share was worked out before this

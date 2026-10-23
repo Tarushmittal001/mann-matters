@@ -8,9 +8,7 @@ web
 
 ## Users
 
-Students and working professionals, served as one audience with no priority between them: students (often first time in therapy, price-sensitive, sometimes keeping it private from family) and working professionals (time-poor, paying for themselves), and anyone else who wants support. They come to Emoraa to find out whether therapy is for them, try something free, and book an online session (therapy, counselling, or a psychiatry and medication consultation) with a practitioner who speaks their language.
-
-Copy never narrows the audience: no "for India" as a limit (Emoraa is run from India but usable from anywhere) and no "young people" as a blanket label. Factual India references stay: Indian law (DPDP), Indian helplines, Indian languages, IST.
+Young people in India and early-career professionals, served as one audience with no priority between them: students and young adults (often first time in therapy, price-sensitive, sometimes keeping it private from family) and working professionals in their twenties and early thirties (time-poor, paying for themselves). They come to Emoraa to find out whether therapy is for them, try something free, and book an online session with a therapist who speaks their language.
 
 Secondary audiences, confirmed in the product: couples and families (couples, family, parent-coaching and teen formats), and institutions buying programmes for their people (`/for-organisations`: play schools, schools, colleges, companies).
 
@@ -18,7 +16,7 @@ Operational users: experts (`/expert` portal: availability, sessions, notificati
 
 ## Product Purpose
 
-Emoraa offers online therapy, counselling, and psychiatry (medication consultations with a psychiatrist), in the client's language, from ₹999 (₹599 for students). It is a marketing site, a self-serve booking product (sign up, choose a concern and an expert, hold a live slot, pay, then manage, move or cancel the session), a set of free anonymous self-help tools, an editorial blog, and the Manu assistant.
+Emoraa offers online therapy and counselling for India, in the client's language, from ₹999 (₹599 for students). It is a marketing site, a self-serve booking product (sign up, choose a concern and an expert, hold a live slot, pay, then manage, move or cancel the session), a set of free anonymous self-help tools, an editorial blog, and the Manu assistant.
 
 Success means a person moves from unsure to booked and feels safe doing it. A person in crisis should always reach the right helpline straight away.
 
@@ -33,19 +31,22 @@ Four things together, all true today:
   the ₹999 — a bare "from ₹599" is the student rate and misleads everyone else (`lib/price-claims.ts`).
   Launch pricing runs to 31 Dec 2026 (launch pricing runs to 31 Dec 2026, then standard prices from `lib/pricing.ts`).
 - **Unclinical.** A calm, private experience, unlike a medical portal or a typical health app.
-- **Free tools first.** People can start with free tools (breathing, check-in, matching, grounding, journal, sounds, affirmations) and Manu before they pay anything. The tools need a free account; Manu on WhatsApp does not.
+- **Free tools first.** People can start with free tools (breathing, check-in, matching, grounding, journal, sounds, affirmations) and Manu before they pay anything. Breathing, grounding and relaxation need no account; the other tools need a free one; Manu on WhatsApp does not.
 
 ## Operating Context
 
-- Online only. Run from Noida, with sessions usable from anywhere. All dates and times are IST.
+- Online only. Run from Noida, with sessions anywhere in India. All dates and times are IST.
 - **The blog is written in the portals.** Practitioners draft and submit posts; an admin reads
   each one before it goes live. Admins publish their own directly. Nothing reaches `/blog`
   without a second person having seen it, because these go out under a named clinician.
 - Booking flow: sign-in comes first, then concern, expert, live slot, review, a hold of about 15 minutes, payment, and confirmation. Changes are allowed up to 24 hours before a session, and the number of reschedules is limited. All of this policy lives in `lib/features/booking/policy.ts`.
 - Sign-in by email and password, or by a verified Indian mobile number and one-time code.
 - Confirmed sessions can be added to a calendar as a private `.ics` file that never includes the client's concern.
-- **Free tools need an account.** They cost nothing and always will, but every tool is behind
-  sign-in: `/tools/*`, `/breathe`, `/check-in`, `/match`. The `/tools` menu stays open so people
+- **Most free tools need an account; the calming ones do not.** They cost nothing and always
+  will. Breathing (`/breathe`), grounding (`/tools/grounding`) and muscle relaxation
+  (`/tools/relax`) open with no account (since 19 Oct 2026), because they are what a distressed
+  person comes for and a signup form is no thing to put in front of them. The rest are behind
+  sign-in: the other `/tools/*`, `/check-in`, `/match`. The `/tools` menu stays open so people
   can see what is on offer first, and `/crisis` is never gated. The tools still run fully in the
   browser once open, and the journal still stays in `localStorage` — requiring an account to
   open a tool does not mean storing what someone writes in it.

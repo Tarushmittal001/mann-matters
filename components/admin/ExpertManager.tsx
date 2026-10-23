@@ -33,6 +33,7 @@ import {
   requiresPrescriber,
   REGISTER_OPTIONS,
 } from "@/lib/professions";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 
 /**
  * The therapist catalogue, as an admin works with it.
@@ -72,6 +73,8 @@ export type ExpertRow = {
    *   active      — they set a password and have been in.
    */
   access: { state: "none" | "unconfirmed" | "invited" | "active"; email: string };
+  /** Whether they may keep session notes; null while nobody can sign in as the listing. */
+  notes: { policy: string; note: string } | null;
 };
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -271,7 +274,7 @@ function ChipInput({
           }}
           disabled={disabled}
           placeholder={values.length ? "Add another…" : placeholder}
-          className="min-w-[8rem] flex-1 bg-transparent px-2 py-1 text-[0.95rem] text-forest-900 placeholder:text-ink/35 focus:outline-none"
+          className="min-w-[8rem] flex-1 bg-transparent px-2 py-1 text-[0.95rem] text-forest-900 placeholder:text-ink/70 focus:outline-none"
         />
         <button
           type="button"
@@ -492,7 +495,7 @@ function PhotoField({
           }}
           disabled={disabled || busy}
           placeholder="https://… or /experts/ananya.jpg"
-          className="mt-2 w-full rounded-xl border border-forest-800/15 bg-ivory-light px-3.5 py-2.5 text-[0.9rem] text-forest-900 placeholder:text-ink/35 focus:border-forest-800/40 focus:outline-none"
+          className="mt-2 w-full rounded-xl border border-forest-800/15 bg-ivory-light px-3.5 py-2.5 text-[0.9rem] text-forest-900 placeholder:text-ink/70 focus:border-forest-800/40 focus:outline-none"
         />
       </details>
 
@@ -560,6 +563,7 @@ function ExpertForm({
   const [fields, setFields] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<"save" | "delete" | null>(null);
+  const [confirm, confirmDialog] = useConfirm();
   /** The listing was created but its invite was refused; says why. */
   const [savedWithoutLogin, setSavedWithoutLogin] = useState<string | null>(null);
 
@@ -570,7 +574,7 @@ function ExpertForm({
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const local = validateExpert(draft);
+    const local = validateExpert(draft, { creating: !row });
     setFields(local);
     if (Object.keys(local).length) return;
 
@@ -608,7 +612,15 @@ function ExpertForm({
 
   const onDelete = async () => {
     if (!row) return;
-    if (!window.confirm(`Delete ${row.name} from the catalogue? This can't be undone.`)) return;
+    if (
+      !(await confirm({
+        title: `Delete ${row.name}?`,
+        body: "They come off the catalogue for good. This can't be undone — hiding them keeps their sessions and notes.",
+        confirmLabel: "Delete listing",
+        danger: true,
+      }))
+    )
+      return;
     setBusy("delete");
     setError(null);
     try {
@@ -628,6 +640,7 @@ function ExpertForm({
 
   return (
     <Portal>
+      {confirmDialog}
       <motion.div
         className="fixed inset-0 z-[80] flex items-end justify-center p-0 sm:items-center sm:p-6"
         initial={{ opacity: 0 }}
@@ -688,13 +701,14 @@ function ExpertForm({
               <div className="sm:col-span-2">
                 <Field
                   label="Credentials"
+                  required
                   value={draft.credentials}
                   onChange={(v) => set("credentials", v)}
                   error={fields.credentials}
                   maxLength={EXPERT_LIMITS.credentialsMax}
                   placeholder="M.A. Clinical Psychology"
                   disabled={!!busy}
-                  hint="Shown on their card as written. It no longer decides who can prescribe — Profession does."
+                  hint="The qualification you have checked, shown on their card as written. Only you set this — it no longer decides who can prescribe; Profession does."
                 />
               </div>
 
@@ -752,13 +766,13 @@ function ExpertForm({
 
               <Field
                 label="Years of experience"
-                required
                 inputMode="numeric"
                 value={draft.experienceYears}
                 onChange={(v) => set("experienceYears", v.replace(/\D/g, "").slice(0, 2))}
                 error={fields.experienceYears}
                 placeholder="9"
                 disabled={!!busy}
+                hint="Optional — they fill this in from their portal."
               />
               <Field
                 label="Rating"
@@ -781,6 +795,7 @@ function ExpertForm({
                 ]}
                 error={fields.status}
                 disabled={!!busy}
+                hint="New listings start hidden. List them once they have added their languages and focus areas."
               />
 
               <div className="sm:col-span-2">
@@ -789,7 +804,7 @@ function ExpertForm({
                   values={draft.languages}
                   onChange={(v) => set("languages", v)}
                   error={fields.languages}
-                  hint="Pick from the list, or type one and press Enter. These drive language matching."
+                  hint="They choose these from their portal; you only need to if helping them. Needed before listing — these drive language matching."
                   placeholder="English, Hindi, Tamil…"
                   suggestions={vocab.languages}
                   disabled={!!busy}
@@ -801,7 +816,7 @@ function ExpertForm({
                   values={draft.specialties}
                   onChange={(v) => set("specialties", v)}
                   error={fields.specialties}
-                  hint="What this therapist works on. Matching reads these words, so prefer the list."
+                  hint="They choose these from their portal. Needed before listing — matching reads these words."
                   placeholder="Anxiety, Workplace stress…"
                   suggestions={vocab.specialties}
                   disabled={!!busy}
@@ -888,13 +903,13 @@ function ExpertForm({
                                 set("servicePrices", next);
                               }}
                               className={cn(
-                                "w-24 rounded-lg border bg-ivory-light px-2.5 py-1 text-[0.85rem] text-forest-900 placeholder:text-ink/60 focus:outline-none",
+                                "w-24 rounded-lg border bg-ivory-light px-2.5 py-1 text-[0.85rem] text-forest-900 placeholder:text-ink/70 focus:outline-none",
                                 fields[`servicePrices.${sv.slug}`]
                                   ? "border-red-300"
                                   : "border-forest-800/15 focus:border-forest-800/40"
                               )}
                             />
-                            <span className="text-[0.74rem] text-ink/70">
+                            <span className="text-[0.75rem] text-ink/70">
                               {fields[`servicePrices.${sv.slug}`] ??
                                 (overridden
                                   ? "their rate"
@@ -941,14 +956,15 @@ function ExpertForm({
               {!row && (
                 <div className="sm:col-span-2">
                   <Field
-                    label="Their login (optional)"
+                    label="Their login"
+                    required
                     type="email"
                     value={draft.loginEmail}
                     onChange={(v) => set("loginEmail", v)}
                     error={fields.loginEmail}
                     placeholder="ananya@emoraa.com"
                     disabled={!!busy}
-                    hint="We'll email them a link to choose their own password — you never see it. Leave blank to set this up later from their card."
+                    hint="We'll email them a link to choose their own password — you never see it. They then complete their introduction, languages and focus areas themselves."
                   />
                 </div>
               )}
@@ -962,7 +978,7 @@ function ExpertForm({
                   rows={3}
                   maxLength={EXPERT_LIMITS.bioMax}
                   disabled={!!busy}
-                  hint="Optional, for when a fuller profile is shown."
+                  hint="Their introduction. They write this from their portal; edit only to correct it."
                 />
               </div>
 
@@ -1120,7 +1136,7 @@ export default function ExpertManager({ rows }: { rows: ExpertRow[] }) {
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search name, language or speciality…"
           aria-label="Search therapists"
-          className="min-w-[16rem] flex-1 rounded-full border border-forest-800/15 bg-ivory-light px-5 py-2.5 text-[0.92rem] text-forest-900 placeholder:text-ink/60 focus:border-forest-800 focus:outline-none"
+          className="min-w-[16rem] flex-1 rounded-full border border-forest-800/15 bg-ivory-light px-5 py-2.5 text-[0.92rem] text-forest-900 placeholder:text-ink/70 focus:border-forest-800 focus:outline-none"
         />
         <p className="text-[0.85rem] text-ink/70">
           {listed} listed · {rows.length - listed} hidden
@@ -1188,7 +1204,7 @@ export default function ExpertManager({ rows }: { rows: ExpertRow[] }) {
                   {row.registrationNo ? (
                     <> · Reg. {row.registrationNo}</>
                   ) : (
-                    <span className="ml-2 rounded-full bg-gold/25 px-2 py-0.5 text-[0.7rem] font-semibold text-gold-dark">
+                    <span className="ml-2 rounded-full bg-gold/25 px-2 py-0.5 text-[0.75rem] font-semibold text-gold-dark">
                       No registration number
                     </span>
                   )}

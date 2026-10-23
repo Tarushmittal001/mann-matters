@@ -137,7 +137,7 @@ function MeetingRow({
             />
           </svg>
         </a>
-        <p className="text-[0.85rem] text-ink/65">
+        <p className="text-[0.85rem] text-ink/70">
           Your therapist is expecting you. The room closes {humanGap(access.closesInMinutes)}.
         </p>
       </div>
@@ -146,7 +146,7 @@ function MeetingRow({
 
   if (access.state === "early") {
     return (
-      <p className="mt-5 rounded-2xl border border-forest-800/10 bg-ivory px-5 py-3.5 text-[0.85rem] text-ink/65">
+      <p className="mt-5 rounded-2xl border border-forest-800/10 bg-ivory px-5 py-3.5 text-[0.85rem] text-ink/70">
         The meeting room opens at{" "}
         <span className="font-medium text-forest-800">
           {formatClinicTime(addMinutes(booking.time, -JOIN_OPENS_MINUTES_BEFORE))}
@@ -237,7 +237,7 @@ export default function BookingCard({
             </p>
             <span
               className={cn(
-                "rounded-full px-2.5 py-0.5 text-[0.7rem] font-semibold uppercase tracking-[0.12em]",
+                "rounded-full px-2.5 py-0.5 text-[0.75rem] font-semibold uppercase tracking-[0.12em]",
                 chip.cls
               )}
             >
@@ -245,7 +245,7 @@ export default function BookingCard({
             </span>
           </div>
 
-          <p className="mt-1 text-sm text-ink/65">
+          <p className="mt-1 text-sm text-ink/70">
             {formatDateISO(booking.date)} · {booking.time} IST · {SESSION_MINUTES} min
             {concern && <> · {concern.label}</>}
           </p>

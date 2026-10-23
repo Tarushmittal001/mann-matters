@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
    the global :focus-visible ring, so tab order is always visible. */
 
 const fieldBase =
-  "w-full rounded-xl border bg-ivory px-3.5 py-2.5 text-[0.94rem] text-forest-900 transition-colors placeholder:text-ink/35 focus:outline-none disabled:cursor-not-allowed disabled:bg-forest-800/[0.04] disabled:text-ink/50";
+  "w-full rounded-xl border bg-ivory px-3.5 py-2.5 text-[0.94rem] text-forest-900 transition-colors placeholder:text-ink/70 focus:outline-none disabled:cursor-not-allowed disabled:bg-forest-800/[0.04] disabled:text-ink/70";
 
 function fieldTone(invalid?: boolean) {
   return invalid
@@ -174,7 +174,7 @@ export function Toggle({
         <span
           aria-hidden="true"
           className={cn(
-            "flex h-6 w-11 items-center rounded-full p-0.5 transition-colors duration-300 ease-silk peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-gold",
+            "flex h-6 w-11 items-center rounded-full p-0.5 transition-colors duration-300 ease-silk peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-forest-800",
             checked ? "bg-forest-700" : "bg-forest-800/20",
             disabled && "opacity-50"
           )}
@@ -229,7 +229,7 @@ export function ChipGroup({
             <label
               key={option}
               className={cn(
-                "relative inline-flex cursor-pointer items-center rounded-full border px-3.5 py-1.5 text-[0.85rem] font-medium transition-colors duration-200 has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-gold",
+                "relative inline-flex cursor-pointer items-center rounded-full border px-3.5 py-1.5 text-[0.85rem] font-medium transition-colors duration-200 has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-forest-800",
                 on
                   ? "border-forest-700 bg-forest-800 text-ivory"
                   : "border-forest-800/15 bg-ivory text-forest-900 hover:border-forest-800/40",

@@ -111,7 +111,7 @@ export default function WorryJournal() {
                 : { opacity: 1, y: 0, filter: "blur(0px)" }
             }
             transition={{ duration: reduce ? 0.15 : 1, ease: EASE }}
-            className="w-full resize-none rounded-2xl border border-forest-800/15 bg-ivory p-5 text-[0.98rem] leading-relaxed text-forest-900 placeholder:text-ink/35 focus:border-forest-600 focus:outline-none"
+            className="w-full resize-none rounded-2xl border border-forest-800/15 bg-ivory p-5 text-[0.98rem] leading-relaxed text-forest-900 placeholder:text-ink/70 focus:border-forest-600 focus:outline-none"
           />
           {releasing && (
             <p className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-ink/70">
@@ -175,7 +175,7 @@ export default function WorryJournal() {
                       aria-label="Let this one go"
                       title="Let this one go"
                       className={cn(
-                        "mt-0.5 shrink-0 rounded-full p-1.5 text-ink/35 transition-colors",
+                        "mt-0.5 shrink-0 rounded-full p-1.5 text-ink/70 transition-colors",
                         "hover:bg-sage-light/50 hover:text-forest-800"
                       )}
                     >

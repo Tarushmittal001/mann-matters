@@ -9,8 +9,8 @@ import {
   collect,
   hasErrors,
   normalisePhone,
-  validateAge,
   validateCity,
+  validateDateOfBirth,
   validateEmail,
   validateGender,
   validateNamePart,
@@ -27,7 +27,7 @@ export const dynamic = "force-dynamic";
 /**
  * POST /api/auth/signup
  *
- * An account is a person we may end up treating, so it carries a name, age,
+ * An account is a person we may end up treating, so it carries a name, date of birth,
  * gender and a mobile number we have actually reached. The number is proven by
  * SMS code before the account exists (lib/contact-verification):
  *
@@ -41,7 +41,7 @@ export const dynamic = "force-dynamic";
 type Body = {
   firstName?: string;
   lastName?: string;
-  age?: string;
+  dateOfBirth?: string;
   gender?: string;
   city?: string;
   state?: string;
@@ -67,7 +67,7 @@ export async function POST(req: Request) {
 
     const firstName = (body.firstName ?? "").trim();
     const lastName = (body.lastName ?? "").trim();
-    const ageRaw = (body.age ?? "").trim();
+    const dateOfBirth = (body.dateOfBirth ?? "").trim();
     const gender = (body.gender ?? "").trim();
     const city = (body.city ?? "").trim();
     const state = (body.state ?? "").trim();
@@ -80,7 +80,7 @@ export async function POST(req: Request) {
     const fields = collect([
       ["firstName", validateNamePart(firstName, "first")],
       ["lastName", validateNamePart(lastName, "last")],
-      ["age", validateAge(ageRaw)],
+      ["dateOfBirth", validateDateOfBirth(dateOfBirth)],
       ["gender", validateGender(gender)],
       ["city", validateCity(city)],
       ["state", validateState(state)],
@@ -140,7 +140,7 @@ export async function POST(req: Request) {
         name,
         firstName,
         lastName,
-        age: Number(ageRaw),
+        dateOfBirth: new Date(`${dateOfBirth}T00:00:00Z`),
         gender,
         city,
         state,

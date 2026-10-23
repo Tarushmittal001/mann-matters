@@ -359,7 +359,7 @@ export default function Soundscapes() {
                     </span>
                   )}
                 </span>
-                <span className="mt-1 block text-sm leading-relaxed text-ink/65">{s.body}</span>
+                <span className="mt-1 block text-sm leading-relaxed text-ink/70">{s.body}</span>
                 <span
                   className={cn(
                     "mt-3 block text-xs font-semibold uppercase tracking-[0.14em]",

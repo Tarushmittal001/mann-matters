@@ -21,7 +21,8 @@ import {
   priceForBooking,
   serviceBySlug,
 } from "@/lib/service-catalogue";
-import { clientKey, errors, isSameOrigin, logFailure, privateJson, readJson } from "@/lib/http";
+import { clientKey, errors, fail, isSameOrigin, logFailure, privateJson, readJson } from "@/lib/http";
+import { ageOn, dobString } from "@/lib/validation";
 import { rateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
@@ -122,12 +123,25 @@ export async function POST(req: Request) {
      * agreed. The age comes from their own account and the check happens here,
      * before a slot is touched — the screen asks the same question, but a
      * request that skips the screen must not skip the consent.
+     *
+     * It is worked out from a date of birth, never a typed age: an age goes
+     * stale and could be retyped to 18 to skip this step. So nobody books
+     * without one — an account made before we asked adds it to their profile
+     * first — and it cannot be changed once they have booked (/api/profile).
      */
     const account = await prisma.user.findUnique({
       where: { id: session.sub },
-      select: { age: true, intake: { select: { guardianName: true, guardianPhone: true, guardianConsent: true } } },
+      select: {
+        dateOfBirth: true,
+        intake: { select: { guardianName: true, guardianPhone: true, guardianConsent: true } },
+      },
     });
-    const minor = typeof account?.age === "number" && account.age < MINOR_AGE;
+    if (!account?.dateOfBirth) {
+      return fail(422, "Please add your date of birth to your profile before booking.", {
+        code: "DOB_REQUIRED",
+      });
+    }
+    const minor = ageOn(dobString(account.dateOfBirth)) < MINOR_AGE;
     const onFile =
       !!account?.intake?.guardianConsent &&
       !!account.intake.guardianName.trim() &&

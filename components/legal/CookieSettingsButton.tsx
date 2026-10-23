@@ -3,10 +3,17 @@
 import { openCookieSettings } from "@/lib/consent";
 
 /** Reopens the cookie banner so a choice can be changed at any time. */
-export default function CookieSettingsButton({ className }: { className?: string }) {
+export default function CookieSettingsButton({
+  className,
+  label = "Cookie settings",
+}: {
+  className?: string;
+  /** The footer passes its own language's words. */
+  label?: string;
+}) {
   return (
     <button type="button" onClick={openCookieSettings} className={className}>
-      Cookie settings
+      {label}
     </button>
   );
 }

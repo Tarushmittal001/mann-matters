@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useBottomSheet } from "@/components/layout/useBottomSheet";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 /**
@@ -112,7 +113,8 @@ export default function InstallApp() {
     dismiss();
   };
 
-  const open = !!prompt || iosHint;
+  // last in the queue: waits for the cookie question and the safety note
+  const open = useBottomSheet("install", !!prompt || iosHint);
 
   return (
     <AnimatePresence>
@@ -123,6 +125,7 @@ export default function InstallApp() {
           exit={{ opacity: 0, y: 16 }}
           transition={{ duration: 0.4, ease: EASE }}
           role="dialog"
+          data-bottom-sheet
           aria-label="Add Emoraa to your home screen"
           className="fixed inset-x-3 bottom-3 z-[60] mx-auto max-w-md rounded-2xl border border-forest-800/12 bg-ivory-light p-4 shadow-bloom sm:inset-x-auto sm:right-5 sm:bottom-5"
         >
@@ -139,7 +142,7 @@ export default function InstallApp() {
               <p className="text-[0.95rem] font-semibold text-forest-900">
                 Keep Emoraa on your home screen
               </p>
-              <p className="mt-1 text-[0.84rem] leading-relaxed text-ink/65">
+              <p className="mt-1 text-[0.84rem] leading-relaxed text-ink/70">
                 {iosHint
                   ? "Tap Share, then “Add to Home Screen”. It opens like an app, and the crisis numbers work without signal."
                   : "It opens like an app, and the crisis page keeps working without signal."}

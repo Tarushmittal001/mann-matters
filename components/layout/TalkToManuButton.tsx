@@ -46,7 +46,7 @@ export default function TalkToManuButton({
         <span className="text-[0.88rem] font-semibold tracking-wide text-forest-800 transition-colors duration-300 group-hover:text-ivory">
           {label}
         </span>
-        <span className="mt-0.5 text-[0.68rem] text-ink/70 transition-colors duration-300 group-hover:text-ivory/70">
+        <span className="mt-0.5 text-[0.75rem] text-ink/70 transition-colors duration-300 group-hover:text-ivory/70">
           {note}
         </span>
       </span>

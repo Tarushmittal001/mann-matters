@@ -43,11 +43,11 @@ export default function RefundButton({
   if (done) {
     return (
       <div className="text-right">
-        <span className="inline-block rounded-full bg-sage-light/70 px-2.5 py-1 text-[0.72rem] font-semibold text-forest-800">
+        <span className="inline-block rounded-full bg-sage-light/70 px-2.5 py-1 text-[0.75rem] font-semibold text-forest-800">
           {formatINR(done.refunded)} refunded
         </span>
         {done.payout && (
-          <span className="mt-1 block max-w-[14rem] text-[0.72rem] leading-snug text-gold-dark">
+          <span className="mt-1 block max-w-[14rem] text-[0.75rem] leading-snug text-gold-dark">
             {done.payout}
           </span>
         )}
@@ -61,7 +61,7 @@ export default function RefundButton({
      The explanation lives in the tooltip for anyone who wants it. */
   if (blocked) {
     return (
-      <span className="cursor-help text-ink/30" title={blocked}>
+      <span className="cursor-help text-ink/70" title={blocked}>
         —
       </span>
     );
@@ -113,12 +113,12 @@ export default function RefundButton({
   return (
     <div className="w-[13.5rem] text-left">
       <p className="text-[0.8rem] font-semibold text-forest-900">Refund {bookingRef}</p>
-      <p className="mt-1 text-[0.74rem] leading-snug text-ink/65">
+      <p className="mt-1 text-[0.75rem] leading-snug text-ink/70">
         {alreadyBack > 0 && <>{formatINR(alreadyBack)} already given back. </>}
         Up to {formatINR(max)} left. This does not cancel the session.
       </p>
 
-      <label className="mt-2.5 block text-[0.68rem] uppercase tracking-[0.12em] text-ink/50">
+      <label className="mt-2.5 block text-[0.75rem] uppercase tracking-[0.12em] text-ink/70">
         Amount
         <input
           value={amount}
@@ -130,7 +130,7 @@ export default function RefundButton({
         />
       </label>
 
-      <label className="mt-2 block text-[0.68rem] uppercase tracking-[0.12em] text-ink/50">
+      <label className="mt-2 block text-[0.75rem] uppercase tracking-[0.12em] text-ink/70">
         Why
         <input
           value={reason}
@@ -141,9 +141,9 @@ export default function RefundButton({
           className="mt-1 w-full rounded-lg border border-forest-800/15 bg-ivory px-2.5 py-1.5 text-[0.85rem] normal-case tracking-normal text-forest-900 focus:border-forest-800 focus:outline-none"
         />
       </label>
-      <p className="mt-1 text-[0.7rem] text-ink/50">Kept in the Trail. Never shown to the client.</p>
+      <p className="mt-1 text-[0.75rem] text-ink/70">Kept in the Trail. Never shown to the client.</p>
 
-      {error && <p className="mt-1.5 text-[0.74rem] text-red-700">{error}</p>}
+      {error && <p className="mt-1.5 text-[0.75rem] text-red-700">{error}</p>}
 
       <div className="mt-2.5 flex items-center gap-2">
         <button
@@ -162,7 +162,7 @@ export default function RefundButton({
             setError(null);
           }}
           disabled={busy}
-          className="text-[0.76rem] text-ink/60 transition-colors hover:text-forest-800 disabled:opacity-50"
+          className="text-[0.76rem] text-ink/70 transition-colors hover:text-forest-800 disabled:opacity-50"
         >
           Cancel
         </button>

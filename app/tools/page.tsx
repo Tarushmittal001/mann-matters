@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: "Free tools",
   alternates: { canonical: "/tools" },
   description:
-    "Free, private mental-health tools — guided breathing, 5-4-3-2-1 grounding, muscle relaxation, calming sounds, a sleep wind-down, a worry journal, affirmations, and a gentle mood check-in. Free with an account, and no tracking.",
+    "Free, private mental-health tools — guided breathing, 5-4-3-2-1 grounding, muscle relaxation, calming sounds, a sleep wind-down, a worry journal, affirmations, and a gentle mood check-in. Breathing, grounding and relaxation need no account; the rest are free with one. No tracking.",
 };
 
 export default function ToolsPage() {
@@ -63,14 +63,14 @@ export default function ToolsPage() {
                   <span className="relative flex h-full flex-col">
                     <div className="flex items-start justify-between">
                       <ToolEmblem>{TOOL_ICONS[tool.icon]({})}</ToolEmblem>
-                      <span className="rounded-full bg-sage-light/50 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-forest-700">
+                      <span className="rounded-full bg-sage-light/50 px-3 py-1 text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-forest-700">
                         {tool.time}
                       </span>
                     </div>
                     <h2 className="mt-6 font-display text-[1.4rem] font-medium leading-snug text-forest-900">
                       {tool.title}
                     </h2>
-                    <p className="mt-3 flex-1 text-[0.95rem] leading-relaxed text-ink/65">
+                    <p className="mt-3 flex-1 text-[0.95rem] leading-relaxed text-ink/70">
                       {tool.body}
                     </p>
                     <p className="mt-5 text-xs font-semibold uppercase tracking-[0.14em] text-gold-dark">

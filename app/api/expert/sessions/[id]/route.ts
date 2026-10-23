@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { expertIdFromSession } from "@/lib/expert-data";
-import { sendBookingAcceptedEmail, sendBookingDeclinedEmail } from "@/lib/email";
+import { sendBookingAcceptedEmail, sendBookingDeclinedEmail, sendSessionCancelledEmail } from "@/lib/email";
 import { BOOKING_STATUS, requestExpiry } from "@/lib/features/booking/policy";
+import { cancelBooking } from "@/lib/features/booking/server";
 import { rewardReferrerFor } from "@/lib/referral";
 import { site } from "@/lib/site";
 import { formatDateISO } from "@/lib/utils";
@@ -195,7 +196,17 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     if (!isSessionStatus(body.status)) {
       return NextResponse.json({ error: "Unknown status." }, { status: 400 });
     }
-    const from = (isSessionStatus(booking.status) ? booking.status : "CONFIRMED") as SessionStatus;
+    /* Only a session has an outcome. A request, an unpaid hold, a decline or a
+       lapse used to be read as CONFIRMED here — so a declined request could be
+       marked COMPLETED, pay a referral reward, and then be paid for and flipped
+       back to CONFIRMED. Requests are answered with accept or decline instead. */
+    if (!isSessionStatus(booking.status)) {
+      return NextResponse.json(
+        { error: "This is not a confirmed session yet, so it has no outcome to record." },
+        { status: 409 }
+      );
+    }
+    const from: SessionStatus = booking.status;
     const verdict = allowedTransition(
       from,
       body.status,
@@ -212,6 +223,57 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
         { error: "Add a short reason — the client sees a plain-language version of it." },
         { status: 400 }
       );
+    }
+
+    /* A practitioner cancelling a confirmed session goes through the same path
+       as a client cancelling: the slot is released and the client gets back
+       everything still held — in full, whatever the clock says, because they
+       did nothing wrong. This used to set the status alone: the slot stayed
+       taken forever, nothing was refunded, nobody was told, and the payout
+       still paid the practitioner for the session they cancelled. */
+    if (body.status === "CANCELLED") {
+      const withPayment = await prisma.booking.findUniqueOrThrow({
+        where: { id: booking.id },
+        include: { payment: true, user: { select: { name: true, email: true } } },
+      });
+      const outcome = await cancelBooking({ booking: withPayment, by: "EXPERT", refund: "full", reason });
+      if (!outcome.ok) {
+        return NextResponse.json(
+          { error: "This session changed a moment ago. Refresh to see where it stands." },
+          { status: 409 }
+        );
+      }
+
+      let told = true;
+      try {
+        const delivery = await sendSessionCancelledEmail({
+          to: withPayment.user.email,
+          clientName: withPayment.user.name.split(" ")[0] || "there",
+          when: `${formatDateISO(booking.date)} at ${booking.time}`,
+          link: `${site.url}/book`,
+          refunded: outcome.refunded,
+          refundPending: outcome.refundPending,
+          freeSessionReturned: outcome.proBonoReturned,
+        });
+        told = delivery.delivered;
+      } catch {
+        told = false;
+      }
+
+      return NextResponse.json({
+        status: outcome.booking.status,
+        message: [
+          "Session cancelled and the slot is free again.",
+          outcome.refundPending
+            ? "The refund could not be sent automatically — our team will send it."
+            : outcome.refunded > 0
+              ? `The client is being refunded ₹${outcome.refunded} in full.`
+              : "",
+          told ? "The client has been emailed." : "We could not email the client — our team will let them know.",
+        ]
+          .filter(Boolean)
+          .join(" "),
+      });
     }
 
     const updated = await prisma.booking.update({
@@ -238,12 +300,11 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
     return NextResponse.json({
       status: updated.status,
+      // cancelling returned above, through cancelBooking
       message:
         body.status === "COMPLETED"
           ? "Marked completed. It will appear on your next payout statement."
-          : body.status === "NO_SHOW"
-            ? "Marked as a no-show. Our team reviews these before any charge."
-            : "Session cancelled. The client has been told, and the slot is free again.",
+          : "Marked as a no-show. Our team reviews these before any charge.",
     });
   }
 

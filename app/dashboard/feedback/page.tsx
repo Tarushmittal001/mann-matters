@@ -34,7 +34,7 @@ export default async function FeedbackPage() {
             share your story
           </p>
           <h1 className="h-display text-4xl md:text-5xl">Tell us how it went.</h1>
-          <p className="mt-4 max-w-xl text-ink/65">
+          <p className="mt-4 max-w-xl text-ink/70">
             A few honest words can be what helps someone else book their first session. Approved
             stories appear under &ldquo;We heard you&rdquo; on our home page.
           </p>

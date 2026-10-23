@@ -69,6 +69,18 @@ export function isKnownSlot(time: string): boolean {
   return SLOT_SET.has(time);
 }
 
+/**
+ * "YYYY-MM-DD" that names a real calendar day. A pattern check alone lets
+ * "2026-11-31" through, which JavaScript quietly reads as 1 December: the slot
+ * key differs from "2026-12-01" while the hour is the same, so one real hour
+ * could be sold twice, and time off filed by string range is stepped round.
+ */
+export function isCalendarDate(raw: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return false;
+  const d = new Date(`${raw}T00:00:00Z`);
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === raw;
+}
+
 export function sessionStart(date: string, time: string): Date {
   return new Date(`${date}T${time}:00${IST_OFFSET}`);
 }
@@ -115,7 +127,7 @@ export function validateSlot(
   time: string,
   now: Date = new Date()
 ): Decision {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return no("BAD_DATE", "Please choose a date.");
+  if (!isCalendarDate(date)) return no("BAD_DATE", "Please choose a date.");
   if (!isKnownSlot(time)) return no("BAD_TIME", "Please choose one of the available times.");
 
   const { first, last } = bookableRange(now);
@@ -178,11 +190,20 @@ export function canReschedule(booking: BookingLike, now: Date = new Date()): Dec
   return ok;
 }
 
+/**
+ * What a client gets back for cancelling now.
+ *
+ * Pass the payment itself, not only its status: an admin may already have
+ * given part of the fee back, and what is refundable is what is still held —
+ * never the whole fee a second time. (A bare status is still accepted, read as
+ * "nothing refunded yet".)
+ */
 export function refundFor(
   booking: BookingLike & { amount: number },
-  paymentStatus: string | null,
+  payment: string | { status: string; refundAmount?: number | null } | null,
   now: Date = new Date()
 ): { amount: number; full: boolean; note: string } {
+  const paymentStatus = typeof payment === "string" ? payment : payment?.status ?? null;
   if (paymentStatus !== PAYMENT_STATUS.paid) {
     return {
       amount: 0,
@@ -190,12 +211,24 @@ export function refundFor(
       note: "Nothing was charged, so there's nothing to refund.",
     };
   }
+  const alreadyBack =
+    typeof payment === "object" && payment ? Math.min(payment.refundAmount ?? 0, booking.amount) : 0;
+  const remaining = booking.amount - alreadyBack;
+  if (remaining <= 0) {
+    return { amount: 0, full: false, note: "Your fee has already been refunded." };
+  }
   if (hoursUntil(booking.date, booking.time, now) >= FREE_CHANGE_HOURS) {
-    return {
-      amount: booking.amount,
-      full: true,
-      note: "You'll be refunded in full — it usually lands in 5–7 working days.",
-    };
+    return alreadyBack > 0
+      ? {
+          amount: remaining,
+          full: false,
+          note: `You'll be refunded the rest of your fee, ₹${remaining} — it usually lands in 5–7 working days.`,
+        }
+      : {
+          amount: remaining,
+          full: true,
+          note: "You'll be refunded in full — it usually lands in 5–7 working days.",
+        };
   }
   return {
     amount: 0,

@@ -66,7 +66,7 @@ export default function PayoutSheet({
                 (h, i) => (
                   <th
                     key={h}
-                    className={`px-5 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-ink/70 ${
+                    className={`px-5 py-3 text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-ink/70 ${
                       i > 0 ? "text-right" : ""
                     }`}
                   >

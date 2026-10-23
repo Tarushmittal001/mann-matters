@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { site } from "@/lib/site";
+import { CrisisLine } from "@/components/ui/Feedback";
+import { useStepFocus } from "@/components/ui/useStepFocus";
 
 /**
  * A gentle, non-clinical 4-question check-in. It reflects back how you might be
@@ -88,6 +90,8 @@ export default function MoodCheckIn() {
   const done = step >= total;
   const score = answers.reduce((a, b) => a + b, 0);
   const result = done ? resultFor(score) : null;
+  // each new question, and the result, takes focus so it is announced
+  const stepRef = useStepFocus(done ? "result" : step);
 
   const choose = (weight: number) => {
     setAnswers((prev) => [...prev, weight]);
@@ -124,7 +128,7 @@ export default function MoodCheckIn() {
             <p className="text-sm font-medium uppercase tracking-[0.16em] text-forest-600">
               Question {step + 1} of {total}
             </p>
-            <h3 className="mt-3 font-display text-2xl font-medium text-forest-900 md:text-3xl">
+            <h3 ref={stepRef} tabIndex={-1} className="step-focus mt-3 font-display text-2xl font-medium text-forest-900 md:text-3xl">
               {questions[step].q}
             </h3>
             <div className="mt-7 grid gap-3">
@@ -149,8 +153,15 @@ export default function MoodCheckIn() {
             <p className="text-sm font-medium uppercase tracking-[0.16em] text-forest-600">
               A gentle reflection
             </p>
-            <h3 className="mt-3 font-display text-3xl font-medium text-forest-900">{result!.title}</h3>
+            <h3 ref={stepRef} tabIndex={-1} className="step-focus mt-3 font-display text-3xl font-medium text-forest-900">{result!.title}</h3>
             <p className="mt-4 leading-relaxed text-ink/75">{result!.body}</p>
+            {/* The heaviest answer gets a number they can tap, not one to copy
+                down: on a phone, at a bad moment, that is the difference. */}
+            {result!.tone === "a-lot" && (
+              <div className="mt-6 rounded-2xl border border-forest-800/15 bg-sage-light/50 p-4">
+                <CrisisLine lead="If it feels unbearable right now, talk to someone today — free, any time." />
+              </div>
+            )}
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 href={result!.primary.href}

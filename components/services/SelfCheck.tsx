@@ -247,7 +247,7 @@ export default function SelfCheck({
             {/* ── head ─────────────────────────────────────────────── */}
             <div className="flex items-start justify-between gap-6 border-b border-forest-800/10 px-7 py-5 md:px-9">
               <div>
-                <p className="eyebrow flex items-center gap-2.5 text-[0.68rem]">
+                <p className="eyebrow flex items-center gap-2.5 text-[0.75rem]">
                   <span className="font-deva normal-case tracking-normal text-gold" aria-hidden="true">
                     मन
                   </span>
@@ -431,7 +431,7 @@ export default function SelfCheck({
                     An account is free. We ask for one so the suggestion is
                     yours, and not left open on a shared phone.
                   </p>
-                  <p className="mx-auto mt-4 max-w-sm text-[0.88rem] leading-relaxed text-ink/55">
+                  <p className="mx-auto mt-4 max-w-sm text-[0.88rem] leading-relaxed text-ink/70">
                     Your answers were never saved, so you will need to take the
                     check again after signing in. It takes about three minutes.
                   </p>
@@ -443,7 +443,7 @@ export default function SelfCheck({
                       Sign in
                     </Button>
                   </div>
-                  <p className="mx-auto mt-7 max-w-sm border-t border-forest-800/15 pt-5 text-[0.84rem] leading-relaxed text-ink/65">
+                  <p className="mx-auto mt-7 max-w-sm border-t border-forest-800/15 pt-5 text-[0.84rem] leading-relaxed text-ink/70">
                     If you need someone now, you do not need an account.{" "}
                     <a href="tel:14416" className="font-semibold text-forest-800">
                       Tele-MANAS 14416
@@ -459,7 +459,7 @@ export default function SelfCheck({
 
               {/* still asking who this is: hold, never reveal */}
               {step === RESULT_STEP && signedIn === undefined && (
-                <p className="py-10 text-center text-[0.95rem] text-ink/55">
+                <p className="py-10 text-center text-[0.95rem] text-ink/70">
                   One moment…
                 </p>
               )}
@@ -468,7 +468,7 @@ export default function SelfCheck({
                 <div>
                   {result.clinical && (
                     <div className="mb-8 rounded-xl border-l-2 border-gold bg-ivory-dark/70 px-5 py-4">
-                      <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-gold-dark">
+                      <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-gold-dark">
                         please read this first
                       </p>
                       <p className="mt-2 text-[0.92rem] leading-relaxed text-ink/75">
@@ -550,7 +550,7 @@ export default function SelfCheck({
                     style={{ borderLeftColor: regionFor(result.service.slug).hex }}
                   >
                     <p
-                      className="text-[0.68rem] font-semibold uppercase tracking-[0.18em]"
+                      className="text-[0.75rem] font-semibold uppercase tracking-[0.18em]"
                       style={{ color: regionFor(result.service.slug).hex }}
                     >
                       the format we would start with
@@ -594,7 +594,7 @@ export default function SelfCheck({
 
                   {/* and finally the numbers */}
                   <div className="mt-8">
-                    <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-gold-dark">
+                    <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-gold-dark">
                       what you scored
                     </p>
                     <div className="mt-4 space-y-4">
@@ -604,7 +604,7 @@ export default function SelfCheck({
                             <p className="font-display text-[1.05rem] font-medium text-forest-900">
                               {r.scale.title}
                               <span
-                                className="ml-2.5 font-sans text-[0.7rem] font-semibold uppercase tracking-[0.14em]"
+                                className="ml-2.5 font-sans text-[0.75rem] font-semibold uppercase tracking-[0.14em]"
                                 style={{ color: regionForScale(r.scale.id).hex }}
                               >
                                 {r.band.label}
@@ -612,7 +612,7 @@ export default function SelfCheck({
                             </p>
                             <p className="font-display text-[1.05rem] tabular-nums text-forest-900">
                               {r.percent}%
-                              <span className="ml-1.5 font-sans text-[0.72rem] font-normal text-ink/70">
+                              <span className="ml-1.5 font-sans text-[0.75rem] font-normal text-ink/70">
                                 {r.score}/{r.max}
                               </span>
                             </p>

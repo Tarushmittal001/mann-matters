@@ -99,7 +99,7 @@ export default function NotificationForm({
       )}
 
       <section aria-labelledby="always-on">
-        <h3 id="always-on" className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
+        <h3 id="always-on" className="text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
           Always on
         </h3>
         <ul className="mt-2 divide-y divide-forest-800/[0.08]">
@@ -118,7 +118,7 @@ export default function NotificationForm({
                 <p className="text-[0.92rem] font-medium text-forest-900">{item.label}</p>
                 <p className="mt-0.5 text-[0.82rem] leading-snug text-ink/70">{item.hint}</p>
               </div>
-              <span className="mt-0.5 shrink-0 rounded-full bg-sage-light/70 px-2.5 py-0.5 text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-forest-800">
+              <span className="mt-0.5 shrink-0 rounded-full bg-sage-light/70 px-2.5 py-0.5 text-[0.75rem] font-semibold uppercase tracking-[0.1em] text-forest-800">
                 Required
               </span>
             </li>
@@ -127,7 +127,7 @@ export default function NotificationForm({
       </section>
 
       <section aria-labelledby="your-choice" className="mt-8">
-        <h3 id="your-choice" className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
+        <h3 id="your-choice" className="text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
           Up to you
         </h3>
         <div className="mt-2 divide-y divide-forest-800/[0.08]">
@@ -161,7 +161,7 @@ export default function NotificationForm({
       </section>
 
       <section aria-labelledby="channel" className="mt-8">
-        <h3 id="channel" className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
+        <h3 id="channel" className="text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-ink/70">
           Where they go
         </h3>
         <div className="mt-3 max-w-sm">
@@ -187,7 +187,7 @@ export default function NotificationForm({
 
       <div className="mt-8 rounded-xl border border-forest-800/10 bg-forest-800/[0.03] px-4 py-4">
         <p className="text-[0.86rem] font-semibold text-forest-900">A test is worth more than a guess</p>
-        <p className="mt-1 text-[0.84rem] leading-relaxed text-ink/65">
+        <p className="mt-1 text-[0.84rem] leading-relaxed text-ink/70">
           Send yourself one now, so you know what it looks like before a real booking depends on it.
           Tests go by email to {email}; WhatsApp delivery is connected by our team.
         </p>
