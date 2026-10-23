@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { site } from "@/lib/site";
+import { OPEN_MANU_EVENT } from "@/lib/manu-chat";
 import { useLocale } from "@/lib/i18n/client";
 import { chromeCopy } from "@/lib/i18n/chrome";
 
@@ -40,6 +41,13 @@ export default function ChatAssistant() {
   useEffect(() => {
     if (open) inputRef.current?.focus();
   }, [open]);
+
+  /* Every "Talk to Manu" button on the site opens this chat (lib/manu-chat.ts). */
+  useEffect(() => {
+    const openChat = () => setOpen(true);
+    window.addEventListener(OPEN_MANU_EVENT, openChat);
+    return () => window.removeEventListener(OPEN_MANU_EVENT, openChat);
+  }, []);
 
   /* Escape closes it and hands focus back to the button that opened it. */
   const close = () => {
@@ -82,7 +90,11 @@ export default function ChatAssistant() {
   };
 
   return (
-    <div className="support-launcher fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 z-50 sm:bottom-6 sm:left-6">
+    <div
+      // an open chat is not hidden behind a bottom sheet, and sits above it (globals.css)
+      data-open={open ? "" : undefined}
+      className={`support-launcher fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-[max(1rem,env(safe-area-inset-left))] sm:bottom-6 sm:left-6 ${open ? "z-[80]" : "z-50"}`}
+    >
       <AnimatePresence>
         {open && (
           <motion.div

@@ -61,7 +61,7 @@ export default function SafetyNotice() {
           exit={{ opacity: 0, y: 20 }}
           onClick={() => setState("full")}
           data-safety-notice
-          className="fixed bottom-20 left-4 z-50 flex items-center gap-2 rounded-full bg-forest-100 px-4 py-2 text-sm font-semibold text-forest-800 shadow-bloom border border-forest-600/20 hover:bg-sage-light transition-colors"
+          className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] left-[max(1rem,env(safe-area-inset-left))] z-50 flex min-h-11 items-center gap-2 rounded-full bg-forest-100 px-4 py-2 text-sm font-semibold text-forest-800 shadow-bloom border border-forest-600/20 hover:bg-sage-light transition-colors"
           aria-label={c.pillLabel}
           lang={locale}
         >
@@ -82,7 +82,8 @@ export default function SafetyNotice() {
             aria-label={c.region}
             lang={locale}
             data-safety-notice
-            className="fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-3 right-3 z-50 rounded-2xl border border-forest-600/15 bg-ivory/95 p-4 shadow-bloom backdrop-blur-md sm:hidden"
+            data-bottom-sheet
+            className="fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-[max(0.75rem,env(safe-area-inset-left))] right-[max(0.75rem,env(safe-area-inset-right))] z-50 rounded-2xl border border-forest-600/15 bg-ivory/95 p-4 shadow-bloom backdrop-blur-md sm:hidden"
           >
             <div className="flex items-start gap-3">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-forest-100">
@@ -135,6 +136,7 @@ export default function SafetyNotice() {
           aria-label={c.region}
             lang={locale}
           data-safety-notice
+          data-bottom-sheet
           className="fixed bottom-6 left-6 right-6 z-50 mx-auto hidden max-w-2xl rounded-2xl border border-forest-600/15 bg-ivory/95 p-5 shadow-bloom backdrop-blur-md sm:block"
         >
           {/* Header */}
@@ -165,16 +167,16 @@ export default function SafetyNotice() {
             <ul className="space-y-1 text-sm text-ink/70">
               <li>
                 <span className="font-semibold text-forest-800">Tele-MANAS:</span>{" "}
-                <a href="tel:14416" className="text-gold-dark underline underline-offset-2 hover:text-gold">14416</a>{" "}
+                <a href="tel:14416" className="hit text-gold-dark underline underline-offset-2 hover:text-gold">14416</a>{" "}
                 <span className="text-ink/70">{c.teleManasNote}</span>
               </li>
               <li>
                 <span className="font-semibold text-forest-800">iCALL:</span>{" "}
-                <a href="tel:9152987821" className="text-gold-dark underline underline-offset-2 hover:text-gold">9152987821</a>
+                <a href="tel:9152987821" className="hit text-gold-dark underline underline-offset-2 hover:text-gold">9152987821</a>
               </li>
               <li>
                 <span className="font-semibold text-forest-800">{c.emergency}</span>{" "}
-                <a href="tel:112" className="text-gold-dark underline underline-offset-2 hover:text-gold">112</a>
+                <a href="tel:112" className="hit text-gold-dark underline underline-offset-2 hover:text-gold">112</a>
               </li>
             </ul>
           </div>
@@ -183,13 +185,13 @@ export default function SafetyNotice() {
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => setState("dismissed")}
-              className="rounded-full bg-forest px-5 py-2 text-sm font-semibold text-ivory hover:bg-forest-700 transition-colors"
+              className="min-h-11 rounded-full bg-forest px-5 py-2 text-sm font-semibold text-ivory hover:bg-forest-700 transition-colors"
             >
               {c.gotIt}
             </button>
             <button
               onClick={() => setState("minimized")}
-              className="rounded-full border border-forest-600/20 bg-ivory-light px-5 py-2 text-sm font-semibold text-forest-800 hover:bg-sage-light transition-colors"
+              className="min-h-11 rounded-full border border-forest-600/20 bg-ivory-light px-5 py-2 text-sm font-semibold text-forest-800 hover:bg-sage-light transition-colors"
             >
               {c.minimize}
             </button>

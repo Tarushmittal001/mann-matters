@@ -56,7 +56,7 @@ export default function LegalPage({
           <ol className="list-decimal space-y-1.5 pl-5 text-[0.95rem] text-ink/80">
             {sections.map((s) => (
               <li key={s.id}>
-                <a href={`#${s.id}`} className="underline-offset-2 hover:text-forest-800 hover:underline">
+                <a href={`#${s.id}`} className="hit underline-offset-2 hover:text-forest-800 hover:underline">
                   {s.heading}
                 </a>
               </li>
@@ -82,7 +82,7 @@ export default function LegalPage({
               .filter((o) => o.href !== current)
               .map((o) => (
                 <li key={o.href}>
-                  <Link href={o.href} className="text-ink/80 underline underline-offset-2 hover:text-forest-800">
+                  <Link href={o.href} className="hit text-ink/80 underline underline-offset-2 hover:text-forest-800">
                     {o.label}
                   </Link>
                 </li>

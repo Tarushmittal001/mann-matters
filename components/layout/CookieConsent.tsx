@@ -42,7 +42,7 @@ export default function CookieConsent() {
       lang={locale}
       aria-labelledby="cookie-title"
       aria-describedby="cookie-body"
-      className="fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-[70] mx-auto max-w-md rounded-2xl border border-forest-800/12 bg-ivory-light p-5 shadow-bloom sm:inset-x-auto sm:bottom-6 sm:left-6"
+      className="fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-[max(0.75rem,env(safe-area-inset-left))] right-[max(0.75rem,env(safe-area-inset-right))] z-[70] mx-auto max-w-md rounded-2xl border border-forest-800/12 bg-ivory-light p-5 shadow-bloom sm:inset-x-auto sm:bottom-6 sm:left-6"
     >
       <p id="cookie-title" className="font-semibold text-forest-900">
         {c.title}

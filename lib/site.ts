@@ -162,6 +162,9 @@ export const toolLinks = [
  * an invented count or rating is a misleading claim under consumer law. The
  * strip also has drawings for "sessions", "psychologists" and "rating"; add
  * those back (with real figures) once there are records to back them.
+ *
+ * Empty for now, so the strip does not render: "2+ languages" on its own read
+ * as padding rather than proof. The languages promise lives in the hero.
  */
 export const stats: {
   kind: "sessions" | "psychologists" | "languages" | "rating";
@@ -169,4 +172,4 @@ export const stats: {
   suffix: string;
   label: string;
   decimals?: number;
-}[] = [{ kind: "languages", value: 2, suffix: "+", label: "languages" }];
+}[] = [];

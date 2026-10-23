@@ -22,6 +22,8 @@ const lines: { text: string; accent?: boolean }[] = [
   { text: "Something bothering you?" },
   { text: "Want to talk?", accent: true },
   { text: "Your first session is free" },
+  // the terms travel with the offer, not only at checkout
+  { text: "One per person, with a verified phone number" },
   { text: "Kuch pareshaan kar raha hai?" },
   { text: "Baat karni hai?", accent: true },
   { text: "A full session with a certified psychologist, free" },
@@ -31,7 +33,7 @@ export default function TalkBar() {
   return (
     <section
       className="group relative overflow-hidden border-y border-gold/20 bg-forest-950 py-4"
-      aria-label="Something bothering you? Your first session with a psychologist is free"
+      aria-label="Something bothering you? Your first session with a psychologist is free: one per person, with a verified phone number"
     >
       {/* fade the left edge so lines arrive rather than clip */}
       <div
@@ -83,11 +85,8 @@ export default function TalkBar() {
                 strokeLinejoin="round"
               />
             </svg>
-            {/* someone is there to take it */}
-            <span className="absolute -right-0.5 -top-0.5 flex h-2.5 w-2.5" aria-hidden="true">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-60" />
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-400 ring-2 ring-gold" />
-            </span>
+            {/* no "online" dot: this goes to a booking form, and a pulsing
+                green light promised someone waiting to answer who isn't */}
           </span>
           <span>
             Consult now<span className="hidden sm:inline"> — it&apos;s free</span>

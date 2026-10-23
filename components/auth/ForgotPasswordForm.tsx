@@ -131,7 +131,7 @@ export default function ForgotPasswordForm() {
 
             <p className="mt-7 text-sm text-ink/70">
               Remembered it?{" "}
-              <Link href="/login" className="font-semibold text-forest-800 underline underline-offset-4">
+              <Link href="/login" className="hit font-semibold text-forest-800 underline underline-offset-4">
                 Sign in
               </Link>
             </p>

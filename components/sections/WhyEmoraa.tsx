@@ -23,7 +23,7 @@ const INK = "#1A5A4D"; // pen colour: the site's forest
 const RED = "#B5474F"; // the scribble
 
 const reasons = [
-  { title: "Confidential, always", line: "Your sessions and your records stay private — encrypted, and kept in India." },
+  { title: "Confidential, always", line: "Your sessions and your records stay private and encrypted." },
   { title: "In your language", line: "Hindi, English, Hinglish, or all three. Switch mid-sentence; your therapist follows." },
   { title: "Prices you can afford", line: "From ₹999 a session, or ₹599 for students. You see the price before you book. No monthly fee." },
   { title: "Built for India", line: "Board exams, rishta calls, joint families, 11 p.m. work calls. No context needed." },

@@ -184,10 +184,18 @@ const Card = forwardRef<HTMLElement, { p: PractitionerCard; index: number }>(fun
             open ? "min-h-[1.75rem] flex-wrap" : "h-[1.75rem] overflow-hidden"
           )}
         >
+          {/* Collapsed, a chip gives way (ellipsis, full name in `title`)
+              rather than the row: three long ones used to push the "+3" past
+              the clipped edge, which hid the one control that shows the rest.
+              Measured on every card from 320 to 1920. */}
           {(open ? p.specialties : p.specialties.slice(0, 3)).map((sp) => (
             <span
               key={sp}
-              className="shrink-0 truncate rounded-full bg-[color:var(--tint)] px-2.5 py-1 text-xs font-medium text-forest-800"
+              title={open ? undefined : sp}
+              className={cn(
+                "truncate rounded-full bg-[color:var(--tint)] px-2.5 py-1 text-xs font-medium text-forest-800",
+                open ? "shrink-0" : "min-w-0"
+              )}
             >
               {sp}
             </span>
@@ -203,7 +211,7 @@ const Card = forwardRef<HTMLElement, { p: PractitionerCard; index: number }>(fun
                   ? `Show fewer things ${p.name} works with`
                   : `Show all ${p.specialties.length} things ${p.name} works with`
               }
-              className="press shrink-0 rounded-full border border-forest-800/20 px-2 py-0.5 text-xs font-medium text-forest-800 transition-colors hover:border-forest-800 hover:bg-forest-800 hover:text-ivory"
+              className="press h-7 shrink-0 rounded-full border border-forest-800/20 px-2.5 text-xs font-medium text-forest-800 transition-colors hover:border-forest-800 hover:bg-forest-800 hover:text-ivory"
             >
               {open ? "Show less" : `+${p.specialties.length - 3}`}
             </button>

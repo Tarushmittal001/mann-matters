@@ -79,7 +79,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
         {/* ── masthead ─────────────────────────────────────────────── */}
         <header className="wrap-wide">
           <Reveal>
-            <Link href="/blog" className="link-draw text-sm font-medium text-forest-700">
+            <Link href="/blog" className="hit link-draw text-sm font-medium text-forest-700">
               ← The journal
             </Link>
           </Reveal>
@@ -223,7 +223,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
           <div className="border-t border-forest-800/10 pt-12">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <p className="eyebrow">Keep reading</p>
-              <Link href="/blog" className="link-draw text-sm font-medium text-forest-700">
+              <Link href="/blog" className="hit link-draw text-sm font-medium text-forest-700">
                 All articles →
               </Link>
             </div>

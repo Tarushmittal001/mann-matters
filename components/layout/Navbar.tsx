@@ -350,7 +350,7 @@ export default function Navbar() {
             : scrolled || darkTop
             ? // the frosted bar re-blurs whatever scrolls beneath it, every frame;
               // phones get a solid bar instead, which looks the same in motion
-              "border-b border-forest-800/10 bg-ivory/95 py-3 lg:bg-ivory/80 lg:backdrop-blur-xl"
+              "border-b border-forest-800/10 bg-ivory/95 py-3 xl:bg-ivory/80 xl:backdrop-blur-xl"
             : "bg-transparent py-5"
         )}
       >
@@ -371,8 +371,11 @@ export default function Navbar() {
           </div>
 
           {/* four things, not seven: what we do, who else we do it for, what is
-              free to try, and a drawer for everything read-once */}
-          <div className="hidden items-center gap-5 lg:flex 2xl:gap-7">
+              free to try, and a drawer for everything read-once.
+              From `xl`, not `lg`: with the back button beside the wordmark this
+              row is ~880px, and at 1024 it ran 50px off the right edge. The
+              drawer already covers phones and tablets, so 1024–1279 uses it too. */}
+          <div className="hidden items-center gap-5 xl:flex 2xl:gap-7">
             {primaryNav.map((l) => (
               <Link
                 key={l.href}
@@ -439,7 +442,7 @@ export default function Navbar() {
 
           <button
             ref={menuToggle}
-            className="relative z-[70] flex h-11 w-11 shrink-0 flex-col items-center justify-center gap-[5px] lg:hidden"
+            className="relative z-[70] flex h-11 w-11 shrink-0 flex-col items-center justify-center gap-[5px] xl:hidden"
             onClick={() => setOpen(!open)}
             aria-expanded={open}
             aria-label={open ? t.nav.close : t.nav.menu}
@@ -468,7 +471,7 @@ export default function Navbar() {
             role="dialog"
             aria-modal="true"
             aria-label="Menu"
-            className="fixed inset-0 z-[60] flex flex-col overflow-y-auto overscroll-contain bg-forest-900 px-5 pb-[max(2rem,env(safe-area-inset-bottom))] pt-24 focus:outline-none sm:px-8 sm:pt-28 lg:hidden"
+            className="fixed inset-0 z-[60] flex flex-col overflow-y-auto overscroll-contain bg-forest-900 px-[max(1.25rem,env(safe-area-inset-left))] pb-[max(2rem,env(safe-area-inset-bottom))] pt-24 focus:outline-none sm:px-8 sm:pt-28 xl:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

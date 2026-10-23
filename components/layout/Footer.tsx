@@ -62,7 +62,7 @@ export default function Footer() {
               .map((l) => linkCopy(locale, l))
               .map((l) => (
               <li key={l.href}>
-                <Link href={to(l.href)} className="link-draw text-sage-light/80 hover:text-ivory">
+                <Link href={to(l.href)} className="hit link-draw text-sage-light/80 hover:text-ivory">
                   {l.label}
                 </Link>
               </li>
@@ -74,15 +74,15 @@ export default function Footer() {
           <p className="eyebrow mb-5 text-sage">{c.reachUs}</p>
           <ul className="space-y-3 text-[0.95rem] text-sage-light/80">
             <li>
-              <EmailLink className="link-draw hover:text-ivory" />
+              <EmailLink className="hit link-draw hover:text-ivory" />
             </li>
             <li>
-              <a href={`tel:${site.phone.replace(/\s/g, "")}`} className="link-draw hover:text-ivory">
+              <a href={`tel:${site.phone.replace(/\s/g, "")}`} className="hit link-draw hover:text-ivory">
                 {site.phone}
               </a>
             </li>
             <li>
-              <a href={site.whatsapp} target="_blank" rel="noopener noreferrer" className="link-draw hover:text-ivory">
+              <a href={site.whatsapp} target="_blank" rel="noopener noreferrer" className="hit link-draw hover:text-ivory">
                 {c.whatsapp}
               </a>
             </li>
@@ -95,13 +95,13 @@ export default function Footer() {
           <ul className="space-y-3 text-[0.95rem]">
             {legal.map((l) => (
               <li key={l.href}>
-                <Link href={l.href} className="link-draw text-sage-light/80 hover:text-ivory">
+                <Link href={l.href} className="hit link-draw text-sage-light/80 hover:text-ivory">
                   {l.label}
                 </Link>
               </li>
             ))}
             <li>
-              <CookieSettingsButton className="link-draw text-sage-light/80 hover:text-ivory" label={c.cookieSettings} />
+              <CookieSettingsButton className="hit link-draw text-sage-light/80 hover:text-ivory" label={c.cookieSettings} />
             </li>
           </ul>
         </div>

@@ -5,7 +5,6 @@ import Providers from "@/components/layout/Providers";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import InstallApp from "@/components/pwa/InstallApp";
-import WhatsAppButton from "@/components/layout/WhatsAppButton";
 import ChatAssistant from "@/components/tools/ChatAssistant";
 import SafetyNotice from "@/components/layout/SafetyNotice";
 import PublicChrome from "@/components/layout/PublicChrome";
@@ -88,6 +87,10 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#0E3B33",
+  // Without "cover", iOS reports every env(safe-area-inset-*) as 0, and the
+  // bottom sheets, chat launcher and menu that pad by them sat on the home
+  // indicator. The horizontal insets are handled in .wrap (globals.css).
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -113,7 +116,7 @@ export default function RootLayout({
           </main>
           <PublicChrome>
             <Footer />
-            <WhatsAppButton />
+            {/* the one floating button: Manu's chat (WhatsApp is in the footer and on /contact) */}
             <ChatAssistant />
             <SafetyNotice />
             <InstallApp />

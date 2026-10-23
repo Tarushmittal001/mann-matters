@@ -74,6 +74,37 @@
     @apply mx-auto w-full max-w-7xl px-5 sm:px-8;
   }
 
+  /* The page runs edge to edge (viewport-fit=cover, app/layout.tsx), so a
+     phone on its side puts the notch over the gutter. The gutter grows to
+     clear it; everywhere else the inset is 0 and nothing moves. */
+  @supports (padding: max(0px)) {
+    .wrap,
+    .wrap-wide {
+      padding-left: max(1.25rem, env(safe-area-inset-left));
+      padding-right: max(1.25rem, env(safe-area-inset-right));
+    }
+    @media (min-width: 640px) {
+      .wrap,
+      .wrap-wide {
+        padding-left: max(2rem, env(safe-area-inset-left));
+        padding-right: max(2rem, env(safe-area-inset-right));
+      }
+    }
+  }
+
+  /* A standalone text link is ~19px tall, under the 24px a finger needs
+     (WCAG 2.5.8). This grows what can be tapped without moving the text or
+     its .link-draw underline (::after); 6px each way keeps two links stacked
+     12px apart from overlapping. */
+  .hit {
+    position: relative;
+  }
+  .hit::before {
+    content: "";
+    position: absolute;
+    inset: -6px -4px;
+  }
+
   .section {
     @apply py-14 md:py-24;
   }
@@ -185,10 +216,18 @@
     font-size: 16px !important;
   }
 
-  body:has([data-safety-notice]) .support-launcher,
-  body:has([data-bottom-sheet]) .support-launcher {
+  /* on a phone even the small "crisis help" pill shares the corner with it */
+  body:has([data-safety-notice]) .support-launcher:not([data-open]) {
     display: none;
   }
+}
+
+/* One thing at the bottom of the screen at a time, at every width: while the
+   cookie question, the safety note or the install prompt is showing, the chat
+   launcher waits. On a laptop the cookie card sits exactly over it. A chat
+   somebody has opened (a "Talk to Manu" button) stays, above the sheet. */
+body:has([data-bottom-sheet]) .support-launcher:not([data-open]) {
+  display: none;
 }
 
 

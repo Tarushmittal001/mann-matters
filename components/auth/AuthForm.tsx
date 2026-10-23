@@ -660,7 +660,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                     <p className="-mt-1 text-right">
                       <Link
                         href={`/forgot-password${email.trim() ? `?email=${encodeURIComponent(email.trim())}` : ""}`}
-                        className="text-sm font-medium text-forest-800 underline underline-offset-4 hover:text-forest-600"
+                        className="hit text-sm font-medium text-forest-800 underline underline-offset-4 hover:text-forest-600"
                       >
                         {a.forgotPassword}
                       </Link>
@@ -782,7 +782,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                   {a.footer.newHere}{" "}
                   <Link
                     href={`${path("/signup")}${rawNext ? `?next=${encodeURIComponent(next)}` : ""}`}
-                    className="link-draw font-medium text-forest-800"
+                    className="hit link-draw font-medium text-forest-800"
                   >
                     {a.footer.createAccount}
                   </Link>
@@ -792,7 +792,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                   {a.footer.haveAccount}{" "}
                   <Link
                     href={`${path("/login")}${rawNext ? `?next=${encodeURIComponent(next)}` : ""}`}
-                    className="link-draw font-medium text-forest-800"
+                    className="hit link-draw font-medium text-forest-800"
                   >
                     {a.footer.signIn}
                   </Link>

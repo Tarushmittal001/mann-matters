@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
 import Button from "@/components/ui/Button";
+import { generalFrom, studentFrom } from "@/lib/price-claims";
+import { formatINR } from "@/lib/utils";
 
 /**
  * The hero canvas is decoration: `aria-hidden`, and it fades in over 1.6s after
@@ -17,33 +19,12 @@ import TalkToManuButton from "@/components/layout/TalkToManuButton";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
-function MaskedWords({
-  text,
-  className,
-  baseDelay = 0,
-}: {
-  text: string;
-  className?: string;
-  baseDelay?: number;
-}) {
-  return (
-    <span className={className}>
-      {text.split(" ").map((word, i) => (
-        <span key={i} className="inline-block overflow-hidden pb-[0.12em] align-bottom">
-          <motion.span
-            className="inline-block"
-            initial={{ y: "115%" }}
-            animate={{ y: 0 }}
-            transition={{ duration: 0.9, delay: baseDelay + i * 0.09, ease: EASE }}
-          >
-            {word}
-          </motion.span>
-          {i < text.split(" ").length - 1 && <span>&nbsp;</span>}
-        </span>
-      ))}
-    </span>
-  );
-}
+/*
+ * Motion here is decoration only: the brain fades in and the scroll cue
+ * breathes. The words and the two buttons are in the server HTML and visible
+ * on first paint. They used to rise in word by word, the buttons last at
+ * 1.25s, so on a slow phone the reason someone came was the last thing shown.
+ */
 
 export default function Hero() {
   return (
@@ -89,44 +70,22 @@ export default function Hero() {
       />
 
       <div className="wrap-wide pointer-events-none relative z-10 pb-20 pt-32">
-        <motion.p
-          className="eyebrow mb-6 flex items-center gap-3"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.1, ease: EASE }}
-        >
+        <p className="eyebrow mb-6 flex items-center gap-3">
           <span className="font-deva text-base normal-case tracking-normal text-gold" aria-hidden="true">
             मन
           </span>
           therapy & counselling, made for India
-        </motion.p>
+        </p>
 
         <h1 className="h-display max-w-4xl text-[clamp(2.25rem,6vw,3.75rem)]">
-          {/* "your" stays upright; "emotions" and "matter." carry the accent
-              together. Two instances rather than one, because MaskedWords
-              styles a whole string — the delays continue the 0.09s per-word
-              stagger across the split so the break is invisible. */}
-          <MaskedWords text="your" baseDelay={0.2} />{" "}
-          <MaskedWords
-            text="emotions"
-            baseDelay={0.29}
-            className="italic text-forest-600"
-          />
+          {/* "your" stays upright; "emotions" and "matter." carry the accent */}
+          your <span className="italic text-forest-600">emotions</span>
           {/* the second line always breaks, so it never runs into the brain */}
           <br />
-          <MaskedWords
-            text="matter."
-            baseDelay={0.4}
-            className="italic text-forest-600"
-          />
+          <span className="italic text-forest-600">matter.</span>
         </h1>
 
-        <motion.div
-          className="mt-8 max-w-md"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.0, ease: EASE }}
-        >
+        <div className="mt-8 max-w-md">
           {/*
             What Emoraa is, in the first six words.
 
@@ -155,17 +114,36 @@ export default function Hero() {
             quiet line states them without pretending they are a dataset, and
             lets the left column be the calm half of a hero that already has a
             700px brain in it.
+
+            Both prices, read from the catalogue (lib/price-claims.ts). "From
+            ₹599" alone was the student rate passed off as everyone's price.
           */}
           <p className="mt-7 border-b border-forest-800/15 pb-5 text-[0.95rem] leading-relaxed text-ink/70">
             <span className="font-medium text-forest-900">First session free</span>
-            <span className="mx-2 text-ink/30">·</span>
-            then from <span className="font-medium text-forest-900">₹599</span>
+            {generalFrom !== null && (
+              <>
+                <span className="mx-2 text-ink/30">·</span>
+                <span className="font-medium text-forest-900">{formatINR(generalFrom)}</span> a session
+              </>
+            )}
+            {studentFrom !== null && (
+              <>
+                <span className="mx-2 text-ink/30">·</span>
+                <span className="font-medium text-forest-900">{formatINR(studentFrom)}</span> for students
+              </>
+            )}
             <span className="mx-2 text-ink/30">·</span>
             in <span className="font-medium text-forest-900">your language</span>
+            {/* the terms of the free session, said where it is offered: the
+                booking flow enforces exactly this (proBonoStatus in
+                lib/features/booking/server.ts) */}
+            <span className="mt-1.5 block text-[0.85rem]">
+              One free session per person. You&apos;ll need to verify your phone number.
+            </span>
           </p>
-        </motion.div>
+        </div>
 
-        <motion.div
+        <div
           /* `w-fit`: without it this row is a full-width invisible strip
              with pointer events on, and it swallowed clicks anywhere across
              the hero at its height — including on the brain beside it.
@@ -176,15 +154,12 @@ export default function Hero() {
              taller one's height. Sizing them by hand would need re-measuring
              every time either label changes. */
           className="pointer-events-auto mt-10 grid w-fit auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.25, ease: EASE }}
         >
           <Button href="/book" variant="gold" size="sm" className="h-full w-full">
             Book a session
           </Button>
           <TalkToManuButton className="h-full w-full" />
-        </motion.div>
+        </div>
       </div>
 
       {/* scroll cue */}

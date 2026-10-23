@@ -185,12 +185,12 @@ export function CrisisLine({
       {lead ?? c.lead}
       <a
         href="tel:14416"
-        className="font-semibold text-forest-800 underline underline-offset-2 hover:text-forest-600"
+        className="hit font-semibold text-forest-800 underline underline-offset-2 hover:text-forest-600"
       >
         {c.call}
       </a>
       <span className="text-ink/35">·</span>
-      <Link href={locale === "hi" ? "/hi/crisis" : "/crisis"} className="link-draw font-medium text-forest-800">
+      <Link href={locale === "hi" ? "/hi/crisis" : "/crisis"} className="hit link-draw font-medium text-forest-800">
         {c.more}
       </Link>
     </p>

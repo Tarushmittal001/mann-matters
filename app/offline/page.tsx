@@ -58,7 +58,7 @@ export default function OfflinePage() {
             { href: "/crisis", label: "All helplines" },
           ].map((l) => (
             <li key={l.href}>
-              <Link href={l.href} className="link-draw font-medium text-forest-800">
+              <Link href={l.href} className="hit link-draw font-medium text-forest-800">
                 {l.label}
               </Link>
             </li>

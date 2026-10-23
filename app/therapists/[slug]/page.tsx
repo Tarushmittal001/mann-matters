@@ -164,7 +164,7 @@ export default async function TherapistPage({ params }: { params: { slug: string
                     Not taking bookings right now
                   </span>
                 )}
-                <Link href="/match" className="link-draw text-sm font-medium text-forest-800">
+                <Link href="/match" className="hit link-draw text-sm font-medium text-forest-800">
                   Not sure? Let us match you
                 </Link>
               </div>

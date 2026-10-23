@@ -11,10 +11,11 @@ import {
   type Message,
 } from "./scenarios";
 import TypingDots from "./TypingDots";
-import { site } from "@/lib/site";
+import { openManuChat } from "@/lib/manu-chat";
 
-const WA_PATH =
-  "M12.04 2c-5.5 0-9.94 4.44-9.94 9.91 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.49 0 9.94-4.44 9.94-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2Zm5.8 14.16c-.24.68-1.42 1.32-1.96 1.36-.5.05-1.14.07-1.84-.11-.42-.13-.97-.31-1.66-.61-2.93-1.26-4.84-4.2-4.99-4.4-.14-.2-1.19-1.58-1.19-3.02 0-1.43.75-2.13 1.02-2.43.27-.29.58-.36.78-.36l.55.01c.18 0 .42-.07.65.5.24.59.82 2.02.89 2.17.07.14.12.31.02.5-.09.2-.14.31-.28.48-.14.16-.29.37-.42.49-.14.14-.28.29-.12.57.16.27.71 1.17 1.53 1.9 1.05.93 1.93 1.22 2.21 1.36.27.14.43.12.59-.07.16-.2.68-.79.86-1.06.18-.27.36-.23.61-.14.25.09 1.61.76 1.88.9.27.14.46.2.53.32.07.11.07.66-.17 1.34Z";
+/** The chat launcher's speech bubble: these buttons open that chat, the one Manu. */
+const CHAT_PATH =
+  "M21 11.5a8.38 8.38 0 0 1-8.5 8.4 9 9 0 0 1-3.9-.9L3 21l1.9-4.6A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5Z";
 
 /** Where sign-in brings people back to: this chat, on the home page. */
 const SIGN_IN_HREF = "/login?next=%2F%23manu";
@@ -338,13 +339,14 @@ export default function TryManuDemo({
   const card = (
     <div className="mx-auto w-full max-w-xl overflow-hidden rounded-3xl border border-sage/20 bg-ivory-light shadow-bloom">
       {/* Header */}
-      <div className="flex items-center justify-between gap-3 bg-forest px-5 py-3.5">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-3 bg-forest px-4 py-3.5 sm:px-5">
+        <div className="flex min-w-0 items-center gap-3">
           {/* Avatar orb */}
           <div className="relative h-9 w-9 rounded-full bg-gradient-to-br from-sage to-gold shrink-0 animate-breathe">
             <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-green-400 ring-2 ring-forest" />
           </div>
-          <div className="flex items-center gap-2">
+          {/* wraps: at 320 the name, badge and SOS were 30px wider than the card */}
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5">
             <span className="font-display text-lg text-ivory">Manu</span>
             <AnimatePresence mode="wait" initial={false}>
               {signedIn ? (
@@ -375,7 +377,7 @@ export default function TryManuDemo({
         {/* SOS */}
         <a
           href="/crisis?sos=true"
-          className="flex items-center gap-1 rounded-full bg-red-600/90 px-2.5 py-1 text-xs font-bold text-white hover:bg-red-500 transition-colors"
+          className="flex min-h-9 shrink-0 items-center gap-1 rounded-full bg-red-600/90 px-3 text-xs font-bold text-white hover:bg-red-500 transition-colors"
           aria-label="SOS — get crisis help now"
         >
           <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 fill-current" aria-hidden="true">
@@ -386,7 +388,8 @@ export default function TryManuDemo({
       </div>
 
       {/* Language switcher */}
-      <div className="flex items-center justify-between gap-3 border-b border-sage/10 bg-ivory/40 px-4 py-2.5">
+      {/* wraps: three language pills plus the label are wider than a 320 card */}
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-sage/10 bg-ivory/40 px-4 py-2.5">
         <span className="text-[0.75rem] font-sans font-semibold uppercase tracking-[0.14em] text-ink/70">
           {ui.languageLabel}
         </span>
@@ -554,15 +557,14 @@ export default function TryManuDemo({
                       <path d="M3 8h9M8.5 4l4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </a>
-                  <a
-                    href={site.whatsapp}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
+                    onClick={openManuChat}
                     className="inline-flex items-center gap-1.5 rounded-full border border-ivory/25 px-3.5 py-2 text-[13px] font-medium text-ivory transition-colors hover:bg-ivory/10"
                   >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#25D366" aria-hidden="true"><path d={WA_PATH} /></svg>
-                    {ui.whatsappCta}
-                  </a>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d={CHAT_PATH} strokeLinejoin="round" /></svg>
+                    {ui.chatCta}
+                  </button>
                 </div>
                 <a href={SIGN_UP_HREF} className="relative mt-2.5 inline-block text-[12px] text-ivory/60 underline-offset-2 hover:text-ivory hover:underline">
                   {ui.createAccount}
@@ -608,13 +610,13 @@ export default function TryManuDemo({
             onChange={(e) => setInput(e.target.value)}
             placeholder={ui.placeholder}
             lang={langTag}
-            className={`flex-1 rounded-xl bg-ivory px-4 py-2.5 text-sm text-forest-900 placeholder:text-ink/70 border border-sage/20 focus:border-gold focus:ring-1 focus:ring-gold/50 outline-none transition-colors ${bodyFont}`}
+            className={`min-w-0 flex-1 rounded-xl bg-ivory px-4 py-2.5 text-sm text-forest-900 placeholder:text-ink/70 border border-sage/20 focus:border-gold focus:ring-1 focus:ring-gold/50 outline-none transition-colors ${bodyFont}`}
             aria-label={ui.inputLabel}
           />
           <button
             type="submit"
             disabled={!input.trim()}
-            className="rounded-xl bg-gold px-4 py-2.5 text-sm font-semibold text-forest-950 hover:bg-gold-light disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="shrink-0 rounded-xl bg-gold px-4 py-2.5 text-sm font-semibold text-forest-950 hover:bg-gold-light disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             aria-label={ui.sendLabel}
           >
             <svg viewBox="0 0 20 20" className="h-5 w-5 fill-current" aria-hidden="true">
@@ -654,32 +656,22 @@ export default function TryManuDemo({
                 </svg>
                 <span className="relative">{ui.signInCta}</span>
               </a>
-              <a
-                href={site.whatsapp}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Chat with Manu on WhatsApp"
-                className="flex items-center gap-2 rounded-xl border border-[#25D366]/40 bg-[#25D366]/10 px-3.5 py-2.5 text-[13.5px] font-semibold text-[#128C4B] transition-colors hover:bg-[#25D366]/20"
+              <button
+                type="button"
+                onClick={openManuChat}
+                aria-label={ui.chatCta}
+                className="flex items-center gap-2 rounded-xl border border-forest-800/25 bg-ivory-light px-3.5 py-2.5 text-[13.5px] font-semibold text-forest-800 transition-colors hover:bg-sage-light/40"
               >
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="#25D366" aria-hidden="true"><path d={WA_PATH} /></svg>
-                <span className="hidden sm:inline">{ui.whatsappCta}</span>
-              </a>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d={CHAT_PATH} strokeLinejoin="round" /></svg>
+                <span className="hidden sm:inline">{ui.chatCta}</span>
+              </button>
             </motion.div>
           )}
         </AnimatePresence>
 
         <div className="mt-3 flex flex-col items-center gap-2">
           <p className={`text-xs text-ink/70 text-center ${bodyFont}`} lang={langTag}>
-            {signedIn ? (
-              <>
-                {ui.liveNote}{" "}
-                <a href={site.whatsapp} target="_blank" rel="noopener noreferrer" className="font-medium text-[#128C4B] hover:underline">
-                  {ui.whatsappCta} →
-                </a>
-              </>
-            ) : (
-              ui.previewNote
-            )}
+            {signedIn ? ui.liveNote : ui.previewNote}
           </p>
           {!embedded && (
             <button

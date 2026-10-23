@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { Caveat } from "next/font/google";
 import { AnimatePresence, motion, useReducedMotion, type PanInfo } from "framer-motion";
 import Avatar from "@/components/ui/Avatar";
@@ -14,17 +14,15 @@ import type { Testimonial } from "@/lib/testimonials";
  * stories. A review without a portrait gets the watercolour figure from
  * <Avatar>, so real customers never leave a hole.
  *
- * Stories change on their own: a hand-drawn gold line under the story draws
- * itself as the timer, the words of each new quote blur in one after another,
- * the portrait floats gently, and a large faint quote mark swings in behind.
- * It holds still only while the pointer rests on the story itself or a control
- * has focus (hovering anywhere in the section used to freeze it, so it looked
- * static), and there is no autoplay for people who ask for reduced motion.
+ * Stories change only when the reader moves them. They used to advance every
+ * six seconds, which a screen reader announced as a stream of interruptions and
+ * which moved a quote away from someone still reading it. Each new story still
+ * arrives softly: the words blur in one after another, the portrait floats
+ * gently, and a large faint quote mark swings in behind.
  */
 
 const hand = Caveat({ subsets: ["latin"], weight: ["500"], display: "swap" });
 
-const STORY_MS = 6000;
 const EASE = [0.22, 1, 0.36, 1] as const;
 const SWIPE = 70;
 
@@ -35,34 +33,14 @@ export default function Testimonials({ stories }: { stories?: Testimonial[] }) {
   const count = testimonials.length;
   const [active, setActive] = useState(0);
   const [dir, setDir] = useState<1 | -1>(1);
-  const [paused, setPaused] = useState(false);
-  const [onScreen, setOnScreen] = useState(false);
-  const [run, setRun] = useState(0); // restarts the pen line
-  const ref = useRef<HTMLElement>(null);
 
   const step = useCallback(
     (by: 1 | -1) => {
       setDir(by);
       setActive((a) => (a + by + count) % count);
-      setRun((r) => r + 1);
     },
     [count]
   );
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(([e]) => setOnScreen(e.isIntersecting), { threshold: 0.4 });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
-  const playing = !reduced && !paused && onScreen && count > 1;
-  useEffect(() => {
-    if (!playing) return;
-    const id = window.setTimeout(() => step(1), STORY_MS);
-    return () => window.clearTimeout(id);
-  }, [playing, active, run, step]);
 
   const onDragEnd = (_: unknown, info: PanInfo) => {
     if (info.offset.x < -SWIPE) step(1);
@@ -73,7 +51,7 @@ export default function Testimonials({ stories }: { stories?: Testimonial[] }) {
   const t = testimonials[active];
 
   return (
-    <section ref={ref} className="section relative overflow-hidden bg-sage-light/30">
+    <section className="section relative overflow-hidden bg-sage-light/30">
       <div className="wrap-wide">
         <p className="eyebrow mb-10 flex items-center gap-3 md:mb-14">
           <span className="font-deva text-sm normal-case tracking-normal text-gold" aria-hidden="true">मन</span>
@@ -89,16 +67,12 @@ export default function Testimonials({ stories }: { stories?: Testimonial[] }) {
             if (e.key === "ArrowRight") step(1);
             if (e.key === "ArrowLeft") step(-1);
           }}
-          onFocusCapture={() => setPaused(true)}
-          onBlurCapture={() => setPaused(false)}
         >
           {/* the story; drag sideways on a phone to move on */}
           <div
             className="relative min-h-[26rem] sm:min-h-[19rem]"
-            // read out a story someone moved to themselves, not every auto-advance
-            aria-live={playing ? "off" : "polite"}
-            onMouseEnter={() => setPaused(true)}
-            onMouseLeave={() => setPaused(false)}
+            // only ever changed by the reader, so reading the new story out is wanted
+            aria-live="polite"
           >
             {/* a large faint quote mark that swings in behind each new story */}
             <AnimatePresence mode="wait">
@@ -183,25 +157,14 @@ export default function Testimonials({ stories }: { stories?: Testimonial[] }) {
             <div className="mt-10 flex items-center gap-4 sm:gap-6">
               <Arrow direction="prev" onClick={() => step(-1)} />
 
-              {/* the pen line: a timer while playing, a steady mark when still */}
+              {/* the pen line: a steady mark between the arrows */}
               <svg className="h-3 w-full min-w-0 flex-1 overflow-visible" viewBox="0 0 600 12" preserveAspectRatio="none" aria-hidden="true">
                 <path
-                  d="M2 7 C 90 3, 180 10, 300 6 S 500 3, 598 7"
-                  fill="none"
-                  stroke="rgba(14,59,51,0.12)"
-                  strokeWidth="1.6"
-                  strokeLinecap="round"
-                />
-                <motion.path
-                  key={`${run}-${playing}`}
                   d="M2 7 C 90 3, 180 10, 300 6 S 500 3, 598 7"
                   fill="none"
                   stroke="#C8A45D"
                   strokeWidth="2.4"
                   strokeLinecap="round"
-                  initial={{ pathLength: playing ? 0 : 1 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: playing ? STORY_MS / 1000 : 0, ease: "linear" }}
                 />
               </svg>
 

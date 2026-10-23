@@ -50,9 +50,10 @@ export const UI: Record<
     /** The coach-mark that points at a topic chip until the visitor taps one. */
     scenarioPrompt: string;
     chatLabel: string;
-    /** The sign-in / WhatsApp bar and the in-chat card for signed-out visitors. */
+    /** The sign-in / open-chat bar and the in-chat card for signed-out visitors. */
     signInCta: string;
-    whatsappCta: string;
+    /** Opens the on-site chat, the one Manu (lib/manu-chat.ts). */
+    chatCta: string;
     gateTitle: string;
     gateBody: string;
     createAccount: string;
@@ -65,7 +66,7 @@ export const UI: Record<
     languageLabel: "Language",
     placeholder: "Tell me what's on your mind…",
     cannedReply: "I'm right here. Shall we talk properly once you sign in?",
-    previewNote: "This is a preview. Manu remembers more once you sign in.",
+    previewNote: "This is a preview.",
     tryLive: "Try Manu live — no sign-up →",
     sendLabel: "Send message",
     inputLabel: "Type a message to Manu",
@@ -73,9 +74,9 @@ export const UI: Record<
     scenarioPrompt: "Try this one — see how Manu replies",
     chatLabel: "Chat messages",
     signInCta: "Sign in to chat with Manu",
-    whatsappCta: "WhatsApp",
+    chatCta: "Open chat",
     gateTitle: "Let's keep talking",
-    gateBody: "Sign in and Manu replies for real, or carry on over WhatsApp.",
+    gateBody: "Sign in and Manu replies for real, or open the chat.",
     createAccount: "New here? Create a free account",
     liveBadge: "Live",
     liveNote: "You're chatting with Manu. For a crisis, tap SOS.",
@@ -84,7 +85,7 @@ export const UI: Record<
     languageLabel: "भाषा",
     placeholder: "अपने मन की बात लिखो…",
     cannedReply: "मैं यहीं हूँ। साइन इन करके पूरी बात करें?",
-    previewNote: "यह एक झलक है। साइन इन करने पर Manu और याद रखता है।",
+    previewNote: "यह एक झलक है।",
     tryLive: "Manu से अभी बात करें — बिना साइन-अप →",
     sendLabel: "मैसेज भेजें",
     inputLabel: "Manu को मैसेज लिखें",
@@ -92,9 +93,9 @@ export const UI: Record<
     scenarioPrompt: "इसे आज़माओ — देखो Manu क्या कहता है",
     chatLabel: "चैट मैसेज",
     signInCta: "Manu से बात करने के लिए साइन इन करें",
-    whatsappCta: "WhatsApp",
+    chatCta: "चैट खोलें",
     gateTitle: "चलो बात आगे बढ़ाएँ",
-    gateBody: "साइन इन करें, Manu सच में जवाब देगा — या WhatsApp पर बात जारी रखें।",
+    gateBody: "साइन इन करें, Manu सच में जवाब देगा — या चैट खोलें।",
     createAccount: "नए हैं? मुफ़्त अकाउंट बनाएँ",
     liveBadge: "लाइव",
     liveNote: "आप Manu से बात कर रहे हैं। संकट में SOS दबाएँ।",
@@ -103,7 +104,7 @@ export const UI: Record<
     languageLabel: "Bhasha",
     placeholder: "Apne mann ki baat likho…",
     cannedReply: "Main yahin hoon. Sign in karke poori baat karein?",
-    previewNote: "Yeh ek preview hai. Sign in karne par Manu aur yaad rakhta hai.",
+    previewNote: "Yeh ek preview hai.",
     tryLive: "Manu se abhi baat karo — no sign-up →",
     sendLabel: "Message bhejein",
     inputLabel: "Manu ko message likhein",
@@ -111,9 +112,9 @@ export const UI: Record<
     scenarioPrompt: "Ise try karo — dekho Manu kya kehta hai",
     chatLabel: "Chat messages",
     signInCta: "Sign in karke Manu se baat karo",
-    whatsappCta: "WhatsApp",
+    chatCta: "Chat kholo",
     gateTitle: "Chalo baat aage badhaate hain",
-    gateBody: "Sign in karo, Manu sach mein reply karega — ya WhatsApp pe baat jaari rakho.",
+    gateBody: "Sign in karo, Manu sach mein reply karega — ya chat kholo.",
     createAccount: "Naye ho? Free account banao",
     liveBadge: "Live",
     liveNote: "Aap Manu se baat kar rahe ho. Crisis mein SOS dabao.",
