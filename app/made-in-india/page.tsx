@@ -10,10 +10,10 @@ import IndiaOutline from "@/components/visuals/IndiaOutline";
 import { languageList, languageSentence } from "@/lib/languages";
 
 export const metadata: Metadata = {
-  title: "Made in India — Built for Indian minds",
+  title: "Made in India — Built here, with care",
   alternates: { canonical: "/made-in-india" },
   description:
-    "Emoraa is built in India, for India. Your data stays on Indian servers under the DPDP Act 2023. Therapy is in your language. Tele-MANAS 14416 crisis support is built in.",
+    "Emoraa is built in India, and open to anyone, anywhere. Your data stays on Indian servers under the DPDP Act 2023. Therapy is in your language. Tele-MANAS 14416 crisis support is built in.",
 };
 
 const pillars = [
@@ -161,7 +161,7 @@ export default function MadeInIndiaPage() {
           <Reveal>
             <p className="eyebrow mb-5 flex items-center gap-2.5">
               <span aria-hidden="true">🇮🇳</span>
-              built in India, for India
+              built in India, open to everyone
             </p>
             <h1 className="h-display max-w-4xl text-[clamp(2.6rem,7vw,5.5rem)]">
               Mental health works better when it&apos;s{" "}

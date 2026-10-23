@@ -98,6 +98,38 @@
     @apply h-px w-12 bg-gold;
   }
 
+  /*
+   * ONE CARD, EVERYWHERE.
+   *
+   * The home page had five card shapes at once — rounded-2xl here, rounded-3xl
+   * there, a permanent shadow on one, a 15% border on another, a 20% border on
+   * the next. Any single one looked fine; together they read as five different
+   * websites stitched into one page. What makes a page feel considered is not
+   * the cleverness of any one section, it is the same shape repeating all the
+   * way down, so the eye stops noticing the container and starts reading the
+   * content.
+   *
+   * So: 24px radius, one hairline border, flat at rest, and the shadow arrives
+   * only under the cursor. A section that needs its own colour sets `style`
+   * for background and border and keeps everything else from here.
+   */
+  .card-mm {
+    @apply rounded-3xl border border-forest-800/10 bg-ivory-light transition-shadow duration-500 ease-silk hover:shadow-lift;
+  }
+
+  /* The same card on a dark ground. Same radius, same hairline, same quiet
+     hover — only the surface changes, so the forest sections read as the same
+     page rather than as a different site that happens to be dark. */
+  .card-mm-dark {
+    @apply rounded-3xl border border-ivory/10 bg-ivory/[0.04] transition-colors duration-500 ease-silk hover:bg-ivory/[0.07];
+  }
+
+  /* Anything nested INSIDE a card — an option button, a slot, a tile. One step
+     tighter than its container, so the two radii never look like a mistake. */
+  .card-mm-inner {
+    @apply rounded-2xl border border-forest-800/10 bg-ivory;
+  }
+
   /* a scroll container that shows its bar rather than hiding it */
   .rail {
     scrollbar-width: thin;

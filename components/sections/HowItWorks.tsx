@@ -88,7 +88,7 @@ function ChoosePreview({ animate, region }: Pop) {
       ].map((t) => (
         <Appear key={t.name} animate={animate} delay={t.delay}>
           <motion.div
-            className="flex items-center gap-3 rounded-2xl border bg-white/80 px-3 py-2.5"
+            className="card-mm-inner flex items-center gap-3 px-3 py-2.5"
             initial={animate ? { borderColor: "rgba(31,45,40,0.08)" } : false}
             whileInView={{ borderColor: t.picked ? ink(region) : "rgba(31,45,40,0.08)" }}
             viewport={{ once: true, margin: "-10% 0px" }}
@@ -302,7 +302,7 @@ export default function HowItWorks() {
               )}
 
               <div
-                className="group flex h-full flex-col rounded-3xl border p-5 transition-shadow duration-500 ease-silk hover:shadow-lift md:p-6"
+                className="card-mm group flex h-full flex-col p-5 md:p-6"
                 style={{ backgroundColor: tint(step.region, 0.07), borderColor: tint(step.region, 0.2) }}
               >
                 <div className="flex flex-1 flex-col justify-center md:min-h-[13rem] transition-transform duration-500 ease-silk group-hover:-translate-y-0.5">

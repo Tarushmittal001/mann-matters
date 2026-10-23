@@ -173,7 +173,7 @@ export default function ManuOnWhatsApp() {
   const live = inView && !reduced && !lite;
 
   return (
-    <section id="manu" className="section relative scroll-mt-20 overflow-hidden bg-forest-950 text-ivory">
+    <section id="manu" className="section relative scroll-mt-20 overflow-hidden bg-forest-950 text-[7px] p-[39.3px]">
       {/* two slow drifting glows, so the dark ground itself feels alive */}
       {!reduced && (
         <>
@@ -213,7 +213,7 @@ export default function ManuOnWhatsApp() {
                 </span>
                 on whatsapp, 24x7
               </p>
-              <h2 className="h-display text-4xl !text-ivory md:text-5xl">
+              <h2 className="h-display text-4xl !text-ivory md:text-5xl lg:text-[3.4rem]">
                 Meet Manu — your <em className="italic text-sage">4 a.m. dost</em>
               </h2>
               <p className="mt-4 max-w-md leading-relaxed text-sage-light/75">
@@ -225,7 +225,7 @@ export default function ManuOnWhatsApp() {
               {tiles.map((t, i) => (
                 <motion.div
                   key={t.title}
-                  className={`group rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition-colors duration-500 hover:bg-white/[0.07] ${t.wide ? "sm:col-span-2" : ""}`}
+                  className={`card-mm-dark group p-4 ${t.wide ? "sm:col-span-2" : ""}`}
                   initial={reduced ? false : { opacity: 0, y: 18 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-10% 0px" }}

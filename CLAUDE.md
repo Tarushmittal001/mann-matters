@@ -1,6 +1,7 @@
 # Emoraa — agent instructions
 
-Next.js 14 (App Router) therapy-booking site for Indian youth, students and professionals.
+Next.js 14 (App Router) booking site for online therapy, counselling and psychiatry (medication consultations),
+for students, professionals and anyone who needs support, usable from anywhere.
 **Full map of the codebase: [CODEBASE_CONTEXT.md](CODEBASE_CONTEXT.md). Read its "Session
 Bootstrap" section first**, then only the sections your change touches (see its
 "Change Impact Map"). Keep that file updated when architecture, schema, API or rules change.

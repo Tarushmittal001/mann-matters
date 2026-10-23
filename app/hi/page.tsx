@@ -12,16 +12,16 @@ import Price from "@/components/ui/Price";
 import { standardPrice } from "@/lib/pricing";
 
 export const metadata: Metadata = {
-  title: "Emoraa — भारत के लिए ऑनलाइन थेरेपी",
+  title: "Emoraa — ऑनलाइन थेरेपी, काउंसलिंग और साइकियाट्री",
   description:
-    "योग्य भारतीय मनोवैज्ञानिकों से निजी ऑनलाइन बातचीत — हिन्दी में। ₹599 से शुरू।",
+    "योग्य मनोवैज्ञानिकों और मनोचिकित्सकों से निजी ऑनलाइन बातचीत — हिन्दी में। ₹599 से शुरू।",
   alternates: {
     canonical: "/hi",
     languages: { "en-IN": "/", "hi-IN": "/hi" },
   },
   openGraph: {
     title: "Emoraa — आपकी भावनाएँ मायने रखती हैं",
-    description: "योग्य भारतीय मनोवैज्ञानिकों से निजी ऑनलाइन बातचीत, हिन्दी में।",
+    description: "योग्य मनोवैज्ञानिकों और मनोचिकित्सकों से निजी ऑनलाइन बातचीत, हिन्दी में।",
     locale: "hi_IN",
     // setting openGraph here replaces the root one, image included
     images: ["/opengraph-image.png"],

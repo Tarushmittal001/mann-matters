@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: "Blog — Notes on minds, gently written",
   alternates: { canonical: "/blog" },
   description:
-    "Essays on anxiety, relationships, student life, workplace burnout, and self-care — written by Emoraa psychologists, for India.",
+    "Essays on anxiety, relationships, student life, workplace burnout, and self-care — written by Emoraa psychologists.",
 };
 
 /* Posts are rows now, so this is rebuilt on a timer rather than at deploy.

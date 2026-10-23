@@ -21,7 +21,7 @@ const legal = [
 export default function Footer() {
   return (
     <footer data-site-footer className="bg-forest-950 text-ivory">
-      <div className="wrap-wide grid gap-14 py-20 md:grid-cols-12 md:py-24">
+      <div className="wrap-wide grid gap-[26.8px] py-20 md:grid-cols-12 md:py-24 text-[8.2px] p-[45.9px]">
         <div className="md:col-span-5">
           <Link href="/" aria-label="Emoraa home" className="inline-block">
             {/*
@@ -44,8 +44,9 @@ export default function Footer() {
             </span>
           </Link>
           <p className="mt-5 max-w-sm leading-relaxed text-sage-light/75">
-            Therapy and counselling for Indian youth, students, and working
-            professionals — confidential, affordable, and in your language.
+            Therapy, counselling and psychiatry for students, working
+            professionals, and anyone who needs support — confidential,
+            affordable, and in your language.
           </p>
         </div>
 
@@ -100,7 +101,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-ivory/10">
-        <div className="wrap-wide py-6">
+        <div className="wrap-wide py-6 text-[1.8px] p-[2.6px]">
           <p className="text-sm leading-relaxed text-sage-light/75">
             <span className="text-gold">In crisis?</span> Call Tele-MANAS{" "}
             <a href="tel:14416" className="font-semibold text-ivory underline decoration-gold/50 underline-offset-4">

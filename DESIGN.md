@@ -1,6 +1,6 @@
 ---
 name: Emoraa
-description: Your emotions matter. Online therapy for India, in your language.
+description: Your emotions matter. Online therapy, counselling and psychiatry, in your language.
 colors:
   forest-950: "#06211C"
   forest-900: "#0A2E28"

@@ -35,3 +35,6 @@ next-env.d.ts
 # uploaded client avatars — faces of real people, kept out of /public and out
 # of git. Served only through /api/profile/avatar/[file], which checks the caller.
 /private/
+
+# Size Lab: what was resized in the browser, pending application to source
+design-changes.jsonl

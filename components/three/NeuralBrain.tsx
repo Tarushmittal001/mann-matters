@@ -196,7 +196,20 @@ const REACH = CALLOUTS.map((c) => ({
  * brain gets everything else, and the leaders are short because the words are
  * already next to what they point at.
  */
-function brainScale(w: number, h: number) {
+function brainScale(w: number, h: number, labels: boolean) {
+  /*
+   * With `labels={false}` nothing has to fit beside the silhouette, so the
+   * shape simply takes the box it is given. This is the whole reason the brain
+   * can come back to the hero at a sane size: the old 742px figure was not the
+   * brain being greedy, it was the brain plus two reserved label columns, and
+   * the widest word on each side was what actually set the scale.
+   *
+   * 500 × 460 rather than 600 × 560: the drawn ink runs x 55..535 and
+   * y 120..560, and the rest of the design box is blank.
+   */
+  if (!labels) {
+    return Math.max(0.2, Math.min((w - EDGE * 2) / 500, (h - EDGE * 2) / 460));
+  }
   const fits = REACH.map((r) => (w / 2 - r.w - EDGE) / r.reach);
   return Math.max(0.2, Math.min(...fits, (h / 560) * 0.9));
 }
@@ -255,7 +268,7 @@ function regionAt(x: number, y: number): number {
 
 type View = { s: number; ox: number; oy: number; w: number; h: number };
 
-export default function NeuralBrain() {
+export default function NeuralBrain({ labels = true }: { labels?: boolean } = {}) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tipRef = useRef<HTMLDivElement>(null);
@@ -451,7 +464,7 @@ export default function NeuralBrain() {
       canvas.height = Math.max(1, Math.floor(cssH * dpr));
       canvas.style.width = `${cssW}px`;
       canvas.style.height = `${cssH}px`;
-      s = brainScale(cssW, cssH);
+      s = brainScale(cssW, cssH, labels);
       ox = (cssW - 600 * s) / 2;
       /* Centre the INK, not the box. The silhouette occupies y 120..560 of a
          560-tall design space — 120 units of blank above it and none below —
@@ -878,7 +891,7 @@ export default function NeuralBrain() {
       wrap.removeEventListener("pointerleave", onLeave);
       wrap.removeEventListener("pointerdown", onDown);
     };
-  }, []);
+  }, [labels]);
 
   return (
     <div ref={wrapRef} className="relative h-full w-full">
@@ -923,14 +936,20 @@ export default function NeuralBrain() {
       )}
 
       {/*
-        The named concerns. Only from `md` up: below that the brain is ambient
-        decoration at 40% opacity *behind* the headline, and labels over it
-        would collide with the words rather than annotate anything.
+        The named concerns — OFF on the home page (`labels={false}`).
 
-        Positioned with the same `view` transform as the region buttons above,
-        so a label stays welded to its node at every width.
+        The eight words live in `components/sections/Concerns.tsx` now. A word
+        placed against a point on a silhouette reads as a labelled anatomical
+        figure however the join is drawn — that is what made the hero feel
+        clinical, and it is also what forced the brain to be enormous, since
+        the scale had to reserve a label column either side.
+
+        The markup stays because the labelled brain is still the right thing
+        somewhere with room for it (/about, a services page). Only from `xl` up
+        when it is on: below that the brain is ambient decoration behind the
+        headline, and labels over it would collide with the words.
       */}
-      {view && (
+      {view && labels && (
         <div className="pointer-events-none absolute inset-0 z-20 hidden xl:block" aria-hidden="true">
           {/*
             Nothing points at the brain any more.

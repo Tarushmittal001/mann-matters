@@ -10,7 +10,7 @@ import BookingFlow from "@/components/booking/BookingFlow";
 export const metadata: Metadata = {
   title: "सेशन बुक करें",
   description:
-    "योग्य भारतीय मनोवैज्ञानिक के साथ निजी ऑनलाइन सेशन, पाँच मिनट में बुक कीजिए। ₹599 से।",
+    "योग्य मनोवैज्ञानिक या मनोचिकित्सक के साथ निजी ऑनलाइन सेशन, पाँच मिनट में बुक कीजिए। ₹599 से।",
   alternates: {
     canonical: "/hi/book",
     languages: { "en-IN": "/book", "hi-IN": "/hi/book" },

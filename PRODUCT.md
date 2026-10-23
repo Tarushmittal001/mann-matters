@@ -8,7 +8,9 @@ web
 
 ## Users
 
-Young people in India and early-career professionals, served as one audience with no priority between them: students and young adults (often first time in therapy, price-sensitive, sometimes keeping it private from family) and working professionals in their twenties and early thirties (time-poor, paying for themselves). They come to Emoraa to find out whether therapy is for them, try something free, and book an online session with a therapist who speaks their language.
+Students and working professionals, served as one audience with no priority between them: students (often first time in therapy, price-sensitive, sometimes keeping it private from family) and working professionals (time-poor, paying for themselves), and anyone else who wants support. They come to Emoraa to find out whether therapy is for them, try something free, and book an online session (therapy, counselling, or a psychiatry and medication consultation) with a practitioner who speaks their language.
+
+Copy never narrows the audience: no "for India" as a limit (Emoraa is run from India but usable from anywhere) and no "young people" as a blanket label. Factual India references stay: Indian law (DPDP), Indian helplines, Indian languages, IST.
 
 Secondary audiences, confirmed in the product: couples and families (couples, family, parent-coaching and teen formats), and institutions buying programmes for their people (`/for-organisations`: play schools, schools, colleges, companies).
 
@@ -16,7 +18,7 @@ Operational users: experts (`/expert` portal: availability, sessions, notificati
 
 ## Product Purpose
 
-Emoraa offers online therapy and counselling for India, in the client's language, from ₹999 (₹599 for students). It is a marketing site, a self-serve booking product (sign up, choose a concern and an expert, hold a live slot, pay, then manage, move or cancel the session), a set of free anonymous self-help tools, an editorial blog, and the Manu assistant.
+Emoraa offers online therapy, counselling, and psychiatry (medication consultations with a psychiatrist), in the client's language, from ₹999 (₹599 for students). It is a marketing site, a self-serve booking product (sign up, choose a concern and an expert, hold a live slot, pay, then manage, move or cancel the session), a set of free anonymous self-help tools, an editorial blog, and the Manu assistant.
 
 Success means a person moves from unsure to booked and feels safe doing it. A person in crisis should always reach the right helpline straight away.
 
@@ -35,7 +37,7 @@ Four things together, all true today:
 
 ## Operating Context
 
-- Online only. Run from Noida, with sessions anywhere in India. All dates and times are IST.
+- Online only. Run from Noida, with sessions usable from anywhere. All dates and times are IST.
 - **The blog is written in the portals.** Practitioners draft and submit posts; an admin reads
   each one before it goes live. Admins publish their own directly. Nothing reaches `/blog`
   without a second person having seen it, because these go out under a named clinician.

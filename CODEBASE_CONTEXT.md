@@ -20,8 +20,8 @@
 
 Everything needed to start work with no extra reading:
 
-- **What**: `Emoraa` — Next.js 14 App Router marketing site + therapy-booking
-  product for Indian youth/students/professionals. Serene, editorial, "boutique
+- **What**: `Emoraa` — Next.js 14 App Router marketing site + booking
+  product for therapy, counselling and psychiatry (students, professionals, anyone; usable from anywhere). Serene, editorial, "boutique
   commission not template" visual bar.
 - **Root**: `c:\Users\dell\Desktop\Emoraa` · Windows · PowerShell primary.
 - **Run**: `npm install` → `npm run dev` (:3000). Build `npm run build`; serve `npm start`.
@@ -217,7 +217,8 @@ Everything needed to start work with no extra reading:
   gets `pointer-events-none` with `pointer-events-auto` back on its control row; and every
   decorative `absolute inset-0` wash in that section needs `pointer-events-none` or it silently
   eats every click meant for the canvas.
-- `three/NeuralBrain.tsx`: hero canvas (2D canvas, not three.js despite the folder).
+- `three/NeuralBrain.tsx`: 2D canvas (not three.js despite the folder). **No longer mounted on
+  the home page** — see "the hero is a photograph" below. Kept, and still exported.
   **Eight brain regions, each with a feeling and its own colour** (`REGIONS[].rgb`).
   Colour is *earned by interaction*: at rest nodes are tinted only ~20% toward their region
   (stays serene behind the headline); hover blooms one region; **click sends a BFS wave whose
@@ -564,35 +565,155 @@ A booking no longer confirms on payment. The states are
 - **Nobody can prescribe today**: the catalogue has no psychiatrist and no registration numbers.
   The feature is dormant until a real, verified prescriber is added.
 
-### Home: the hero brain is labelled (`components/three/NeuralBrain.tsx`)
-- Eight concerns named **around the existing hero brain** — Anxiety, Low mood, Exam stress, Career
-  worry on the left; Family pressure, Love life, Burnout, Can't sleep on the right — each a link.
-  `CALLOUTS` sits beside `REGIONS`.
-- **Nothing points at the brain.** There is no leader and no dot on the silhouette. An earlier pass
-  softened the leader from a solid line into a trail of dots and it still read as an anatomical
-  figure, because **the leader is the diagram**: a word joined to a spot on a specimen is a
-  labelled figure however the join is drawn. Styling the pointer was treating the symptom.
-- Three things carry the "thoughts around a mind" read instead: the words are scattered (varied
-  height, varied distance, left and right staggered), their size varies widely (`c.fs`,
-  0.80–1.10rem), and so does their presence (`c.dim`, 0.62–1.00) — nearer thoughts clear, further
-  ones faint.
-- **Only half carry a sub-line** (`c.also`). Term-plus-caption on all eight is a legend; on four of
-  eight it reads as chosen. That and the size variation are what stop the set scanning as a key.
-- The words still light on the brain's own pulse (`calNode` / `calUntil`), which is what keeps them
-  from being static now that nothing connects them to it.
-- **No second brain anywhere.** An earlier attempt at a separate labelled-brain section was
-  removed; there is one brain on the home page and these labels are on it.
-- **Each word is anchored in the brain's own 600×560 space** (`ax`/`ay`), at a point just clear of
-  the silhouette at that word's own height — not at a fraction of the container. This is the whole
-  layout. The first version reserved a full label column either side of the brain's entire 600-wide
-  box and then pinned the words to the container's edges, which cost far more room than it needed
-  to: the silhouette is only ~480 wide and narrows sharply top and bottom, so the result was a
-  small brain trailing long leaders across empty ivory.
-- **`brainScale` is derived, not typed in.** `REACH` is computed from `CALLOUTS` — each word's
-  reach from the brain's centre paired with its own box width — and the scale is the tightest of
-  those, so the only thing that must fit beside the brain is one word at a time. Adding or moving
-  a callout re-derives the scale, which is what stops the old failure where a stale constant
-  pushed a word back onto the artwork.
+### Home: the hero brain, unlabelled, in a grid (2026-10-20)
+- **The brain is in the hero, with `labels={false}`.** The eight concern words moved to
+  `components/sections/Concerns.tsx`; the label markup in `NeuralBrain` stays, behind the prop,
+  because a labelled brain is still right somewhere with room for it.
+- **It was never too big.** It was the brain *plus a reserved label column on each side*:
+  `brainScale` shrank the silhouette until the widest word on each side fitted. At 1440 the old
+  container was 879×900 holding ~594×545 of actual ink — a third of it margin held for text. With
+  labels off the container is 579×544 holding 540×498 of ink. **The drawing is only ~9% smaller;
+  the footprint is far smaller.** That is the whole answer to "brain too big".
+- **The hero is a two-column grid with `items-center`, not layered absolutes.** The old hero could
+  not be aligned at all: the brain was `absolute inset-y-0 right-0` while the words sat in a
+  separate flow layer, so the two had different vertical centres and every correction was a
+  hand-typed number the next breakpoint undid. The browser computes the shared centre now.
+  **Do not reintroduce an absolutely-positioned hero visual.**
+- The brain's cell has an **explicit height** (`h-[clamp(26rem,42vw,34rem)]` at `lg`). The canvas
+  sizes itself to its box, and `h-full` inside an auto-height grid cell has no box to read.
+- `brainScale(w, h, labels)` takes the mode: with labels off nothing has to fit beside the
+  silhouette, so it fits the drawn ink (500×460) to the box rather than the 600×560 design square.
+- **On phones the brain is now its own block below the words**, at full opacity, instead of a
+  40%-opacity wash behind the headline that was too small to read as anything.
+
+### Home: "What brings you here" (`components/sections/Concerns.tsx`)
+- The eight concerns as eight cards, each a link to the service that handles it — the same links
+  they were on the brain, now looking like something you can click.
+- **The second line is the point.** "Anxiety" is a clinical word; "worry that won't stop" is what
+  a person types at 1 a.m. Four of these were written for the brain; the other four are in the
+  same voice. "log kya kahenge" is deliberate — it is the phrase WhyEmoraa answers further down.
+- Colour comes from `SERVICE_REGION` in `lib/palette.ts` for six of the eight. Two deviate and the
+  file says so: Anxiety and Low mood both lead to individual therapy, and two identical cards in
+  one grid looks like a bug, so Low mood takes the brain stem and Can't sleep the temporal lobe.
+  The colours still mean what the palette says they mean.
+
+### Home: the stories (`components/sections/Testimonials.tsx`, 2026-10-20)
+- **A portrait at 264px, not 48px**, beside the quote rather than under it. A centred quote with a
+  small round picture beneath it is the most common testimonial layout on the web, and it read as
+  exactly that.
+- **The halo is the idea.** Each story takes one of the eight brain-region colours from
+  `lib/palette.ts` — the same eight the concerns and the services use — and it washes the space
+  behind the portrait and, faintly, the whole band. Moving between stories tweens it, so the page
+  changes temperature with each person. It is the one thing here that could not be lifted off
+  another site, because those colours already mean something on this one. `WHEEL` is a fixed
+  order, so a story always gets the same colour.
+- **The ring IS the timer.** The autoplay countdown is stroked around the portrait (`pathLength`
+  0→1 over `STORY_MS`) instead of a separate bar or a row of dots — a progress element that is
+  also the frame costs nothing in the layout.
+- **The quote arrives a word at a time out of a blur.** Per-word, not per-line: a line break is a
+  property of the viewport, so staggering by line makes the animation change shape when the column
+  does. The blur is dropped under `useLiteMotion` — a filter on thirty spans at once is what
+  actually costs frames on a phone.
+- **The quote marks live inside the first and last word's span.** Each word is an `inline-block`,
+  so a loose closing mark is its own wrappable item and dropped onto a line by itself.
+- **Everything that implies a sequence renders only from the SECOND story onwards**: the ring, the
+  arrows, the counter, the rail of faces, the autoplay and the drag. There is one approved story
+  today, and the original fault here was a full carousel — autoplay, swipe, arrow keys, a drawn
+  timer line — wrapped around a single item. A control that cannot go anywhere is worse than none.
+- It holds still while the pointer is over it or a control inside it has focus, and never autoplays
+  under `prefers-reduced-motion` (where the quote is plain text with no per-word spans at all).
+  The arrows still work there.
+- **The byline.** That single story is from the founder, and it sat under an eyebrow reading "we
+  heard you", which reads as a body of client feedback that does not exist yet. The eyebrow is "in
+  their words" and the attribution shows *founder* plainly. Stories still come only from approved
+  `Feedback` rows — no written samples; a made-up review is a fake review however kindly written.
+
+### Size Lab — resizing things in the browser (`components/dev/SizeLab.tsx`)
+- A development-only overlay for the "that card is too big" problem, which is obvious on screen
+  and tedious to describe in words. Ctrl/Cmd + Shift + L, or the pill at the bottom of the window.
+- **Click lands on the innermost element**, which is almost never what you meant — clicking a card
+  hits the `<span>` holding its label. So a click records the whole **ancestor chain** and the
+  panel shows it as chips; clicking a chip (or ↑/↓) walks out to the card, the list, the section.
+  An edited level is marked `*`.
+- Knobs: a **Scale** row (−20 / −10 / +10 %, which moves font size, padding and gap together — the
+  "make this smaller" case) and steppers for text, padding, gap, width, height and radius. Edits
+  are inline `!important` styles, so nothing is written to disk by the browser and a reload
+  discards everything.
+- **Drag handles** on the selection box — right edge for width, bottom for height, corner for
+  both. Stepping a number is fine when you know the number; most of the time you want it narrower
+  *until it looks right*, which the hand decides and the eye confirms. The handles sit inside
+  `[data-sizelab]`, so grabbing one never counts as picking a new element.
+- **Edit the words** sets `contentEditable` on the element, so copy is retyped in the real face at
+  the real size on the real background. While it is open **every shortcut stands down** — without
+  that, pressing Del to fix a typo deleted the heading. React owns this DOM, so a re-render (a
+  state change, a Fast Refresh save) replaces what was typed: finish an edit, then save.
+- **Only properties you actually touched are recorded.** Diffing computed styles against the
+  baseline looked simpler and was wrong: rewriting a heading to a longer line made it wrap, so its
+  height went 54→109px and the record claimed a height change nobody asked for. `touched` is
+  populated by the knobs, the scale row and the handles, and nothing else.
+- Knobs: text, padding, gap, width, height, radius, margin, line-height, letter-spacing.
+- **Delete** (button, or the Del key) sets `display:none !important` rather than detaching the
+  node — reversible, still readable so its `outerHTML` goes into the saved record, and React would
+  put a detached node straight back on its next render. Deleted elements are listed in the panel
+  and one click brings any of them back; the chain chip marks that level with ✕.
+- **Crisis routing cannot be deleted.** `protectedReason` refuses if the selected element is, or
+  contains, `[data-safety-notice]`, `/crisis`, `tel:14416`, `tel:112`, or the words Tele-MANAS /
+  14416. CLAUDE.md makes that a hard rule, and a tool that can hide the number and then hand over
+  a list saying "delete this" is a path straight through it — so the refusal is at the point of
+  the action, not a judgement call afterwards. Verified: the delete is refused and the link stays.
+- **Apply to code writes the source files** (`lib/dev/apply-design-change.ts`). Exact string
+  replacements, in one file, and only when exactly one place in the codebase can be the source of
+  that element — two candidates is a refusal, not a coin toss. Everything shows in `git diff`;
+  `git checkout` undoes it. **Just note** is the old behaviour, recording without writing.
+- **It edits the class that was WINNING at the width you judged it at.** This is the whole
+  difficulty. A card reading `p-5 sm:p-6` shows 24px on a desktop because `sm:p-6` applies from
+  640px up; stepping it to 20px and rewriting the bare `p-5` produces `p-5` again — a no-op —
+  while nothing moves on screen. The first version did exactly that and reported "nothing mapped".
+  `setUtility` now takes the viewport, picks the bare class or the largest breakpoint variant
+  whose min-width is <= it, and edits that one. Variants above the viewport are left alone and
+  reported. State variants (`hover:`) are never candidates.
+- px snaps to the named Tailwind step when one lands within half a pixel, else an arbitrary value
+  (`text-[13.6px]`). If the utility is not in the class list at all it is appended — which is how
+  a radius living in `.card-mm` gets overridden rather than edited at source.
+- **One source line can render many elements.** The eight concern cards share one `className` in
+  one `.map()`, so narrowing one narrows all eight. The browser counts how many elements share
+  the class string and the result says "one source line, 8 elements on the page".
+- **Deleting is the strictest path.** It only handles a one-line data-array entry whose first
+  quoted word is unique in the codebase — which is how `CONCERNS`, `reasons` and the rest of this
+  project's lists are written — and it comments the line out rather than removing it. Anything
+  else is refused: "delete this card" can mean removing JSX or removing a row of data, and getting
+  that wrong deletes the wrong thing.
+- **Every save also appends to `design-changes.jsonl` at the repo root**, applied or not, with the
+  before/after of each edit. The browser is a good
+  place to decide a number and a bad place to decide which Tailwind class should carry it, so the
+  list is applied by hand afterwards. The file is gitignored.
+- **The `className` is the handle, not the source map.** `sourceOf` walks React's fiber for
+  `_debugSource`, but measured against this build it returns `null` — Next's SWC transform does
+  not emit it. The full Tailwind class string is recorded instead, and in this codebase one grep
+  on it lands on the exact line. A tag, the element's own text and an nth-of-type DOM path are
+  recorded too, for elements whose classes are generic. **Do not start relying on `source`.**
+- **Two independent guards keep it out of production**: the component returns `null` unless
+  `NODE_ENV === "development"`, and `app/api/dev/size-lab/route.ts` returns a bare 404 before it
+  reads the body. The route writes a file from an unauthenticated request, so the UI not
+  rendering is not a guard — the route check is.
+- The pill sits **bottom centre** because the safety notice and chat launcher own the bottom-left
+  and WhatsApp owns the bottom-right.
+
+### Home: one card, everywhere (`.card-mm` / `.card-mm-dark` / `.card-mm-inner`)
+- The page had **five card shapes at once** — differing radii, borders at 10/15/20%, a permanent
+  shadow on one and none on the next. Any one looked fine; together they read as several sites
+  stitched into one page.
+- One shape now, in `app/globals.css`: 24px radius, one hairline border, flat at rest, shadow only
+  under the cursor. `.card-mm-dark` is the same card on the forest sections. `.card-mm-inner` is
+  one step tighter, for anything nested inside a card. A section that needs its own colour sets
+  `style` for background and border and takes everything else from the class.
+- Section headings are one scale as well: `text-4xl md:text-5xl lg:text-[3.4rem]`, matching
+  `SectionHeading`. NotSure was a step smaller and Manu a step different.
+- **The trust strip is gone.** It had been reduced to one card reading "2+ languages" after every
+  other figure was pulled as unprovable, and a single card centred in a full-width band looks
+  worse than no band. `components/sections/TrustStrip.tsx` and the `stats` export in `lib/site.ts`
+  are deleted; the rule that killed the figures still stands in a comment there.
+
 ### Free tools need an account
 - Free, never paid — but every tool requires sign-in: the seven under `/tools/*`, plus `/breathe`,
   `/check-in` and `/match`. The `/tools` menu is deliberately outside the gate so somebody can see
@@ -688,6 +809,17 @@ Three facts were typed into dozens of files and had drifted apart. Each now has 
   is refused, and a published post can no longer be edited or deleted by its author.
 
 ### Home: "Not sure?" — the self-check starts on the page
+- **The question IS the heading, and there is no card** (2026-10-20). It used to be set at
+  1.25rem inside a white box beside a 3rem heading that said "Most people are not sure" — so the
+  one thing the section exists to get answered was the smallest thing in it. The question now
+  carries the section at `text-4xl md:text-5xl lg:text-[3.4rem]`, centred, and the four GAD-7
+  answers are text on a rule rather than four boxed buttons inside a boxed card.
+- The answer row needs a **wider measure than the question** (`max-w-5xl` against `max-w-4xl`):
+  at a quarter of `max-w-4xl` a column is ~172px and "More than half the days" needs ~185px, so
+  one answer wrapped to two lines and the row lost its baseline. `lg:whitespace-nowrap` holds it.
+- **Three paragraphs of fine print became one line.** It still says, before the first tap, that
+  this is a check and not a diagnosis, that nothing is stored, and that the result needs an
+  account. Those are promises `app/privacy` makes; the word count was not.
 - `components/sections/NotSure.tsx`, between `HowItWorks` and `WhyEmoraa`. That position is
   deliberate: the doubt "is this even for me?" arrives once somebody knows what a session is.
 - **The page asks question one instead of advertising the test.** A button saying "take the test"
@@ -737,8 +869,8 @@ Three facts were typed into dozens of files and had drifted apart. Each now has 
 ### Home: the hero's opening block
 - **The first line says what Emoraa is.** It read "Private video sessions with certified
   psychologists" — a description of the service that never named it, so a visitor could read the
-  whole hero and not know what the site was. It now opens "Emoraa is an online therapy platform
-  for India", then lists what people arrive with (anxiety, low mood, family, relationships, work,
+  whole hero and not know what the site was. It now opens "Emoraa is an online therapy and psychiatry
+  platform" (no "for India": the site is open to anyone, anywhere), then lists what people arrive with (anxiety, low mood, family, relationships, work,
   sleep). The list is what carries "wide range"; no word in it is hard.
 - **The three large figures are gone.** ₹0 / ₹599–999 / 7 was the stat block every landing page
   has, and it stopped holding together once two of the three values were not numbers: an offer, a

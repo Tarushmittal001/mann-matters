@@ -157,16 +157,14 @@ export const toolLinks = [
   { href: "/tools", label: "All free tools", desc: "Everything in one place" },
 ];
 
-/**
- * Homepage trust strip. Every number here must be one we can prove today —
- * an invented count or rating is a misleading claim under consumer law. The
- * strip also has drawings for "sessions", "psychologists" and "rating"; add
- * those back (with real figures) once there are records to back them.
+/*
+ * The home page's trust strip is gone. It had been reduced to a single card
+ * reading "2+ languages", because every other figure on it — sessions,
+ * psychologists, rating — was pulled for being unprovable, and one lonely
+ * card centred in a full-width band looks worse than no band at all.
+ *
+ * If real numbers arrive, they belong in a strip rebuilt from scratch, not in
+ * an exported shape nothing imports. The rule that killed the other three
+ * still stands: every number must be one we can prove today, because an
+ * invented count or rating is a misleading claim under consumer law.
  */
-export const stats: {
-  kind: "sessions" | "psychologists" | "languages" | "rating";
-  value: number;
-  suffix: string;
-  label: string;
-  decimals?: number;
-}[] = [{ kind: "languages", value: 2, suffix: "+", label: "languages" }];

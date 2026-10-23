@@ -67,7 +67,7 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>
-          Emoraa connects you with qualified mental-health practitioners for online counselling and therapy.
+          Emoraa connects you with qualified mental-health practitioners for online counselling, therapy and psychiatric consultation.
           Practitioners on Emoraa are <Fill>employees of / independent professionals contracted by</Fill> Emoraa
           and are responsible for their own clinical judgement.
         </p>

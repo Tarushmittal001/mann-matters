@@ -1,10 +1,10 @@
 # Emoraa
 
 A premium marketing + booking website for **Emoraa**, a mental-health and
-wellness platform for Indian youth, students, and working professionals. Serene,
+wellness platform for students, working professionals, and anyone who needs support. Serene,
 luxurious, and calm — built to feel like a boutique-studio commission, not a template.
 
-Therapy and counselling, online, in your language, from ₹599.
+Therapy, counselling and psychiatry, online, in your language, from ₹599.
 
 ---
 

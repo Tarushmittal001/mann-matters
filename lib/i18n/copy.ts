@@ -139,10 +139,10 @@ const en: Copy = {
     close: "Close menu",
   },
   home: {
-    eyebrow: "therapy for India, online",
+    eyebrow: "therapy, counselling & psychiatry, online",
     headline: "Your emotions",
     headlineAccent: "matter.",
-    lede: "Confidential sessions with certified Indian psychologists, in the language you think in.",
+    lede: "Confidential sessions with certified psychologists and psychiatrists, in the language you think in.",
     ctaBook: "Book a session",
     ctaFree: "Try it free",
     trust: [],
@@ -245,10 +245,10 @@ const hi: Copy = {
     close: "मेन्यू बंद करें",
   },
   home: {
-    eyebrow: "भारत के लिए थेरेपी, ऑनलाइन",
+    eyebrow: "थेरेपी, काउंसलिंग और साइकियाट्री, ऑनलाइन",
     headline: "आपकी भावनाएँ",
     headlineAccent: "मायने रखती हैं।",
-    lede: "योग्य भारतीय मनोवैज्ञानिकों से निजी बातचीत — उसी भाषा में, जिसमें आप सोचते हैं।",
+    lede: "योग्य मनोवैज्ञानिकों और मनोचिकित्सकों से निजी बातचीत — उसी भाषा में, जिसमें आप सोचते हैं।",
     ctaBook: "सेशन बुक करें",
     ctaFree: "पहला सेशन मुफ़्त",
     trust: [

@@ -9,7 +9,7 @@ import SelfCheckCta from "@/components/services/SelfCheckCta";
 import { listExperts } from "@/lib/experts-store";
 import { sessionSteps, services } from "@/lib/services";
 import { serviceAvailability } from "@/lib/service-catalogue";
-import { CountWord, formatINR } from "@/lib/utils";
+import { formatINR } from "@/lib/utils";
 import TheRoom from "@/components/visuals/TheRoom";
 
 export const metadata: Metadata = {
@@ -88,7 +88,7 @@ export default async function ServicesPage() {
               <em className="text-forest-600">there&apos;s a way through.</em>
             </h1>
             <p className="mt-8 max-w-xl text-lg leading-relaxed text-ink/70">
-              {CountWord(services.length)} kinds of support, one standard: a qualified
+              Every kind of support, one standard: a qualified
               professional, complete confidentiality, and a price you can actually sustain.
             </p>
             <div className="pointer-events-auto mt-10 flex flex-wrap items-center gap-4">
@@ -150,7 +150,7 @@ export default async function ServicesPage() {
           <SectionHeading
             eyebrow="what we offer"
             deva="मन"
-            title={`${CountWord(services.length)} kinds of support, one standard`}
+            title="Many kinds of support, one standard"
             description="They differ in who is in the room, how long it runs, and what it costs. They do not differ in who you get, or in how carefully you are looked after. Start anywhere. Your therapist will say if another one fits you better."
           />
 

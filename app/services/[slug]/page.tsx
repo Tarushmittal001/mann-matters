@@ -21,7 +21,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   const service = services.find((item) => item.slug === params.slug);
   if (!service) return {};
   return {
-    title: `${service.title} online in India`,
+    title: `${service.title} online`,
     description: service.description,
     alternates: { canonical: `/services/${service.slug}` },
     openGraph: { title: service.title, description: service.description, images: [service.image] },

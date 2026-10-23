@@ -40,8 +40,8 @@ export default async function StatementPage({
         </Link>
         <h1 className="h-display mt-3 text-3xl md:text-4xl">Monthly statement</h1>
         <p className="mt-3 max-w-2xl text-ink/65">
-          Every session you held that month, what was collected for it, and your share. Print it
-          or take the CSV.
+          Every session you held that month, and every late cancellation you are paid for, with
+          what was collected and your share. Print it or take the CSV.
         </p>
 
         <nav aria-label="Month" className="mt-6 flex flex-wrap gap-2">
@@ -95,7 +95,7 @@ export default async function StatementPage({
             <div className="mt-5 overflow-x-auto">
               <table className="w-full min-w-[40rem] border-collapse text-[0.88rem]">
                 <caption className="sr-only">
-                  Sessions held in {s.monthName}, with your share of each
+                  Sessions held and late cancellations paid in {s.monthName}, with your share of each
                 </caption>
                 <thead>
                   <tr className="border-b border-forest-800/15 text-left">
@@ -123,6 +123,9 @@ export default async function StatementPage({
                       <td className="px-3 py-2.5 text-ink/70">
                         {l.service}
                         {l.free && <span className="ml-1.5 text-[0.8rem] text-ink/50">free</span>}
+                        {l.lateCancel && (
+                          <span className="ml-1.5 text-[0.8rem] text-ink/50">cancelled late</span>
+                        )}
                       </td>
                       <td className="px-3 py-2.5 text-right tabular-nums text-ink/75">
                         {formatINR(l.collected)}
@@ -140,9 +143,16 @@ export default async function StatementPage({
                   <tr className="border-t-2 border-forest-800/20 font-semibold">
                     <td className="px-3 py-3" colSpan={3}>
                       {s.totals.sessions} {s.totals.sessions === 1 ? "session" : "sessions"}
-                      {s.totals.free > 0 && (
+                      {(s.totals.free > 0 || s.totals.lateCancelled > 0) && (
                         <span className="ml-1.5 font-normal text-ink/60">
-                          ({s.totals.free} free)
+                          (
+                          {[
+                            s.totals.free > 0 && `${s.totals.free} free`,
+                            s.totals.lateCancelled > 0 && `${s.totals.lateCancelled} cancelled late`,
+                          ]
+                            .filter(Boolean)
+                            .join(", ")}
+                          )
                         </span>
                       )}
                     </td>
