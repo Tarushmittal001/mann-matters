@@ -100,7 +100,7 @@ function Print({
       <div className="relative aspect-[4/5] w-full overflow-hidden">
         <Image src={src} alt={alt} fill className="object-cover" sizes="(max-width: 1024px) 60vw, 26vw" />
       </div>
-      <figcaption className={`${hand.className} px-1 py-1.5 text-center text-[1.05rem] leading-tight text-ink/75 sm:py-2 sm:text-[1.2rem]`}>
+      <figcaption className={`${hand.className} px-1 py-1.5 text-center text-body leading-tight text-ink/75 sm:py-2 `}>
         {caption}
       </figcaption>
     </motion.figure>
@@ -131,7 +131,7 @@ function Collage() {
       {/* pen note: the question, scribbled out, and the answer */}
       <div className={`${hand.className} absolute right-0 top-2 w-[40%] text-right`}>
         <div className="relative inline-block">
-          <p className="whitespace-nowrap text-[1.2rem] leading-none text-ink/70 sm:text-[1.5rem]">log kya kahenge?</p>
+          <p className="whitespace-nowrap text-body leading-none text-ink/70 ">log kya kahenge?</p>
           <svg className="absolute -left-1 top-1/2 h-5 w-[108%] -translate-y-1/2 overflow-visible" viewBox="0 0 160 20" preserveAspectRatio="none" aria-hidden="true">
             <Stroke d="M2 12 C 30 4, 50 16, 80 9 S 130 3, 158 11 M6 15 C 40 8, 90 17, 154 6" color={RED} width={2.4} delay={0.6} duration={0.9} />
           </svg>
@@ -141,7 +141,7 @@ function Collage() {
           <Stroke d="M26 27 L 17 34 L 27 39" delay={1.8} duration={0.3} />
         </svg>
         <motion.p
-          className="-mt-1 text-[1.3rem] font-bold leading-tight sm:text-[1.6rem]"
+          className="-mt-1 text-body font-bold leading-tight "
           style={{ color: INK }}
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -155,14 +155,14 @@ function Collage() {
       {/* the number, circled in pen */}
       <div className={`${hand.className} absolute bottom-1 left-2 w-[48%]`}>
         <div className="relative inline-block px-3">
-          <span className="text-[2.3rem] font-bold leading-none sm:text-[2.8rem]" style={{ color: INK }}>
+          <span className="text-heading font-bold leading-none " style={{ color: INK }}>
             93%
           </span>
           <svg className="absolute -inset-x-1 -inset-y-2 h-[calc(100%+1rem)] w-[calc(100%+0.5rem)] overflow-visible" viewBox="0 0 100 60" preserveAspectRatio="none" aria-hidden="true">
             <Stroke d="M60 6 C 20 2, 2 18, 6 34 C 10 54, 70 60, 92 40 C 104 24, 86 4, 50 7" color="#C8A45D" width={2} delay={1} duration={1} />
           </svg>
         </div>
-        <p className="mt-1.5 text-[1.1rem] leading-tight text-ink/70 sm:text-[1.25rem]">feel better within 5 sessions</p>
+        <p className="mt-1.5 text-body leading-tight text-ink/70 ">feel better within 5 sessions</p>
       </div>
     </div>
   );
@@ -177,10 +177,10 @@ export default function WhyEmoraa() {
         <div>
           <Reveal from="right">
             <p className="eyebrow mb-4 flex items-center gap-3">
-              <span className="font-deva text-sm normal-case tracking-normal text-gold" aria-hidden="true">मन</span>
+              <span className="font-deva text-small normal-case tracking-normal text-gold" aria-hidden="true">मन</span>
               why Emoraa
             </p>
-            <h2 className="h-display text-4xl md:text-5xl">
+            <h2 className="h-display text-heading ">
               Therapy without the <em className="text-forest-600">&ldquo;log kya kahenge&rdquo;</em>
             </h2>
           </Reveal>
@@ -189,12 +189,12 @@ export default function WhyEmoraa() {
             {reasons.map((r, i) => (
               <li key={r.title} className="border-t border-forest-800/12 last:border-b">
                 <Reveal from="right" delay={0.08 * i} className="grid grid-cols-[2.75rem_1fr] gap-x-3 py-5">
-                  <span className="font-display text-2xl italic leading-none text-gold-dark">
+                  <span className="font-display text-body italic leading-none text-gold-dark">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <div>
-                    <h3 className="font-display text-xl font-medium leading-tight text-forest-900">{r.title}</h3>
-                    <p className="mt-1.5 max-w-md text-[0.95rem] leading-relaxed text-ink/70">{r.line}</p>
+                    <h3 className="font-display text-body font-medium leading-tight text-forest-900">{r.title}</h3>
+                    <p className="mt-1.5 max-w-md text-body leading-relaxed text-ink/70">{r.line}</p>
                   </div>
                 </Reveal>
               </li>

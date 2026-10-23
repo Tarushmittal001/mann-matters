@@ -41,6 +41,16 @@ const config: Config = {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
         deva: ["var(--font-deva)", "serif"],
       },
+      // The type scale: three sizes, plus one display size for a page's hero
+      // headline. Hierarchy inside a size comes from family (Fraunces vs
+      // Jakarta), weight and colour — not from another size. The home page
+      // had 32 sizes, 14 of them between 12px and 15px.
+      fontSize: {
+        display: ["clamp(2.25rem, 6vw, 3.75rem)", { lineHeight: "1.04", letterSpacing: "-0.025em" }],
+        heading: ["clamp(2rem, 1.55rem + 1.6vw, 2.75rem)", { lineHeight: "1.12", letterSpacing: "-0.02em" }],
+        body: ["1.0625rem", { lineHeight: "1.65" }],
+        small: ["0.875rem", { lineHeight: "1.5" }],
+      },
       maxWidth: {
         measure: "68ch",
       },

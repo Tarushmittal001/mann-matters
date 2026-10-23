@@ -344,15 +344,16 @@ export default function TryManuDemo({
           <div className="relative h-9 w-9 rounded-full bg-gradient-to-br from-sage to-gold shrink-0 animate-breathe">
             <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-green-400 ring-2 ring-forest" />
           </div>
-          <div className="flex items-center gap-2">
-            <span className="font-display text-lg text-ivory">Manu</span>
+          {/* wraps: at 320 the name, badge and SOS were 30px wider than the card */}
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5">
+            <span className="font-display text-body text-ivory">Manu</span>
             <AnimatePresence mode="wait" initial={false}>
               {signedIn ? (
                 <motion.span
                   key="live"
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-1.5 rounded-full bg-green-400/15 px-2 py-0.5 text-[0.75rem] font-sans font-semibold uppercase tracking-wider text-green-300"
+                  className="flex items-center gap-1.5 rounded-full bg-green-400/15 px-2 py-0.5 text-small font-sans font-semibold uppercase tracking-wider text-green-300"
                 >
                   <span className="relative flex h-1.5 w-1.5">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-300 opacity-70" />
@@ -363,7 +364,7 @@ export default function TryManuDemo({
               ) : (
                 <motion.span
                   key="ai"
-                  className="rounded-full bg-ivory/15 px-2 py-0.5 text-[0.75rem] font-sans uppercase tracking-wider text-ivory/70"
+                  className="rounded-full bg-ivory/15 px-2 py-0.5 text-small font-sans uppercase tracking-wider text-ivory/70"
                 >
                   AI-powered
                 </motion.span>
@@ -375,7 +376,7 @@ export default function TryManuDemo({
         {/* SOS */}
         <a
           href="/crisis?sos=true"
-          className="flex items-center gap-1 rounded-full bg-red-600/90 px-2.5 py-1 text-xs font-bold text-white hover:bg-red-500 transition-colors"
+          className="flex min-h-9 shrink-0 items-center gap-1 rounded-full bg-red-600/90 px-3 text-small font-bold text-white hover:bg-red-500 transition-colors"
           aria-label="SOS — get crisis help now"
         >
           <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 fill-current" aria-hidden="true">
@@ -386,8 +387,9 @@ export default function TryManuDemo({
       </div>
 
       {/* Language switcher */}
-      <div className="flex items-center justify-between gap-3 border-b border-sage/10 bg-ivory/40 px-4 py-2.5">
-        <span className="text-[0.75rem] font-sans font-semibold uppercase tracking-[0.14em] text-ink/70">
+      {/* wraps: three language pills plus the label are wider than a 320 card */}
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-sage/10 bg-ivory/40 px-4 py-2.5">
+        <span className="text-small font-sans font-semibold uppercase tracking-[0.14em] text-ink/70">
           {ui.languageLabel}
         </span>
         <div
@@ -405,7 +407,7 @@ export default function TryManuDemo({
                 aria-checked={active}
                 lang={l.tag}
                 onClick={() => changeLang(l.id)}
-                className={`rounded-full px-3 py-1 text-[13px] leading-5 transition ${
+                className={`rounded-full px-3 py-1 text-small leading-5 transition ${
                   l.id === "hi" ? "font-deva" : "font-sans"
                 } ${
                   active
@@ -438,7 +440,7 @@ export default function TryManuDemo({
             role="tab"
             aria-selected={activeScenario === s.id}
             onClick={() => selectScenario(s.id)}
-            className={`relative shrink-0 rounded-full px-3 py-1 text-[13px] transition whitespace-nowrap ${bodyFont} ${
+            className={`relative shrink-0 rounded-full px-3 py-1 text-small transition whitespace-nowrap ${bodyFont} ${
               activeScenario === s.id
                 ? "bg-forest text-ivory shadow-lift"
                 : "bg-sage/15 text-forest-700 hover:bg-sage/30"
@@ -467,7 +469,7 @@ export default function TryManuDemo({
               type="button"
               key="coach"
               onClick={() => selectScenario(scenarios[hintIndex].id)}
-              className={`absolute z-30 flex w-[232px] items-center gap-2.5 rounded-2xl bg-forest-900 py-2.5 pl-2.5 pr-3.5 text-left text-[12.5px] font-medium leading-snug text-ivory shadow-bloom ${bodyFont}`}
+              className={`absolute z-30 flex w-[232px] items-center gap-2.5 rounded-2xl bg-forest-900 py-2.5 pl-2.5 pr-3.5 text-left text-small font-medium leading-snug text-ivory shadow-bloom ${bodyFont}`}
               initial={{ opacity: 0, y: 8, scale: 0.92 }}
               animate={{ opacity: 1, y: 0, scale: 1, left: hintPos.bubble, top: hintPos.top }}
               exit={{ opacity: 0, y: 6, scale: 0.95 }}
@@ -542,12 +544,12 @@ export default function TryManuDemo({
                 className={`relative w-full shrink-0 overflow-hidden rounded-2xl bg-forest-900 p-4 text-ivory shadow-lift ${bodyFont}`}
               >
                 <span aria-hidden="true" className="pointer-events-none absolute -right-8 -top-10 h-28 w-28 rounded-full bg-gold/20 blur-2xl" />
-                <p className="relative font-display text-[1.05rem]">{ui.gateTitle}</p>
-                <p className="relative mt-1 text-[13px] leading-relaxed text-ivory/75">{ui.gateBody}</p>
+                <p className="relative font-display text-body">{ui.gateTitle}</p>
+                <p className="relative mt-1 text-small leading-relaxed text-ivory/75">{ui.gateBody}</p>
                 <div className="relative mt-3 flex flex-wrap gap-2">
                   <a
                     href={SIGN_IN_HREF}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-gold px-4 py-2 text-[13px] font-semibold text-forest-950 transition-colors hover:bg-gold-light"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-gold px-4 py-2 text-small font-semibold text-forest-950 transition-colors hover:bg-gold-light"
                   >
                     {ui.signInCta}
                     <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -558,13 +560,13 @@ export default function TryManuDemo({
                     href={site.whatsapp}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-full border border-ivory/25 px-3.5 py-2 text-[13px] font-medium text-ivory transition-colors hover:bg-ivory/10"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-ivory/25 px-3.5 py-2 text-small font-medium text-ivory transition-colors hover:bg-ivory/10"
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="#25D366" aria-hidden="true"><path d={WA_PATH} /></svg>
                     {ui.whatsappCta}
                   </a>
                 </div>
-                <a href={SIGN_UP_HREF} className="relative mt-2.5 inline-block text-[12px] text-ivory/60 underline-offset-2 hover:text-ivory hover:underline">
+                <a href={SIGN_UP_HREF} className="relative mt-2.5 inline-block text-small text-ivory/60 underline-offset-2 hover:text-ivory hover:underline">
                   {ui.createAccount}
                 </a>
               </motion.div>
@@ -574,7 +576,7 @@ export default function TryManuDemo({
               layout
               {...bubbleVariants}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-[15px] leading-relaxed ${bodyFont} ${
+              className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-body leading-relaxed ${bodyFont} ${
                 msg.role === "user"
                   ? "self-end bg-gold/25 text-forest-900 rounded-br-md"
                   : "self-start bg-sage/20 text-forest-900 rounded-bl-md"
@@ -608,13 +610,13 @@ export default function TryManuDemo({
             onChange={(e) => setInput(e.target.value)}
             placeholder={ui.placeholder}
             lang={langTag}
-            className={`flex-1 rounded-xl bg-ivory px-4 py-2.5 text-sm text-forest-900 placeholder:text-ink/70 border border-sage/20 focus:border-gold focus:ring-1 focus:ring-gold/50 outline-none transition-colors ${bodyFont}`}
+            className={`min-w-0 flex-1 rounded-xl bg-ivory px-4 py-2.5 text-small text-forest-900 placeholder:text-ink/70 border border-sage/20 focus:border-gold focus:ring-1 focus:ring-gold/50 outline-none transition-colors ${bodyFont}`}
             aria-label={ui.inputLabel}
           />
           <button
             type="submit"
             disabled={!input.trim()}
-            className="rounded-xl bg-gold px-4 py-2.5 text-sm font-semibold text-forest-950 hover:bg-gold-light disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="shrink-0 rounded-xl bg-gold px-4 py-2.5 text-small font-semibold text-forest-950 hover:bg-gold-light disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             aria-label={ui.sendLabel}
           >
             <svg viewBox="0 0 20 20" className="h-5 w-5 fill-current" aria-hidden="true">
@@ -637,7 +639,7 @@ export default function TryManuDemo({
             >
               <a
                 href={SIGN_IN_HREF}
-                className={`group relative flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-forest px-4 py-2.5 text-[13.5px] font-semibold text-ivory transition-colors hover:bg-forest-700 ${bodyFont}`}
+                className={`group relative flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-forest px-4 py-2.5 text-small font-semibold text-ivory transition-colors hover:bg-forest-700 ${bodyFont}`}
               >
                 {/* a slow shimmer across the button, so it reads as the way in */}
                 {!reducedMotion && (
@@ -659,7 +661,7 @@ export default function TryManuDemo({
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Chat with Manu on WhatsApp"
-                className="flex items-center gap-2 rounded-xl border border-[#25D366]/40 bg-[#25D366]/10 px-3.5 py-2.5 text-[13.5px] font-semibold text-[#128C4B] transition-colors hover:bg-[#25D366]/20"
+                className="flex items-center gap-2 rounded-xl border border-[#25D366]/40 bg-[#25D366]/10 px-3.5 py-2.5 text-small font-semibold text-[#128C4B] transition-colors hover:bg-[#25D366]/20"
               >
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="#25D366" aria-hidden="true"><path d={WA_PATH} /></svg>
                 <span className="hidden sm:inline">{ui.whatsappCta}</span>
@@ -669,7 +671,7 @@ export default function TryManuDemo({
         </AnimatePresence>
 
         <div className="mt-3 flex flex-col items-center gap-2">
-          <p className={`text-xs text-ink/70 text-center ${bodyFont}`} lang={langTag}>
+          <p className={`text-small text-ink/70 text-center ${bodyFont}`} lang={langTag}>
             {signedIn ? (
               <>
                 {ui.liveNote}{" "}
@@ -685,7 +687,7 @@ export default function TryManuDemo({
             <button
               onClick={onTryLive ?? (() => (window.location.href = "/manu"))}
               lang={langTag}
-              className={`rounded-full bg-forest px-6 py-2.5 text-sm font-semibold text-ivory hover:bg-forest-700 transition-colors ${bodyFont}`}
+              className={`rounded-full bg-forest px-6 py-2.5 text-small font-semibold text-ivory hover:bg-forest-700 transition-colors ${bodyFont}`}
             >
               {ui.tryLive}
             </button>
@@ -704,11 +706,11 @@ export default function TryManuDemo({
         <div className="mx-auto max-w-2xl text-center mb-12">
           <h2
             id="try-manu-heading"
-            className="font-display text-3xl sm:text-4xl lg:text-5xl text-forest leading-tight"
+            className="font-display text-heading text-forest leading-tight"
           >
             Meet Manu — your 4&nbsp;a.m. dost
           </h2>
-          <p className="mt-4 text-lg text-ink/70 font-sans">
+          <p className="mt-4 text-body text-ink/70 font-sans">
             Empathetic, judgement-free support that actually speaks your language.
           </p>
         </div>

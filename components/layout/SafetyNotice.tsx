@@ -61,7 +61,7 @@ export default function SafetyNotice() {
           exit={{ opacity: 0, y: 20 }}
           onClick={() => setState("full")}
           data-safety-notice
-          className="fixed bottom-20 left-4 z-50 flex items-center gap-2 rounded-full bg-forest-100 px-4 py-2 text-sm font-semibold text-forest-800 shadow-bloom border border-forest-600/20 hover:bg-sage-light transition-colors"
+          className="fixed bottom-20 left-[max(1rem,env(safe-area-inset-left))] z-50 flex min-h-11 items-center gap-2 rounded-full bg-forest-100 px-4 py-2 text-small font-semibold text-forest-800 shadow-bloom border border-forest-600/20 hover:bg-sage-light transition-colors"
           aria-label={c.pillLabel}
           lang={locale}
         >
@@ -91,10 +91,10 @@ export default function SafetyNotice() {
                 </svg>
               </span>
               <div className="min-w-0 flex-1">
-                <p className="font-display text-base font-medium leading-tight text-forest-900">
+                <p className="font-display text-body font-medium leading-tight text-forest-900">
                   {c.region}
                 </p>
-                <p className="mt-1 text-xs leading-relaxed text-ink/70">
+                <p className="mt-1 text-small leading-relaxed text-ink/70">
                   {c.short}
                 </p>
               </div>
@@ -102,13 +102,13 @@ export default function SafetyNotice() {
             <div className="mt-3 flex items-center gap-2">
               <a
                 href="tel:14416"
-                className="flex min-h-11 flex-1 items-center justify-center rounded-full bg-forest px-4 text-sm font-semibold text-ivory"
+                className="flex min-h-11 flex-1 items-center justify-center rounded-full bg-forest px-4 text-small font-semibold text-ivory"
               >
                 {c.call}
               </a>
               <a
                 href={`${locale === "hi" ? "/hi/crisis" : "/crisis"}?sos=true`}
-                className="flex min-h-11 flex-1 items-center justify-center rounded-full border border-forest-600/20 bg-ivory-light px-4 text-sm font-semibold text-forest-800"
+                className="flex min-h-11 flex-1 items-center justify-center rounded-full border border-forest-600/20 bg-ivory-light px-4 text-small font-semibold text-forest-800"
               >
                 {c.more}
               </a>
@@ -145,8 +145,8 @@ export default function SafetyNotice() {
               </svg>
             </span>
             <div>
-              <p className="font-display text-base font-medium text-forest-900">{c.gentle}</p>
-              <p className="mt-1.5 text-sm text-ink/70 leading-relaxed">
+              <p className="font-display text-body font-medium text-forest-900">{c.gentle}</p>
+              <p className="mt-1.5 text-small text-ink/70 leading-relaxed">
                 {c.bodyBefore}
                 <strong className="text-forest-800">{c.bodyStrong}</strong>
                 {c.bodyAfter}
@@ -156,13 +156,13 @@ export default function SafetyNotice() {
 
           {/* Crisis box */}
           <div className="rounded-xl bg-forest-950/[0.04] border border-forest-600/10 px-4 py-3 mb-4">
-            <p className="flex items-center gap-2 text-sm font-semibold text-forest-800 mb-2">
+            <p className="flex items-center gap-2 text-small font-semibold text-forest-800 mb-2">
               <svg viewBox="0 0 20 20" className="h-4 w-4 fill-forest-600 shrink-0" aria-hidden="true">
                 <path fillRule="evenodd" d="M2 3.5A1.5 1.5 0 0 1 3.5 2h1.148a1.5 1.5 0 0 1 1.465 1.175l.716 3.223a1.5 1.5 0 0 1-1.052 1.767l-.933.267c-.694.198-.933.74-.897 1.116a7.02 7.02 0 0 0 6.505 6.505c.376.036.918-.203 1.116-.897l.267-.933a1.5 1.5 0 0 1 1.767-1.052l3.223.716A1.5 1.5 0 0 1 18 15.352V16.5a1.5 1.5 0 0 1-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 0 1 3.43 8.326 13.02 13.02 0 0 1 3 5H3.5A1.5 1.5 0 0 1 2 3.5Z" clipRule="evenodd" />
               </svg>
               {c.reachOut}
             </p>
-            <ul className="space-y-1 text-sm text-ink/70">
+            <ul className="space-y-1 text-small text-ink/70">
               <li>
                 <span className="font-semibold text-forest-800">Tele-MANAS:</span>{" "}
                 <a href="tel:14416" className="text-gold-dark underline underline-offset-2 hover:text-gold">14416</a>{" "}
@@ -183,17 +183,17 @@ export default function SafetyNotice() {
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => setState("dismissed")}
-              className="rounded-full bg-forest px-5 py-2 text-sm font-semibold text-ivory hover:bg-forest-700 transition-colors"
+              className="min-h-11 rounded-full bg-forest px-5 py-2 text-small font-semibold text-ivory hover:bg-forest-700 transition-colors"
             >
               {c.gotIt}
             </button>
             <button
               onClick={() => setState("minimized")}
-              className="rounded-full border border-forest-600/20 bg-ivory-light px-5 py-2 text-sm font-semibold text-forest-800 hover:bg-sage-light transition-colors"
+              className="min-h-11 rounded-full border border-forest-600/20 bg-ivory-light px-5 py-2 text-small font-semibold text-forest-800 hover:bg-sage-light transition-colors"
             >
               {c.minimize}
             </button>
-            <span className="text-xs text-ink/70 italic">
+            <span className="text-small text-ink/70 italic">
               {c.safetyFirst}
             </span>
           </div>

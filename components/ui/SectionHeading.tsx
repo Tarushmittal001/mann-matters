@@ -31,7 +31,7 @@ export default function SectionHeading({
         )}
       >
         {deva && (
-          <span className="font-deva text-sm normal-case tracking-normal text-gold" aria-hidden="true">
+          <span className="font-deva text-small normal-case tracking-normal text-gold" aria-hidden="true">
             {deva}
           </span>
         )}
@@ -39,14 +39,14 @@ export default function SectionHeading({
       </p>
       <h2
         className={cn(
-          "h-display text-4xl md:text-5xl lg:text-[3.4rem]",
+          "h-display text-heading ",
           dark && "text-ivory"
         )}
       >
         {title}
       </h2>
       {description && (
-        <p className={cn("mt-6 text-lg leading-relaxed", dark ? "text-sage-light/80" : "text-ink/70")}>
+        <p className={cn("mt-6 text-body leading-relaxed", dark ? "text-sage-light/80" : "text-ink/70")}>
           {description}
         </p>
       )}

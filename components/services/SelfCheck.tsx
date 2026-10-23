@@ -247,13 +247,13 @@ export default function SelfCheck({
             {/* ── head ─────────────────────────────────────────────── */}
             <div className="flex items-start justify-between gap-6 border-b border-forest-800/10 px-7 py-5 md:px-9">
               <div>
-                <p className="eyebrow flex items-center gap-2.5 text-[0.75rem]">
+                <p className="eyebrow flex items-center gap-2.5 text-small">
                   <span className="font-deva normal-case tracking-normal text-gold" aria-hidden="true">
                     मन
                   </span>
                   {question ? question.scale.source : "the self-check"}
                 </p>
-                <h2 id={titleId} className="mt-2 font-display text-xl font-medium text-forest-900">
+                <h2 id={titleId} className="mt-2 font-display text-body font-medium text-forest-900">
                   {step === RESULT_STEP
                     ? signedIn === true
                       ? "Who we would put you with"
@@ -295,7 +295,7 @@ export default function SelfCheck({
               {/* intro */}
               {step === 0 && (
                 <div>
-                  <p className="text-[0.97rem] leading-relaxed text-ink/75">
+                  <p className="text-body leading-relaxed text-ink/75">
                     Nineteen questions, one at a time, about three minutes. They are
                     the same three screeners a psychologist would use — the GAD-7,
                     the PHQ-8 and the PSS-4 — so the result is worth repeating in a
@@ -307,7 +307,7 @@ export default function SelfCheck({
                       "Nothing is sent anywhere. Your answers stay in this window and are gone when you close it.",
                       "This is a screener, not a diagnosis. Only a clinician can give you one of those.",
                     ].map((line) => (
-                      <li key={line} className="flex gap-3 text-[0.92rem] leading-relaxed text-ink/70">
+                      <li key={line} className="flex gap-3 text-small leading-relaxed text-ink/70">
                         <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-gold" aria-hidden="true" />
                         {line}
                       </li>
@@ -327,11 +327,11 @@ export default function SelfCheck({
                     transition={{ duration: 0.28, ease: EASE }}
                     className="flex min-h-[16rem] flex-col justify-center"
                   >
-                    <p className="text-[0.8rem] italic leading-relaxed text-forest-600">
+                    <p className="text-small italic leading-relaxed text-forest-600">
                       {question.scale.stem}
                     </p>
                     <fieldset className="mt-4">
-                      <legend className="font-display text-[1.55rem] font-medium leading-snug text-forest-900 md:text-[1.8rem]">
+                      <legend className="font-display text-body font-medium leading-snug text-forest-900 ">
                         {question.text}
                       </legend>
                       <div className="mt-8 flex flex-col gap-2.5">
@@ -344,7 +344,7 @@ export default function SelfCheck({
                               aria-pressed={active}
                               onClick={() => answer(choice.value)}
                               className={cn(
-                                "flex w-full items-center gap-3.5 rounded-xl border px-5 py-3.5 text-left text-[0.95rem] font-medium transition duration-300 ease-silk",
+                                "flex w-full items-center gap-3.5 rounded-xl border px-5 py-3.5 text-left text-body font-medium transition duration-300 ease-silk",
                                 active
                                   ? "border-forest-800 bg-forest-800 text-ivory"
                                   : "border-forest-800/15 text-ink/80 hover:border-forest-800/45 hover:bg-forest-800/[0.03]"
@@ -373,10 +373,10 @@ export default function SelfCheck({
               {/* what it is about */}
               {step === CONTEXT_STEP && (
                 <div>
-                  <p className="text-[0.8rem] italic leading-relaxed text-forest-600">
+                  <p className="text-small italic leading-relaxed text-forest-600">
                     The scores say how heavy it is. This says which door to walk through.
                   </p>
-                  <h3 className="mt-4 font-display text-[1.55rem] font-medium leading-snug text-forest-900 md:text-[1.8rem]">
+                  <h3 className="mt-4 font-display text-body font-medium leading-snug text-forest-900 ">
                     And what is most of it about?
                   </h3>
                   <div className="mt-7 space-y-2.5">
@@ -391,7 +391,7 @@ export default function SelfCheck({
                           advanceRef.current = window.setTimeout(() => setStep(RESULT_STEP), 240);
                         }}
                         className={cn(
-                          "block w-full rounded-xl border px-5 py-3.5 text-left text-[0.93rem] leading-snug transition duration-300 ease-silk",
+                          "block w-full rounded-xl border px-5 py-3.5 text-left text-small leading-snug transition duration-300 ease-silk",
                           context === c.id
                             ? "border-forest-800 bg-forest-800 text-ivory"
                             : "border-forest-800/15 text-ink/75 hover:border-forest-800/40 hover:bg-forest-800/[0.03]"
@@ -423,7 +423,7 @@ export default function SelfCheck({
               {step === RESULT_STEP && signedIn === false && (
                 <div className="text-center">
                   <p className="eyebrow mb-4 text-forest-600">your result is ready</p>
-                  <h3 className="h-display text-2xl md:text-3xl">
+                  <h3 className="h-display text-heading ">
                     Sign in to see it
                   </h3>
                   <p className="mx-auto mt-4 max-w-sm leading-relaxed text-ink/70">
@@ -431,7 +431,7 @@ export default function SelfCheck({
                     An account is free. We ask for one so the suggestion is
                     yours, and not left open on a shared phone.
                   </p>
-                  <p className="mx-auto mt-4 max-w-sm text-[0.88rem] leading-relaxed text-ink/70">
+                  <p className="mx-auto mt-4 max-w-sm text-small leading-relaxed text-ink/70">
                     Your answers were never saved, so you will need to take the
                     check again after signing in. It takes about three minutes.
                   </p>
@@ -443,7 +443,7 @@ export default function SelfCheck({
                       Sign in
                     </Button>
                   </div>
-                  <p className="mx-auto mt-7 max-w-sm border-t border-forest-800/15 pt-5 text-[0.84rem] leading-relaxed text-ink/70">
+                  <p className="mx-auto mt-7 max-w-sm border-t border-forest-800/15 pt-5 text-small leading-relaxed text-ink/70">
                     If you need someone now, you do not need an account.{" "}
                     <a href="tel:14416" className="font-semibold text-forest-800">
                       Tele-MANAS 14416
@@ -459,7 +459,7 @@ export default function SelfCheck({
 
               {/* still asking who this is: hold, never reveal */}
               {step === RESULT_STEP && signedIn === undefined && (
-                <p className="py-10 text-center text-[0.95rem] text-ink/70">
+                <p className="py-10 text-center text-body text-ink/70">
                   One moment…
                 </p>
               )}
@@ -468,10 +468,10 @@ export default function SelfCheck({
                 <div>
                   {result.clinical && (
                     <div className="mb-8 rounded-xl border-l-2 border-gold bg-ivory-dark/70 px-5 py-4">
-                      <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-gold-dark">
+                      <p className="text-small font-semibold uppercase tracking-[0.18em] text-gold-dark">
                         please read this first
                       </p>
-                      <p className="mt-2 text-[0.92rem] leading-relaxed text-ink/75">
+                      <p className="mt-2 text-small leading-relaxed text-ink/75">
                         Your answers are in the range where speaking to someone soon
                         matters more than choosing the perfect format. If things feel
                         unsafe at any point, call{" "}
@@ -482,7 +482,7 @@ export default function SelfCheck({
                   )}
 
                   {/* the therapists, as the main event */}
-                  <p className="text-[0.93rem] leading-relaxed text-ink/70">
+                  <p className="text-small leading-relaxed text-ink/70">
                     Based on what you described, these two work on exactly this. Booking
                     asks you to sign in first — so what you share is attached to an
                     account you control.
@@ -502,16 +502,16 @@ export default function SelfCheck({
                           className="h-20 w-20 shrink-0 rounded-xl object-cover"
                         />
                         <div className="min-w-0 flex-1">
-                          <p className="font-display text-[1.25rem] font-medium leading-snug text-forest-900">
+                          <p className="font-display text-body font-medium leading-snug text-forest-900">
                             {e.name}
                           </p>
-                          <p className="mt-0.5 text-[0.78rem] leading-snug text-ink/70">
+                          <p className="mt-0.5 text-small leading-snug text-ink/70">
                             {e.credentials} · {e.experience}
                           </p>
-                          <p className="mt-2 text-[0.85rem] leading-snug text-ink/70">
+                          <p className="mt-2 text-small leading-snug text-ink/70">
                             {e.specialties.slice(0, 3).join(" · ")}
                           </p>
-                          <p className="mt-1.5 text-[0.8rem] text-ink/70">
+                          <p className="mt-1.5 text-small text-ink/70">
                             {e.languages.join(", ")}
                             {/* what this practitioner charges for the service
                                 being recommended — the number they would
@@ -536,7 +536,7 @@ export default function SelfCheck({
                     ))}
                   </div>
 
-                  <p className="mt-4 text-[0.85rem] text-ink/70">
+                  <p className="mt-4 text-small text-ink/70">
                     Prefer to choose yourself?{" "}
                     <Link href="/match" className="link-draw font-medium text-forest-800">
                       See every therapist
@@ -550,16 +550,16 @@ export default function SelfCheck({
                     style={{ borderLeftColor: regionFor(result.service.slug).hex }}
                   >
                     <p
-                      className="text-[0.75rem] font-semibold uppercase tracking-[0.18em]"
+                      className="text-small font-semibold uppercase tracking-[0.18em]"
                       style={{ color: regionFor(result.service.slug).hex }}
                     >
                       the format we would start with
                     </p>
-                    <h3 className="mt-2.5 font-display text-xl font-medium text-forest-900">
+                    <h3 className="mt-2.5 font-display text-body font-medium text-forest-900">
                       {result.service.title}
                     </h3>
-                    <p className="mt-2.5 text-[0.92rem] leading-relaxed text-ink/70">{result.because}</p>
-                    <p className="mt-3 text-[0.85rem] text-ink/70">
+                    <p className="mt-2.5 text-small leading-relaxed text-ink/70">{result.because}</p>
+                    <p className="mt-3 text-small text-ink/70">
                       {result.service.duration}
                       {(() => {
                         const r = priceRangeForService(result.service.slug, result.experts);
@@ -579,7 +579,7 @@ export default function SelfCheck({
                       </Link>
                     </p>
                     {result.alternative && (
-                      <p className="mt-3 text-[0.85rem] leading-relaxed text-ink/70">
+                      <p className="mt-3 text-small leading-relaxed text-ink/70">
                         {result.clinical ? "And alongside it:" : "A lighter way in:"}{" "}
                         <Link
                           href={`/services/${result.alternative.slug}`}
@@ -594,25 +594,25 @@ export default function SelfCheck({
 
                   {/* and finally the numbers */}
                   <div className="mt-8">
-                    <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-gold-dark">
+                    <p className="text-small font-semibold uppercase tracking-[0.18em] text-gold-dark">
                       what you scored
                     </p>
                     <div className="mt-4 space-y-4">
                       {result.results.map((r) => (
                         <div key={r.scale.id}>
                           <div className="flex items-baseline justify-between gap-4">
-                            <p className="font-display text-[1.05rem] font-medium text-forest-900">
+                            <p className="font-display text-body font-medium text-forest-900">
                               {r.scale.title}
                               <span
-                                className="ml-2.5 font-sans text-[0.75rem] font-semibold uppercase tracking-[0.14em]"
+                                className="ml-2.5 font-sans text-small font-semibold uppercase tracking-[0.14em]"
                                 style={{ color: regionForScale(r.scale.id).hex }}
                               >
                                 {r.band.label}
                               </span>
                             </p>
-                            <p className="font-display text-[1.05rem] tabular-nums text-forest-900">
+                            <p className="font-display text-body tabular-nums text-forest-900">
                               {r.percent}%
-                              <span className="ml-1.5 font-sans text-[0.75rem] font-normal text-ink/70">
+                              <span className="ml-1.5 font-sans text-small font-normal text-ink/70">
                                 {r.score}/{r.max}
                               </span>
                             </p>
@@ -623,13 +623,13 @@ export default function SelfCheck({
                               style={{ width: `${r.percent}%`, background: regionForScale(r.scale.id).hex }}
                             />
                           </div>
-                          <p className="mt-1.5 text-[0.82rem] leading-relaxed text-ink/70">{r.band.note}</p>
+                          <p className="mt-1.5 text-small leading-relaxed text-ink/70">{r.band.note}</p>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <p className="mt-8 border-t border-forest-800/10 pt-5 text-[0.82rem] leading-relaxed text-ink/70">
+                  <p className="mt-8 border-t border-forest-800/10 pt-5 text-small leading-relaxed text-ink/70">
                     This is a screener, not a diagnosis — only a licensed clinician can
                     give you one of those, and these numbers are a starting point for
                     that conversation rather than a substitute for it. If you are in
@@ -644,7 +644,7 @@ export default function SelfCheck({
             <div className="flex items-center justify-between gap-4 border-t border-forest-800/10 bg-ivory px-7 py-4 md:px-9">
               {step === 0 ? (
                 <>
-                  <p className="text-[0.8rem] text-ink/70">Nineteen questions · about three minutes</p>
+                  <p className="text-small text-ink/70">Nineteen questions · about three minutes</p>
                   <Button onClick={() => setStep(1)} variant="gold">
                     Begin
                   </Button>
@@ -658,7 +658,7 @@ export default function SelfCheck({
                       setContext(null);
                       setStep(1);
                     }}
-                    className="text-[0.85rem] font-medium text-ink/70 transition-colors hover:text-forest-800"
+                    className="text-small font-medium text-ink/70 transition-colors hover:text-forest-800"
                   >
                     Start again
                   </button>
@@ -671,11 +671,11 @@ export default function SelfCheck({
                   <button
                     type="button"
                     onClick={() => setStep((s) => Math.max(0, s - 1))}
-                    className="text-[0.85rem] font-medium text-ink/70 transition-colors hover:text-forest-800"
+                    className="text-small font-medium text-ink/70 transition-colors hover:text-forest-800"
                   >
                     Back
                   </button>
-                  <p className="text-[0.8rem] tabular-nums text-ink/70">
+                  <p className="text-small tabular-nums text-ink/70">
                     {step === CONTEXT_STEP
                       ? `${answered} of ${QUESTIONS.length} answered`
                       : `${step} of ${QUESTIONS.length}`}

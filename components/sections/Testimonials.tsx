@@ -76,7 +76,7 @@ export default function Testimonials({ stories }: { stories?: Testimonial[] }) {
     <section ref={ref} className="section relative overflow-hidden bg-sage-light/30">
       <div className="wrap-wide">
         <p className="eyebrow mb-10 flex items-center gap-3 md:mb-14">
-          <span className="font-deva text-sm normal-case tracking-normal text-gold" aria-hidden="true">मन</span>
+          <span className="font-deva text-small normal-case tracking-normal text-gold" aria-hidden="true">मन</span>
           we heard you
         </p>
 
@@ -151,7 +151,7 @@ export default function Testimonials({ stories }: { stories?: Testimonial[] }) {
                 </motion.div>
 
                 <div className="select-none">
-                  <blockquote className="relative max-w-2xl font-display text-[1.5rem] leading-[1.35] text-forest-900 sm:text-[2rem] lg:text-[2.3rem]">
+                  <blockquote className="relative max-w-2xl font-display text-heading leading-[1.35] text-forest-900 ">
                     {t.quote.split(" ").map((word, i, all) => (
                       <motion.span
                         key={i}
@@ -170,8 +170,8 @@ export default function Testimonials({ stories }: { stories?: Testimonial[] }) {
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.6, delay: 0.2 + t.quote.split(" ").length * 0.045 }}
                   >
-                    <span className={`${hand.className} text-2xl text-forest-700`}>— {t.name}</span>
-                    <span className="text-sm text-ink/70">{t.detail}</span>
+                    <span className={`${hand.className} text-body text-forest-700`}>— {t.name}</span>
+                    <span className="text-small text-ink/70">{t.detail}</span>
                   </motion.figcaption>
                 </div>
               </motion.figure>

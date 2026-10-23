@@ -46,7 +46,7 @@ export default function Footer() {
               height={230}
               className="h-9 w-auto brightness-0 invert md:h-10"
             />
-            <span className="mt-2 block text-center text-[0.75rem] font-semibold uppercase tracking-[0.26em] text-ivory/75">
+            <span className="mt-2 block text-center text-small font-semibold uppercase tracking-[0.26em] text-ivory/75">
               {site.tagline.replace(/\.$/, "")}
             </span>
           </Link>
@@ -57,7 +57,7 @@ export default function Footer() {
 
         <div className="md:col-span-2">
           <p className="eyebrow mb-5 text-sage">{c.explore}</p>
-          <ul className="space-y-3 text-[0.95rem]">
+          <ul className="space-y-3 text-body">
             {[{ href: "/", label: "Home" }, ...navLinks, { href: "/book", label: "Book a session" }]
               .map((l) => linkCopy(locale, l))
               .map((l) => (
@@ -72,7 +72,7 @@ export default function Footer() {
 
         <div className="md:col-span-3">
           <p className="eyebrow mb-5 text-sage">{c.reachUs}</p>
-          <ul className="space-y-3 text-[0.95rem] text-sage-light/80">
+          <ul className="space-y-3 text-body text-sage-light/80">
             <li>
               <EmailLink className="link-draw hover:text-ivory" />
             </li>
@@ -92,7 +92,7 @@ export default function Footer() {
 
         <div className="md:col-span-2">
           <p className="eyebrow mb-5 text-sage">{c.legal}</p>
-          <ul className="space-y-3 text-[0.95rem]">
+          <ul className="space-y-3 text-body">
             {legal.map((l) => (
               <li key={l.href}>
                 <Link href={l.href} className="link-draw text-sage-light/80 hover:text-ivory">
@@ -109,14 +109,14 @@ export default function Footer() {
 
       <div className="border-t border-ivory/10">
         <div className="wrap-wide py-6">
-          <p className="text-sm leading-relaxed text-sage-light/75">
+          <p className="text-small leading-relaxed text-sage-light/75">
             <span className="text-gold">{c.inCrisis}</span> {c.callTeleManas}{" "}
             <a href="tel:14416" className="font-semibold text-ivory underline decoration-gold/50 underline-offset-4">
               14416
             </a>{" "}
             {c.crisisRest}
           </p>
-          <p className="mt-4 text-sm text-sage-light/70">{c.madeWithCare}</p>
+          <p className="mt-4 text-small text-sage-light/70">{c.madeWithCare}</p>
         </div>
       </div>
     </footer>

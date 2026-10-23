@@ -152,7 +152,7 @@ Everything needed to start work with no extra reading:
 - `auth/`: `AuthForm` (login+signup in one, `mode` prop), `VerifyClient`, `LogoutButton`.
 - `analytics/AnalyticsProvider`: PostHog pathname-only public page views; no autocapture or replay.
 - `blog/`: `BlogIndex`, `PostCover`, `ArticleContents`, `ReadingProgress`, `ShareRow`.
-- `tools/`: one component per tool + `ChatAssistant` (global, stateless Claude-backed API)
+- `tools/`: one component per tool + `ChatAssistant` (global "Manu" AI chat, bottom-right; client-held multi-turn history)
   + `TherapistMatcher`.
 - `TryManu/`: `TryManuDemo` (scripted WhatsApp-bot demo; `/api/manu-demo` supplies its
   lightweight live fallback), `TypingDots`, `scenarios.ts`.
@@ -913,10 +913,18 @@ Three facts were typed into dozens of files and had drifted apart. Each now has 
 - Handles three post-states: pending-verification screen, needs-verify + resend, generic error.
 
 ### `components/tools/ChatAssistant.tsx` + `app/api/manu/route.ts` — live Manu
-- Sends only the current message; no conversation is stored or forwarded as history.
-- `lib/manu-safety.ts` runs the existing crisis match before Anthropic and returns the unchanged
-  Tele-MANAS/112 escalation plus `/crisis?sos=true` link without calling the model.
-- Missing provider configuration fails visibly instead of simulating an AI answer.
+- "Manu", the AI chat launcher in the **bottom-right** corner of every page (the minimised
+  safety pill has bottom-left; the blog reading-time pill sits bottom-centre).
+- Multi-turn: the client sends `{ messages: [{role: "user"|"assistant", content}] }`, the whole
+  conversation so far. It lives only in component state (never stored, gone on reload). The
+  greeting and local error notes are marked `local` and never sent. The server validates every
+  turn (roles, length caps 1000/2000), keeps the last 16, and requires the last to be the user's.
+  The old `{ message }` body still works.
+- The system prompt carries Emoraa facts read from `lib/price-claims`, `lib/pricing`,
+  `lib/languages`, `lib/site` and the booking policy, so chat answers match the pages.
+- `lib/manu-safety.ts` runs the existing crisis match on the latest message before Anthropic and
+  returns the unchanged Tele-MANAS/112 escalation plus `/crisis?sos=true` link without calling the model.
+- Missing provider configuration (`ANTHROPIC_API_KEY`) fails visibly instead of simulating an AI answer.
 
 ---
 
@@ -949,7 +957,7 @@ All handlers live in `app/api/**/route.ts`. All accept/return JSON. Auth = `emor
 | `/api/profile/avatar/[file]` | GET | session | Serve an uploaded avatar — owner, their practitioner, or admin only |
 | `/api/profile/phone/request` | POST | session | Request OTP to confirm saved profile phone |
 | `/api/profile/phone/verify` | POST | session | Confirm ownership of saved profile phone |
-| `/api/manu` | POST | none | Crisis pre-filter, then stateless Claude response |
+| `/api/manu` | POST | none | Crisis pre-filter, then a multi-turn Claude reply (client sends the conversation) |
 | `/api/bookings` | POST | session | Create booking |
 | `/api/bookings` | GET | session | List own bookings |
 | `/api/bookings/[id]` | PATCH | session | Cancel booking |

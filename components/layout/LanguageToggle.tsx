@@ -37,7 +37,7 @@ export default function LanguageToggle({ className }: { className?: string }) {
       aria-label={`${LANGUAGE_NAME[other]} — switch language`}
       title={LANGUAGE_NAME[other]}
       className={cn(
-        "press shrink-0 rounded-full border border-forest-800/20 px-3 py-1.5 text-[0.82rem] font-semibold text-forest-800 transition-colors hover:border-forest-800 hover:bg-forest-800 hover:text-ivory",
+        "press shrink-0 rounded-full border border-forest-800/20 px-3 py-1.5 text-small font-semibold text-forest-800 transition-colors hover:border-forest-800 hover:bg-forest-800 hover:text-ivory",
         className
       )}
     >

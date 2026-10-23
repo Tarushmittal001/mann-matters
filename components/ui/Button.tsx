@@ -14,8 +14,8 @@ type Size = "sm" | "md";
  * leave the winner to stylesheet order rather than to the caller.
  */
 const sizes: Record<Size, string> = {
-  sm: "px-5 py-2.5 text-[0.88rem]",
-  md: "px-7 py-3.5 text-[0.95rem]",
+  sm: "px-5 py-2.5 text-small",
+  md: "px-7 py-3.5 text-body",
 };
 
 const styles: Record<Variant, string> = {

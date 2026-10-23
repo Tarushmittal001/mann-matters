@@ -7,10 +7,15 @@ import { site } from "@/lib/site";
 import { useLocale } from "@/lib/i18n/client";
 import { chromeCopy } from "@/lib/i18n/chrome";
 
-/** A stateless on-site assistant. Crisis routing is enforced by the API before Claude. */
+/**
+ * Manu, the AI chat in the bottom-right corner of every page. The conversation
+ * lives only in this component's state: nothing is stored, and it is gone on a
+ * reload. Crisis routing is enforced by the API before any AI call.
+ */
 
 type Link2 = { label: string; href: string; external?: boolean };
-type Msg = { from: "bot" | "user"; text: string; link?: Link2 };
+/** `local`: shown here but never sent to the model (the greeting, our own error notes). */
+type Msg = { from: "bot" | "user"; text: string; link?: Link2; local?: boolean };
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -18,12 +23,12 @@ export default function ChatAssistant() {
   const locale = useLocale();
   const c = chromeCopy(locale).chat;
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState<Msg[]>([{ from: "bot", text: c.greeting }]);
+  const [messages, setMessages] = useState<Msg[]>([{ from: "bot", text: c.greeting, local: true }]);
 
   // the assistant outlives page changes; until the conversation starts, its
   // greeting follows the language of the page it is on
   useEffect(() => {
-    setMessages((m) => (m.length === 1 && m[0].from === "bot" ? [{ from: "bot", text: c.greeting }] : m));
+    setMessages((m) => (m.length === 1 && m[0].from === "bot" ? [{ from: "bot", text: c.greeting, local: true }] : m));
   }, [c.greeting]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
@@ -50,6 +55,10 @@ export default function ChatAssistant() {
   const send = async (text: string) => {
     const clean = text.trim();
     if (!clean || typing) return;
+    // the whole conversation goes each time, so Manu can follow it
+    const history = [...messages, { from: "user" as const, text: clean }]
+      .filter((m) => !m.local)
+      .map((m) => ({ role: m.from === "user" ? "user" : "assistant", content: m.text }));
     setMessages((m) => [...m, { from: "user", text: clean }]);
     setInput("");
     setTyping(true);
@@ -58,7 +67,7 @@ export default function ChatAssistant() {
       const response = await fetch("/api/manu", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: clean }),
+        body: JSON.stringify({ messages: history }),
       });
       const data = await response.json().catch(() => ({}));
       if (typeof data.error === "string") failureMessage = data.error;
@@ -73,6 +82,7 @@ export default function ChatAssistant() {
         {
           from: "bot",
           text: failureMessage,
+          local: true,
           link: { label: c.whatsapp, href: site.whatsapp, external: true },
         },
       ]);
@@ -82,7 +92,11 @@ export default function ChatAssistant() {
   };
 
   return (
-    <div className="support-launcher fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 z-50 sm:bottom-6 sm:left-6">
+    <div
+      // an open chat is not hidden behind a bottom sheet, and sits above it (globals.css)
+      data-open={open ? "" : undefined}
+      className={`support-launcher fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-[max(1rem,env(safe-area-inset-left))] sm:bottom-6 sm:left-6 ${open ? "z-[80]" : "z-50"}`}
+    >
       <AnimatePresence>
         {open && (
           <motion.div
@@ -102,14 +116,14 @@ export default function ChatAssistant() {
                 close();
               }
             }}
-            className="absolute bottom-16 left-0 flex h-[min(30rem,calc(100dvh-6rem))] w-[calc(100vw-2rem)] max-w-[22rem] flex-col overflow-hidden rounded-2xl border border-forest-800/10 bg-ivory-light shadow-bloom sm:w-[22rem]"
+            className="absolute bottom-16 right-0 flex h-[min(30rem,calc(100dvh-6rem))] w-[calc(100vw-2rem)] max-w-[22rem] flex-col overflow-hidden rounded-2xl border border-forest-800/10 bg-ivory-light shadow-bloom sm:w-[22rem]"
           >
             {/* header */}
             <div className="flex items-center gap-3 bg-forest-900 px-5 py-4">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 font-deva text-base text-ivory" aria-hidden="true">मन</span>
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 font-deva text-body text-ivory" aria-hidden="true">मन</span>
               <div className="leading-tight">
-                <h2 id="assistant-title" className="text-sm font-semibold text-ivory">{c.title}</h2>
-                <p id="assistant-subtitle" className="text-[0.75rem] text-sage-light/70">{c.subtitle}</p>
+                <h2 id="assistant-title" className="text-small font-semibold text-ivory">{c.title}</h2>
+                <p id="assistant-subtitle" className="text-small text-sage-light/70">{c.subtitle}</p>
               </div>
             </div>
 
@@ -121,7 +135,7 @@ export default function ChatAssistant() {
               aria-live="polite"
               aria-relevant="additions"
               aria-label={c.conversation}
-              className="flex-1 space-y-3 overflow-y-auto px-4 py-4 text-[0.88rem]"
+              className="flex-1 space-y-3 overflow-y-auto px-4 py-4 text-small"
             >
               {messages.map((m, i) => (
                 <div key={i} className={m.from === "user" ? "flex justify-end" : "flex justify-start"}>
@@ -161,7 +175,7 @@ export default function ChatAssistant() {
               {messages.length === 1 && !typing && (
                 <div className="flex flex-wrap gap-2 pt-1">
                   {c.quick.map((q) => (
-                    <button key={q} onClick={() => send(q)} className="rounded-full border border-forest-800/15 bg-ivory px-3 py-1.5 text-[0.78rem] text-forest-700 transition-colors hover:border-forest-600 hover:bg-sage-light/30">
+                    <button key={q} onClick={() => send(q)} className="rounded-full border border-forest-800/15 bg-ivory px-3 py-1.5 text-small text-forest-700 transition-colors hover:border-forest-600 hover:bg-sage-light/30">
                       {q}
                     </button>
                   ))}
@@ -181,7 +195,7 @@ export default function ChatAssistant() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={c.placeholder}
-                className="w-full rounded-full border border-forest-800/15 bg-ivory-light px-4 py-2.5 text-sm text-forest-900 placeholder:text-ink/70 focus:border-gold focus:outline-none"
+                className="w-full rounded-full border border-forest-800/15 bg-ivory-light px-4 py-2.5 text-small text-forest-900 placeholder:text-ink/70 focus:border-gold focus:outline-none"
               />
               <button type="submit" aria-label={c.send} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-forest-800 text-ivory transition-colors hover:bg-forest-700">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">

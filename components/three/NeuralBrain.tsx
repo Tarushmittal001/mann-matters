@@ -95,12 +95,12 @@ const CALLOUTS: {
    * box AWAY from the brain — never onto it.
    */
   w: number;
-  /** Title size in rem. Mixed widely on purpose: one uniform size reads as a key. */
-  fs: number;
   /**
    * How present the word is, 0–1. Nearer thoughts are clear, further ones
-   * faint. Uniform opacity is the other half of what made these read as a
-   * legend rather than as things somebody is half-thinking.
+   * faint. Uniform opacity is what made these read as a legend rather than as
+   * things somebody is half-thinking. It is now the only depth cue: the words
+   * also varied in size until the page moved to a three-size type scale
+   * (tailwind.config.ts).
    */
   dim: number;
   also: string;
@@ -119,14 +119,14 @@ const CALLOUTS: {
   /** Index into REGIONS: the colour, and the region the node actually sits in. */
   reg: number;
 }[] = [
-  { label: "Anxiety",         w: 130, fs: 1.10, dim: 1.00, also: "worry that won't stop", x: 190, y: 175, side: "l", ax: 112, ay: 142, href: "/services/individual-therapy",    reg: 0 },
-  { label: "Low mood",        w: 100, fs: 0.86, dim: 0.72, also: "",                       x: 120, y: 245, side: "l", ax:  54, ay: 236, href: "/services/individual-therapy",    reg: 1 },
-  { label: "Exam stress",     w: 106, fs: 0.95, dim: 0.85, also: "the week before",        x: 135, y: 330, side: "l", ax:  61, ay: 322, href: "/services/student-support",       reg: 0 },
-  { label: "Career worry",    w:  96, fs: 0.80, dim: 0.62, also: "",                       x: 280, y: 430, side: "l", ax: 164, ay: 442, href: "/services/career-counselling",    reg: 4 },
-  { label: "Family pressure", w: 132, fs: 0.95, dim: 0.85, also: "",                       x: 390, y: 185, side: "r", ax: 542, ay: 178, href: "/services/family-therapy",        reg: 2 },
-  { label: "Love life",       w: 101, fs: 1.10, dim: 1.00, also: "it keeps hurting",       x: 495, y: 262, side: "r", ax: 560, ay: 268, href: "/services/love-life-counselling", reg: 5 },
-  { label: "Burnout",         w:  82, fs: 0.85, dim: 0.70, also: "",                       x: 495, y: 375, side: "r", ax: 562, ay: 366, href: "/services/daily-life-stress",     reg: 6 },
-  { label: "Can't sleep",     w:  97, fs: 0.80, dim: 0.62, also: "awake at 2am",           x: 420, y: 470, side: "r", ax: 525, ay: 452, href: "/services/sleep-programme",       reg: 7 },
+  { label: "Anxiety",         w: 130, dim: 1.00, also: "worry that won't stop", x: 190, y: 175, side: "l", ax: 112, ay: 142, href: "/services/individual-therapy",    reg: 0 },
+  { label: "Low mood",        w: 100, dim: 0.72, also: "",                       x: 120, y: 245, side: "l", ax:  54, ay: 236, href: "/services/individual-therapy",    reg: 1 },
+  { label: "Exam stress",     w: 106, dim: 0.85, also: "the week before",        x: 135, y: 330, side: "l", ax:  61, ay: 322, href: "/services/student-support",       reg: 0 },
+  { label: "Career worry",    w:  96, dim: 0.62, also: "",                       x: 280, y: 430, side: "l", ax: 164, ay: 442, href: "/services/career-counselling",    reg: 4 },
+  { label: "Family pressure", w: 132, dim: 0.85, also: "",                       x: 390, y: 185, side: "r", ax: 542, ay: 178, href: "/services/family-therapy",        reg: 2 },
+  { label: "Love life",       w: 101, dim: 1.00, also: "it keeps hurting",       x: 495, y: 262, side: "r", ax: 560, ay: 268, href: "/services/love-life-counselling", reg: 5 },
+  { label: "Burnout",         w:  82, dim: 0.70, also: "",                       x: 495, y: 375, side: "r", ax: 562, ay: 366, href: "/services/daily-life-stress",     reg: 6 },
+  { label: "Can't sleep",     w:  97, dim: 0.62, also: "awake at 2am",           x: 420, y: 470, side: "r", ax: 525, ay: 452, href: "/services/sleep-programme",       reg: 7 },
 ];
 
 /** Two lines plus padding. Fixed, because text does not scale with the brain. */
@@ -1028,8 +1028,8 @@ export default function NeuralBrain({ labels = true }: { labels?: boolean } = {}
                     }}
                   />
                   <span
-                    className="block whitespace-nowrap font-semibold leading-tight text-forest-900 group-hover:underline group-hover:underline-offset-4"
-                    style={{ fontSize: `${c.fs}rem`, textDecorationColor: reg.hex }}
+                    className="block whitespace-nowrap text-small font-semibold leading-tight text-forest-900 group-hover:underline group-hover:underline-offset-4"
+                    style={{ textDecorationColor: reg.hex }}
                   >
                     <span className="relative">{c.label}</span>
                   </span>
@@ -1037,7 +1037,7 @@ export default function NeuralBrain({ labels = true }: { labels?: boolean } = {}
                 {/* Only half of them carry one. Term-plus-caption on all eight
                     is what made the set scan as a legend. */}
                 {c.also && (
-                  <span className="mt-0.5 block whitespace-nowrap text-[0.68rem] leading-tight text-ink/55">
+                  <span className="mt-0.5 block whitespace-nowrap text-small leading-tight text-ink/70">
                     {c.also}
                   </span>
                 )}

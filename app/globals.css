@@ -86,7 +86,7 @@
   }
 
   .eyebrow {
-    @apply text-[0.75rem] font-semibold uppercase tracking-[0.22em] text-forest-600;
+    @apply text-small font-semibold uppercase tracking-[0.18em] text-forest-600;
   }
 
   .h-display {
@@ -217,10 +217,19 @@
     font-size: 16px !important;
   }
 
-  body:has([data-safety-notice]) .support-launcher,
-  body:has([data-bottom-sheet]) .support-launcher {
+  /* on a phone the safety pill and the launchers crowd the same strip, so the
+     launchers wait while it shows; a chat somebody has opened stays */
+  body:has([data-safety-notice]) .support-launcher:not([data-open]) {
     display: none;
   }
+}
+
+/* One thing at the bottom of the screen at a time, at every width: while the
+   cookie question or the install prompt is showing, the launchers wait. On a
+   laptop the install prompt sits exactly over the bottom-right one. A chat
+   somebody has opened (a "Talk to Manu" button) stays, above the sheet. */
+body:has([data-bottom-sheet]) .support-launcher:not([data-open]) {
+  display: none;
 }
 
 

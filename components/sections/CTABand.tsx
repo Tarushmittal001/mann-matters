@@ -21,12 +21,12 @@ export default function CTABand() {
             <span className="font-deva normal-case tracking-normal text-gold" aria-hidden="true">मन</span>{" "}
             whenever you&apos;re ready
           </p>
-          <h2 className="h-display text-5xl text-ivory md:text-[4.5rem]">
+          <h2 className="h-display text-heading text-ivory ">
             Begin your journey.
             <br />
             <span className="italic text-sage">Gently.</span>
           </h2>
-          <p className="mt-7 max-w-xl text-lg leading-relaxed text-sage-light/80">
+          <p className="mt-7 max-w-xl text-body leading-relaxed text-sage-light/80">
             The first session is just a conversation. No commitment, no
             diagnosis on day one, no one else needs to know. Time that is
             entirely yours.

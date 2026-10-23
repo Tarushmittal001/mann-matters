@@ -95,13 +95,13 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.1, ease: EASE }}
         >
-          <span className="font-deva text-base normal-case tracking-normal text-gold" aria-hidden="true">
+          <span className="font-deva text-body normal-case tracking-normal text-gold" aria-hidden="true">
             मन
           </span>
           therapy & counselling, made for India
         </motion.p>
 
-        <h1 className="h-display max-w-4xl text-[clamp(2.25rem,6vw,3.75rem)]">
+        <h1 className="h-display max-w-4xl text-display">
           {/* "your" stays upright; "emotions" and "matter." carry the accent
               together. Two instances rather than one, because MaskedWords
               styles a whole string — the delays continue the 0.09s per-word
@@ -137,7 +137,7 @@ export default function Hero() {
             is what carries "wide range", and it does it with words a reader
             does not have to work at.
           */}
-          <p className="text-lg leading-snug text-ink/70 md:text-xl">
+          <p className="text-body leading-snug text-ink/70 ">
             <span className="font-medium text-forest-900">
               Emoraa is an online therapy platform for India.
             </span>{" "}
@@ -156,12 +156,18 @@ export default function Hero() {
             lets the left column be the calm half of a hero that already has a
             700px brain in it.
           */}
-          <p className="mt-7 border-b border-forest-800/15 pb-5 text-[0.95rem] leading-relaxed text-ink/70">
+          <p className="mt-7 border-b border-forest-800/15 pb-5 text-body leading-relaxed text-ink/70">
             <span className="font-medium text-forest-900">First session free</span>
             <span className="mx-2 text-ink/30">·</span>
             then from <span className="font-medium text-forest-900">₹599</span>
             <span className="mx-2 text-ink/30">·</span>
             in <span className="font-medium text-forest-900">your language</span>
+            {/* the terms of the free session, said where it is offered: the
+                booking flow enforces exactly this (proBonoStatus in
+                lib/features/booking/server.ts) */}
+            <span className="mt-1.5 block text-small">
+              One free session per person. You&apos;ll need to verify your phone number.
+            </span>
           </p>
         </motion.div>
 
@@ -195,7 +201,7 @@ export default function Hero() {
         transition={{ delay: 2, duration: 1 }}
         aria-hidden="true"
       >
-        <span className="text-[0.75rem] uppercase tracking-[0.3em] text-forest-800/50">scroll</span>
+        <span className="text-small uppercase tracking-[0.3em] text-forest-800/50">scroll</span>
         <motion.span
           className="block h-10 w-px bg-forest-800/30"
           animate={{ scaleY: [1, 0.4, 1] }}

@@ -45,7 +45,7 @@ function Languages({ live, region }: Live) {
       <AnimatePresence mode="wait">
         <motion.span
           key={i}
-          className={`absolute left-0 top-0 inline-block whitespace-nowrap rounded-2xl rounded-bl-sm px-3 py-1.5 text-[0.8rem] font-medium ${i === 1 ? "font-deva" : ""}`}
+          className={`absolute left-0 top-0 inline-block whitespace-nowrap rounded-2xl rounded-bl-sm px-3 py-1.5 text-small font-medium ${i === 1 ? "font-deva" : ""}`}
           style={{ backgroundColor: tint(region, 0.2), color: region.hex }}
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
@@ -112,7 +112,7 @@ function Streak({ live, region }: Live) {
         ))}
       </div>
       <motion.span
-        className="rounded-full px-2 py-0.5 text-[0.75rem] font-semibold uppercase tracking-wide text-forest-950"
+        className="rounded-full px-2 py-0.5 text-small font-semibold uppercase tracking-wide text-forest-950"
         style={{ backgroundColor: region.hex }}
         animate={{ scale: done ? 1 : 0.6, opacity: done ? 1 : 0 }}
         transition={{ type: "spring", stiffness: 420, damping: 18 }}
@@ -142,7 +142,7 @@ function Breathe({ live, region }: Live) {
         />
         <span className="relative h-2.5 w-2.5 rounded-full" style={{ backgroundColor: region.hex }} />
       </span>
-      <span className="text-[0.8rem] font-medium" style={{ color: region.hex }}>
+      <span className="text-small font-medium" style={{ color: region.hex }}>
         {live ? (phase === "in" ? "Breathe in…" : "…and out") : "Breathe"}
       </span>
     </div>
@@ -213,7 +213,7 @@ export default function ManuOnWhatsApp() {
                 </span>
                 on whatsapp, 24x7
               </p>
-              <h2 className="h-display text-4xl !text-ivory md:text-5xl lg:text-[3.4rem]">
+              <h2 className="h-display text-heading !text-ivory">
                 Meet Manu — your <em className="italic text-sage">4 a.m. dost</em>
               </h2>
               <p className="mt-4 max-w-md leading-relaxed text-sage-light/75">
@@ -234,11 +234,11 @@ export default function ManuOnWhatsApp() {
                 >
                   <div className={t.wide ? "sm:flex sm:items-center sm:justify-between sm:gap-6" : ""}>
                     <div className={t.wide ? "mb-3 sm:mb-0" : "mb-3"}>
-                      <h3 className="flex items-center gap-2 font-display text-[1.05rem] font-medium text-ivory">
+                      <h3 className="flex items-center gap-2 font-display text-body font-medium text-ivory">
                         <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: t.region.hex }} aria-hidden="true" />
                         {t.title}
                       </h3>
-                      <p className="mt-0.5 text-[0.82rem] text-sage-light/65">{t.line}</p>
+                      <p className="mt-0.5 text-small text-sage-light/65">{t.line}</p>
                     </div>
                     <div className={t.wide ? "sm:shrink-0" : ""}>
                       <t.Art live={live} region={t.region} />
@@ -250,7 +250,7 @@ export default function ManuOnWhatsApp() {
 
             {/* the WhatsApp and sign-in buttons now live inside the chat card */}
             <Reveal from="right" delay={0.15}>
-              <p className="mt-6 max-w-sm text-xs leading-relaxed text-sage-light/60">
+              <p className="mt-6 max-w-sm text-small leading-relaxed text-sage-light/60">
                 In an emergency Manu hands you to{" "}
                 <strong className="font-semibold text-ivory">Tele-MANAS, 14416</strong>, free and 24x7.
               </p>

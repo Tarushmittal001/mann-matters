@@ -51,13 +51,13 @@ export default function TalkBar() {
                 <span
                   className={
                     line.accent
-                      ? "font-display text-lg italic text-gold md:text-xl"
-                      : "font-display text-lg italic text-ivory/85 md:text-xl"
+                      ? "font-display text-body italic text-gold "
+                      : "font-display text-body italic text-ivory/85 "
                   }
                 >
                   {line.text}
                 </span>
-                <span className="mx-8 font-deva text-base text-gold/60" aria-hidden="true">
+                <span className="mx-8 font-deva text-body text-gold/60" aria-hidden="true">
                   मन
                 </span>
               </li>
@@ -71,7 +71,7 @@ export default function TalkBar() {
         <Link
           href="/book?free=1"
           aria-label="Consult now — your first session is free"
-          className="group/btn inline-flex items-center gap-2.5 rounded-full bg-gold py-2 pl-2 pr-4 text-[0.88rem] font-semibold text-forest-950 shadow-bloom transition duration-300 ease-silk hover:-translate-y-0.5 hover:bg-gold-light md:pr-5 md:text-[0.95rem]"
+          className="group/btn inline-flex items-center gap-2.5 rounded-full bg-gold py-2 pl-2 pr-4 text-body font-semibold text-forest-950 shadow-bloom transition duration-300 ease-silk hover:-translate-y-0.5 hover:bg-gold-light md:pr-5 "
         >
           <span className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-forest-900 text-gold">
             {/* a speech bubble — a conversation, not a transaction */}

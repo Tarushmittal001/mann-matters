@@ -36,7 +36,7 @@ function navLabel(t: Copy, href: string, fallback: string): string {
 const DARK_TOP = ["/breathe"];
 
 const linkBase =
-  "link-draw whitespace-nowrap text-[0.9rem] font-medium tracking-wide text-forest-800/75 transition-colors hover:text-forest-900";
+  "link-draw whitespace-nowrap text-small font-medium tracking-wide text-forest-800/75 transition-colors hover:text-forest-900";
 
 /** The "Free tools" dropdown. */
 function NavMenu({
@@ -91,7 +91,7 @@ function NavMenu({
         aria-expanded={open}
         aria-haspopup="true"
         className={cn(
-          "flex items-center gap-1.5 whitespace-nowrap text-[0.9rem] font-medium tracking-wide text-forest-800/75 transition-colors hover:text-forest-900",
+          "flex items-center gap-1.5 whitespace-nowrap text-small font-medium tracking-wide text-forest-800/75 transition-colors hover:text-forest-900",
           active && "text-forest-900"
         )}
       >
@@ -122,7 +122,7 @@ function NavMenu({
               tabIndex={0}
               className="rail max-h-[min(26rem,calc(100vh-8rem))] overflow-y-auto overscroll-contain rounded-2xl border border-forest-800/10 bg-ivory-light p-2 shadow-bloom"
             >
-              <p className="px-3 pb-1 pt-2 text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-forest-600">
+              <p className="px-3 pb-1 pt-2 text-small font-semibold uppercase tracking-[0.18em] text-forest-600">
                 {eyebrow}
               </p>
               <div className={cn(columns === 2 && "grid grid-cols-2 gap-x-1")}>
@@ -133,8 +133,8 @@ function NavMenu({
                     onClick={() => onOpen(false)}
                     className="flex flex-col rounded-xl px-3 py-2.5 transition-colors hover:bg-sage-light/40"
                   >
-                    <span className="text-sm font-semibold text-forest-900">{t.label}</span>
-                    {t.desc && <span className="text-xs text-ink/70">{t.desc}</span>}
+                    <span className="text-small font-semibold text-forest-900">{t.label}</span>
+                    {t.desc && <span className="text-small text-ink/70">{t.desc}</span>}
                   </Link>
                 ))}
               </div>
@@ -175,9 +175,9 @@ function MobileGroup({
         aria-expanded={open}
         className="flex w-full items-center justify-between py-4 text-left"
       >
-        <span className="font-display text-[1.35rem] font-medium text-ivory sm:text-2xl">
+        <span className="font-display text-body font-medium text-ivory ">
           {label}
-          <span className="ml-2 align-middle text-[0.8rem] font-sans font-medium text-sage-light/50">
+          <span className="ml-2 align-middle text-small font-sans font-medium text-sage-light/50">
             {count}
           </span>
         </span>
@@ -206,11 +206,11 @@ function MobileGroup({
             <div className="grid gap-x-6 gap-y-3 pb-5 sm:grid-cols-2">
               {items.map((t) => (
                 <Link key={t.href} href={t.href} className="group/item block">
-                  <span className="font-display text-lg font-medium text-sage-light/90 transition-colors group-hover/item:text-gold">
+                  <span className="font-display text-body font-medium text-sage-light/90 transition-colors group-hover/item:text-gold">
                     {t.label}
                   </span>
                   {t.desc && (
-                    <span className="mt-0.5 block text-[0.8rem] leading-snug text-sage-light/55">
+                    <span className="mt-0.5 block text-small leading-snug text-sage-light/55">
                       {t.desc}
                     </span>
                   )}
@@ -420,7 +420,7 @@ export default function Navbar() {
             <Link
               href={`${path("/crisis")}?sos=true`}
               aria-label={t.nav.sosLabel}
-              className="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-red-600 px-4 py-2 text-[0.82rem] font-bold tracking-wide text-white transition-colors duration-300 hover:bg-red-700"
+              className="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-red-600 px-4 py-2 text-small font-bold tracking-wide text-white transition-colors duration-300 hover:bg-red-700"
             >
               <span className="relative flex h-1.5 w-1.5" aria-hidden="true">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/70" />
@@ -431,7 +431,7 @@ export default function Navbar() {
 
             <Link
               href={path("/book")}
-              className="shrink-0 whitespace-nowrap rounded-full bg-gold px-5 py-2.5 text-[0.86rem] font-semibold text-forest-950 transition duration-300 ease-silk hover:bg-gold-dark hover:shadow-lift"
+              className="shrink-0 whitespace-nowrap rounded-full bg-gold px-5 py-2.5 text-small font-semibold text-forest-950 transition duration-300 ease-silk hover:bg-gold-dark hover:shadow-lift"
             >
               {t.nav.book}
             </Link>
@@ -495,7 +495,7 @@ export default function Navbar() {
                   >
                     <Link
                       href={l.href}
-                      className="block py-1.5 font-display text-[1.75rem] font-medium leading-[1.35] text-ivory transition-colors hover:text-gold sm:text-4xl"
+                      className="block py-1.5 font-display text-heading font-medium leading-[1.35] text-ivory transition-colors hover:text-gold "
                     >
                       {l.label}
                     </Link>
@@ -533,7 +533,7 @@ export default function Navbar() {
               {accountLink && (
                 <Link
                   href={accountLink.href}
-                  className="mb-4 inline-flex items-center gap-2 text-[0.95rem] font-medium text-sage-light/85 transition-colors hover:text-ivory"
+                  className="mb-4 inline-flex items-center gap-2 text-body font-medium text-sage-light/85 transition-colors hover:text-ivory"
                 >
                   {accountLink.label}
                   <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -546,14 +546,14 @@ export default function Navbar() {
               <div className="flex items-center gap-3">
                 <Link
                   href={path("/book")}
-                  className="press flex-1 rounded-full bg-gold px-6 py-3.5 text-center text-[0.95rem] font-semibold text-forest-950"
+                  className="press flex-1 rounded-full bg-gold px-6 py-3.5 text-center text-body font-semibold text-forest-950"
                 >
                   {t.nav.book}
                 </Link>
                 <Link
                   href={`${path("/crisis")}?sos=true`}
                   aria-label={t.nav.sosLabel}
-                  className="press flex items-center gap-2 rounded-full bg-red-600 px-5 py-3.5 text-[0.9rem] font-bold text-white"
+                  className="press flex items-center gap-2 rounded-full bg-red-600 px-5 py-3.5 text-small font-bold text-white"
                 >
                   <span className="relative flex h-1.5 w-1.5" aria-hidden="true">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/70" />
@@ -565,7 +565,7 @@ export default function Navbar() {
             </motion.div>
 
             <motion.p
-              className="mt-6 text-sm text-sage-light/60"
+              className="mt-6 text-small text-sage-light/60"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
