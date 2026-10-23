@@ -161,7 +161,7 @@ export default function MadeInIndiaPage() {
           <Reveal>
             <p className="eyebrow mb-5 flex items-center gap-2.5">
               <span aria-hidden="true">🇮🇳</span>
-              built in India, for India
+              built in India, open to everyone
             </p>
             <h1 className="h-display max-w-4xl text-[clamp(2.6rem,7vw,5.5rem)]">
               Mental health works better when it&apos;s{" "}

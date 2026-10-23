@@ -16,6 +16,7 @@ model User {
   name          String
   firstName     String?
   lastName      String?
+  // asked at signup; a therapy service needs to know who it is treating
   /// Asked at signup. It decides whether a parent or guardian must agree to
   /// therapy, so it is a date, not a typed age, and it cannot be changed once
   /// they have booked (see /api/profile). Read ages through currentAge().

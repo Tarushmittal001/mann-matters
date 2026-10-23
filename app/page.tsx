@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Hero from "@/components/sections/Hero";
 import TalkBar from "@/components/sections/TalkBar";
-import TrustStrip from "@/components/sections/TrustStrip";
+import Concerns from "@/components/sections/Concerns";
 import ManuOnWhatsApp from "@/components/sections/ManuOnWhatsApp";
 import HowItWorks from "@/components/sections/HowItWorks";
 import WhyEmoraa from "@/components/sections/WhyEmoraa";
@@ -50,7 +50,10 @@ export default async function HomePage() {
       <Hero />
       {/* the free way in, straight after the promise */}
       <TalkBar />
-      <TrustStrip />
+
+      {/* the eight things people arrive with — the doors into the catalogue.
+          These used to orbit the brain in the hero; see Concerns.tsx. */}
+      <Concerns />
 
       {/* the objection that stops most people: "is this even for me?" */}
       <NotSure experts={experts} />

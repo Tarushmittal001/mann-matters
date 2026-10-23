@@ -10,6 +10,7 @@ import ChatAssistant from "@/components/tools/ChatAssistant";
 import SafetyNotice from "@/components/layout/SafetyNotice";
 import PublicChrome from "@/components/layout/PublicChrome";
 import CookieConsent from "@/components/layout/CookieConsent";
+import SizeLab from "@/components/dev/SizeLab";
 import { site } from "@/lib/site";
 
 const fraunces = Fraunces({
@@ -119,6 +120,10 @@ export default function RootLayout({
             <InstallApp />
             <CookieConsent />
           </PublicChrome>
+          {/* Resize things in the browser and save the list for the source to
+              be changed properly. Renders null outside development, and the
+              route it saves to 404s outside development. */}
+          <SizeLab />
         </Providers>
       </body>
     </html>

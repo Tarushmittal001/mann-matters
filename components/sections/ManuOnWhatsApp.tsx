@@ -213,7 +213,7 @@ export default function ManuOnWhatsApp() {
                 </span>
                 on whatsapp, 24x7
               </p>
-              <h2 className="h-display text-4xl !text-ivory md:text-5xl">
+              <h2 className="h-display text-4xl !text-ivory md:text-5xl lg:text-[3.4rem]">
                 Meet Manu — your <em className="italic text-sage">4 a.m. dost</em>
               </h2>
               <p className="mt-4 max-w-md leading-relaxed text-sage-light/75">
